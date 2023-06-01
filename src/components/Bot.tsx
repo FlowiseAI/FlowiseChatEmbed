@@ -1,6 +1,11 @@
-import { createSignal, createEffect, For } from 'solid-js'
+import { createSignal, createEffect, For, onMount } from 'solid-js'
 import { sendMessageQuery } from '@/queries/sendMessageQuery'
 import { TextInput } from './inputs/textInput'
+import { GuestBubble } from './bubbles/GuestBubble'
+import { BotBubble } from './bubbles/BotBubble'
+import { LoadingBubble } from './bubbles/LoadingBubble'
+import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types'
+import { Badge } from './Badge'
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -12,28 +17,40 @@ export type MessageType = {
 export type BotProps = {
     chatflowid: string
     apiHost?: string
+    welcomeMessage?: string
+    botMessage?: BotMessageTheme
+    userMessage?: UserMessageTheme
+    textInput?: TextInputTheme
+    poweredByTextColor?: string
 }
 
-export const Bot = (props: BotProps) => {
-    let ps: HTMLDivElement | undefined
+const defaultWelcomeMessage = 'Hi there! How can I help?'
+
+export const Bot = (props: BotProps & { class?: string }) => {
+    let chatContainer: HTMLDivElement | undefined
+    let bottomSpacer: HTMLDivElement | undefined
+    let botContainer: HTMLDivElement | undefined
 
     const [userInput, setUserInput] = createSignal('')
     const [loading, setLoading] = createSignal(false)
     const [messages, setMessages] = createSignal<MessageType[]>([
         {
-            message: 'Hi there! How can I help?',
+            message: props.welcomeMessage ?? defaultWelcomeMessage,
             type: 'apiMessage'
-        }
+        },
     ])
+
+    onMount(() => {
+        if (!bottomSpacer) return
+        setTimeout(() => {
+            chatContainer?.scrollTo(0, chatContainer.scrollHeight)
+        }, 50)
+    })
 
     const scrollToBottom = () => {
         setTimeout(() => {
-            ps?.scrollTo(0, ps.scrollHeight)
+            chatContainer?.scrollTo(0, chatContainer.scrollHeight)
         }, 50)
-        /*if (ps.current) {
-          const curr: any = ps.current
-          curr.scrollTo({ top: 1000000, behavior: 'smooth' })
-        }*/
     }
 
     // Handle errors
@@ -41,6 +58,7 @@ export const Bot = (props: BotProps) => {
         setMessages((prevMessages) => [...prevMessages, { message, type: 'apiMessage' }])
         setLoading(false)
         setUserInput('')
+        scrollToBottom()
     }
 
     // Handle form submission
@@ -53,6 +71,7 @@ export const Bot = (props: BotProps) => {
 
         setLoading(true)
         setMessages((prevMessages) => [...prevMessages, { message: value, type: 'userMessage' }])
+        scrollToBottom()
 
         // Send user question and history to API
         const { data, error } = await sendMessageQuery({
@@ -60,19 +79,15 @@ export const Bot = (props: BotProps) => {
             apiHost: props.apiHost,
             body: {
                 question: value,
-                history: messages().filter((msg) => msg.message !== 'Hi there! How can I help?')
+                history: messages().filter((msg) => msg.message !== props.welcomeMessage ?? defaultWelcomeMessage)
             }
         })
-
-        console.log(data)
 
         if (data) {
             setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
             setLoading(false)
             setUserInput('')
-            setTimeout(() => {
-                scrollToBottom()
-            }, 100)
+            scrollToBottom()
         }
         if (error) {
             console.error(error)
@@ -94,7 +109,7 @@ export const Bot = (props: BotProps) => {
             setLoading(false)
             setMessages([
                 {
-                    message: 'Hi there! How can I help?',
+                    message: props.welcomeMessage ?? defaultWelcomeMessage,
                     type: 'apiMessage'
                 }
             ])
@@ -103,53 +118,57 @@ export const Bot = (props: BotProps) => {
 
     return (
         <>
-            <div class='cloud'>
-                <div ref={ps} class='messagelist'>
-                    <For each={messages()}>
-                        {(message, index) => (
-                            // The latest message sent by the user will be animated while waiting for a response
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    'align-items': 'center',
-                                    background: message.type === 'apiMessage' ? '#f7f8ff' : ''
-                                }}
-                                class={
-                                    message.type === 'userMessage' && loading() && index() === messages().length - 1
-                                        ? 'usermessagewaiting-light'
-                                        : message.type === 'usermessagewaiting'
-                                        ? 'apimessage'
-                                        : 'usermessage'
-                                }
-                            >
-                                {/* Display the correct icon depending on the message type */}
-                                {message.type === 'apiMessage' ? (
-                                    <img
-                                        src='https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/parroticon.png'
-                                        alt='AI'
-                                        width='30'
-                                        height='30'
-                                        class='boticon'
-                                    />
-                                ) : (
-                                    <img
-                                        src='https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png'
-                                        alt='Me'
-                                        width='30'
-                                        height='30'
-                                        class='usericon'
-                                    />
-                                )}
-                                <div class='markdownanswer'>
-                                    {/* Messages are being rendered in Markdown format */}
-                                    <span style={{ 'font-family': 'Poppins, sans-serif' }}>{message.message}</span>
-                                </div>
-                            </div>
-                        )}
-                    </For>
+            <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
+                <div class="flex w-full h-full justify-center">
+                    <div ref={chatContainer} class="overflow-y-scroll w-full min-h-full px-3 pt-10 pb-20 relative scrollable-container chatbot-chat-view scroll-smooth">
+                        <For each={[...messages()]}>
+                            {(message, index) => (
+                                <>
+                                    {message.type === 'userMessage' && (
+                                        <GuestBubble
+                                            message={message.message}
+                                            backgroundColor={props.userMessage?.backgroundColor}
+                                            textColor={props.userMessage?.textColor}
+                                            showAvatar={props.userMessage?.showAvatar}
+                                            avatarSrc={props.userMessage?.avatarSrc}
+                                        />
+                                    )}
+                                    {message.type === 'apiMessage' && (
+                                        <BotBubble
+                                            message={message.message}
+                                            backgroundColor={props.botMessage?.backgroundColor}
+                                            textColor={props.botMessage?.textColor}
+                                            showAvatar={props.botMessage?.showAvatar}
+                                            avatarSrc={props.botMessage?.avatarSrc}
+                                        />
+                                    )}
+                                    {message.type === 'userMessage' && loading() && index() === messages().length - 1 && (
+                                        <LoadingBubble />
+                                    )}
+                                </>
+                            )}
+                        </For>
+                    </div>
+                    <TextInput
+                        backgroundColor={props.textInput?.backgroundColor}
+                        textColor={props.textInput?.textColor}
+                        placeholder={props.textInput?.placeholder}
+                        sendButtonColor={props.textInput?.sendButtonColor}
+                        defaultValue={userInput()}
+                        onSubmit={handleSubmit}
+                    />
                 </div>
+                <Badge poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
+                <BottomSpacer ref={bottomSpacer} />
             </div>
-            <TextInput defaultValue={userInput()} onSubmit={handleSubmit} />
         </>
     )
 }
+
+type BottomSpacerProps = {
+    ref: HTMLDivElement | undefined
+}
+const BottomSpacer = (props: BottomSpacerProps) => {
+    return <div ref={props.ref} class="w-full h-32" />
+}
+  

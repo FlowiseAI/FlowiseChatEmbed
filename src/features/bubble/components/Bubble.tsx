@@ -47,7 +47,14 @@ export const Bubble = (props: BubbleProps) => {
                 }
             >
                 <Show when={isBotStarted()}>
-                    <Bot chatflowid={props.chatflowid} apiHost={props.apiHost} />
+                    <Bot
+                        welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
+                        poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
+                        textInput={bubbleProps.theme?.chatWindow?.textInput}
+                        botMessage={bubbleProps.theme?.chatWindow?.botMessage}
+                        userMessage={bubbleProps.theme?.chatWindow?.userMessage}
+                        chatflowid={props.chatflowid}
+                        apiHost={props.apiHost} />
                 </Show>
             </div>
         </>
