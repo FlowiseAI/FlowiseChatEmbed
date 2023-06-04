@@ -30,6 +30,15 @@
     --PhoneInputCountryFlag-borderColor: transparent;
     --PhoneInput-color--focus: transparent;
   }
+
+  a {
+    color: #16bed7;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
   
   /* Hide scrollbar for Chrome, Safari and Opera */
   .scrollable-container::-webkit-scrollbar {

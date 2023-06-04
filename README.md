@@ -59,6 +59,8 @@ You can also customize chatbot with different configuration
       chatWindow: {
         welcomeMessage: "Hello! This is custom welcome message",
         backgroundColor: "#ffffff",
+        height: 700,
+        width: 400,
         poweredByTextColor: "#303235",
         botMessage: {
           backgroundColor: "#f7f8ff",
