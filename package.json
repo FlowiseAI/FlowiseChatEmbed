@@ -15,10 +15,8 @@
     "dependencies": {
         "@babel/core": "^7.22.1",
         "@ts-stack/markdown": "^1.4.0",
-        "@udecode/plate-common": "^20.4.0",
         "solid-element": "1.7.0",
-        "solid-js": "1.7.1",
-        "zod": "^3.21.4"
+        "solid-js": "1.7.1"
     },
     "devDependencies": {
         "@babel/preset-typescript": "7.21.4",
