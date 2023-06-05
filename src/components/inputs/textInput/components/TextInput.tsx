@@ -4,9 +4,16 @@ import { isMobile } from '@/utils/isMobileSignal'
 import { createSignal, onMount } from 'solid-js'
 
 type Props = {
+    placeholder?: string
+    backgroundColor?: string
+    textColor?: string
+    sendButtonColor?: string
     defaultValue?: string
     onSubmit: (value: string) => void
 }
+
+const defaultBackgroundColor = '#ffffff'
+const defaultTextColor = '#303235'
 
 export const TextInput = (props: Props) => {
     const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '')
@@ -35,11 +42,12 @@ export const TextInput = (props: Props) => {
             data-testid='input'
             style={{
                 'border-top': '1px solid #eeeeee',
-                width: '100%',
+                width: '90%',
                 position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0
+                bottom: '40px',
+                margin: 'auto',
+                "background-color": props.backgroundColor ?? defaultBackgroundColor,
+                color: props.textColor ?? defaultTextColor
             }}
             onKeyDown={submitWhenEnter}
         >
@@ -47,9 +55,9 @@ export const TextInput = (props: Props) => {
                 ref={inputRef as HTMLInputElement}
                 onInput={handleInput}
                 value={inputValue()}
-                placeholder='Type your question'
+                placeholder={props.placeholder ?? 'Type your question'}
             />
-            <SendButton type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>
+            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
             </SendButton>
         </div>

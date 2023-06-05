@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps } from 'solid-js'
+import { createSignal, Show, splitProps, onMount } from 'solid-js'
 import styles from '../../../assets/index.css'
 import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'
@@ -6,11 +6,25 @@ import { Bot, BotProps } from '../../../components/Bot'
 
 export type BubbleProps = BotProps & BubbleParams
 
+const defaultHeight = '700'
+const defaultWidth = '400'
+
 export const Bubble = (props: BubbleProps) => {
     const [bubbleProps] = splitProps(props, ['theme'])
 
     const [isBotOpened, setIsBotOpened] = createSignal(false)
     const [isBotStarted, setIsBotStarted] = createSignal(false)
+    const [height, setHeight] = createSignal(defaultHeight)
+    const [width, setWidth] = createSignal(defaultWidth)
+
+    onMount(() => {
+        if (bubbleProps.theme?.chatWindow?.height) {
+            setHeight(bubbleProps.theme?.chatWindow?.height?.toString())
+        }
+        if (bubbleProps.theme?.chatWindow?.width) {
+            setWidth(bubbleProps.theme?.chatWindow?.width?.toString())
+        }
+    })
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
@@ -32,7 +46,8 @@ export const Bubble = (props: BubbleProps) => {
             <div
                 part='bot'
                 style={{
-                    height: 'calc(100% - 120px)',
+                    height: `${height()}px`,
+                    width: `${width()}px`,
                     transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
                     transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
@@ -41,13 +56,20 @@ export const Bubble = (props: BubbleProps) => {
                     'z-index': 42424242
                 }}
                 class={
-                    'fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]' +
+                    `fixed sm:right-5 rounded-lg w-full sm:w-[${width()}px] max-h-[${height()}px]` +
                     (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
                     (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
                 }
             >
                 <Show when={isBotStarted()}>
-                    <Bot chatflowid={props.chatflowid} apiHost={props.apiHost} />
+                    <Bot
+                        welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
+                        poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
+                        textInput={bubbleProps.theme?.chatWindow?.textInput}
+                        botMessage={bubbleProps.theme?.chatWindow?.botMessage}
+                        userMessage={bubbleProps.theme?.chatWindow?.userMessage}
+                        chatflowid={props.chatflowid}
+                        apiHost={props.apiHost} />
                 </Show>
             </div>
         </>
