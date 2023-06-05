@@ -3,6 +3,7 @@ import { JSX } from 'solid-js/jsx-runtime'
 import { SendIcon } from './icons'
 
 type SendButtonProps = {
+    sendButtonColor?: string
     isDisabled?: boolean
     isLoading?: boolean
     disableIcon?: boolean
@@ -18,10 +19,10 @@ export const SendButton = (props: SendButtonProps) => {
                 'py-2 px-4 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
                 props.class
             }
-            style={{ background: 'white', border: 'none' }}
+            style={{ background: 'transparent', border: 'none' }}
         >
             <Show when={!props.isLoading} fallback={<Spinner class='text-white' />}>
-                <SendIcon class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+                <SendIcon color={props.sendButtonColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')}/>
             </Show>
         </button>
     )

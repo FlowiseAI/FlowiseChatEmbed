@@ -7,8 +7,10 @@ type Props = ButtonTheme & {
     toggleBot: () => void
 }
 
-const defaultButtonColor = '#673ab7'
+const defaultButtonColor = '#3B81F6'
 const defaultIconColor = 'white'
+const defaultBottom = '20'
+const defaultRight = '20'
 
 export const BubbleButton = (props: Props) => {
     return (
@@ -16,12 +18,14 @@ export const BubbleButton = (props: Props) => {
             part='button'
             onClick={() => props.toggleBot()}
             class={
-                'fixed bottom-5 right-5 shadow-md  rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in' +
+                `fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in` +
                 (props.size === 'large' ? ' w-16 h-16' : ' w-12 h-12')
             }
             style={{
                 'background-color': props.backgroundColor ?? defaultButtonColor,
-                'z-index': 42424242
+                'z-index': 42424242,
+                'right': props.right ? `${props.right.toString()}px` : `${defaultRight}px`,
+                'bottom': props.bottom ? `${props.bottom.toString()}px` : `${defaultBottom}px`,
             }}
         >
             <Show when={isNotDefined(props.customIconSrc)} keyed>
@@ -42,7 +46,7 @@ export const BubbleButton = (props: Props) => {
             <Show when={props.customIconSrc}>
                 <img
                     src={props.customIconSrc}
-                    class={'rounded-full object-cover' + (props.size === 'large' ? ' w-9 h-9' : ' w-7 h-7')}
+                    class={'rounded-full object-cover' + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100') + (props.size === 'large' ? ' w-9 h-9' : ' w-7 h-7')}
                     alt='Bubble button icon'
                 />
             </Show>
