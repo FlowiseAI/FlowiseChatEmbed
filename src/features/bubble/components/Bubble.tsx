@@ -63,6 +63,7 @@ export const Bubble = (props: BubbleProps) => {
             >
                 <Show when={isBotStarted()}>
                     <Bot
+                        badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
                         welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
                         poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
                         textInput={bubbleProps.theme?.chatWindow?.textInput}

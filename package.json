@@ -1,6 +1,6 @@
 {
     "name": "flowise-embed",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Javascript library to display flowise chatbot on your website",
     "type": "module",
     "main": "dist/index.js",
@@ -15,19 +15,24 @@
     "dependencies": {
         "@babel/core": "^7.22.1",
         "@ts-stack/markdown": "^1.4.0",
+        "lodash": "^4.17.21",
+        "socket.io-client": "^4.6.2",
         "solid-element": "1.7.0",
         "solid-js": "1.7.1"
     },
     "devDependencies": {
         "@babel/preset-typescript": "7.21.4",
         "@rollup/plugin-babel": "6.0.3",
+        "@rollup/plugin-commonjs": "^25.0.0",
         "@rollup/plugin-node-resolve": "15.0.1",
         "@rollup/plugin-terser": "0.4.0",
         "@rollup/plugin-typescript": "11.0.0",
+        "@types/lodash": "^4.14.195",
         "@types/node": "18.15.11",
         "@typescript-eslint/eslint-plugin": "^5.57.0",
         "@typescript-eslint/parser": "^5.57.0",
         "autoprefixer": "10.4.14",
+        "babel-plugin-lodash": "^3.3.4",
         "babel-preset-solid": "1.7.1",
         "eslint": "^8.24.0",
         "eslint-config-next": "13.2.4",
@@ -42,6 +47,7 @@
         "rollup-plugin-postcss": "4.0.2",
         "rollup-plugin-serve": "2.0.2",
         "rollup-plugin-typescript-paths": "1.4.0",
+        "rollup-plugin-uglify": "^6.0.4",
         "tailwindcss": "3.3.1",
         "typescript": "5.0.3"
     }

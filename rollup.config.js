@@ -6,6 +6,8 @@ import autoprefixer from "autoprefixer";
 import tailwindcss from "tailwindcss";
 import typescript from "@rollup/plugin-typescript";
 import { typescriptPaths } from "rollup-plugin-typescript-paths";
+import commonjs from "@rollup/plugin-commonjs";
+import { uglify } from "rollup-plugin-uglify";
 //import serve from "rollup-plugin-serve";
 //import livereload from "rollup-plugin-livereload";
 
@@ -13,7 +15,9 @@ const extensions = [".ts", ".tsx"];
 
 const indexConfig = {
   plugins: [
-    resolve({ extensions }),
+    resolve({ extensions, browser: true }),
+    commonjs(),
+    uglify(),
     babel({
       babelHelpers: "bundled",
       exclude: "node_modules/**",
