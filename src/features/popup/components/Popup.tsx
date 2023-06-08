@@ -20,8 +20,9 @@ function syntaxHighlight(json: any) {
        json = JSON.stringify(json, undefined, 2);
   }
   json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // eslint-disable-next-line
   return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match: string) {
-      var cls = 'number';
+      let cls = 'number';
       if (/^"/.test(match)) {
           if (/:$/.test(match)) {
               cls = 'key';
@@ -40,7 +41,7 @@ function syntaxHighlight(json: any) {
 export const Popup = (props: PopupProps) => {
   let preEl: HTMLPreElement | undefined
 
-  const [popupProps, botProps] = splitProps(props, [
+  const [popupProps] = splitProps(props, [
     'onOpen',
     'onClose',
     'isOpen',
@@ -109,7 +110,7 @@ export const Popup = (props: PopupProps) => {
               on:pointerdown={stopPropagation}
             >
               {props.value && <div style={{ background: 'white', margin: 'auto', padding: '7px' }}>
-                <pre ref={preEl}></pre>
+                <pre ref={preEl} />
               </div>}
             </div>
           </div>
