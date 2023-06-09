@@ -20,14 +20,13 @@ export const BotBubble = (props: Props) => {
 
   onMount(() => {
     if (botMessageEl) {
-      console.log(Marked.parse(props.message))
       botMessageEl.innerHTML = Marked.parse(props.message)
     }
   })
 
   return (
     <div
-      class="flex justify-start mb-2 items-start animate-fade-in host-container"
+      class="flex justify-start mb-2 items-start host-container"
       style={{ 'margin-right': '50px' }}
     >
       <Show when={props.showAvatar}>
