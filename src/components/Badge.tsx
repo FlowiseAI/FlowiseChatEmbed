@@ -3,6 +3,7 @@ import { onCleanup, onMount } from 'solid-js'
 type Props = {
   botContainer: HTMLDivElement | undefined
   poweredByTextColor?: string
+  badgeBackgroundColor?: string
 }
 
 const defaultTextColor = '#303235'
@@ -43,9 +44,13 @@ export const Badge = (props: Props) => {
     <span style={{
       "font-size": '13px',
       position: 'absolute',
-      bottom: '10px',
+      bottom: 0,
+      padding: '10px',
       margin: 'auto',
-      color: props.poweredByTextColor ?? defaultTextColor
+      width: '100%',
+      "text-align": 'center',
+      color: props.poweredByTextColor ?? defaultTextColor,
+      "background-color": props.badgeBackgroundColor ?? '#ffffff'
     }}>Powered by
       <a
         ref={liteBadge}

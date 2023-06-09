@@ -26,7 +26,7 @@ export const GuestBubble = (props: Props) => {
 
   return (
     <div
-      class="flex justify-end mb-2 items-end animate-fade-in guest-container"
+      class="flex justify-end mb-2 items-end guest-container"
       style={{ 'margin-left': '50px' }}
     >
       <span
