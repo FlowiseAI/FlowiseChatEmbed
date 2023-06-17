@@ -9,6 +9,7 @@ type Props = {
     textColor?: string
     sendButtonColor?: string
     defaultValue?: string
+    fontSize?: number
     onSubmit: (value: string) => void
 }
 
@@ -56,6 +57,7 @@ export const TextInput = (props: Props) => {
                 ref={inputRef as HTMLInputElement}
                 onInput={handleInput}
                 value={inputValue()}
+                fontSize={props.fontSize}
                 placeholder={props.placeholder ?? 'Type your question'}
             />
             <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>

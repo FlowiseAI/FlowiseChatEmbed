@@ -2,6 +2,7 @@
 type BotProps = {
     chatflowid: string
     apiHost?: string
+    chatflowConfig?: Record<string, unknown>
 }
 
 export const init = (props: BotProps) => {
