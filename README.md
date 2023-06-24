@@ -26,6 +26,8 @@ yarn build
 
 ## Embed in your HTML
 
+### PopUp
+
 ```html
 <script type="module">
   import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js";
@@ -34,6 +36,30 @@ yarn build
     apiHost: "http://localhost:3000",
   });
 </script>
+```
+
+### FullPage
+
+```html
+<script type="module">
+  import Chatbot from "./web.js";
+  Chatbot.initFull({
+    chatflowid: "<chatflowid>",
+    apiHost: "http://localhost:3000",
+  });
+</script>
+<flowise-fullchatbot></flowise-fullchatbot>
+```
+
+To enable full screen, add `margin: 0` to <code>body</code> style
+
+```html
+<body style="margin: 0">
+  <script type="module">
+    import Chatbot from "./web.js";
+    ...
+  </script>
+</body>
 ```
 
 ## Configuration
