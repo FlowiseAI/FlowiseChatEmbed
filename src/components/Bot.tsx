@@ -280,7 +280,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
                 <div class="flex w-full h-full justify-center">
-                    <div style={{ "padding-bottom": '100px' }} ref={chatContainer} class="overflow-y-scroll w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
+                    <div style={{ "padding-bottom": '100px' }} ref={chatContainer} class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
                         <For each={[...messages()]}>
                             {(message, index) => (
                                 <>

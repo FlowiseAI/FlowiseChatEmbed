@@ -46,8 +46,7 @@ export const Bubble = (props: BubbleProps) => {
             <div
                 part='bot'
                 style={{
-                    height: `${height()}px`,
-                    width: `${width()}px`,
+                    height: 'calc(100% - 100px)',
                     transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
                     transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
@@ -56,7 +55,7 @@ export const Bubble = (props: BubbleProps) => {
                     'z-index': 42424242
                 }}
                 class={
-                    `fixed sm:right-5 rounded-lg w-full sm:w-[${width()}px] max-h-[${height()}px]` +
+                    `fixed right-5 rounded-lg w-[${width()}px] max-h-[${height()}px]` +
                     (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
                     (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
                 }
