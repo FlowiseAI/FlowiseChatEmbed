@@ -31,7 +31,7 @@ export type BotProps = {
     fontSize?: number
 }
 
-const defaultWelcomeMessage = 'Ram Ram'
+const defaultWelcomeMessage = 'Ram Ram.'
 
 /*const sourceDocuments = [
     {
