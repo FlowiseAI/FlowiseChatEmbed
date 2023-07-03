@@ -22,6 +22,7 @@ export type BotProps = {
     chatflowid: string
     apiHost?: string
     chatflowConfig?: Record<string, unknown>
+    authToken?: string
     welcomeMessage?: string
     botMessage?: BotMessageTheme
     userMessage?: UserMessageTheme

@@ -9,12 +9,13 @@ export type MessageRequest = {
     chatflowid: string;
     apiHost?: string;
     body?: IncomingInput;
+    authToken?: string;
 };
-export declare const sendMessageQuery: ({ chatflowid, apiHost, body }: MessageRequest) => Promise<{
+export declare const sendMessageQuery: ({ chatflowid, apiHost, body, authToken }: MessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;
-export declare const isStreamAvailableQuery: ({ chatflowid, apiHost }: MessageRequest) => Promise<{
+export declare const isStreamAvailableQuery: ({ chatflowid, apiHost, authToken }: MessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;
