@@ -30,7 +30,9 @@ export const TextInput = (props: Props) => {
     }
 
     const submitWhenEnter = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') submit()
+        // Check if IME composition is in progress
+        const isIMEComposition = e.isComposing || e.keyCode === 229
+        if (e.key === 'Enter' && !isIMEComposition) submit()
     }
 
     onMount(() => {
