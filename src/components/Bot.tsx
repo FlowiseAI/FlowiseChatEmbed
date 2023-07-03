@@ -241,6 +241,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const { data } = await isStreamAvailableQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
+            authToken: props.authToken
         })
 
         if (data) {
