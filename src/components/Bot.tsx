@@ -199,6 +199,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const { data, error } = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
+            authToken: props.authToken,
             body
         })
 
