@@ -34,6 +34,7 @@ yarn build
   Chatbot.init({
     chatflowid: "<chatflowid>",
     apiHost: "http://localhost:3000",
+    authToken: "<chatflowapikey>",
   });
 </script>
 ```
@@ -46,6 +47,7 @@ yarn build
   Chatbot.initFull({
     chatflowid: "<chatflowid>",
     apiHost: "http://localhost:3000",
+    authToken: "<chatflowapikey>",
   });
 </script>
 <flowise-fullchatbot></flowise-fullchatbot>
@@ -72,6 +74,7 @@ You can also customize chatbot with different configuration
   Chatbot.init({
     chatflowid: "91e9c803-5169-4db9-8207-3c0915d71c5f",
     apiHost: "http://localhost:3000",
+    authToken: "<chatflowapikey>",
     chatflowConfig: {
       // topK: 2
     },

@@ -12,6 +12,7 @@ export const sendRequest = async <ResponseData>(
               url: string
               method: string
               body?: Record<string, unknown> | FormData
+              authToken?: string
           }
         | string
 ): Promise<{ data?: ResponseData; error?: Error }> => {
@@ -21,9 +22,10 @@ export const sendRequest = async <ResponseData>(
             method: typeof params === 'string' ? 'GET' : params.method,
             mode: 'cors',
             headers:
-                typeof params !== 'string' && isDefined(params.body)
+                typeof params !== 'string' 
                     ? {
-                          'Content-Type': 'application/json'
+                          'Content-Type': isDefined(params.body) ? 'application/json' : undefined,
+                          'Authorization': params.authToken ? `Bearer ${params.authToken}` : undefined,
                       }
                     : undefined,
             body: typeof params !== 'string' && isDefined(params.body) ? JSON.stringify(params.body) : undefined
@@ -36,3 +38,4 @@ export const sendRequest = async <ResponseData>(
         return { error: e as Error }
     }
 }
+

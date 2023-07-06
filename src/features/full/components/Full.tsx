@@ -50,6 +50,7 @@ export const Full = (
             userMessage={props.theme?.chatWindow?.userMessage}
             fontSize={props.theme?.chatWindow?.fontSize}
             chatflowid={props.chatflowid}
+            authToken={props.authToken}
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost} />
         </div>

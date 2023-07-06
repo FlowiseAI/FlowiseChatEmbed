@@ -22,6 +22,7 @@ export type BotProps = {
     chatflowid: string
     apiHost?: string
     chatflowConfig?: Record<string, unknown>
+    authToken?: string
     welcomeMessage?: string
     botMessage?: BotMessageTheme
     userMessage?: UserMessageTheme
@@ -198,6 +199,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const { data, error } = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
+            authToken: props.authToken,
             body
         })
 
@@ -239,6 +241,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const { data } = await isStreamAvailableQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
+            authToken: props.authToken
         })
 
         if (data) {

@@ -2,6 +2,7 @@
 type BotProps = {
     chatflowid: string
     apiHost?: string
+    authToken?: string
     chatflowConfig?: Record<string, unknown>
 }
 
