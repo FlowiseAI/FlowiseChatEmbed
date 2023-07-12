@@ -51,13 +51,16 @@ yarn build
 <flowise-fullchatbot></flowise-fullchatbot>
 ```
 
-To enable full screen, add `margin: 0` to <code>body</code> style
+To enable full screen, add `margin: 0` to <code>body</code> style, and confirm you don't fix height and with in initFull
 
 ```html
 <body style="margin: 0">
   <script type="module">
     import Chatbot from "./web.js";
-    ...
+    Chatbot.initFull({
+    // height: 700, confirm you don't fix height and with 
+    // width: 400,
+  });
   </script>
 </body>
 ```
