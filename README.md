@@ -51,7 +51,7 @@ yarn build
 <flowise-fullchatbot></flowise-fullchatbot>
 ```
 
-To enable full screen, add `margin: 0` to <code>body</code> style, and confirm you don't set height and width in `chatflowConfig`
+To enable full screen, add `margin: 0` to <code>body</code> style, and confirm you don't set height and width
 
 ```html
 <body style="margin: 0">
@@ -60,9 +60,11 @@ To enable full screen, add `margin: 0` to <code>body</code> style, and confirm y
     Chatbot.initFull({
       chatflowid: "<chatflowid>",
       apiHost: "http://localhost:3000",
-      chatflowConfig: {
-        // height: 700, confirm you don't fix height and with 
-        // width: 400,
+      theme: {
+        chatWindow: {
+          // height: 700, don't set height
+          // width: 400, don't set width
+        }
       }
   });
   </script>
