@@ -113,6 +113,7 @@ You can also customize chatbot with different configuration
           showAvatar: true,
           avatarSrc:
             "https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png",
+          box-sizing: border-box,
         },
         textInput: {
           placeholder: "Type your question",
