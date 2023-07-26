@@ -99,6 +99,7 @@ You can also customize chatbot with different configuration
         width: 400,
         fontSize: 16,
         poweredByTextColor: "#303235",
+        
         botMessage: {
           backgroundColor: "#f7f8ff",
           textColor: "#303235",
@@ -107,7 +108,7 @@ You can also customize chatbot with different configuration
             "https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/parroticon.png",
         },
         userMessage: {
-          backgroundColor: "#3B81F6",
+          backgroundColor: "#007AFF",
           textColor: "#ffffff",
           showAvatar: true,
           avatarSrc:
