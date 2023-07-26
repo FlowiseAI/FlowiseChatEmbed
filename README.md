@@ -84,7 +84,7 @@ You can also customize chatbot with different configuration
     },
     theme: {
       button: {
-        backgroundColor: "#3B81F6",
+        backgroundColor: "##007AFF",
         right: 20,
         bottom: 20,
         size: "medium",
@@ -93,7 +93,7 @@ You can also customize chatbot with different configuration
           "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg",
       },
       chatWindow: {
-        welcomeMessage: "Hello! This is custom welcome message",
+        welcomeMessage: "Salut !",
         backgroundColor: "#ffffff",
         height: 700,
         width: 400,
@@ -127,4 +127,4 @@ You can also customize chatbot with different configuration
 
 ## License
 
-Source code in this repository is made available under the [MIT License](https://github.com/FlowiseAI/Flowise/blob/master/LICENSE.md).
+Source code in this repository is made available under the [MIT License](https://github.com/FlowiseAI/Flowise/blob/master/LICENSE.md)
