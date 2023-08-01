@@ -280,6 +280,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     })
 
+    const isValidURL = (url:string):URL|undefined => {
+        try {
+            return new URL(url)
+        } catch (err) {
+            return undefined
+        }
+    }
+
     return (
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
@@ -312,16 +320,23 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                     {message.sourceDocuments && message.sourceDocuments.length && 
                                     <div style={{ display: 'flex', "flex-direction": 'row', width: '100%' }}>
                                         <For each={[...message.sourceDocuments]}>
-                                            {(src) => (
+                                            {(src) => {
+                                                    const URL = isValidURL(src.metadata.source)
+                                                return (
                                                 <SourceBubble
-                                                    pageContent={src.pageContent}
+                                                    pageContent={URL? (URL.hostname + URL.pathname) : src.pageContent}
                                                     metadata={src.metadata}
                                                     onSourceClick={() => {
-                                                        setSourcePopupSrc(src);
-                                                        setSourcePopupOpen(true);
+                                                        if (URL) {
+                                                            window.open(src.metadata.source, '_blank')
+                                                        }
+                                                        else {
+                                                            setSourcePopupSrc(src);
+                                                            setSourcePopupOpen(true);
+                                                        }
                                                     }}                                        
                                                 />
-                                            )}
+                                            )}}
                                         </For>
                                     </div>}
                                 </>
