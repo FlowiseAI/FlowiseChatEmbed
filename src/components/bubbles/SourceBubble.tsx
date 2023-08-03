@@ -13,7 +13,7 @@ export const SourceBubble = (props: Props) => (
       <span
         class="px-2 py-1 ml-1 whitespace-pre-wrap max-w-full chatbot-host-bubble"
         data-testid="host-bubble"
-        style={{ width: '80px', "font-size": "13px", "border-radius": '15px', cursor: 'pointer', "text-overflow": "ellipsis", "overflow": "hidden", "white-space": "nowrap" }}
+        style={{ width: 'max-content', "max-width": '80px', "font-size": "13px", "border-radius": '15px', cursor: 'pointer', "text-overflow": "ellipsis", "overflow": "hidden", "white-space": "nowrap" }}
       >
         {props.pageContent}
       </span>

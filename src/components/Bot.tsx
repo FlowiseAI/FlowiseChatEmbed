@@ -337,7 +337,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                                     const URL = isValidURL(src.metadata.source)
                                                 return (
                                                 <SourceBubble
-                                                    pageContent={URL? (URL.hostname + URL.pathname) : src.pageContent}
+                                                    pageContent={URL? URL.pathname : src.pageContent}
                                                     metadata={src.metadata}
                                                     onSourceClick={() => {
                                                         if (URL) {
