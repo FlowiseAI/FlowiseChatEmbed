@@ -280,6 +280,27 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     })
 
+    const isValidURL = (url:string):URL|undefined => {
+        try {
+            return new URL(url)
+        } catch (err) {
+            return undefined
+        }
+    }
+    const removeDuplicateURL = (message:MessageType) => {
+        const visitedURLs:string[] = []
+        const newSourceDocuments:any = []
+        message.sourceDocuments.forEach((source:any) => {
+            if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
+                visitedURLs.push(source.metadata.source)
+                newSourceDocuments.push(source)
+            } else if (!isValidURL(source.metadata.source)) {
+                newSourceDocuments.push(source)
+            }
+        })
+        return newSourceDocuments
+    }
+
     return (
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
@@ -311,17 +332,24 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                     )}
                                     {message.sourceDocuments && message.sourceDocuments.length && 
                                     <div style={{ display: 'flex', "flex-direction": 'row', width: '100%' }}>
-                                        <For each={[...message.sourceDocuments]}>
-                                            {(src) => (
+                                        <For each={[...removeDuplicateURL(message)]}>
+                                            {(src) => {
+                                                    const URL = isValidURL(src.metadata.source)
+                                                return (
                                                 <SourceBubble
-                                                    pageContent={src.pageContent}
+                                                    pageContent={URL? (URL.hostname + URL.pathname) : src.pageContent}
                                                     metadata={src.metadata}
                                                     onSourceClick={() => {
-                                                        setSourcePopupSrc(src);
-                                                        setSourcePopupOpen(true);
+                                                        if (URL) {
+                                                            window.open(src.metadata.source, '_blank')
+                                                        }
+                                                        else {
+                                                            setSourcePopupSrc(src);
+                                                            setSourcePopupOpen(true);
+                                                        }
                                                     }}                                        
                                                 />
-                                            )}
+                                            )}}
                                         </For>
                                     </div>}
                                 </>
