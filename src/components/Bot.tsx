@@ -9,8 +9,9 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
+import { NewChatMessageInput, createNewChatmessageQuery } from '@/queries/chatMessageQuery'
 
-type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
+export type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
 export type MessageType = {
     message: string
@@ -141,13 +142,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }, 50)
     }
 
-    const updateLastMessage = (text: string) => {      
+    const updateLastMessage = (text: string) => {
         setMessages(data => {
             const updated = data.map((item, i) => {
-              if (i === data.length - 1) {
-                return {...item, message: item.message + text };
-              }
-              return item;
+                if (i === data.length - 1) {
+                    return { ...item, message: item.message + text };
+                }
+                return item;
             });
             return [...updated];
         });
@@ -156,18 +157,39 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
         setMessages(data => {
             const updated = data.map((item, i) => {
-              if (i === data.length - 1) {
-                return {...item, sourceDocuments: sourceDocuments };
-              }
-              return item;
+                if (i === data.length - 1) {
+                    return { ...item, sourceDocuments: sourceDocuments };
+                }
+                return item;
             });
             return [...updated];
         });
     }
 
+    const addChatMessage = async (message: string, type: messageType, sourceDocuments?: any) => {
+        try {
+            const body: NewChatMessageInput = {
+                role: type,
+                chatType: 'external',
+                content: message,
+                chatflowid: props.chatflowid
+            }
+            if (sourceDocuments) body.sourceDocuments = JSON.stringify(sourceDocuments)
+            const resp = await createNewChatmessageQuery({
+                chatflowid: props.chatflowid,
+                apiHost: props.apiHost,
+                body
+            })
+            console.log(`message resp: ${JSON.stringify(resp)}`)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     // Handle errors
     const handleError = (message = 'Oops! There seems to be an error. Please try again.') => {
         setMessages((prevMessages) => [...prevMessages, { message, type: 'apiMessage' }])
+        addChatMessage(message, 'apiMessage')
         setLoading(false)
         setUserInput('')
         scrollToBottom()
@@ -189,6 +211,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const messageList = messages().filter((msg) => msg.message !== welcomeMessage)
 
         setMessages((prevMessages) => [...prevMessages, { message: value, type: 'userMessage' }])
+        addChatMessage(value, 'userMessage')
 
         const body: IncomingInput = {
             question: value,
@@ -213,8 +236,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         { message: data.text, sourceDocuments: data.sourceDocuments, type: 'apiMessage' }
                     ])
                 }
+                addChatMessage(data.text, 'apiMessage', data.sourceDocuments)
             } else {
-                if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
+                if (!isChatFlowAvailableToStream()) {
+                    setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
+                }
+                addChatMessage(data, 'apiMessage')
             }
             setLoading(false)
             setUserInput('')
@@ -239,7 +266,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     })
 
     // eslint-disable-next-line solid/reactivity
-    createEffect(async() => {
+    createEffect(async () => {
         const { data } = await isStreamAvailableQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
@@ -280,17 +307,17 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     })
 
-    const isValidURL = (url:string):URL|undefined => {
+    const isValidURL = (url: string): URL | undefined => {
         try {
             return new URL(url)
         } catch (err) {
             return undefined
         }
     }
-    const removeDuplicateURL = (message:MessageType) => {
-        const visitedURLs:string[] = []
-        const newSourceDocuments:any = []
-        message.sourceDocuments.forEach((source:any) => {
+    const removeDuplicateURL = (message: MessageType) => {
+        const visitedURLs: string[] = []
+        const newSourceDocuments: any = []
+        message.sourceDocuments.forEach((source: any) => {
             if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
                 visitedURLs.push(source.metadata.source)
                 newSourceDocuments.push(source)
@@ -330,28 +357,29 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && (
                                         <LoadingBubble />
                                     )}
-                                    {message.sourceDocuments && message.sourceDocuments.length && 
-                                    <div style={{ display: 'flex', "flex-direction": 'row', width: '100%' }}>
-                                        <For each={[...removeDuplicateURL(message)]}>
-                                            {(src) => {
+                                    {message.sourceDocuments && message.sourceDocuments.length &&
+                                        <div style={{ display: 'flex', "flex-direction": 'row', width: '100%' }}>
+                                            <For each={[...removeDuplicateURL(message)]}>
+                                                {(src) => {
                                                     const URL = isValidURL(src.metadata.source)
-                                                return (
-                                                <SourceBubble
-                                                    pageContent={URL? URL.pathname : src.pageContent}
-                                                    metadata={src.metadata}
-                                                    onSourceClick={() => {
-                                                        if (URL) {
-                                                            window.open(src.metadata.source, '_blank')
-                                                        }
-                                                        else {
-                                                            setSourcePopupSrc(src);
-                                                            setSourcePopupOpen(true);
-                                                        }
-                                                    }}                                        
-                                                />
-                                            )}}
-                                        </For>
-                                    </div>}
+                                                    return (
+                                                        <SourceBubble
+                                                            pageContent={URL ? URL.pathname : src.pageContent}
+                                                            metadata={src.metadata}
+                                                            onSourceClick={() => {
+                                                                if (URL) {
+                                                                    window.open(src.metadata.source, '_blank')
+                                                                }
+                                                                else {
+                                                                    setSourcePopupSrc(src);
+                                                                    setSourcePopupOpen(true);
+                                                                }
+                                                            }}
+                                                        />
+                                                    )
+                                                }}
+                                            </For>
+                                        </div>}
                                 </>
                             )}
                         </For>
@@ -369,7 +397,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
                 <BottomSpacer ref={bottomSpacer} />
             </div>
-            {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)}/>}
+            {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
         </>
     )
 }
@@ -380,4 +408,3 @@ type BottomSpacerProps = {
 const BottomSpacer = (props: BottomSpacerProps) => {
     return <div ref={props.ref} class="w-full h-32" />
 }
-  

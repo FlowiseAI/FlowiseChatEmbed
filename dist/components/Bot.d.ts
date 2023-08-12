@@ -1,5 +1,5 @@
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
-type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+export type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 export type MessageType = {
     message: string;
     type: messageType;
@@ -20,5 +20,4 @@ export type BotProps = {
 export declare const Bot: (props: BotProps & {
     class?: string;
 }) => import("solid-js").JSX.Element;
-export {};
 //# sourceMappingURL=Bot.d.ts.map
