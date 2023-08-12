@@ -5,13 +5,23 @@ export type NewChatMessageInput = {
     content: string;
     chatflowid: string;
     sourceDocuments?: string;
+    chatId?: string;
 };
 export type ChatMessageRequest = {
     chatflowid: string;
     apiHost?: string;
     body?: NewChatMessageInput;
 };
-export declare const createNewChatmessageQuery: ({ chatflowid, apiHost, body }: ChatMessageRequest) => Promise<{
+export type ChatMessageRequest1 = {
+    chatflowid: string;
+    apiHost?: string;
+    chatId?: string;
+};
+export declare const createNewChatMessageQuery: ({ chatflowid, apiHost, body }: ChatMessageRequest) => Promise<{
+    data?: any;
+    error?: Error | undefined;
+}>;
+export declare const getChatMessageQuery: ({ chatflowid, apiHost, chatId }: ChatMessageRequest1) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;

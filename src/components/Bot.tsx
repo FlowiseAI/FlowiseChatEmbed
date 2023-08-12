@@ -9,7 +9,7 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
-import { NewChatMessageInput, createNewChatmessageQuery } from '@/queries/chatMessageQuery'
+import { NewChatMessageInput, createNewChatMessageQuery, getChatMessageQuery } from '@/queries/chatMessageQuery'
 
 export type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -128,6 +128,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     ], { equals: false })
     const [socketIOClientId, setSocketIOClientId] = createSignal('')
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
+    let chatId = localStorage.getItem(props.chatflowid + '_external')
 
     onMount(() => {
         if (!bottomSpacer) return
@@ -172,15 +173,19 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 role: type,
                 chatType: 'external',
                 content: message,
-                chatflowid: props.chatflowid
+                chatflowid: props.chatflowid,
+                chatId: chatId ?? undefined
             }
             if (sourceDocuments) body.sourceDocuments = JSON.stringify(sourceDocuments)
-            const resp = await createNewChatmessageQuery({
+            const resp = await createNewChatMessageQuery({
                 chatflowid: props.chatflowid,
                 apiHost: props.apiHost,
                 body
             })
-            console.log(`message resp: ${JSON.stringify(resp)}`)
+            if (!chatId) {
+                localStorage.setItem(props.chatflowid + '_external', resp.data.id)
+                chatId = resp.data.id
+            }
         } catch (error) {
             console.error(error)
         }
@@ -215,6 +220,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         const body: IncomingInput = {
             question: value,
+            chatId: chatId ?? undefined,
             history: messageList
         }
 
@@ -274,6 +280,24 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (data) {
             setIsChatFlowAvailableToStream(data?.isStreaming ?? false)
+        }
+        const resp: any = await getChatMessageQuery({
+            chatflowid: props.chatflowid,
+            apiHost: props.apiHost,
+            chatId: chatId ?? undefined
+        })
+        // setChatHistory(resp)
+        if (resp.data) {
+            const loadedMessages: any = []
+            for (const message of resp.data) {
+                const obj: any = {
+                    message: message.content,
+                    type: message.role
+                }
+                if (message.sourceDocuments) obj.sourceDocuments = JSON.parse(message.sourceDocuments)
+                loadedMessages.push(obj)
+            }
+            setMessages((prevMessages) => [...prevMessages, ...loadedMessages])
         }
 
         const socket = socketIOClient(props.apiHost as string)

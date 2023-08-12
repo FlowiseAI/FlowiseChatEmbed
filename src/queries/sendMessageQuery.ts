@@ -5,7 +5,8 @@ export type IncomingInput = {
     question: string
     history: MessageType[]
     overrideConfig?: Record<string, unknown>
-    socketIOClientId?: string
+    socketIOClientId?: string,
+    chatId?: string
 }
 
 export type MessageRequest = {
