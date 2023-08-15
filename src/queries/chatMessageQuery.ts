@@ -35,3 +35,9 @@ export const getChatMessageQuery = ({ chatflowid, apiHost = 'http://localhost:30
         method: 'GET',
         url: `${apiHost}/api/v1/chatmessage/${chatflowid}/${chatId}`
     })
+
+export const deleteChatMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', chatId }: ChatMessageRequest1) =>
+    sendRequest<any>({
+        method: 'DELETE',
+        url: `${apiHost}/api/v1/chatmessage/${chatflowid}/${chatId}`
+    })

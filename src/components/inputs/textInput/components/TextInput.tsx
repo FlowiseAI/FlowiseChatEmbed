@@ -1,5 +1,5 @@
 import { ShortTextInput } from './ShortTextInput'
-import { SendButton } from '@/components/SendButton'
+import { DeleteButton, SendButton } from '@/components/SendButton'
 import { isMobile } from '@/utils/isMobileSignal'
 import { createSignal, onMount } from 'solid-js'
 
@@ -11,6 +11,7 @@ type Props = {
     defaultValue?: string
     fontSize?: number
     onSubmit: (value: string) => void
+    onDelete: () => void
 }
 
 const defaultBackgroundColor = '#ffffff'
@@ -33,6 +34,10 @@ export const TextInput = (props: Props) => {
         // Check if IME composition is in progress
         const isIMEComposition = e.isComposing || e.keyCode === 229
         if (e.key === 'Enter' && !isIMEComposition) submit()
+    }
+
+    const deleteMsg = () => {
+        props.onDelete()
     }
 
     onMount(() => {
@@ -66,6 +71,9 @@ export const TextInput = (props: Props) => {
             <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
             </SendButton>
+            <DeleteButton sendButtonColor={props.sendButtonColor} type='button' class='my-2 ml-2' on:click={deleteMsg}>
+                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Delete</span>
+            </DeleteButton>
         </div>
     )
 }

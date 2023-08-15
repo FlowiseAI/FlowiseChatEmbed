@@ -9,7 +9,7 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
-import { NewChatMessageInput, createNewChatMessageQuery, getChatMessageQuery } from '@/queries/chatMessageQuery'
+import { NewChatMessageInput, createNewChatMessageQuery, deleteChatMessageQuery, getChatMessageQuery } from '@/queries/chatMessageQuery'
 
 export type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -188,6 +188,27 @@ export const Bot = (props: BotProps & { class?: string }) => {
             }
         } catch (error) {
             console.error(error)
+        }
+    }
+
+    const clearChat = async () => {
+        try {
+            await deleteChatMessageQuery({
+                chatflowid: props.chatflowid,
+                apiHost: props.apiHost,
+                chatId: chatId ?? undefined
+            })
+            localStorage.removeItem(props.chatflowid + '_external')
+            chatId = null
+            setMessages([
+                {
+                    message: props.welcomeMessage ?? defaultWelcomeMessage,
+                    type: 'apiMessage'
+                },
+            ])
+        } catch (error: any) {
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
+            console.error(`error: ${errorData}`)
         }
     }
 
@@ -416,6 +437,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
+                        onDelete={clearChat}
                     />
                 </div>
                 <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />

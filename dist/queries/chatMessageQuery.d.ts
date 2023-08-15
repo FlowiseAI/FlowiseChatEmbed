@@ -25,4 +25,8 @@ export declare const getChatMessageQuery: ({ chatflowid, apiHost, chatId }: Chat
     data?: any;
     error?: Error | undefined;
 }>;
+export declare const deleteChatMessageQuery: ({ chatflowid, apiHost, chatId }: ChatMessageRequest1) => Promise<{
+    data?: any;
+    error?: Error | undefined;
+}>;
 //# sourceMappingURL=chatMessageQuery.d.ts.map
