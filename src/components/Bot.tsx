@@ -9,7 +9,7 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
-import { NewChatMessageInput, createNewChatMessageQuery, deleteChatMessageQuery, getChatMessageQuery } from '@/queries/chatMessageQuery'
+import { NewChatMessageInput, PutChatMessageInput, createNewChatMessageQuery, deleteChatMessageQuery, getChatMessageQuery, updateChatMessageQuery } from '@/queries/chatMessageQuery'
 
 export type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -237,7 +237,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const messageList = messages().filter((msg) => msg.message !== welcomeMessage)
 
         setMessages((prevMessages) => [...prevMessages, { message: value, type: 'userMessage' }])
-        addChatMessage(value, 'userMessage')
+        await addChatMessage(value, 'userMessage')
 
         const body: IncomingInput = {
             question: value,
@@ -256,6 +256,20 @@ export const Bot = (props: BotProps & { class?: string }) => {
         })
 
         if (data) {
+            if (data.sessionId !== undefined && data.sessionId !== chatId) {
+                const sessionId = data.sessionId
+                const body: PutChatMessageInput = {
+                    chatflowId: props.chatflowid,
+                    chatId: chatId ?? undefined,
+                    sessionId: sessionId
+                }
+                await updateChatMessageQuery({
+                    apiHost: props.apiHost,
+                    body
+                })
+                localStorage.setItem(props.chatflowid + '_external', sessionId)
+                chatId = sessionId
+            }
             if (typeof data === 'object' && data.text && data.sourceDocuments) {
                 if (!isChatFlowAvailableToStream()) {
                     setMessages((prevMessages) => [
@@ -268,7 +282,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 if (!isChatFlowAvailableToStream()) {
                     setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
                 }
-                addChatMessage(data, 'apiMessage')
+                addChatMessage(data.text, 'apiMessage')
             }
             setLoading(false)
             setUserInput('')

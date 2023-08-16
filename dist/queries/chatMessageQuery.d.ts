@@ -7,25 +7,38 @@ export type NewChatMessageInput = {
     sourceDocuments?: string;
     chatId?: string;
 };
-export type ChatMessageRequest = {
+export type PostChatMessageRequest = {
     chatflowid: string;
     apiHost?: string;
     body?: NewChatMessageInput;
 };
-export type ChatMessageRequest1 = {
+export type ChatMessageRequest = {
     chatflowid: string;
     apiHost?: string;
     chatId?: string;
 };
-export declare const createNewChatMessageQuery: ({ chatflowid, apiHost, body }: ChatMessageRequest) => Promise<{
+export type PutChatMessageInput = {
+    chatflowId: string;
+    chatId?: string;
+    sessionId: string;
+};
+export type PutChatMessageRequest = {
+    apiHost?: string;
+    body?: PutChatMessageInput;
+};
+export declare const createNewChatMessageQuery: ({ chatflowid, apiHost, body }: PostChatMessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;
-export declare const getChatMessageQuery: ({ chatflowid, apiHost, chatId }: ChatMessageRequest1) => Promise<{
+export declare const getChatMessageQuery: ({ chatflowid, apiHost, chatId }: ChatMessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;
-export declare const deleteChatMessageQuery: ({ chatflowid, apiHost, chatId }: ChatMessageRequest1) => Promise<{
+export declare const updateChatMessageQuery: ({ apiHost, body }: PutChatMessageRequest) => Promise<{
+    data?: any;
+    error?: Error | undefined;
+}>;
+export declare const deleteChatMessageQuery: ({ chatflowid, apiHost, chatId }: ChatMessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;
