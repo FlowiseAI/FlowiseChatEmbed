@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps } from 'solid-js'
+import { createSignal, Show, splitProps, onMount } from 'solid-js'
 import styles from '../../../assets/index.css'
 import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'

@@ -141,13 +141,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }, 50)
     }
 
-    const updateLastMessage = (text: string) => {
+    const updateLastMessage = (text: string) => {      
         setMessages(data => {
             const updated = data.map((item, i) => {
-                if (i === data.length - 1) {
-                    return { ...item, message: item.message + text };
-                }
-                return item;
+              if (i === data.length - 1) {
+                return {...item, message: item.message + text };
+              }
+              return item;
             });
             return [...updated];
         });
@@ -156,10 +156,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
         setMessages(data => {
             const updated = data.map((item, i) => {
-                if (i === data.length - 1) {
-                    return { ...item, sourceDocuments: sourceDocuments };
-                }
-                return item;
+              if (i === data.length - 1) {
+                return {...item, sourceDocuments: sourceDocuments };
+              }
+              return item;
             });
             return [...updated];
         });
@@ -199,16 +199,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
 
-        const result = await sendMessageQuery({
+        const { data, error } = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
             body
         })
 
-        if (result.data) {
-
-            const data = handleVectaraMetadata(result.data)
-
+        if (data) {
             if (typeof data === 'object' && data.text && data.sourceDocuments) {
                 if (!isChatFlowAvailableToStream()) {
                     setMessages((prevMessages) => [
@@ -223,8 +220,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             setUserInput('')
             scrollToBottom()
         }
-        if (result.error) {
-            const error = result.error
+        if (error) {
             console.error(error)
             const err: any = error
             const errorData = err.response.data || `${err.response.status}: ${err.response.statusText}`
@@ -243,7 +239,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     })
 
     // eslint-disable-next-line solid/reactivity
-    createEffect(async () => {
+    createEffect(async() => {
         const { data } = await isStreamAvailableQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
@@ -284,37 +280,17 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     })
 
-    const isValidURL = (url: string): URL | undefined => {
+    const isValidURL = (url:string):URL|undefined => {
         try {
             return new URL(url)
         } catch (err) {
             return undefined
         }
     }
-
-    const handleVectaraMetadata = (message: any): any => {
-        if (message.sourceDocuments && message.sourceDocuments[0].metadata.length) {
-            message.sourceDocuments = message.sourceDocuments.map((docs: any) => {
-                const newMetadata: { [name: string]: any } = docs.metadata.reduce((newMetadata: any, metadata: any) => {
-                    newMetadata[metadata.name] = metadata.value;
-                    return newMetadata;
-                }, {})
-                return {
-                    pageContent: docs.pageContent,
-                    metadata: newMetadata,
-                }
-            })
-        }
-        return message
-    };
-
-    const removeDuplicateURL = (message: MessageType) => {
-        const visitedURLs: string[] = []
-        const newSourceDocuments: any = []
-
-        message = handleVectaraMetadata(message)
-
-        message.sourceDocuments.forEach((source: any) => {
+    const removeDuplicateURL = (message:MessageType) => {
+        const visitedURLs:string[] = []
+        const newSourceDocuments:any = []
+        message.sourceDocuments.forEach((source:any) => {
             if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
                 visitedURLs.push(source.metadata.source)
                 newSourceDocuments.push(source)
@@ -354,29 +330,28 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && (
                                         <LoadingBubble />
                                     )}
-                                    {message.sourceDocuments && message.sourceDocuments.length &&
-                                        <div style={{ display: 'flex', "flex-direction": 'row', width: '100%' }}>
-                                            <For each={[...removeDuplicateURL(message)]}>
-                                                {(src) => {
+                                    {message.sourceDocuments && message.sourceDocuments.length && 
+                                    <div style={{ display: 'flex', "flex-direction": 'row', width: '100%' }}>
+                                        <For each={[...removeDuplicateURL(message)]}>
+                                            {(src) => {
                                                     const URL = isValidURL(src.metadata.source)
-                                                    return (
-                                                        <SourceBubble
-                                                            pageContent={URL ? URL.pathname : src.pageContent}
-                                                            metadata={src.metadata}
-                                                            onSourceClick={() => {
-                                                                if (URL) {
-                                                                    window.open(src.metadata.source, '_blank')
-                                                                }
-                                                                else {
-                                                                    setSourcePopupSrc(src);
-                                                                    setSourcePopupOpen(true);
-                                                                }
-                                                            }}
-                                                        />
-                                                    )
-                                                }}
-                                            </For>
-                                        </div>}
+                                                return (
+                                                <SourceBubble
+                                                    pageContent={URL? URL.pathname : src.pageContent}
+                                                    metadata={src.metadata}
+                                                    onSourceClick={() => {
+                                                        if (URL) {
+                                                            window.open(src.metadata.source, '_blank')
+                                                        }
+                                                        else {
+                                                            setSourcePopupSrc(src);
+                                                            setSourcePopupOpen(true);
+                                                        }
+                                                    }}                                        
+                                                />
+                                            )}}
+                                        </For>
+                                    </div>}
                                 </>
                             )}
                         </For>
@@ -394,7 +369,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
                 <BottomSpacer ref={bottomSpacer} />
             </div>
-            {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
+            {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)}/>}
         </>
     )
 }
@@ -405,3 +380,4 @@ type BottomSpacerProps = {
 const BottomSpacer = (props: BottomSpacerProps) => {
     return <div ref={props.ref} class="w-full h-32" />
 }
+  
