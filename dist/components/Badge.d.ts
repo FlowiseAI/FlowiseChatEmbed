@@ -3,6 +3,6 @@ type Props = {
     poweredByTextColor?: string;
     badgeBackgroundColor?: string;
 };
-export declare const Badge: (props: Props) => import("solid-js").JSX.Element;
+export declare const Badge: (props: Props) => {};
 export {};
 //# sourceMappingURL=Badge.d.ts.map

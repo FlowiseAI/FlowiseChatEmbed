@@ -41,7 +41,7 @@ export const Badge = (props: Props) => {
   })
 
   return (
-    <span style={{
+    {/* <span style={{
       "font-size": '13px',
       position: 'absolute',
       bottom: 0,
@@ -63,6 +63,6 @@ export const Badge = (props: Props) => {
       >
         <span> Flowise</span>
       </a>
-    </span>
+    </span> */}
   )
 }
