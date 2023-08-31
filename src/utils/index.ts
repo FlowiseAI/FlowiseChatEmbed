@@ -28,8 +28,25 @@ export const sendRequest = async <ResponseData>(
                     : undefined,
             body: typeof params !== 'string' && isDefined(params.body) ? JSON.stringify(params.body) : undefined
         })
-        const data = await response.json()
-        if (!response.ok) throw 'error' in data ? data.error : data
+        let data: any
+        const contentType = response.headers.get('Content-Type')
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json()
+        } else {
+            data = await response.text()
+        }
+        if (!response.ok) {
+            let errorMessage
+
+            if (typeof data === 'object' && 'error' in data) {
+                errorMessage = data.error
+            } else {
+                errorMessage = data || response.statusText
+            }
+
+            throw errorMessage
+        }
+
         return { data }
     } catch (e) {
         console.error(e)

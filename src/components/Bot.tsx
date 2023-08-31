@@ -227,7 +227,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             const error = result.error
             console.error(error)
             const err: any = error
-            const errorData = err.response.data || `${err.response.status}: ${err.response.statusText}`
+            const errorData = typeof err === 'string'? err :err.response.data || `${err.response.status}: ${err.response.statusText}`
             handleError(errorData)
             return
         }
