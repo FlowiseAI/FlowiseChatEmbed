@@ -10,6 +10,7 @@ type Props = {
     sendButtonColor?: string
     defaultValue?: string
     fontSize?: number
+    disabled?: boolean
     onSubmit: (value: string) => void
 }
 
@@ -62,6 +63,7 @@ export const TextInput = (props: Props) => {
                 value={inputValue()}
                 fontSize={props.fontSize}
                 placeholder={props.placeholder ?? 'Type your question'}
+                disabled={props.disabled}
             />
             <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>

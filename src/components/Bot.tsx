@@ -31,7 +31,7 @@ export type BotProps = {
     fontSize?: number
 }
 
-const defaultWelcomeMessage = 'hej och välkommen'
+const defaultWelcomeMessage = 'Hej! Hur jag kan hjälpa dig idag? Vilket språk vill du prata på?'
 
 /*const sourceDocuments = [
     {
@@ -274,7 +274,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             setMessages([
                 {
                     message: props.welcomeMessage ?? defaultWelcomeMessage,
-                    type: 'apiMessage'
+                    type: 'apiMessage',
                 }
             ])
             if (socket) {
@@ -387,11 +387,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         placeholder={props.textInput?.placeholder}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         fontSize={props.fontSize}
+                        disabled={true}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
                     />
                 </div>
-                <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
+                {/* <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} /> */}
                 <BottomSpacer ref={bottomSpacer} />
             </div>
             {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
