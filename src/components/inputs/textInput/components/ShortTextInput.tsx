@@ -5,6 +5,7 @@ type ShortTextInputProps = {
     ref: HTMLInputElement | undefined
     onInput: (value: string) => void
     fontSize?: number
+    disabled?: boolean
 } & Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'onInput'>
 
 export const ShortTextInput = (props: ShortTextInputProps) => {
