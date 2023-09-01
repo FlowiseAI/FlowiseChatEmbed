@@ -9,6 +9,7 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
+import { appendFile } from 'fs'
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -32,6 +33,7 @@ export type BotProps = {
 }
 
 const defaultWelcomeMessage = 'Hej! Hur jag kan hjälpa dig idag? Vilket språk vill du prata på?'
+let botIsTyping = false;
 
 /*const sourceDocuments = [
     {
@@ -199,6 +201,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
 
+        console.log("apihost: " + apiHost)
         const result = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
@@ -387,7 +390,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         placeholder={props.textInput?.placeholder}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         fontSize={props.fontSize}
-                        disabled={true}
+                        disabled={false}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
                     />
