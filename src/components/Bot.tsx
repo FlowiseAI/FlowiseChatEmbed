@@ -201,7 +201,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
 
-        console.log("apihost: " + apiHost)
+        console.log("apihost: " + props.apiHost)
         const result = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
