@@ -128,7 +128,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
     ], { equals: false })
     const [socketIOClientId, setSocketIOClientId] = createSignal('')
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
-    const [botIsTyping, setBotIsTyping] = createSignal(false);kk
 
     onMount(() => {
         if (!bottomSpacer) return
@@ -177,8 +176,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
-        setBotIsTyping(true);
-        
         setUserInput(value)
 
         if (value.trim() === '') {
@@ -235,7 +232,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
             handleError(errorData)
             return
         }
-        setBotIsTyping(false);
     }
 
     // Auto scroll chat to bottom
@@ -394,7 +390,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
-                        botIsTyping={botIsTyping()}
                     />
                 </div>
                 {/* <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} /> */}
