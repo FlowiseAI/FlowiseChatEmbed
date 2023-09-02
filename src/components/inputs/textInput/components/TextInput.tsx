@@ -19,7 +19,6 @@ const defaultTextColor = '#303235'
 
 export const TextInput = (props: Props) => {
     const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '')
-    const [botIsTyping, setBotIsTyping] = createSignal(false);
     let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined
 
     const handleInput = (inputValue: string) => setInputValue(inputValue)
@@ -27,10 +26,8 @@ export const TextInput = (props: Props) => {
     const checkIfInputIsValid = () => inputValue() !== '' && inputRef?.reportValidity()
 
     const submit = () => {
-        setBotIsTyping(true);
         if (checkIfInputIsValid()) props.onSubmit(inputValue())
         setInputValue('')
-        setBotIsTyping(false);
     }
 
     const submitWhenEnter = (e: KeyboardEvent) => {
@@ -67,7 +64,7 @@ export const TextInput = (props: Props) => {
                 fontSize={props.fontSize}
                 placeholder={props.placeholder ?? 'Type your question'}
             />
-            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === '' || botIsTyping()} class='my-2 ml-2' on:click={submit}>
+            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === '' || props.botIsTyping} class='my-2 ml-2' on:click={submit}>
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
             </SendButton>
         </div>
