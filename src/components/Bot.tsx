@@ -390,7 +390,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         placeholder={props.textInput?.placeholder}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         fontSize={props.fontSize}
-                        /* disabled={false} */
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
                     />
