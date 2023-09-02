@@ -177,7 +177,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
-        setBotIsTyping(true);
         setUserInput(value)
 
         if (value.trim() === '') {
@@ -185,6 +184,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
 
         setLoading(true)
+        setBotIsTyping(true)
+        console.log("Boten skriver...")
         scrollToBottom()
 
         // Send user question and history to API
@@ -223,6 +224,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
             }
             setLoading(false)
+            console.log("Boten sklutar skriva")
+            setBotIsTyping(false)
             setUserInput('')
             scrollToBottom()
         }
@@ -234,8 +237,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
             handleError(errorData)
             return
         }
-
-        setBotIsTyping(false)
     }
 
     // Auto scroll chat to bottom
