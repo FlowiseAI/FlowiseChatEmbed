@@ -33,7 +33,6 @@ export type BotProps = {
 }
 
 const defaultWelcomeMessage = 'Hej! Hur jag kan hjälpa dig idag? Vilket språk vill du prata på?'
-let botIsTyping = false;
 
 /*const sourceDocuments = [
     {
@@ -129,6 +128,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     ], { equals: false })
     const [socketIOClientId, setSocketIOClientId] = createSignal('')
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
+    const [botIsTyping, setBotIsTyping] = createSignal(false);kk
 
     onMount(() => {
         if (!bottomSpacer) return
@@ -177,6 +177,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
+        setBotIsTyping(true);
+        
         setUserInput(value)
 
         if (value.trim() === '') {
@@ -201,7 +203,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
 
-        console.log("apihost: " + props.apiHost)
         const result = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
@@ -234,6 +235,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             handleError(errorData)
             return
         }
+        setBotIsTyping(false);
     }
 
     // Auto scroll chat to bottom
@@ -392,6 +394,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
+                        botIsTyping={botIsTyping()}
                     />
                 </div>
                 {/* <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} /> */}

@@ -11,6 +11,7 @@ type Props = {
     defaultValue?: string
     fontSize?: number
     onSubmit: (value: string) => void
+    botIsTyping?: boolean
 }
 
 const defaultBackgroundColor = '#ffffff'
@@ -63,7 +64,7 @@ export const TextInput = (props: Props) => {
                 fontSize={props.fontSize}
                 placeholder={props.placeholder ?? 'Type your question'}
             />
-            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>
+            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === '' || props.botIsTyping} class='my-2 ml-2' on:click={submit}>
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
             </SendButton>
         </div>
