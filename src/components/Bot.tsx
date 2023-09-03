@@ -177,7 +177,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
-        console.log("setUserInput(value)", value)
         setUserInput(value)
 
         if (value.trim() === '') {
@@ -186,7 +185,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         setLoading(true)
         setBotIsTyping(true)
-        console.log("Boten skriver...")
         scrollToBottom()
 
         // Send user question and history to API
@@ -210,8 +208,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
             body
         })
 
-        console.log("result", result)
-
         if (result.data) {
 
             const data = handleVectaraMetadata(result.data)
@@ -227,7 +223,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
             }
             setLoading(false)
-            console.log("Boten sklutar skriva")
             setBotIsTyping(false)
             setUserInput('')
             scrollToBottom()
