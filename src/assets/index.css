@@ -407,3 +407,9 @@ input {
     padding: 10px 10px;
     font-family: 'Poppins', sans-serif;
 }
+
+.alternative {
+  border-radius: 50px;
+  background-color: #0042da;
+  color: #ffffff;
+}

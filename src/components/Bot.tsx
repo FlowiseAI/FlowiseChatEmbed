@@ -355,6 +355,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                             avatarSrc={props.botMessage?.avatarSrc}
                                         />
                                     )}
+                                    <div class="alternative">Svenska</div>
+                                    <div class="alternative">Engelska</div>
+                                    <div class="alternative">Arabiska</div>
+                                    <div class="alternative">Annat språk</div>
                                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && (
                                         <LoadingBubble />
                                     )}
