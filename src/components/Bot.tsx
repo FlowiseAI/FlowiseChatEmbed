@@ -177,6 +177,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
+        console.log("setUserInput(value)", value)
         setUserInput(value)
 
         if (value.trim() === '') {
@@ -208,6 +209,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
             apiHost: props.apiHost,
             body
         })
+
+        console.log("result", result)
 
         if (result.data) {
 
