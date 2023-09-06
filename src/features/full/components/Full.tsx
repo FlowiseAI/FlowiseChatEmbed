@@ -1,4 +1,4 @@
-import styles from '../../../assets/index.css'
+import styles from '../../../assets/index.css' //Edit Styles here
 import { Bot, BotProps } from '@/components/Bot'
 import { BubbleParams } from '@/features/bubble/types'
 import { createSignal, onCleanup, onMount, Show } from 'solid-js'
