@@ -11,7 +11,7 @@ import { uglify } from "rollup-plugin-uglify";
 //import serve from "rollup-plugin-serve";
 //import livereload from "rollup-plugin-livereload";
 
-const extensions = [".ts", ".tsx"];
+const extensions = [".css", ".ts", ".tsx"]; //added css files for UI changes
 
 const indexConfig = {
   plugins: [
