@@ -21,6 +21,9 @@ export const GuestBubble = (props: Props) => {
   onMount(() => {
     if (userMessageEl) {
       userMessageEl.innerHTML = Marked.parse(props.message)
+    if (window.MathJax) {
+        window.MathJax.typeset([userMessageEl]);
+      }
     }
   })
 
