@@ -236,6 +236,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     // Auto scroll chat to bottom
     createEffect(() => {
         if (messages()) scrollToBottom()
+        // Check for MathJax v3 and typeset the content
     })
 
     createEffect(() => {
