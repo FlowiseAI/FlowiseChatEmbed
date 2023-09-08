@@ -2586,10 +2586,10 @@ magic-string@^0.27.0:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.13"
 
-mathjax@2:
-  version "2.7.9"
-  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-2.7.9.tgz#d6b67955c173e7d719fcb2fc0288662884eb7d3d"
-  integrity sha512-NOGEDTIM9+MrsqnjPEjVGNx4q0GQxqm61yQwSK+/5S59i26wId5IC5gNu9/bu8+CCVl5p9G2IHcAl/wJa+5+BQ==
+mathjax@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-3.2.2.tgz#c754d7b46a679d7f3fa03543d6b8bf124ddf9f6b"
+  integrity sha512-Bt+SSVU8eBG27zChVewOicYs7Xsdt40qm4+UpHyX7k0/O9NliPc+x77k1/FEsPsjKPZGJvtRZM1vO+geW0OhGw==
 
 mdast-util-definitions@^5.0.0:
   version "5.1.2"
