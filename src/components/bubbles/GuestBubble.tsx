@@ -38,6 +38,9 @@ export const GuestBubble = (props: Props) => {
       <Show when={props.showAvatar}>
         <Avatar initialAvatarSrc={props.avatarSrc} />
       </Show>
+      <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+      </script>
     </div>
   )
 }
