@@ -29,9 +29,6 @@ export const GuestBubble = (props: Props) => {
       class="flex justify-end mb-2 items-end guest-container"
       style={{ 'margin-left': '50px' }}
     >
-    <script type="text/javascript" id="MathJax-script" async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
       <span
         ref={userMessageEl}
         class="px-4 py-2 mr-2 whitespace-pre-wrap max-w-full chatbot-guest-bubble"
