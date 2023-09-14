@@ -54,14 +54,14 @@ export const Badge = (props: Props) => {
     }}>Hier zu unserer Webseite:
       <a
         ref={liteBadge}
-        href={'https://flowiseai.com'}
+        href={'https://videyou.de'}
         target="_blank"
         rel="noopener noreferrer"
         class="lite-badge"
         id="lite-badge"
         style={{ "font-weight": 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> Videyou</span>
+        <span>Videyou</span>
       </a>
     </span>
   )
