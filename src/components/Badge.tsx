@@ -51,7 +51,7 @@ export const Badge = (props: Props) => {
       "text-align": 'center',
       color: props.poweredByTextColor ?? defaultTextColor,
       "background-color": props.badgeBackgroundColor ?? '#ffffff'
-    }}>Unsere Webseite:
+    }}>Hier zu unserer Webseite:
       <a
         ref={liteBadge}
         href={'https://videyou.de'}
