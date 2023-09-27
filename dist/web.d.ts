@@ -1,3 +1,4 @@
+import 'popper.js/dist/umd/popper.js';
 declare const chatbot: {
     initFull: (props: {
         chatflowid: string;

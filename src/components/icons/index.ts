@@ -1,1 +1,2 @@
-export * from './SendIcon'
+export * from './SendIcon';
+export * from './MagicIcon';

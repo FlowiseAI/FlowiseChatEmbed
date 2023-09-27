@@ -14,8 +14,10 @@
     "license": "MIT",
     "dependencies": {
         "@babel/core": "^7.22.1",
+        "@popperjs/core": "^2.9.1",
         "@ts-stack/markdown": "^1.4.0",
         "lodash": "^4.17.21",
+        "popper.js": "^1.16.1",
         "socket.io-client": "^4.6.2",
         "solid-element": "1.7.0",
         "solid-js": "1.7.1"
@@ -29,6 +31,7 @@
         "@rollup/plugin-typescript": "11.0.0",
         "@types/lodash": "^4.14.195",
         "@types/node": "18.15.11",
+        "@types/react": "^18.2.23",
         "@typescript-eslint/eslint-plugin": "^5.57.0",
         "@typescript-eslint/parser": "^5.57.0",
         "autoprefixer": "10.4.14",
@@ -48,6 +51,7 @@
         "rollup-plugin-serve": "2.0.2",
         "rollup-plugin-typescript-paths": "1.4.0",
         "rollup-plugin-uglify": "^6.0.4",
+        "sass": "^1.68.0",
         "tailwindcss": "3.3.1",
         "typescript": "5.0.3"
     }
