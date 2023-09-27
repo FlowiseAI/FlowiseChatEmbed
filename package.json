@@ -1,7 +1,7 @@
 {
-    "name": "flowise-embed",
+    "name": "vertbuild-embed",
     "version": "1.0.13",
-    "description": "Javascript library to display flowise chatbot on your website",
+    "description": "Javascript library to display vertbuild chatbot on website",
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
