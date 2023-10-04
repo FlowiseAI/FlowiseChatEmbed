@@ -48,7 +48,7 @@ export const TextInput = (props: Props) => {
                 position: 'absolute',
                 left: '20px',
                 right: '20px',
-                bottom: '40px',
+                bottom: '20px',
                 margin: 'auto',
                 "z-index": 1000,
                 "background-color": props.backgroundColor ?? defaultBackgroundColor,

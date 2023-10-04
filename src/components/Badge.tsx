@@ -4,6 +4,7 @@ type Props = {
   botContainer: HTMLDivElement | undefined
   poweredByTextColor?: string
   badgeBackgroundColor?: string
+  badgeUrl?: string
 }
 
 const defaultTextColor = '#303235'
@@ -51,17 +52,18 @@ export const Badge = (props: Props) => {
       "text-align": 'center',
       color: props.poweredByTextColor ?? defaultTextColor,
       "background-color": props.badgeBackgroundColor ?? '#ffffff'
-    }}>Powered by
+    }}>
       <a
         ref={liteBadge}
-        href={'https://flowiseai.com'}
+        href={props.badgeUrl ?? 'mailto:xmacna@xmacna.ai'}
         target="_blank"
         rel="noopener noreferrer"
         class="lite-badge"
         id="lite-badge"
-        style={{ "font-weight": 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
+        style={{ "font-weight": 'bold', 'display' : 'none', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> Flowise</span>
+        {/* <img src='https://staticredigir.azureedge.net/xmacna/xmacna_full_192.png' style={{"max-height":"50px", "display":"inline-block" }}/> */}
+        {/* social media links */} 
       </a>
     </span>
   )
