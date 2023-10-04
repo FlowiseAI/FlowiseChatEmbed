@@ -127,6 +127,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     ], { equals: false })
     const [socketIOClientId, setSocketIOClientId] = createSignal('')
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
+    let chatId: any = undefined
 
     onMount(() => {
         if (!bottomSpacer) return
@@ -141,6 +142,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }, 50)
     }
 
+    /**
+   * Add each chat message into localStorage
+   */
+    const addChatMessage = (allMessage: MessageType[]) => {
+        console.log(`addChatMessage chatId: ${chatId}`)
+        localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId, chatHistory: allMessage }))
+    }
+
     const updateLastMessage = (text: string) => {
         setMessages(data => {
             const updated = data.map((item, i) => {
@@ -149,6 +158,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 }
                 return item;
             });
+            addChatMessage(updated)
             return [...updated];
         });
     }
@@ -161,13 +171,18 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 }
                 return item;
             });
+            addChatMessage(updated)
             return [...updated];
         });
     }
 
     // Handle errors
     const handleError = (message = 'Oops! There seems to be an error. Please try again.') => {
-        setMessages((prevMessages) => [...prevMessages, { message, type: 'apiMessage' }])
+        setMessages((prevMessages) => {
+            const messages: MessageType[] = [...prevMessages, { message, type: 'apiMessage' }]
+            addChatMessage(messages)
+            return messages
+        })
         setLoading(false)
         setUserInput('')
         scrollToBottom()
@@ -188,11 +203,16 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const welcomeMessage = props.welcomeMessage ?? defaultWelcomeMessage
         const messageList = messages().filter((msg) => msg.message !== welcomeMessage)
 
-        setMessages((prevMessages) => [...prevMessages, { message: value, type: 'userMessage' }])
+        setMessages((prevMessages) => {
+            const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }]
+            addChatMessage(messages)
+            return messages
+        })
 
         const body: IncomingInput = {
             question: value,
-            history: messageList
+            history: messageList,
+            chatId: chatId
         }
 
         if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig
@@ -208,16 +228,16 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (result.data) {
 
             const data = handleVectaraMetadata(result.data)
-
-            if (typeof data === 'object' && data.text && data.sourceDocuments) {
-                if (!isChatFlowAvailableToStream()) {
-                    setMessages((prevMessages) => [
-                        ...prevMessages,
-                        { message: data.text, sourceDocuments: data.sourceDocuments, type: 'apiMessage' }
-                    ])
-                }
-            } else {
-                if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
+            if (!chatId) {
+                console.log(`chatId: ${data.chatId}`)
+                chatId = data.chatId
+            }
+            if (!isChatFlowAvailableToStream()) {
+                setMessages((prevMessages) => {
+                    const messages: MessageType[] = [...prevMessages, { message: data.text, sourceDocuments: data?.sourceDocuments, type: 'apiMessage' }]
+                    addChatMessage(messages)
+                    return messages
+                })
             }
             setLoading(false)
             setUserInput('')
@@ -227,7 +247,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             const error = result.error
             console.error(error)
             const err: any = error
-            const errorData = typeof err === 'string'? err :err.response.data || `${err.response.status}: ${err.response.statusText}`
+            const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`
             handleError(errorData)
             return
         }
@@ -242,8 +262,31 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`
     })
 
+    // createEffect(() => {
+    //     const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
+    //     if (chatMessage) {
+    //         const objChatMessage = JSON.parse(chatMessage)
+    //         objChatMessage.chatId = chatId
+    //     }
+    // }, chatId)
+
     // eslint-disable-next-line solid/reactivity
     createEffect(async () => {
+        const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
+        if (chatMessage) {
+            const objChatMessage = JSON.parse(chatMessage)
+            chatId = objChatMessage.chatId
+            const loadedMessages = objChatMessage.chatHistory.map((message: { content: string, role: string, sourceDocuments?: string }) => {
+                const obj: { message: string, type: string, sourceDocuments?: object } = {
+                    message: message.content,
+                    type: message.role
+                }
+                if (message.sourceDocuments) obj.sourceDocuments = JSON.parse(message.sourceDocuments)
+                return obj
+            })
+            setMessages((prevMessages) => [...prevMessages, ...loadedMessages])
+        }
+
         const { data } = await isStreamAvailableQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
