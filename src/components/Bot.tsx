@@ -262,6 +262,22 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     }
 
+    const clearChat = () => {
+        try {
+            localStorage.removeItem(`${props.chatflowid}_EXTERNAL`)
+            chatId = null
+            setMessages([
+                {
+                    message: props.welcomeMessage ?? defaultWelcomeMessage,
+                    type: 'apiMessage'
+                },
+            ])
+        } catch (error: any) {
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
+            console.error(`error: ${errorData}`)
+        }
+    }
+
     // Auto scroll chat to bottom
     createEffect(() => {
         if (messages()) scrollToBottom()
@@ -441,6 +457,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
+                        onDelete={clearChat}
                     />
                 </div>
                 <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
