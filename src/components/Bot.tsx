@@ -146,7 +146,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
    * Add each chat message into localStorage
    */
     const addChatMessage = (allMessage: MessageType[]) => {
-        console.log(`addChatMessage chatId: ${chatId}`)
         localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId, chatHistory: allMessage }))
     }
 
@@ -228,9 +227,19 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (result.data) {
 
             const data = handleVectaraMetadata(result.data)
-            if (!chatId) {
-                console.log(`chatId: ${data.chatId}`)
+            if (!chatId && isChatFlowAvailableToStream()) {
                 chatId = data.chatId
+                const item = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
+                if (item) {
+                    const objItem = JSON.parse(item)
+                    objItem.chatId = chatId
+                    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify(objItem))
+                } else {
+                    const objItem = {
+                        chatId: chatId
+                    }
+                    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify(objItem))
+                }
             }
             if (!isChatFlowAvailableToStream()) {
                 setMessages((prevMessages) => {
@@ -276,15 +285,15 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (chatMessage) {
             const objChatMessage = JSON.parse(chatMessage)
             chatId = objChatMessage.chatId
-            const loadedMessages = objChatMessage.chatHistory.map((message: { content: string, role: string, sourceDocuments?: string }) => {
-                const obj: { message: string, type: string, sourceDocuments?: object } = {
-                    message: message.content,
-                    type: message.role
+            const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
+                const chatHistory: MessageType = {
+                    message: message.message,
+                    type: message.type
                 }
-                if (message.sourceDocuments) obj.sourceDocuments = JSON.parse(message.sourceDocuments)
-                return obj
+                if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments
+                return chatHistory
             })
-            setMessages((prevMessages) => [...prevMessages, ...loadedMessages])
+            setMessages([...loadedMessages])
         }
 
         const { data } = await isStreamAvailableQuery({
