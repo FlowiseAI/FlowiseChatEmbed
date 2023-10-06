@@ -4,6 +4,7 @@ export type IncomingInput = {
     history: MessageType[];
     overrideConfig?: Record<string, unknown>;
     socketIOClientId?: string;
+    chatId?: string;
 };
 export type MessageRequest = {
     chatflowid: string;
