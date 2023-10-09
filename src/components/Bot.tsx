@@ -227,7 +227,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (result.data) {
 
             const data = handleVectaraMetadata(result.data)
-            if (!chatId && isChatFlowAvailableToStream()) {
+            if (!chatId) {
                 chatId = data.chatId
                 const item = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
                 if (item) {
