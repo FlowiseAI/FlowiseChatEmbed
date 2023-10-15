@@ -13,6 +13,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
     const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Enter' && e.shiftKey) {
             e.preventDefault()
+            e.stopPropagation() // Add this line to stop the event from bubbling up
             const textarea = e.currentTarget as HTMLTextAreaElement
             const cursorPosition = textarea.selectionStart
             textarea.value = textarea.value.substring(0, cursorPosition) + '\n' + textarea.value.substring(cursorPosition)
@@ -26,7 +27,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
             ref={props.ref}
             class='focus:outline-none bg-transparent px-4 py-4 flex-1 w-full text-input'
             style={{ 'font-size': props.fontSize ? `${props.fontSize}px` : '16px' }}
-            rows={3}  // Set the textarea to always display 3 lines
+            //rows={3}  // Set the textarea to always display 3 lines
             onInput={(e) => local.onInput(e.currentTarget.value)}
             onKeyDown={handleKeyDown}
             {...others}
