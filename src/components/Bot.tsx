@@ -129,6 +129,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
 
     onMount(() => {
+        setSourcePopupOpen(true);
         if (!bottomSpacer) return
         setTimeout(() => {
             chatContainer?.scrollTo(0, chatContainer.scrollHeight)
