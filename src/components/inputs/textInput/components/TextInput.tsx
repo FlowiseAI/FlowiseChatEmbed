@@ -32,7 +32,9 @@ export const TextInput = (props: Props) => {
     const submitWhenEnter = (e: KeyboardEvent) => {
         // Check if IME composition is in progress
         const isIMEComposition = e.isComposing || e.keyCode === 229
-        if (e.key === 'Enter' && !isIMEComposition) submit()
+        if (e.key === 'Enter' && !isIMEComposition && !e.shiftKey) submit() // Andy added !e.shiftKey to prevent new line break when pressing ENTER without SHIFT
+        e.preventDefault() // Andy added this to prevent the default newline behavior
+        submit()
     }
 
     onMount(() => {
