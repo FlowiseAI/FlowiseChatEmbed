@@ -50,6 +50,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
             ref={props.ref}
             class='focus:outline-none bg-transparent px-4 py-4 flex-1 w-full text-input'
             style={{ 'font-size': props.fontSize ? `${props.fontSize}px` : '16px' }}
+            rows={3}  // Set the textarea to always display 3 lines
             onInput={(e) => local.onInput(e.currentTarget.value)}
             onKeyDown={handleKeyDown}
             {...others}
