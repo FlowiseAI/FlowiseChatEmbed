@@ -15,14 +15,17 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
     const [local, others] = splitProps(props, ['ref', 'onInput'])
 
 // This const is added by Andy to handle dynamic height of text input area
+    
+    //This is old. Andy added a new const adjustHeight below to set the max height of the text input area
     /*const adjustHeight = (element: HTMLTextAreaElement) => {
         element.style.height = 'auto'  // Reset the height 
         element.style.height = element.scrollHeight + 'px'  // Set it to scrollHeight
     }
     */
+    
     const adjustHeight = (element: HTMLTextAreaElement) => {
         const singleLineHeight = parseFloat(getComputedStyle(element).lineHeight)
-        const maxHeight = singleLineHeight * 10 // for 10 lines
+        const maxHeight = singleLineHeight * 4 // for 4 lines
 
         element.style.height = 'auto'  // Reset the height
         element.style.height = Math.min(element.scrollHeight, maxHeight) + 'px'  // Set it to the smaller of scrollHeight and maxHeight
