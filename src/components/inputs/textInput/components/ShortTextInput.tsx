@@ -35,7 +35,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
     const [local, others] = splitProps(props, ['ref', 'onInput'])
 
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Enter' && e.shiftKey) {
+        if (e.key == 'Enter' && !e.shiftKey) {
             e.preventDefault()
             const textarea = e.currentTarget as HTMLTextAreaElement
             const cursorPosition = textarea.selectionStart
