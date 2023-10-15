@@ -57,7 +57,7 @@ export const TextInput = (props: Props) => {
             onKeyDown={submitWhenEnter}
         >
             <ShortTextInput
-                ref={inputRef as HTMLInputElement}
+                ref={inputRef as HTMLTextAreaElement}
                 onInput={handleInput}
                 value={inputValue()}
                 fontSize={props.fontSize}
