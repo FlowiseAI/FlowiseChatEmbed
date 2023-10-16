@@ -45,7 +45,7 @@ export const Bubble = (props: BubbleProps) => {
                     (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
                 }
             >
-                <Show when={isBotStarted()}>
+                <Show when={true}>
                     <Bot
                         badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
                         welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
