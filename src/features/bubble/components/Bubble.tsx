@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps } from 'solid-js'
+import { createSignal, Show, splitProps, onMount } from 'solid-js'
 import styles from '../../../assets/index.css'
 import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'
@@ -9,8 +9,8 @@ export type BubbleProps = BotProps & BubbleParams
 export const Bubble = (props: BubbleProps) => {
     const [bubbleProps] = splitProps(props, ['theme'])
 
-    const [isBotOpened, setIsBotOpened] = createSignal(true)
-    const [isBotStarted, setIsBotStarted] = createSignal(true)
+    const [isBotOpened, setIsBotOpened] = createSignal(false)
+    const [isBotStarted, setIsBotStarted] = createSignal(false)
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
@@ -24,7 +24,9 @@ export const Bubble = (props: BubbleProps) => {
     const toggleBot = () => {
         isBotOpened() ? closeBot() : openBot()
     }
-
+    onMount(() => {
+        toggleBot()
+      })
     return (
         <>
             <style>{styles}</style>
