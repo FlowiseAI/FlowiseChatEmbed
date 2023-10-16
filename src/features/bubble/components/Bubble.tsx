@@ -9,8 +9,8 @@ export type BubbleProps = BotProps & BubbleParams
 export const Bubble = (props: BubbleProps) => {
     const [bubbleProps] = splitProps(props, ['theme'])
 
-    const [isBotOpened, setIsBotOpened] = createSignal(false)
-    const [isBotStarted, setIsBotStarted] = createSignal(false)
+    const [isBotOpened, setIsBotOpened] = createSignal(true)
+    const [isBotStarted, setIsBotStarted] = createSignal(true)
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
@@ -27,25 +27,25 @@ export const Bubble = (props: BubbleProps) => {
     return (
         <>
             <style>{styles}</style>
-            <BubbleButton {...bubbleProps.theme?.button} toggleBot={toggleBot} isBotOpened={true} />
+            <BubbleButton {...bubbleProps.theme?.button} toggleBot={toggleBot} isBotOpened={isBotOpened()} />
             <div
                 part='bot'
                 style={{
                     height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
                     transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
-                    transform: true ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
+                    transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
                     'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
                     'background-color': bubbleProps.theme?.chatWindow?.backgroundColor || '#ffffff',
                     'z-index': 42424242
                 }}
                 class={
                     `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
-                    (true? ' opacity-1' : ' opacity-0 pointer-events-none') +
+                    (isBotOpened()? ' opacity-1' : ' opacity-0 pointer-events-none') +
                     (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
                 }
             >
-                <Show when={true}>
+                <Show when={isBotStarted()}>
                     <Bot
                         badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
                         welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
