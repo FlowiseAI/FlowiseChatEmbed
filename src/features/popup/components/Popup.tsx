@@ -56,7 +56,7 @@ export const Popup = (props: PopupProps) => {
 
   const [isBotOpened, setIsBotOpened] = createSignal(
     // eslint-disable-next-line solid/reactivity
-    popupProps.isOpen ?? true 
+    popupProps.isOpen ?? false 
   )
 
   createEffect(() => {
