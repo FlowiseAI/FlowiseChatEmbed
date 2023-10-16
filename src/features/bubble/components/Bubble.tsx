@@ -34,14 +34,14 @@ export const Bubble = (props: BubbleProps) => {
                     height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
                     transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
-                    transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
+                    transform: true ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
                     'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
                     'background-color': bubbleProps.theme?.chatWindow?.backgroundColor || '#ffffff',
                     'z-index': 42424242
                 }}
                 class={
                     `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
-                    (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
+                    (true? ' opacity-1' : ' opacity-0 pointer-events-none') +
                     (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
                 }
             >
