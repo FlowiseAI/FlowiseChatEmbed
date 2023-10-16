@@ -9,8 +9,8 @@ export type BubbleProps = BotProps & BubbleParams
 export const Bubble = (props: BubbleProps) => {
     const [bubbleProps] = splitProps(props, ['theme'])
 
-    const [isBotOpened, setIsBotOpened] = createSignal(true)
-    const [isBotStarted, setIsBotStarted] = createSignal(true)
+    const [isBotOpened, setIsBotOpened] = createSignal(false)
+    const [isBotStarted, setIsBotStarted] = createSignal(false)
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
