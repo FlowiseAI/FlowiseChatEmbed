@@ -4,6 +4,9 @@ import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'
 import { Bot, BotProps } from '../../../components/Bot'
 
+const defaultButtonColor = '#3B81F6'
+const defaultIconColor = 'white'
+
 export type BubbleProps = BotProps & BubbleParams
 
 export const Bubble = (props: BubbleProps) => {
@@ -49,6 +52,10 @@ export const Bubble = (props: BubbleProps) => {
                 <Show when={isBotStarted()}>
                     <Bot
                         badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
+                        bubbleBackgroundColor={bubbleProps.theme?.button?.backgroundColor ?? defaultButtonColor}
+                        bubbleTextColor={bubbleProps.theme?.button?.iconColor ?? defaultIconColor}
+                        title={bubbleProps.theme?.chatWindow?.title}
+                        titleAvatarSrc={bubbleProps.theme?.chatWindow?.titleAvatarSrc}
                         welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
                         poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
                         textInput={bubbleProps.theme?.chatWindow?.textInput}

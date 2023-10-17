@@ -15,6 +15,10 @@ export type BotProps = {
     textInput?: TextInputTheme;
     poweredByTextColor?: string;
     badgeBackgroundColor?: string;
+    bubbleBackgroundColor?: string;
+    bubbleTextColor?: string;
+    title?: string;
+    titleAvatarSrc?: string;
     fontSize?: number;
 };
 export declare const Bot: (props: BotProps & {
