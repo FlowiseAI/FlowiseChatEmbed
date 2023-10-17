@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount } from 'solid-js'
+import { createSignal, createEffect, For, onMount, Show } from 'solid-js'
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput } from '@/queries/sendMessageQuery'
 import { TextInput } from './inputs/textInput'
 import { GuestBubble } from './bubbles/GuestBubble'
@@ -9,6 +9,8 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
+import { Avatar } from '@/components/avatars/Avatar'
+import { DeleteButton } from '@/components/SendButton'
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -28,6 +30,10 @@ export type BotProps = {
     textInput?: TextInputTheme
     poweredByTextColor?: string
     badgeBackgroundColor?: string
+    bubbleBackgroundColor?: string
+    bubbleTextColor?: string
+    title?: string
+    titleAvatarSrc?: string
     fontSize?: number
 }
 
@@ -225,8 +231,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         })
 
         if (result.data) {
-
-            const data = handleVectaraMetadata(result.data)
+            const data = result.data
             if (!chatId) {
                 chatId = data.chatId
                 const item = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
@@ -360,27 +365,9 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     }
 
-    const handleVectaraMetadata = (message: any): any => {
-        if (message.sourceDocuments && message.sourceDocuments[0].metadata.length) {
-            message.sourceDocuments = message.sourceDocuments.map((docs: any) => {
-                const newMetadata: { [name: string]: any } = docs.metadata.reduce((newMetadata: any, metadata: any) => {
-                    newMetadata[metadata.name] = metadata.value;
-                    return newMetadata;
-                }, {})
-                return {
-                    pageContent: docs.pageContent,
-                    metadata: newMetadata,
-                }
-            })
-        }
-        return message
-    };
-
     const removeDuplicateURL = (message: MessageType) => {
         const visitedURLs: string[] = []
         const newSourceDocuments: any = []
-
-        message = handleVectaraMetadata(message)
 
         message.sourceDocuments.forEach((source: any) => {
             if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
@@ -397,7 +384,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
                 <div class="flex w-full h-full justify-center">
-                    <div style={{ "padding-bottom": '100px' }} ref={chatContainer} class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
+                    <div style={{ "padding-bottom": '100px', "padding-top": '70px' }} ref={chatContainer} class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
                         <For each={[...messages()]}>
                             {(message, index) => (
                                 <>
@@ -449,6 +436,21 @@ export const Bot = (props: BotProps & { class?: string }) => {
                             )}
                         </For>
                     </div>
+                    <div style={{ display: 'flex', "flex-direction": 'row', "align-items": 'center', height: '50px', position: 'absolute', top: 0, left: 0, width: '100%', background: props.bubbleBackgroundColor, color: props.bubbleTextColor, "border-top-left-radius": '6px', "border-top-right-radius": '6px' }}>
+                        <Show when={props.titleAvatarSrc}>
+                            <>
+                                <div style={{ width: '15px' }}/>
+                                <Avatar initialAvatarSrc={props.titleAvatarSrc} />
+                            </>
+                        </Show>
+                        <Show when={props.title}>
+                            <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+                        </Show>
+                        <div style={{ flex: 1 }}></div>
+                        <DeleteButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={clearChat}>
+                            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+                        </DeleteButton>
+                    </div>
                     <TextInput
                         backgroundColor={props.textInput?.backgroundColor}
                         textColor={props.textInput?.textColor}
@@ -457,7 +459,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
-                        onDelete={clearChat}
                     />
                 </div>
                 <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
