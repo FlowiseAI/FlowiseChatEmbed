@@ -1,8 +1,12 @@
 /* eslint-disable solid/reactivity */
+import { sendRequest } from '@/utils/index'
 type BotProps = {
     chatflowid: string
     apiHost?: string
+    userID?:string
     chatflowConfig?: Record<string, unknown>
+    theme?:Record<string, unknown>
+    
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -13,7 +17,19 @@ export const initFull = (props: BotProps & { id?: string }) => {
     Object.assign(fullElement, props)
 }
 
-export const init = (props: BotProps) => {
+export const  init = async (props: BotProps) => {
+    const data = sendRequest<any>({
+        method: 'GET',
+        url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
+    }).then((response) => response.data);
+    // TODO: need to add error checking and handling 
+    const config = (await data);
+    
+    const config_data = JSON.parse(config?.body)
+    props.theme = config_data.theme;
+    props.chatflowid = config_data.chatflowid;
+    props.apiHost = config_data.apiHost;
+    console.log(props)
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
     document.body.appendChild(element)
