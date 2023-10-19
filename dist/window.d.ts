@@ -1,6 +1,7 @@
 type BotProps = {
     chatflowid: string;
     apiHost?: string;
+    userID?: string;
     chatflowConfig?: Record<string, unknown>;
     theme?: Record<string, unknown>;
 };
