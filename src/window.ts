@@ -21,7 +21,7 @@ export const  init = async (props: BotProps) => {
         method: 'GET',
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api`,
     }).then((response) => response.data);
-    
+    // TODO: need to add error checking and handling 
     const config = await data;
     
     props.theme = JSON.parse(config.body).theme;
