@@ -1,8 +1,11 @@
 /* eslint-disable solid/reactivity */
+import { sendRequest } from '@/utils/index'
 type BotProps = {
     chatflowid: string
     apiHost?: string
     chatflowConfig?: Record<string, unknown>
+    theme?:Record<string, unknown>
+    
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -13,7 +16,16 @@ export const initFull = (props: BotProps & { id?: string }) => {
     Object.assign(fullElement, props)
 }
 
-export const init = (props: BotProps) => {
+export const  init = async (props: BotProps) => {
+    const data = sendRequest<any>({
+        method: 'GET',
+        url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api`,
+    }).then((response) => response.data);
+    
+    const config = await data;
+    
+    props.theme = JSON.parse(config.body).theme;
+    console.log(props)
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
     document.body.appendChild(element)

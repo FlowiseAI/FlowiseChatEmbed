@@ -3,6 +3,7 @@ declare const chatbot: {
         chatflowid: string;
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
+        theme?: Record<string, unknown> | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -10,7 +11,8 @@ declare const chatbot: {
         chatflowid: string;
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
-    }) => void;
+        theme?: Record<string, unknown> | undefined;
+    }) => Promise<void>;
 };
 export default chatbot;
 //# sourceMappingURL=web.d.ts.map
