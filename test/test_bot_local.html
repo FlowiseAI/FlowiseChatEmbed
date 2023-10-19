@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script type="module">
+        import Chatbot from "http://localhost:8080/dist/web.js"
+        // import Chatbot from "file://Users/andrewdownie/Library/Mobile Documents/com~apple~CloudDocs/Documents/4.Code/realty-ai/FlowiseChatEmbed/dist/web.js"
+        
+        
+        
+        Chatbot.init({
+            chatflowid: "e4c4ee7f-4ef2-43db-af3b-9d583e9862ab",
+            apiHost: "https://prod.4sigma.ca",
+            theme: {
+                chatWindow: {
+                    welcomeMessage: "Hello! This is custom welcome message",
+                    backgroundColor: "#ffffff",
+                    fontSize: 16,
+                    poweredByTextColor: "#303235",
+                    botMessage: {
+                        backgroundColor: "#f7f8ff",
+                        textColor: "#303235",
+                        showAvatar:false
+                    },
+                }
+            }
+        })
+    </script>
+
+
+</body>
+</html>

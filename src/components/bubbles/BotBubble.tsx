@@ -23,13 +23,14 @@ export const BotBubble = (props: Props) => {
       botMessageEl.innerHTML = Marked.parse(props.message)
     }
   })
-
+  
+  const showAvatar = (props.showAvatar === undefined) ? true : props.showAvatar;
   return (
     <div
       class="flex justify-start mb-2 items-start host-container"
       style={{ 'margin-right': '50px' }}
     >
-      <Show when={props.showAvatar}>
+      <Show when={showAvatar}>
         <Avatar initialAvatarSrc={props.avatarSrc} />
       </Show>
       <span
