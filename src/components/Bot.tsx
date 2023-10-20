@@ -35,6 +35,7 @@ export type BotProps = {
     title?: string
     titleAvatarSrc?: string
     fontSize?: number
+    isFullPage?: boolean
 }
 
 const defaultWelcomeMessage = 'Hi there! How can I help?'
@@ -436,7 +437,20 @@ export const Bot = (props: BotProps & { class?: string }) => {
                             )}
                         </For>
                     </div>
-                    <div style={{ display: 'flex', "flex-direction": 'row', "align-items": 'center', height: '50px', position: 'absolute', top: 0, left: 0, width: '100%', background: props.bubbleBackgroundColor, color: props.bubbleTextColor, "border-top-left-radius": '6px', "border-top-right-radius": '6px' }}>
+                    <div style={{
+                        display: 'flex',
+                        "flex-direction": 'row',
+                        "align-items": 'center',
+                        height: '50px',
+                        position: props.isFullPage ? 'fixed' : 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        background: props.bubbleBackgroundColor,
+                        color: props.bubbleTextColor,
+                        "border-top-left-radius": props.isFullPage ? '0px' : '6px',
+                        "border-top-right-radius": props.isFullPage ? '0px' : '6px'
+                    }}>
                         <Show when={props.titleAvatarSrc}>
                             <>
                                 <div style={{ width: '15px' }}/>
@@ -457,6 +471,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         placeholder={props.textInput?.placeholder}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         fontSize={props.fontSize}
+                        disabled={loading()}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
                     />
