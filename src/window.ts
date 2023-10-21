@@ -26,9 +26,9 @@ export const  init = async (props: BotProps) => {
     const config = (await data);
     
     const config_data = JSON.parse(config?.body)
-    props.theme = config_data.theme;
-    props.chatflowid = config_data.chatflowid;
-    props.apiHost = config_data.apiHost;
+    props.theme = config_data?.theme;
+    props.chatflowid = config_data?.chatflowid;
+    props.apiHost = config_data?.apiHost;
     console.log(props)
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
