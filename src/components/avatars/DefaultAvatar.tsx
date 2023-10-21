@@ -1,7 +1,7 @@
 import { isMobile } from '@/utils/isMobileSignal'
 
 export const DefaultAvatar = () => {
-  const imageSrc = "https://cdn.jsdelivr.net/gh/realty-ai-org/FlowiseChatEmbed@main/images/default_avatar.png";
+  const imageSrc = "https://cdn.jsdelivr.net/gh/realty-ai-org/RealtyAIChat@main/images/default_avatar.png";
   
   return (
       <figure
