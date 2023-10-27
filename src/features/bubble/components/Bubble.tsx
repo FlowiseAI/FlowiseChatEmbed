@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps, onMount } from 'solid-js'
+import { createSignal, Show, splitProps, onMount, createEffect } from 'solid-js'
 import styles from '../../../assets/index.css'
 import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'
@@ -11,7 +11,8 @@ export const Bubble = (props: BubbleProps) => {
 
     const [isBotOpened, setIsBotOpened] = createSignal(true)
     const [isBotStarted, setIsBotStarted] = createSignal(true)
-
+    const [isVisible,setIsVisible] = createSignal(true)
+    const [visibleCount,setVisibleCount] = createSignal(0)
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
         setIsBotOpened(true)
@@ -22,8 +23,30 @@ export const Bubble = (props: BubbleProps) => {
     }
 
     const toggleBot = () => {
-        isBotOpened() ? closeBot() : openBot()
+        isBotOpened() ? closeBot() : openBot();
+        setVisibleCount(0);
     }
+
+
+    // check if visibility is changing and update count
+    const updateVisible = () =>{
+        setIsVisible(document.visibilityState === 'visible')
+        if (isVisible() ===(document.visibilityState === 'visible')){
+            setVisibleCount((x)=>  Math.min(x + 1, 3))
+        }
+    }
+    // event listener for changes in visibility
+    document.addEventListener("visibilitychange",updateVisible)
+
+    // if count is creater than two ie switched tabs twice then close bot window
+    createEffect(() =>{ 
+        if(visibleCount() > 2 ){
+            console.log("closed window because of toggling tab");
+            closeBot();
+        }
+    })
+   
+
     return (
         <>
             <style>{styles}</style>
