@@ -29,6 +29,8 @@ export type BotMessageTheme = {
 }
 
 export type ChatWindowTheme = {
+    title?: string
+    titleAvatarSrc?: string
     welcomeMessage?: string
     backgroundColor?: string
     height?: number

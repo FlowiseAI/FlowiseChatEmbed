@@ -64,9 +64,9 @@ To enable full screen, add `margin: 0` to <code>body</code> style, and confirm y
         chatWindow: {
           // height: 700, don't set height
           // width: 400, don't set width
-        }
-      }
-  });
+        },
+      },
+    });
   </script>
 </body>
 ```
@@ -95,6 +95,9 @@ You can also customize chatbot with different configuration
           "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg",
       },
       chatWindow: {
+        title: "Flowise Bot",
+        titleAvatarSrc:
+          "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg",
         welcomeMessage: "Hello! This is custom welcome message",
         backgroundColor: "#ffffff",
         height: 700,
