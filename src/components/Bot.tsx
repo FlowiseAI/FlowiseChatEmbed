@@ -1,4 +1,5 @@
 import { createSignal, createEffect, For, onMount, Show } from 'solid-js'
+import { v4 as uuidv4 } from 'uuid'
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput } from '@/queries/sendMessageQuery'
 import { TextInput } from './inputs/textInput'
 import { GuestBubble } from './bubbles/GuestBubble'
@@ -134,7 +135,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     ], { equals: false })
     const [socketIOClientId, setSocketIOClientId] = createSignal('')
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
-    let chatId: any = undefined
+    const [chatId, setChatId] = createSignal(uuidv4())
 
     onMount(() => {
         if (!bottomSpacer) return
@@ -153,7 +154,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
    * Add each chat message into localStorage
    */
     const addChatMessage = (allMessage: MessageType[]) => {
-        localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId, chatHistory: allMessage }))
+        localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }))
     }
 
     const updateLastMessage = (text: string) => {
@@ -218,7 +219,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         const body: IncomingInput = {
             question: value,
             history: messageList,
-            chatId: chatId
+            chatId: chatId()
         }
 
         if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig
@@ -233,20 +234,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (result.data) {
             const data = result.data
-            if (!chatId) {
-                chatId = data.chatId
-                const item = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
-                if (item) {
-                    const objItem = JSON.parse(item)
-                    objItem.chatId = chatId
-                    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify(objItem))
-                } else {
-                    const objItem = {
-                        chatId: chatId
-                    }
-                    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify(objItem))
-                }
-            }
             if (!isChatFlowAvailableToStream()) {
                 setMessages((prevMessages) => {
                     const messages: MessageType[] = [...prevMessages, { message: data.text, sourceDocuments: data?.sourceDocuments, type: 'apiMessage' }]
@@ -271,7 +258,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const clearChat = () => {
         try {
             localStorage.removeItem(`${props.chatflowid}_EXTERNAL`)
-            chatId = null
+            setChatId(uuidv4())
             setMessages([
                 {
                     message: props.welcomeMessage ?? defaultWelcomeMessage,
@@ -293,20 +280,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`
     })
 
-    // createEffect(() => {
-    //     const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
-    //     if (chatMessage) {
-    //         const objChatMessage = JSON.parse(chatMessage)
-    //         objChatMessage.chatId = chatId
-    //     }
-    // }, chatId)
-
     // eslint-disable-next-line solid/reactivity
     createEffect(async () => {
         const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
         if (chatMessage) {
             const objChatMessage = JSON.parse(chatMessage)
-            chatId = objChatMessage.chatId
+            setChatId(objChatMessage.chatId)
             const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
                 const chatHistory: MessageType = {
                     message: message.message,
