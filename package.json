@@ -1,6 +1,6 @@
 {
     "name": "flowise-embed",
-    "version": "1.0.13",
+    "version": "1.0.15",
     "description": "Javascript library to display flowise chatbot on your website",
     "type": "module",
     "main": "dist/index.js",
@@ -31,6 +31,7 @@
         "@types/node": "18.15.11",
         "@typescript-eslint/eslint-plugin": "^5.57.0",
         "@typescript-eslint/parser": "^5.57.0",
+        "@types/uuid": "^8.3.4",
         "autoprefixer": "10.4.14",
         "babel-plugin-lodash": "^3.3.4",
         "babel-preset-solid": "1.7.1",
@@ -49,6 +50,7 @@
         "rollup-plugin-typescript-paths": "1.4.0",
         "rollup-plugin-uglify": "^6.0.4",
         "tailwindcss": "3.3.1",
-        "typescript": "5.0.3"
+        "typescript": "5.0.3",
+        "uuid": "^9.0.1"
     }
 }
