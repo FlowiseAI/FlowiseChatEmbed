@@ -12,6 +12,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: adambirds/sync-github-to-gitlab-action@v1.1.0
         with:
-          destination_repository: git@gitlab.dotsource.de:csi/flowisewebembed.git
+          destination_repository: git@gitlab.dotsource.de:musicstore/ki-chat-bot/flowisewebembed.git
           destination_branch_name: upstream
           destination_ssh_key: ${{ secrets.GITLAB_SSH_KEY }}
