@@ -43,7 +43,8 @@ export const Bubble = (props: BubbleProps) => {
                 class={
                     `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
                     (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
-                    (props.theme?.button?.size === 'large' ? ' bottom-48' : ' bottom-20') // large: bottom from 24 to 48
+                    (` bottom-${props.theme?.button?.aitTextFieldBottom}`) // Changed by Andy to use ait* variable
+                    //(props.theme?.button?.size === 'large' ? ' bottom-48' : ' bottom-20') // large: bottom from 24 to 48
                 }
             >
                 <Show when={isBotStarted()}>
