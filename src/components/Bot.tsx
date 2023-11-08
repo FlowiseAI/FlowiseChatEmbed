@@ -117,7 +117,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     const [userInput, setUserInput] = createSignal('')
     const [loading, setLoading] = createSignal(false)
-    const [sourcePopupOpen, setSourcePopupOpen] = createSignal(false)
+    const [sourcePopupOpen, setSourcePopupOpen] = createSignal(true) // Changed by Andy from false to true. So that the chatbot is always opened by default
     const [sourcePopupSrc, setSourcePopupSrc] = createSignal({})
     const [messages, setMessages] = createSignal<MessageType[]>([
         {
