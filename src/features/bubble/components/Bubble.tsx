@@ -9,8 +9,8 @@ export type BubbleProps = BotProps & BubbleParams
 export const Bubble = (props: BubbleProps) => {
     const [bubbleProps] = splitProps(props, ['theme'])
 
-    const [isBotOpened, setIsBotOpened] = createSignal(false)
-    const [isBotStarted, setIsBotStarted] = createSignal(false)
+    const [isBotOpened, setIsBotOpened] = createSignal(true) // Changed by Andy from false to true. So that the chatbot is always opened by default
+    const [isBotStarted, setIsBotStarted] = createSignal(true) // Changed by Andy from false to true. So that the chatbot is always opened by default
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
