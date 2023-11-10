@@ -1,7 +1,7 @@
 import { ShortTextInput } from './ShortTextInput'
-import { SendButton } from '@/components/SendButton'
 import { isMobile } from '@/utils/isMobileSignal'
-import { createSignal, onMount } from 'solid-js'
+import { createSignal, createEffect, onMount } from 'solid-js'
+import { SendButton } from '@/components/SendButton'
 
 type Props = {
     placeholder?: string
@@ -10,6 +10,7 @@ type Props = {
     sendButtonColor?: string
     defaultValue?: string
     fontSize?: number
+    disabled?: boolean
     onSubmit: (value: string) => void
 }
 
@@ -38,6 +39,10 @@ export const TextInput = (props: Props) => {
         }
     }
 
+    createEffect(() => {
+        if (!props.disabled && (!isMobile() && inputRef)) inputRef.focus()
+    })
+
     onMount(() => {
         if (!isMobile() && inputRef) inputRef.focus()
     })
@@ -64,9 +69,10 @@ export const TextInput = (props: Props) => {
                 onInput={handleInput}
                 value={inputValue()}
                 fontSize={props.fontSize}
+                disabled={props.disabled}
                 placeholder={props.placeholder ?? 'Type your question'}
             />
-            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>
+            <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={props.disabled || inputValue() === ''} class='my-2 ml-2' on:click={submit}>
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
             </SendButton>
         </div>
