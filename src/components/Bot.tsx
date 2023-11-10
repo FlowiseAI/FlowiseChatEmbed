@@ -366,7 +366,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                                             metadata={src.metadata}
                                                             onSourceClick={() => {
                                                                 if (URL) {
-                                                                    window.open(src.metadata.source, "_blank")
+                                                                    window.open(src.metadata.source, '_blank')
                                                                 }
                                                                 else {
                                                                     setSourcePopupSrc(src);
