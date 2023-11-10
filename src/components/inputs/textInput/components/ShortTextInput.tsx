@@ -62,9 +62,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
     return (
         <textarea
             ref={props.ref}
-            class='focus:outline-none bg-transparent px-4 py-4 flex-1 w-full text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100'
-            type='text'
-            disabled={props.disabled}
+            class='focus:outline-none bg-transparent px-4 py-4 flex-1 w-full text-input'
             style={{ 'font-size': props.fontSize ? `${props.fontSize}px` : '16px' }}
             rows={1}  // Set the textarea height to 1 line
             onInput={handleInput}
