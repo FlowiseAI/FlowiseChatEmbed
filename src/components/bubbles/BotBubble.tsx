@@ -21,6 +21,10 @@ export const BotBubble = (props: Props) => {
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message)
+        // AIT: Check for MathJax v3 and typeset the content
+        if (window.MathJax) {
+        window.MathJax.typeset([botMessageEl]);
+        }
     }
   })
 
