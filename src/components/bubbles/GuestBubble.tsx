@@ -23,8 +23,8 @@ export const GuestBubble = (props: Props) => {
       userMessageEl.innerHTML = Marked.parse(props.message)
         // AIT: Check for MathJax v3 and typeset the content
         if (window.MathJax) {
-        window.MathJax.typeset([userMessageEl]);
-        }
+          window.MathJax.typesetPromise([userMessageEl]).then(() => {})
+      }
     }
   })
 
