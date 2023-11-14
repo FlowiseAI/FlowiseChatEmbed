@@ -12,6 +12,7 @@ import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
 import { Avatar } from '@/components/avatars/Avatar'
 import { DeleteButton } from '@/components/SendButton'
+import { ToggleSizeButton } from '@/components/SendButton' // AIT: Import ToggleSizeButton
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -260,6 +261,11 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     }
 
+    // AIT: Add onClick Event for Toggle Size
+    const toggleSize = () => {
+        window.open("https://math-angel.co.uk", '_blank')
+    }
+
     const clearChat = () => {
         try {
             localStorage.removeItem(`${props.chatflowid}_EXTERNAL`)
@@ -445,6 +451,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
                             <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
                         </Show>
                         <div style={{ flex: 1 }}></div>
+
+                        {/* AIT: Add Toggle Size Button */}
+                        <ToggleSizeButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={toggleSize}>
+                            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+                        </ToggleSizeButton>
+
                         <DeleteButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={clearChat}>
                             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
                         </DeleteButton>

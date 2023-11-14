@@ -373,8 +373,14 @@
 }
 
 .markdownanswer ol,
-.markdownanswer ul {
-    margin: 1rem;
+/*.markdownanswer ul { //AIT: Not needed
+    margin: 0rem; // AIT: Not needed
+} */
+
+ul {
+    margin: 0rem; /* AIT: Margin */
+    list-style-type: disc; /* AIT: Style of bullet points */
+    padding-left: 1.5rem; /* AIT: Padding Left */
 }
 
 .boticon,
