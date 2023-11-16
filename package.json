@@ -15,6 +15,7 @@
     "dependencies": {
         "@babel/core": "^7.22.1",
         "@ts-stack/markdown": "^1.4.0",
+        "js-beautify": "^1.14.11",
         "lodash": "^4.17.21",
         "socket.io-client": "^4.6.2",
         "solid-element": "1.7.0",

@@ -53,3 +53,24 @@ export const sendRequest = async <ResponseData>(
         return { error: e as Error }
     }
 }
+
+
+export const getCookie = (name: string): string => {
+    const cookieDecoded = decodeURIComponent(document.cookie);
+    const cookieArray = cookieDecoded.split("; ");
+    let result:string = "";
+    cookieArray.forEach((element) => {
+        let components = element.split("=")
+        if (components[0] == name){
+            result = components[components.length-1]
+        }
+    })
+    return result;
+};
+
+export const setCookie = (name:string,value: number ,daysToLive: number ) =>{
+    const date = new Date();
+    date.setTime(date.getTime() + (daysToLive*24*60*60*1000))
+    const expires  = "expires="+date.toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/`
+};
