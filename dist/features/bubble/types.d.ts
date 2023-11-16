@@ -12,6 +12,7 @@ export type TextInputTheme = {
     sendButtonColor?: string;
 };
 export type UserMessageTheme = {
+    currentURL?: string;
     backgroundColor?: string;
     textColor?: string;
     showAvatar?: boolean;

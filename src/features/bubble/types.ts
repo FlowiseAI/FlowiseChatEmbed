@@ -15,6 +15,7 @@ export type TextInputTheme = {
 }
 
 export type UserMessageTheme = {
+    currentURL?: string
     backgroundColor?: string
     textColor?: string
     showAvatar?: boolean

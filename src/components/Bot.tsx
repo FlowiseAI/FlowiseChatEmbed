@@ -213,12 +213,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         setMessages((prevMessages) => {
             const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }]
-            addChatMessage(messages)
-            return messages
+            addChatMessage(messages) // AIT: This message will be sent
+            return messages // AIT: This message will be shown
         })
 
+        const currentURL = props.userMessage?.currentURL // AIT: Const for current URL
         const body: IncomingInput = {
-            question: value,
+            question: value + currentURL, // AIT: The current URL will be sent to openAI. But it will not be shown in the Chat.
+            //question: value, // Original
             history: messageList,
             chatId: chatId()
         }
