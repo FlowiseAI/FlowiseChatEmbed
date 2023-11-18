@@ -18,15 +18,23 @@ Marked.setOptions({ isNoP: true })
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined
 
+  // AIT: Ensure that MathJax ist loaded
+  const typesetMath = () => {
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+      window.MathJax.typesetPromise([botMessageEl]).catch(err => console.error('MathJax typeset error:', err));
+    } else {
+      // Retry after a delay if MathJax is not ready
+      setTimeout(typesetMath, 100);
+    }
+  }  
+
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message)
-        // AIT: Check for MathJax v3 and typeset the content
-        if (window.MathJax) {
-          window.MathJax.typesetPromise([botMessageEl]).then(() => {});
+        // AIT: Typeset the content
+        typesetMath()
       }
-    }
-  })
+    })
 
   return (
     <div

@@ -18,15 +18,23 @@ Marked.setOptions({ isNoP: true })
 export const GuestBubble = (props: Props) => {
   let userMessageEl: HTMLDivElement | undefined
 
+  // AIT: Ensure that MathJax ist loaded
+  const typesetMath = () => {
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+      window.MathJax.typesetPromise([userMessageEl]).catch(err => console.error('MathJax typeset error:', err));
+    } else {
+      // Retry after a delay if MathJax is not ready
+      setTimeout(typesetMath, 100);
+    }
+  }  
+
   onMount(() => {
     if (userMessageEl) {
       userMessageEl.innerHTML = Marked.parse(props.message)
-        // AIT: Check for MathJax v3 and typeset the content
-        if (window.MathJax) {
-          window.MathJax.typesetPromise([userMessageEl]).then(() => {})
+        // AIT: Typeset the content
+        typesetMath()
       }
-    }
-  })
+    })
 
   return (
     <div
