@@ -38,6 +38,7 @@ export type BotProps = {
     titleAvatarSrc?: string
     fontSize?: number
     isFullPage?: boolean
+    toggleSize?: () => void // AIT: Define the type for toggleSize function
 }
 
 const defaultWelcomeMessage = 'Hi there! How can I help?'
@@ -263,11 +264,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
         }
     }
 
-    // AIT: Add onClick Event for Toggle Size
-    const toggleSize = () => {
-        window.open("https://math-angel.co.uk", '_blank')
-    }
-
     const clearChat = () => {
         try {
             localStorage.removeItem(`${props.chatflowid}_EXTERNAL`)
@@ -455,7 +451,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         <div style={{ flex: 1 }}></div>
 
                         {/* AIT: Add Toggle Size Button */}
-                        <ToggleSizeButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={toggleSize}>
+                        <ToggleSizeButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={props.toggleSize}>
                             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
                         </ToggleSizeButton>
 

@@ -14,6 +14,7 @@ export const Bubble = (props: BubbleProps) => {
 
     const [isBotOpened, setIsBotOpened] = createSignal(true) // Changed by AIT from false to true. So that the chatbot is always opened by default
     const [isBotStarted, setIsBotStarted] = createSignal(true) // Changed by AIT from false to true. So that the chatbot is always opened by default
+    const [windowSize, setWindowSize] = createSignal('small') // Created by AIT to toggle between small and big chat window
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
@@ -28,6 +29,11 @@ export const Bubble = (props: BubbleProps) => {
         isBotOpened() ? closeBot() : openBot()
     }
 
+    // AIT: Values of WindowSize can be 'small' or 'big'
+    const toggleSize = () => {
+        setWindowSize(windowSize() === 'small' ? 'big' : 'small')
+    }
+
     return (
         <>
             <style>{styles}</style>
@@ -37,9 +43,10 @@ export const Bubble = (props: BubbleProps) => {
                 style={{
                     //height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
                     //width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : 'calc(100% - 100px)', // AIT: Added width
-                    height: 'calc(100% - 150px)',
-                    width: 'calc(100% - 400px)', // AIT: Added width
-                    transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
+                    height: windowSize() === 'small' ? '700px' : 'calc(100% - 100px)', // AIT: Added height for "small" and "large"
+                    width: windowSize() === 'small' ? '400px' : 'calc(100% - 300px)', // AIT: Added width for "small" and "large"
+                    transition: 'width 350ms cubic-bezier(0.45,0.05,0.55,0.95), height 350ms cubic-bezier(0.45,0.05,0.55,0.95), transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out', // AIT: Added transition for width and height
+                    //transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
                     transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
                     'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
@@ -68,7 +75,8 @@ export const Bubble = (props: BubbleProps) => {
                         fontSize={bubbleProps.theme?.chatWindow?.fontSize}
                         chatflowid={props.chatflowid}
                         chatflowConfig={props.chatflowConfig}
-                        apiHost={props.apiHost} />
+                        apiHost={props.apiHost}
+                        toggleSize={toggleSize} /> {/* AIT: Added this to pass toggleSize as a prop */}
                 </Show>
             </div>
         </>

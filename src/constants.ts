@@ -4,5 +4,6 @@ export const defaultBotProps: BubbleProps = {
     chatflowid: '',
     apiHost: undefined,
     chatflowConfig: undefined,
-    theme: undefined
+    theme: undefined,
+    toggleSize: () => {} // AIT: Add toggleSize 
 }

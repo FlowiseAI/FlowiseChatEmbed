@@ -1,8 +1,9 @@
 import { JSX } from 'solid-js/jsx-runtime'
 const defaultButtonColor = '#3B81F6'
 export const ToggleSizeIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
-<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke={props.color ?? defaultButtonColor} fill="none" stroke-linecap="round" stroke-linejoin="round">
-   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-   <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-resize" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke={props.color ?? defaultButtonColor} fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M4 11v8a1 1 0 0 0 1 1h8m-9 -14v-1a1 1 0 0 1 1 -1h1m5 0h2m5 0h1a1 1 0 0 1 1 1v1m0 5v2m0 5v1a1 1 0 0 1 -1 1h-1" />
+  <path d="M4 12h7a1 1 0 0 1 1 1v7" />
 </svg>
 )

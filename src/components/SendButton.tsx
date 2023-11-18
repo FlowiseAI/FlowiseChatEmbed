@@ -35,12 +35,12 @@ export const DeleteButton = (props: SendButtonProps) => {
             type='submit'
             disabled={props.isDisabled || props.isLoading}
             {...props}
-            class={
-                'py-2 px-4 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
+            class={ // AIT: added ait-ribbon-button in class
+                'ait-ribbon-button py-2 px-4 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
                 props.class
             }
             style={{ background: 'transparent', border: 'none' }}
-            title='New Chat'
+            title='Clear ChatCat' // AIT: Change from "New Chat" to "Clear Chat"
         >
             <Show when={!props.isLoading} fallback={<Spinner class='text-white' />}>
                 <DeleteIcon color={props.sendButtonColor} class={'send-icon flex '+ (props.disableIcon ? 'hidden' : '')}/>
@@ -56,12 +56,12 @@ export const ToggleSizeButton = (props: SendButtonProps) => {
             type='submit'
             disabled={props.isDisabled || props.isLoading}
             {...props}
-            class={
-                'py-2 px-4 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
+            class={ // AIT: added ait-ribbon-button in class
+                'ait-ribbon-button py-2 px-4 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
                 props.class
             }
             style={{ background: 'transparent', border: 'none' }}
-            title='Toggle Size'
+            title='Toggle ChatCat Size'
         >
             <Show when={!props.isLoading} fallback={<Spinner class='text-white' />}>
                 <ToggleSizeIcon color={props.sendButtonColor} class={'send-icon flex '+ (props.disableIcon ? 'hidden' : '')}/>

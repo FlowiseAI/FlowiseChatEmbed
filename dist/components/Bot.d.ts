@@ -21,6 +21,7 @@ export type BotProps = {
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
+    toggleSize?: () => void;
 };
 export declare const Bot: (props: BotProps & {
     class?: string;
