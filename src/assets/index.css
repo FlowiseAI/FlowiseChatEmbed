@@ -162,6 +162,13 @@
       BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   }
+
+  .file-annotation-button {
+    color: var(--chatbot-button-color);
+    background-color: #02a0a0c2;
+    border: 1px solid #02a0a0c2;
+    border-radius: var(--chatbot-border-radius);
+  }
   
   .chatbot-button {
     color: var(--chatbot-button-color);

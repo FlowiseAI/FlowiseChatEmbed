@@ -12,6 +12,7 @@ export const sendRequest = async <ResponseData>(
               url: string
               method: string
               body?: Record<string, unknown> | FormData
+              type?: string
           }
         | string
 ): Promise<{ data?: ResponseData; error?: Error }> => {
@@ -32,6 +33,8 @@ export const sendRequest = async <ResponseData>(
         const contentType = response.headers.get('Content-Type')
         if (contentType && contentType.includes('application/json')) {
             data = await response.json()
+        } else if (typeof params !== 'string' && params.type === 'blob') {
+            data = await response.blob()
         } else {
             data = await response.text()
         }

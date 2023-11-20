@@ -20,6 +20,7 @@ export type MessageType = {
     message: string
     type: messageType,
     sourceDocuments?: any
+    fileAnnotations?: any
 }
 
 export type BotProps = {
@@ -245,7 +246,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 else text = JSON.stringify(data, null, 2)
 
                 setMessages((prevMessages) => {
-                    const messages: MessageType[] = [...prevMessages, { message: text, sourceDocuments: data?.sourceDocuments, type: 'apiMessage' }]
+                    const messages: MessageType[] = [...prevMessages, { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' }]
                     addChatMessage(messages)
                     return messages
                 })
@@ -301,6 +302,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                     type: message.type
                 }
                 if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments
+                if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations
                 return chatHistory
             })
             setMessages([...loadedMessages])
@@ -389,6 +391,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                     {message.type === 'apiMessage' && (
                                         <BotBubble
                                             message={message.message}
+                                            fileAnnotations={message.fileAnnotations}
+                                            apiHost={props.apiHost}
                                             backgroundColor={props.botMessage?.backgroundColor}
                                             textColor={props.botMessage?.textColor}
                                             showAvatar={props.botMessage?.showAvatar}
