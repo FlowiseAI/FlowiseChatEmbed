@@ -7,10 +7,11 @@ export type IncomingInput = {
     overrideConfig?: Record<string, unknown>
     socketIOClientId?: string
     chatId?: string
+    fileName?: string // Only for assistant
 }
 
 export type MessageRequest = {
-    chatflowid: string
+    chatflowid?: string
     apiHost?: string
     body?: IncomingInput
 }
@@ -26,4 +27,12 @@ export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost
     sendRequest<any>({
         method: 'GET',
         url: `${apiHost}/api/v1/chatflows-streaming/${chatflowid}`,
+    })
+
+export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body }: MessageRequest) =>
+    sendRequest<any>({
+        method: 'POST',
+        url: `${apiHost}/api/v1/openai-assistants-file`,
+        body,
+        type: 'blob'
     })
