@@ -1,5 +1,7 @@
 type Props = {
     message: string;
+    apiHost?: string;
+    fileAnnotations?: any;
     showAvatar?: boolean;
     avatarSrc?: string;
     backgroundColor?: string;
