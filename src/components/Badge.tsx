@@ -51,10 +51,10 @@ export const Badge = (props: Props) => {
       "text-align": 'center',
       color: props.poweredByTextColor ?? defaultTextColor,
       "background-color": props.badgeBackgroundColor ?? '#ffffff'
-    }}>Powered by
+    }}>🔺 2023 ©
       <a
         ref={liteBadge}
-        href={'https://flowiseai.com'}
+        href={'https://iurimeira.com'}
         target="_blank"
         rel="noopener noreferrer"
         class="lite-badge"
