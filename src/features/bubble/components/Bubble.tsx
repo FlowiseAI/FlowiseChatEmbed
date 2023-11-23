@@ -15,7 +15,7 @@ export const Bubble = (props: BubbleProps) => {
     let numLoaded: number  = parseInt(numLoadedCookie);
     numLoaded = numLoaded ? numLoaded : 0;  
     const isOpen: boolean = numLoaded < 4 ? true : false;
-    
+
     const [isBotOpened, setIsBotOpened] = createSignal(isOpen)
     const [isBotStarted, setIsBotStarted] = createSignal(isOpen)
     const [isVisible,setIsVisible] = createSignal(true)
@@ -48,7 +48,7 @@ export const Bubble = (props: BubbleProps) => {
     // if count is creater than two ie switched tabs twice then close bot window
     createEffect(() =>{ 
         if(visibleCount() > 2 ){
-            console.log("closed window because of toggling tab");
+            // console.log("closed window because of toggling tab");
             closeBot();
         }
     })

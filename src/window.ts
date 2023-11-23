@@ -23,7 +23,6 @@ export const init = async (props: BotProps) => {
     let numLoaded: number  = parseInt(numLoadedCookie);
     numLoaded = numLoaded ? numLoaded : 0; 
     setCookie("numLoadedChat",numLoaded + 1,1)
-    // setCookie("")
     const data = sendRequest<any>({
         method: 'GET',
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
@@ -35,7 +34,6 @@ export const init = async (props: BotProps) => {
     props.theme = config_data?.theme;
     props.chatflowid = config_data?.chatflowid;
     props.apiHost = config_data?.apiHost;
-    //console.log(props)
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
     document.body.appendChild(element)
