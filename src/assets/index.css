@@ -379,7 +379,11 @@
     white-space: pre-wrap !important;
 }
 
-.markdownanswer ol,
+ol {
+    margin: 0rem; /* AIT: Margin */
+    list-style-type: decimal; /* AIT: Style of numbering */
+    padding-left: 1.5rem; /* AIT: Padding Left */  
+}
 /*.markdownanswer ul { //AIT: Not needed
     margin: 0rem; // AIT: Not needed
 } */

@@ -25,15 +25,33 @@ export const TextInput = (props: Props) => {
 
     const checkIfInputIsValid = () => inputValue() !== '' && inputRef?.reportValidity()
 
+    /* AIT: Not needed, because replaced below
     const submit = () => {
         if (checkIfInputIsValid()) props.onSubmit(inputValue())
         setInputValue('')
+    }
+    */
+
+    // AIT: Make sure, that after submitting, the textbox height is resetted.
+    const submit = () => {
+        if (checkIfInputIsValid()) {
+            props.onSubmit(inputValue());
+            setInputValue('');
+            if (inputRef instanceof HTMLTextAreaElement) {
+                inputRef.style.height = 'auto'; // AIT: Reset height
+                inputRef.style.height = `${inputRef.scrollHeight}px`; // AIT: Adjust to content
+            }
+        }
     }
 
     const submitWhenEnter = (e: KeyboardEvent) => {
         // Check if IME composition is in progress
         const isIMEComposition = e.isComposing || e.keyCode === 229
-        if (e.key === 'Enter' && !isIMEComposition) submit()
+        // if (e.key === 'Enter' && !isIMEComposition) submit() // AIT: Replaced by code below
+        if (e.key === 'Enter' && !isIMEComposition && !e.shiftKey) { // AIT added !e.shiftKey to prevent new line break when pressing ENTER without SHIFT
+            e.preventDefault() // AIT added this to prevent the default newline behavior
+            submit()
+        }
     }
 
     createEffect(() => {
@@ -62,7 +80,7 @@ export const TextInput = (props: Props) => {
             onKeyDown={submitWhenEnter}
         >
             <ShortTextInput
-                ref={inputRef as HTMLInputElement}
+                ref={inputRef as HTMLTextAreaElement} // AIT: Replace HTMLInputElement with HTMLTextAreaElement
                 onInput={handleInput}
                 value={inputValue()}
                 fontSize={props.fontSize}
