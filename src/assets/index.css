@@ -14,7 +14,7 @@
     --chatbot-host-bubble-bg-color: #f7f8ff;
     --chatbot-host-bubble-color: #303235;
   
-    --chatbot-guest-bubble-bg-color: #3B81F6;
+    --chatbot-guest-bubble-bg-color: #962922;
     --chatbot-guest-bubble-color: #ffffff;
   
     --chatbot-input-bg-color: #ffffff;
@@ -196,7 +196,7 @@
   
   .chatbot-guest-bubble {
     color: var(--chatbot-guest-bubble-color);
-    background-color: #3B81F6;
+    background-color: #962922;
     border-radius: 6px;
   }
   
