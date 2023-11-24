@@ -40,7 +40,7 @@ export type BotProps = {
     isFullPage?: boolean
 }
 
-const defaultWelcomeMessage = 'Olá, sou o SabeTudo. No que posso te ajudar?'
+const defaultWelcomeMessage = 'Olá, posso te ajudar?'
 
 /*const sourceDocuments = [
     {
