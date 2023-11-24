@@ -20,7 +20,7 @@ export const Badge = (props: Props) => {
           liteBadge &&
           removedNode.id == 'lite-badge'
         ) {
-          console.log("Sorry, you can't remove the brand 😅")
+          console.log("Oh no 😅")
           props.botContainer?.append(liteBadge)
         }
       })
@@ -61,7 +61,7 @@ export const Badge = (props: Props) => {
         id="lite-badge"
         style={{ "font-weight": 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> Flowise</span>
+        <span> Iuri Meira</span>
       </a>
     </span>
   )
