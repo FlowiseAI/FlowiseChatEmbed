@@ -185,7 +185,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     }
 
     // Handle errors
-    const handleError = (message = 'Oops! There seems to be an error. Please try again.') => {
+    const handleError = (message = 'Oops! Parece que há algo de errado. Tente novamente.') => {
         setMessages((prevMessages) => {
             const messages: MessageType[] = [...prevMessages, { message, type: 'apiMessage' }]
             addChatMessage(messages)
