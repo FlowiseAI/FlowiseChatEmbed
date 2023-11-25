@@ -43,8 +43,9 @@ export const Bubble = (props: BubbleProps) => {
                 style={{
                     //height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
                     //width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : 'calc(100% - 100px)', // AIT: Added width
-                    height: windowSize() === 'small' ? '700px' : 'calc(100% - 100px)', // AIT: Added height for "small" and "large"
-                    width: windowSize() === 'small' ? '400px' : 'calc(100% - 300px)', // AIT: Added width for "small" and "large"
+                    height: windowSize() === 'small' ? '700px' : 'calc(100% - 200px)', // AIT: Added height for toggle between "small" and "large"
+                    width: windowSize() === 'small' ? '400px' : 'calc(100% - 500px)', // AIT: Added width for toggle between "small" and "large"
+                    bottom: `${props.theme?.button?.aitTextFieldBottom}px`, // AIT: Added AIT Variable for Bottom distance
                     transition: 'width 350ms cubic-bezier(0.45,0.05,0.55,0.95), height 350ms cubic-bezier(0.45,0.05,0.55,0.95), transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out', // AIT: Added transition for width and height
                     //transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
@@ -56,8 +57,8 @@ export const Bubble = (props: BubbleProps) => {
                 class={
                     //`fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` + // AIT: Remove this. Fixed stuff is not wanted.
                     `fixed sm:right-5 rounded-lg` + // AIT: Only keep the good styling.
-                    (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
-                    (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
+                    (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') //+
+                    //(props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20') // AIT: Not needed anymore
                 }
             >
                 <Show when={isBotStarted()}>

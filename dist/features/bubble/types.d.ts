@@ -39,6 +39,10 @@ export type ChatWindowTheme = {
 };
 export type ButtonTheme = {
     size?: 'medium' | 'large';
+    aitBubbleSize?: number;
+    aitBubbleIconSize?: number;
+    aitBubbleIconBotOpenedSize?: number;
+    aitTextFieldBottom?: number;
     backgroundColor?: string;
     iconColor?: string;
     customIconSrc?: string;

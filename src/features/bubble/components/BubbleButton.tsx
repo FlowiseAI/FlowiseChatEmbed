@@ -11,6 +11,9 @@ const defaultButtonColor = '#3B81F6'
 const defaultIconColor = 'white'
 const defaultBottom = '20'
 const defaultRight = '20'
+const defaultAitBubbleSize = '12' // By AIT: Set Default Size for ait* variables
+const defaultAitBubbleIconSize = '7' // By AIT: Set Default Size for ait* variables
+const defaultAitBubbleIconBotOpenedSize = '7' // By AIT: Set Default Size for ait* variables
 
 export const BubbleButton = (props: Props) => {
     return (
@@ -18,14 +21,16 @@ export const BubbleButton = (props: Props) => {
             part='button'
             onClick={() => props.toggleBot()}
             class={
-                `fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in` +
-                (props.size === 'large' ? ' w-16 h-16' : ' w-12 h-12')
+                `fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in` //+ // Removed by AIT to use ait* variable
+                //(props.size === 'large' ? ' w-16 h-16' : ' w-12 h-12') // Removed by AIT to use ait* variable
             }
             style={{
                 'background-color': props.backgroundColor ?? defaultButtonColor,
                 'z-index': 42424242,
                 'right': props.right ? `${props.right.toString()}px` : `${defaultRight}px`,
                 'bottom': props.bottom ? `${props.bottom.toString()}px` : `${defaultBottom}px`,
+                'height': `${props.aitBubbleSize.toString()}px`, // Added by AIT to use ait* variable
+                'width': `${props.aitBubbleSize.toString()}px`, // Added by AIT to use ait* variable
             }}
         >
             <Show when={isNotDefined(props.customIconSrc)} keyed>
@@ -46,18 +51,26 @@ export const BubbleButton = (props: Props) => {
             <Show when={props.customIconSrc}>
                 <img
                     src={props.customIconSrc}
-                    class={'rounded-full object-cover' + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100') + (props.size === 'large' ? ' w-9 h-9' : ' w-7 h-7')}
+                    class={'rounded-full object-cover' + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')} //+ // Removed by AIT to use ait* variable
+                    // (props.size === 'large' ? ' w-9 h-9' : ' w-7 h-7')} // Removed by AIT to use ait* variable
                     alt='Bubble button icon'
+                    style={{
+                        'width': `${props.aitBubbleIconSize.toString()}px`, // Added by AIT to use ait* variable
+                        'height': `${props.aitBubbleIconSize.toString()}px` // Added by AIT to use ait* variable
+                    }}
                 />
             </Show>
 
             <svg
                 viewBox='0 0 24 24'
-                style={{ fill: props.iconColor ?? 'white' }}
+                style={{
+                    fill: props.iconColor ?? 'white',
+                    'width': `${props.aitBubbleIconBotOpenedSize.toString()}px`, // Added by AIT to use ait* variable
+                }}
                 class={
                     `absolute duration-200 transition ` +
-                    (props.isBotOpened ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-180 opacity-0') +
-                    (props.size === 'large' ? ' w-9' : ' w-7')
+                    (props.isBotOpened ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-180 opacity-0') //+ // Removed by AIT to use ait* variable
+                    //(props.size === 'large' ? ' w-9' : ' w-7') // Removed by AIT to use ait* variable
                 }
             >
                 <path

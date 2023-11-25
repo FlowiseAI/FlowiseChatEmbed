@@ -44,7 +44,11 @@ export type ChatWindowTheme = {
 }
 
 export type ButtonTheme = {
-    size?: 'medium' | 'large'
+    size?: 'medium' | 'large' // AIT created proper ait* variables for easier use
+    aitBubbleSize?: number // By AIT: Size of the overall CatChat Button
+    aitBubbleIconSize?: number // By AIT: Size of the image/icon inside the CatChat Button
+    aitBubbleIconBotOpenedSize?: number // By AIT: Size of the image/icon inside CatChat Button when Chat is opened (currently an arrow)
+    aitTextFieldBottom?: number // By AIT: Distance of Chatwindow to bottom
     backgroundColor?: string
     iconColor?: string
     customIconSrc?: string
