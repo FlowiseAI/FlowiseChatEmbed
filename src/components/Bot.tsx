@@ -324,11 +324,19 @@ export const Bot = (props: BotProps & { class?: string }) => {
         })
         return newSourceDocuments
     }
+
+    const clickPrompt = (message: string) =>{
+        console.log("clicked the button")
+        console.log(message)
+        handleSubmit(message)
+    }
+    
     return (
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
                 <div class="flex w-full h-full justify-center">
-                    <div style={{ "padding-bottom": '100px' }} ref={chatContainer} class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
+                    <div style={{ "padding-bottom": '200px' }} ref={chatContainer} class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
+                    
                         <For each={[...messages()]}>
                             {(message, index) => (
                                 <>
@@ -379,6 +387,41 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                 </>
                             )}
                         </For>
+                      
+                    </div>
+                    <div
+                    class={'flex'}
+                    data-testid='input'
+                    style={{
+     
+                        position: 'absolute',
+                        left: '20px',
+                        right: '20px',
+                        bottom: '100px',
+                        margin: 'auto',
+                        "z-index": 1000,
+                    }}
+                    >
+                        <button class={'justify-between question-button'}onClick={()=>{clickPrompt("Can I book a meeting?")}} >
+                            Can I book a meeting?
+                        </button> 
+                    </div>
+                    <div
+                    class={'flex'}
+                    data-testid='input'
+                    style={{
+     
+                        position: 'absolute',
+                        left: '50%',
+                        right: '20px',
+                        bottom: '100px',
+                        margin: 'auto',
+                        "z-index": 1000,
+                    }}
+                    >
+                        <button class={'justify-between question-button'}onClick={()=>{clickPrompt("What can I buy with 500k?")}} >
+                            What can I buy with 500k?
+                        </button> 
                     </div>
                     <TextInput
                         backgroundColor={props.textInput?.backgroundColor}
@@ -389,9 +432,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
                     />
+                    
                 </div>
+                
+               
                 <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
                 <BottomSpacer ref={bottomSpacer} />
+                
             </div>
             {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
         </>
