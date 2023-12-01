@@ -50,10 +50,8 @@ export const BotBubble = (props: Props) => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message);
       const svgContainerElement = document.createElement('div');
-      svgContainerElement.id = 'svg-container'; // Set the ID for the container
+      svgContainerElement.id = 'svg-container';
       botMessageEl.appendChild(svgContainerElement);
-
-      // Render the BsHandThumbsDown SVG component inside the new div
       render(
         () => (
           <div class="flex items-center mt-2 gap-1">
