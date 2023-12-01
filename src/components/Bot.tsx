@@ -12,6 +12,11 @@ import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
+import CloseIcon from '@/assets/Icons/close';
+import { FeedbackType } from '@/models/giveFeedback';
+import BsHandThumbsUp from '@/assets/Icons/ThumbUp';
+import BsHandThumbsDown from '@/assets/Icons/ThumbsDown';
+import { set } from 'lodash';
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
@@ -125,6 +130,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
   let botContainer: HTMLDivElement | undefined;
 
   const [userInput, setUserInput] = createSignal('');
+  const [giveFeedBack, setGiveFeedBack] = createSignal<FeedbackType>(null);
   const [loading, setLoading] = createSignal(false);
   const [sourcePopupOpen, setSourcePopupOpen] = createSignal(false);
   const [sourcePopupSrc, setSourcePopupSrc] = createSignal({});
@@ -406,6 +412,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
                       textColor={props.botMessage?.textColor}
                       showAvatar={props.botMessage?.showAvatar}
                       avatarSrc={props.botMessage?.avatarSrc}
+                      giveFeedBack={giveFeedBack}
+                      setGiveFeedBack={setGiveFeedBack}
                     />
                   )}
                   {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
@@ -485,6 +493,43 @@ export const Bot = (props: BotProps & { class?: string }) => {
         </div>
         <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
         <BottomSpacer ref={bottomSpacer} />
+        {giveFeedBack() && (
+          <div class="flex-col flex shadow-lg absolute bottom-2 h-[25vh] rounded-custom w-[98%] border border-custom-gray bg-white z-9999">
+            <div class="flex justify-between items-center h-[50px] px-2.5 py-2">
+              <div class="flex justify-center items-center gap-2">
+                <div
+                  class="flex justify-center items-center w-[30px] h-[30px] rounded-full"
+                  style={{
+                    background: giveFeedBack() === 'THUMBS_UP' ? '#def1de' : '#fee2e2',
+                  }}
+                >
+                  {giveFeedBack() === 'THUMBS_UP' ? <BsHandThumbsUp color="#6cbf6c" /> : <BsHandThumbsDown color="#fc0000" />}
+                </div>
+                Provide additional feedback
+              </div>
+              <CloseIcon
+                className="cursor-pointer"
+                height="20px"
+                width="20px"
+                color=" #bbbbbb"
+                onclick={() => {
+                  setGiveFeedBack(null);
+                }}
+              />
+            </div>
+            <div class="flex-1 h-full px-2.5 py-0.5">
+              <textarea
+                class="h-full w-full p-2 border-2 rounded-md bg-gray-100 text-gray-800 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-y placeholder-gray-400"
+                placeholder="Enter your feedback here..."
+              ></textarea>
+            </div>
+            <div class="flex items-center justify-end h-[50px] px-2.5">
+              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg hover:shadow-xl transition ease-in-out duration-300">
+                Submit Feedback
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
     </>

@@ -1,10 +1,16 @@
-import { Show, onMount } from 'solid-js';
+import { Accessor, Setter, Show, onMount } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { sendFileDownloadQuery } from '@/queries/sendMessageQuery';
+import { FeedbackType } from '@/models/giveFeedback';
+import { render } from 'solid-js/web';
+import BsHandThumbsDown from '@/assets/Icons/ThumbsDown';
+import BsHandThumbsUp from '@/assets/Icons/ThumbUp';
 
 type Props = {
   message: string;
+  giveFeedBack: Accessor<FeedbackType>;
+  setGiveFeedBack: Setter<FeedbackType>;
   apiHost?: string;
   fileAnnotations?: any;
   showAvatar?: boolean;
@@ -43,6 +49,33 @@ export const BotBubble = (props: Props) => {
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message);
+      const svgContainerElement = document.createElement('div');
+      svgContainerElement.id = 'svg-container'; // Set the ID for the container
+      botMessageEl.appendChild(svgContainerElement);
+
+      // Render the BsHandThumbsDown SVG component inside the new div
+      render(
+        () => (
+          <div class="flex items-center mt-2 gap-1">
+            <BsHandThumbsUp
+              className="cursor-pointer"
+              onclick={() => {
+                props.setGiveFeedBack(props.giveFeedBack() === 'THUMBS_UP' ? null : 'THUMBS_UP');
+              }}
+              color="#303235"
+            />
+
+            <BsHandThumbsDown
+              color="#303235"
+              className="cursor-pointer"
+              onclick={() => {
+                props.setGiveFeedBack(props.giveFeedBack() === 'THUMBS_DOWN' ? null : 'THUMBS_DOWN');
+              }}
+            />
+          </div>
+        ),
+        svgContainerElement,
+      );
       if (props.fileAnnotations && props.fileAnnotations.length) {
         for (const annotations of props.fileAnnotations) {
           const button = document.createElement('button');
