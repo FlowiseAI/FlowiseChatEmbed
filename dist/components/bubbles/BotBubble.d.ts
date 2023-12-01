@@ -1,5 +1,9 @@
+import { Accessor, Setter } from 'solid-js';
+import { FeedbackType } from '@/models/giveFeedback';
 type Props = {
     message: string;
+    giveFeedBack: Accessor<FeedbackType>;
+    setGiveFeedBack: Setter<FeedbackType>;
     apiHost?: string;
     fileAnnotations?: any;
     showAvatar?: boolean;
