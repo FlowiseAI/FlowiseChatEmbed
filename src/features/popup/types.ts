@@ -1,7 +1,7 @@
 export type PopupParams = {
-  autoShowDelay?: number
+  autoShowDelay?: number;
   theme?: {
-    width?: string
-    backgroundColor?: string
-  }
-}
+    width?: string;
+    backgroundColor?: string;
+  };
+};
