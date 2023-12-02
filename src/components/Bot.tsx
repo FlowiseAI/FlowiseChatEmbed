@@ -9,7 +9,7 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bu
 import { Badge } from './Badge'
 import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
-
+import { QuestionButton } from './bubbles/QuestionButton'
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
 export type MessageType = {
@@ -326,8 +326,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
     }
 
     const clickPrompt = (message: string) =>{
-        console.log("clicked the button")
-        console.log(message)
+        // console.log("clicked the button")
+        // console.log(message)
         handleSubmit(message)
     }
     
@@ -389,40 +389,21 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         </For>
                       
                     </div>
-                    <div
-                    class={'flex'}
-                    data-testid='input'
-                    style={{
-     
-                        position: 'absolute',
-                        left: '20px',
-                        right: '20px',
-                        bottom: '100px',
-                        margin: 'auto',
-                        "z-index": 1000,
-                    }}
-                    >
-                        <button class={'justify-between question-button'}onClick={()=>{clickPrompt("Can I book a meeting?")}} >
-                            Can I book a meeting?
-                        </button> 
-                    </div>
-                    <div
-                    class={'flex'}
-                    data-testid='input'
-                    style={{
-     
-                        position: 'absolute',
-                        left: '50%',
-                        right: '20px',
-                        bottom: '100px',
-                        margin: 'auto',
-                        "z-index": 1000,
-                    }}
-                    >
-                        <button class={'justify-between question-button'}onClick={()=>{clickPrompt("What can I buy with 500k?")}} >
-                            What can I buy with 500k?
-                        </button> 
-                    </div>
+                    <QuestionButton
+                        question={"Can I book a meeting?"}
+                        onQuestionClick={clickPrompt}
+                        leftOffset = {"0%"}
+                    />
+                    <QuestionButton
+                        question={"What can I buy for $1 Million?"}
+                        onQuestionClick={clickPrompt}
+                        leftOffset = {"30%"}
+                    />
+                    <QuestionButton
+                        question={"Where is best to buy?"}
+                        onQuestionClick={clickPrompt}
+                        leftOffset = {"60%"}
+                    />
                     <TextInput
                         backgroundColor={props.textInput?.backgroundColor}
                         textColor={props.textInput?.textColor}
