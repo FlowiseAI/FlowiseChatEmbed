@@ -86,7 +86,8 @@ export const Bubble = (props: BubbleProps) => {
                         fontSize={bubbleProps.theme?.chatWindow?.fontSize}
                         chatflowid={props.chatflowid}
                         chatflowConfig={props.chatflowConfig}
-                        apiHost={props.apiHost} />
+                        apiHost={props.apiHost} 
+                        closeBoxFunction={closeBot}/>
                 </Show>
             </div>
         </>
