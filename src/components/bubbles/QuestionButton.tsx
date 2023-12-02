@@ -16,7 +16,7 @@ export const QuestionButton = (props:Props) =>{
                     style={{
                         position: 'absolute',
                         left: leftPosition,
-                        width: 'calc(33% - 0.33 * 40px)',
+                        width: 'calc(33% - 0.40 * 40px)',
                         bottom: '100px',
                         margin: 'auto',
                         "z-index": 1000,
