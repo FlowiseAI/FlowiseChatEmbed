@@ -1,7 +1,15 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run lint
+set -e # Exit on any error
+
+echo "Running ESLint..."
 npm run lint-fix
+
+echo "Formatting code..."
 npm run format
+
+echo "Checking formatting..."
 npm run format:check
+
+echo "Pre-commit checks passed."
