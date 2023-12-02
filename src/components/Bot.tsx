@@ -461,7 +461,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             <Show when={props.title}>
               <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
             </Show>
-            <div style={{ flex: 1 }}></div>
+            <div style={{ flex: 1 }} />
             <DeleteButton
               sendButtonColor={props.bubbleTextColor}
               type="button"
