@@ -1,5 +1,6 @@
 type BotProps = {
     chatflowid: string;
+    includeQuestions: boolean;
     apiHost?: string;
     userID?: string;
     chatflowConfig?: Record<string, unknown>;

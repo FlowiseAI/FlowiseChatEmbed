@@ -2,11 +2,11 @@
 import { sendRequest, getCookie, setCookie} from '@/utils/index'
 type BotProps = {
     chatflowid: string
+    includeQuestions: boolean
     apiHost?: string
     userID?:string
     chatflowConfig?: Record<string, unknown>
     theme?:Record<string, unknown>
-    
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -34,6 +34,7 @@ export const init = async (props: BotProps) => {
     props.theme = config_data?.theme;
     props.chatflowid = config_data?.chatflowid;
     props.apiHost = config_data?.apiHost;
+    props.includeQuestions = config_data?.includeQuestions;
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
     document.body.appendChild(element)

@@ -1,6 +1,7 @@
 declare const chatbot: {
     initFull: (props: {
         chatflowid: string;
+        includeQuestions: boolean;
         apiHost?: string | undefined;
         userID?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
@@ -10,6 +11,7 @@ declare const chatbot: {
     }) => void;
     init: (props: {
         chatflowid: string;
+        includeQuestions: boolean;
         apiHost?: string | undefined;
         userID?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;

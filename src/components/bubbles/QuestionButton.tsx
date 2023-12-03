@@ -14,12 +14,12 @@ export const QuestionButton = (props:Props) =>{
                     class={'flex'}
                     data-testid='input'
                     style={{
-                        position: 'absolute',
-                        left: leftPosition,
-                        width: 'calc(33% - 0.40 * 40px)',
-                        bottom: '100px',
-                        margin: 'auto',
-                        "z-index": 1000,
+                        padding: '5px',
+                    //     left: leftPosition,
+                    //     width: 'calc(33% - 0.40 * 40px)',
+                    //     bottom: '100px',
+                    //     margin: 'auto',
+                    //     "z-index": 1000,
                     }}
                     >
                         <button class={'justify-between question-button'}onClick={()=>{props.onQuestionClick(props.question)}} >
