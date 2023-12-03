@@ -15,11 +15,6 @@ export const QuestionButton = (props:Props) =>{
                     data-testid='input'
                     style={{
                         padding: '5px',
-                    //     left: leftPosition,
-                    //     width: 'calc(33% - 0.40 * 40px)',
-                    //     bottom: '100px',
-                    //     margin: 'auto',
-                    //     "z-index": 1000,
                     }}
                     >
                         <button class={'justify-between question-button'}onClick={()=>{props.onQuestionClick(props.question)}} >
