@@ -82,32 +82,60 @@ pre {
   transition: opacity 400ms ease-in 200ms;
 }
 
-.bubble-typing {
-  transition:
-    width 400ms ease-out,
-    height 400ms ease-out;
+/* ... existing CSS ... */
+
+/* Dog Paw Typing Animation */
+.paw {
+  position: relative;
+  width: 20px; /* Adjust size as needed */
+  height: 20px;
+  margin-right: 5px;
+  animation: typing-animation 1s infinite;
 }
 
-.bubble1,
-.bubble2,
-.bubble3 {
-  background-color: var(--chatbot-host-bubble-color);
-  opacity: 0.5;
+.pad {
+  position: absolute;
+  background-color: black; /* Adjust color as needed */
+  border-radius: 50%;
 }
 
-.bubble1 {
-  animation: chatBubbles 1s ease-in-out infinite;
+.pad.large {
+  width: 20px;
+  height: 20px;
+  bottom: 0;
 }
 
-.bubble2 {
-  animation: chatBubbles 1s ease-in-out infinite;
-  animation-delay: 0.3s;
+.pad.small {
+  width: 8px;
+  height: 8px;
+  top: 0;
 }
 
-.bubble3 {
-  animation: chatBubbles 1s ease-in-out infinite;
-  animation-delay: 0.5s;
+/* Position the small pads to look like the top of a paw */
+.paw:nth-child(1) .pad.small:nth-child(2) {
+  left: 0;
 }
+.paw:nth-child(1) .pad.small:nth-child(3) {
+  right: 0;
+}
+.paw:nth-child(1) .pad.small:nth-child(4) {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Repeat positioning for other paws, or use a more generic approach */
+
+@keyframes typing-animation {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ... existing CSS ... */
 
 @keyframes chatBubbles {
   0% {
