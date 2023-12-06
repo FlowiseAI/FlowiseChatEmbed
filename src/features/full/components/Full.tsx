@@ -12,7 +12,7 @@ export const Full = (
   props: FullProps,
   { element }: { element: HTMLElement }
 ) => {
-  const [isBotDisplayed, setIsBotDisplayed] = createSignal(true) // Changed by AIT from false to true. So that the chatbot is always opened by default
+  const [isBotDisplayed, setIsBotDisplayed] = createSignal(false) // Changed by AIT from false to true. So that the chatbot is always opened by default
 
   const launchBot = () => {
     setIsBotDisplayed(true)

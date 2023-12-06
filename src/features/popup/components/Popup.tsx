@@ -56,7 +56,7 @@ export const Popup = (props: PopupProps) => {
 
   const [isBotOpened, setIsBotOpened] = createSignal(
     // eslint-disable-next-line solid/reactivity
-    popupProps.isOpen ?? true // Changed by AIT from false to true. So that the chatbot is always opened by default
+    popupProps.isOpen ?? false // Changed by AIT from false to true. So that the chatbot is always opened by default
   )
 
   createEffect(() => {
