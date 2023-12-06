@@ -1,6 +1,6 @@
 import { createSignal, createEffect, For, onMount, Show } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput } from '@/queries/sendMessageQuery';
+import {sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatflow} from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -140,6 +140,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
+  const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], {equals: false});
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -199,6 +200,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
     scrollToBottom();
   };
 
+  const promptClick = async (prompt: string) => {
+    setUserInput(prompt);
+    handleSubmit(prompt);
+  }
   // Handle form submission
   const handleSubmit = async (value: string) => {
     setUserInput(value);
@@ -319,6 +324,22 @@ export const Bot = (props: BotProps & { class?: string }) => {
       setIsChatFlowAvailableToStream(data?.isStreaming ?? false);
     }
 
+    let obj = await getChatflow({
+      chatflowid: props.chatflowid,
+      apiHost: props.apiHost,
+    });
+
+    if (obj) {
+      let config = JSON.parse(obj.data?.chatbotConfig)
+      if (config?.starterPrompts) {
+        let prompts: string[] = []
+        Object.getOwnPropertyNames(config.starterPrompts).forEach((key) => {
+          prompts.push(config.starterPrompts[key].prompt)
+        });
+        setStarterPrompts(prompts);
+      }
+    }
+
     const socket = socketIOClient(props.apiHost as string);
 
     socket.on('connect', () => {
@@ -332,6 +353,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     socket.on('sourceDocuments', updateLastMessageSourceDocuments);
 
     socket.on('token', updateLastMessage);
+    console.log('1....'+JSON.stringify(starterPrompts));
 
     // eslint-disable-next-line solid/reactivity
     return () => {
@@ -472,6 +494,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
             </DeleteButton>
           </div>
+
+
           <TextInput
             backgroundColor={props.textInput?.backgroundColor}
             textColor={props.textInput?.textColor}
@@ -483,6 +507,17 @@ export const Bot = (props: BotProps & { class?: string }) => {
             onSubmit={handleSubmit}
           />
         </div>
+        <Show when={messages().length === 1}>
+          <Show when={starterPrompts()}>
+            <div class={'starter-prompt-container'} style={{ 'max-width': '100%', margin: '1' }}>
+              <For each={[...starterPrompts()]}>
+                {(key) => (
+                    <button type="button" class="starter-prompt" onClick={() => promptClick(key)}>{key}</button>
+                )}
+              </For>
+            </div>
+          </Show>
+        </Show>
         <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
         <BottomSpacer ref={bottomSpacer} />
       </div>
