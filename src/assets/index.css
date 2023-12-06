@@ -433,3 +433,20 @@ input {
   padding: 10px 10px;
   font-family: 'Poppins', sans-serif;
 }
+
+.starter-prompt-container {
+  position: absolute;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 10px;
+  font-family: 'Poppins', sans-serif;
+  -webkit-overflow-scrolling: touch; /* For momentum scroll on mobile devices */
+  scrollbar-width: none; /* For Firefox */
+}
+
+.starter-prompt {
+  flex: 0 0 auto; /* Don't grow, don't shrink, base width on content */
+  margin: 5px; /* Adjust as needed for spacing between buttons */
+}
