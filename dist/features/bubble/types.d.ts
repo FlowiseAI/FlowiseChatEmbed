@@ -31,6 +31,10 @@ export type ChatWindowTheme = {
     backgroundColor?: string;
     height?: number;
     width?: number;
+    aitHeightSmall?: string;
+    aitWidthSmall?: string;
+    aitHeightLarge?: string;
+    aitWidthLarge?: string;
     fontSize?: number;
     userMessage?: UserMessageTheme;
     botMessage?: BotMessageTheme;

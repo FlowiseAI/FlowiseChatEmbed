@@ -43,10 +43,12 @@ export const Bubble = (props: BubbleProps) => {
                 style={{
                     //height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
                     //width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : 'calc(100% - 100px)', // AIT: Added width
-                    'min-height': '700px', // Ensure height is not less than 700px
-                    'min-width': '400px', // Ensure width is not less than 400px
-                    height: windowSize() === 'small' ? '700px' : 'calc(100% - 250px)', // AIT: Added height for toggle between "small" and "large"
-                    width: windowSize() === 'small' ? '400px' : 'calc(100% - 500px)', // AIT: Added width for toggle between "small" and "large"
+                    //'min-height': '700px', // Ensure height is not less than 700px
+                    //'min-width': '400px', // Ensure width is not less than 400px
+                    //height: windowSize() === 'small' ? '700px' : 'calc(100% - 250px)', // AIT: Added height for toggle between "small" and "large"
+                    //width: windowSize() === 'small' ? '400px' : 'calc(100% - 500px)', // AIT: Added width for toggle between "small" and "large"
+                    height: windowSize() === 'small' ? `${bubbleProps.theme?.chatWindow?.aitHeightSmall}` : `${bubbleProps.theme?.chatWindow?.aitHeightLarge}`, // AIT: Added height for toggle between "small" and "large"
+                    width: windowSize() === 'small' ? `${bubbleProps.theme?.chatWindow?.aitWidthSmall}` : 'calc(100% - 500px)', // AIT: Added width for toggle between "small" and "large"                   
                     bottom: `${props.theme?.button?.aitTextFieldBottom}px`, // AIT: Added AIT Variable for Bottom distance
                     transition: 'width 350ms cubic-bezier(0.45,0.05,0.55,0.95), height 350ms cubic-bezier(0.45,0.05,0.55,0.95), transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out', // AIT: Added transition for width and height
                     //transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
