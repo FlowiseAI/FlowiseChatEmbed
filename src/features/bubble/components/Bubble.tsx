@@ -43,8 +43,10 @@ export const Bubble = (props: BubbleProps) => {
                 style={{
                     //height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
                     //width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : 'calc(100% - 100px)', // AIT: Added width
-                    //'min-height': '700px', // Ensure height is not less than 700px
-                    //'min-width': '400px', // Ensure width is not less than 400px
+                    'min-height': '200px', // Ensure height is not less than 200px
+                    'min-width': '200px', // Ensure width is not less than 200px
+                    'max-height': 'calc(100% - 100px)', // Ensure height is not larger screen
+                    'max-width': 'calc(100% - 100px)', // Ensure width is not larger screen
                     //height: windowSize() === 'small' ? '700px' : 'calc(100% - 250px)', // AIT: Added height for toggle between "small" and "large"
                     //width: windowSize() === 'small' ? '400px' : 'calc(100% - 500px)', // AIT: Added width for toggle between "small" and "large"
                     height: windowSize() === 'small' ? `${bubbleProps.theme?.chatWindow?.aitHeightSmall}` : `${bubbleProps.theme?.chatWindow?.aitHeightLarge}`, // AIT: Added height for toggle between "small" and "large"
