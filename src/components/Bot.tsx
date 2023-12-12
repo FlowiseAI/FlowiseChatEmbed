@@ -1,11 +1,12 @@
 import { createSignal, createEffect, For, onMount, Show } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import {sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatflow} from '@/queries/sendMessageQuery';
+import {sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig} from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
 import { SourceBubble } from './bubbles/SourceBubble';
+import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
@@ -200,10 +201,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
     scrollToBottom();
   };
 
-  const promptClick = async (prompt: string) => {
-    setUserInput(prompt);
+  const promptClick = (prompt: string) => {
     handleSubmit(prompt);
   }
+
   // Handle form submission
   const handleSubmit = async (value: string) => {
     setUserInput(value);
@@ -315,6 +316,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
       setMessages([...loadedMessages]);
     }
 
+    // Determine if particular chatflow is available for streaming
     const { data } = await isStreamAvailableQuery({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
@@ -324,17 +326,18 @@ export const Bot = (props: BotProps & { class?: string }) => {
       setIsChatFlowAvailableToStream(data?.isStreaming ?? false);
     }
 
-    let obj = await getChatflow({
+    // Get the chatbotConfig
+    const result = await getChatbotConfig({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
     });
 
-    if (obj) {
-      let config = JSON.parse(obj.data?.chatbotConfig)
-      if (config?.starterPrompts) {
-        let prompts: string[] = []
-        Object.getOwnPropertyNames(config.starterPrompts).forEach((key) => {
-          prompts.push(config.starterPrompts[key].prompt)
+    if (result.data) {
+      let chatbotConfig = result.data
+      if (chatbotConfig.starterPrompts) {
+        const prompts: string[] = []
+        Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
+          prompts.push(chatbotConfig.starterPrompts[key].prompt)
         });
         setStarterPrompts(prompts);
       }
@@ -353,7 +356,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
     socket.on('sourceDocuments', updateLastMessageSourceDocuments);
 
     socket.on('token', updateLastMessage);
-    console.log('1....'+JSON.stringify(starterPrompts));
 
     // eslint-disable-next-line solid/reactivity
     return () => {
@@ -494,8 +496,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
             </DeleteButton>
           </div>
-
-
           <TextInput
             backgroundColor={props.textInput?.backgroundColor}
             textColor={props.textInput?.textColor}
@@ -508,11 +508,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
           />
         </div>
         <Show when={messages().length === 1}>
-          <Show when={starterPrompts()}>
-            <div class={'starter-prompt-container'} style={{ 'max-width': '100%', margin: '1' }}>
+          <Show when={starterPrompts().length > 0}>
+            <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', "flex-wrap": 'wrap'}}>
               <For each={[...starterPrompts()]}>
                 {(key) => (
-                    <button type="button" class="starter-prompt" onClick={() => promptClick(key)}>{key}</button>
+                  <StarterPromptBubble
+                    prompt={key}
+                    onPromptClick={() => promptClick(key)}
+                  />
                 )}
               </For>
             </div>
