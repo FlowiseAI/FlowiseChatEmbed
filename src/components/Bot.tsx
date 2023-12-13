@@ -333,7 +333,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     });
 
     if (result.data) {
-      let chatbotConfig = result.data
+      const chatbotConfig = result.data
       if (chatbotConfig.starterPrompts) {
         const prompts: string[] = []
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
