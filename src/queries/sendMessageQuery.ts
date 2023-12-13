@@ -23,6 +23,12 @@ export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000'
     body,
   });
 
+export const getChatbotConfig = ({ chatflowid, apiHost = 'http://localhost:3000' }: MessageRequest) =>
+  sendRequest<any>({
+    method: 'GET',
+    url: `${apiHost}/api/v1/public-chatbotConfig/${chatflowid}`,
+  });
+
 export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost:3000' }: MessageRequest) =>
   sendRequest<any>({
     method: 'GET',

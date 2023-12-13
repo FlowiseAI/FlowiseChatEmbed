@@ -16,6 +16,10 @@ export declare const sendMessageQuery: ({ chatflowid, apiHost, body }: MessageRe
     data?: any;
     error?: Error | undefined;
 }>;
+export declare const getChatbotConfig: ({ chatflowid, apiHost }: MessageRequest) => Promise<{
+    data?: any;
+    error?: Error | undefined;
+}>;
 export declare const isStreamAvailableQuery: ({ chatflowid, apiHost }: MessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
