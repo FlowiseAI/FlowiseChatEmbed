@@ -1,5 +1,6 @@
 
 
+console.log("Running loader")
 import Chatbot from "https://cdn.jsdelivr.net/gh/realty-ai-org/RealtyAIChat@main/dist/web.js"
 
 Chatbot.init({
