@@ -56,6 +56,15 @@ const configs = [
       format: "es",
     },
   },
+  {
+    ...indexConfig,
+    input: "./src/web_path_var.ts",
+    output: {
+      file: "dist/web_path_var.js",
+      format: "es",
+    },
+  }
+
 ];
 
 export default configs;
