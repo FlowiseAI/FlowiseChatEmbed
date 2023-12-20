@@ -1,1 +1,1 @@
-export * from './Full'
+export * from './Full';
