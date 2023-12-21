@@ -60,7 +60,7 @@ export const Badge = (props: Props) => {
         id="lite-badge"
         style={{ 'font-weight': 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> AutoMinds</span> | <div>Privacy policy</div>
+        <span> AutoMinds</span> | <span>Privacy policy</span>
       </a>
     </span>
   );
