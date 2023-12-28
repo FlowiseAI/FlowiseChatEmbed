@@ -381,8 +381,10 @@
 
 ol {
     margin: 0rem; /* AIT: Margin */
+    margin-block-start: -3rem;
+    margin-block-end: -1.5rem;
     list-style-type: decimal; /* AIT: Style of numbering */
-    padding-left: 1.5rem; /* AIT: Padding Left */  
+    padding-left: 2rem; /* AIT: Padding Left */  
 }
 /*.markdownanswer ul { //AIT: Not needed
     margin: 0rem; // AIT: Not needed
@@ -390,8 +392,10 @@ ol {
 
 ul {
     margin: 0rem; /* AIT: Margin */
+    margin-block-start: -3rem;
+    margin-block-end: -1.5rem;
     list-style-type: disc; /* AIT: Style of bullet points */
-    padding-left: 1.5rem; /* AIT: Padding Left */
+    padding-left: 2rem; /* AIT: Padding Left */
 }
 
 .boticon,
