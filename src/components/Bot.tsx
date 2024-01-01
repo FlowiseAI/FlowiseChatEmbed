@@ -1,6 +1,6 @@
 import { createSignal, createEffect, For, onMount, Show } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import {sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig} from '@/queries/sendMessageQuery';
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -141,7 +141,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
-  const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], {equals: false});
+  const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -203,7 +203,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
   const promptClick = (prompt: string) => {
     handleSubmit(prompt);
-  }
+  };
 
   // Handle form submission
   const handleSubmit = async (value: string) => {
@@ -333,11 +333,11 @@ export const Bot = (props: BotProps & { class?: string }) => {
     });
 
     if (result.data) {
-      const chatbotConfig = result.data
+      const chatbotConfig = result.data;
       if (chatbotConfig.starterPrompts) {
-        const prompts: string[] = []
+        const prompts: string[] = [];
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
-          prompts.push(chatbotConfig.starterPrompts[key].prompt)
+          prompts.push(chatbotConfig.starterPrompts[key].prompt);
         });
         setStarterPrompts(prompts);
       }
@@ -509,15 +509,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
         </div>
         <Show when={messages().length === 1}>
           <Show when={starterPrompts().length > 0}>
-            <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', "flex-wrap": 'wrap'}}>
-              <For each={[...starterPrompts()]}>
-                {(key) => (
-                  <StarterPromptBubble
-                    prompt={key}
-                    onPromptClick={() => promptClick(key)}
-                  />
-                )}
-              </For>
+            <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', 'flex-wrap': 'wrap' }}>
+              <For each={[...starterPrompts()]}>{(key) => <StarterPromptBubble prompt={key} onPromptClick={() => promptClick(key)} />}</For>
             </div>
           </Show>
         </Show>
