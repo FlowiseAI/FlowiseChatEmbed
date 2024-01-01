@@ -50,7 +50,7 @@ export const Badge = (props: Props) => {
         'background-color': props.badgeBackgroundColor ?? '#ffffff',
       }}
     >
-      Powered by
+      Fourni par
       <a
         ref={liteBadge}
         href={'https://leads-farmer.com'}
