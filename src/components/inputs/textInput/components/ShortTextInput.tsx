@@ -1,17 +1,17 @@
 // Import onCleanup is added by AIT. See code below...
-import { onCleanup } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { JSX } from 'solid-js/jsx-runtime'
+import { onCleanup } from 'solid-js';
+import { splitProps } from 'solid-js';
+import { JSX } from 'solid-js/jsx-runtime';
 
 type ShortTextInputProps = {
-    ref: HTMLTextAreaElement | undefined
-    onInput: (value: string) => void
-    fontSize?: number
-    disabled?: boolean
-} & Omit<JSX.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onInput'>
+  ref: HTMLInputElement | undefined;
+  onInput: (value: string) => void;
+  fontSize?: number;
+  disabled?: boolean;
+} & Omit<JSX.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onInput'>;
 
 export const ShortTextInput = (props: ShortTextInputProps) => {
-    const [local, others] = splitProps(props, ['ref', 'onInput'])
+  const [local, others] = splitProps(props, ['ref', 'onInput']);
 
 // AIT replaced "HTMLInputElement" with "HTMLTextAreaElement" and adjust some stuff to add multiline and dynamic height capabilities
 // This const is added by AIT to handle dynamic height of text input area
@@ -22,14 +22,14 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
 
         element.style.height = 'auto'  // Reset the height
         element.style.height = Math.min(element.scrollHeight, maxHeight) + 'px'  // Set it to the smaller of scrollHeight and maxHeight
-    }
+    };
 
 // This const is added by AIT to handle dynamic height of text input area
     const handleInput = (e: Event) => {
         const textarea = e.currentTarget as HTMLTextAreaElement
         adjustHeight(textarea)
         local.onInput(textarea.value)
-    }
+    };
 
 // This const is added by AIT to handle Shift Inputs for Line Break
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,15 +42,15 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
             textarea.selectionStart = cursorPosition + 1
             textarea.selectionEnd = cursorPosition + 1
             adjustHeight(e.currentTarget as HTMLTextAreaElement)
-        }
-    }
+        };
+    };
 
 // This is added by AIT to remove event listener when ShortTextInput is removed from page. Just to make sure...
     onCleanup(() => {
         if (props.ref) {
             props.ref.removeEventListener('input', handleInput as any)
-        }
-    })
+        };
+    });
 
     return (
         <textarea // AIT: Replace "input" with "textarea"
@@ -65,5 +65,5 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
             onKeyDown={handleKeyDown} // AIT: To check for Shift Key
             {...others}
         />
-    )
-}
+    );
+};

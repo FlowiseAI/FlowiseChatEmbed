@@ -1,1 +1,1 @@
-export * from './SendIcon'
+export * from './SendIcon';

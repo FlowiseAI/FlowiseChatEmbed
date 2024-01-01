@@ -1,9 +1,9 @@
-import type { BubbleProps } from './features/bubble'
+import type { BubbleProps } from './features/bubble';
 
 export const defaultBotProps: BubbleProps = {
-    chatflowid: '',
-    apiHost: undefined,
-    chatflowConfig: undefined,
-    theme: undefined,
-    toggleSize: () => {} // AIT: Add toggleSize 
-}
+  chatflowid: '',
+  apiHost: undefined,
+  chatflowConfig: undefined,
+  theme: undefined,
+  toggleSize: () => {} // AIT: Add toggleSize 
+};
