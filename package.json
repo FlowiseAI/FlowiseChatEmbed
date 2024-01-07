@@ -20,6 +20,7 @@
     "@ts-stack/markdown": "^1.4.0",
     "lodash": "^4.17.21",
     "prettier": "^3.1.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
     "socket.io-client": "^4.6.2",
     "solid-element": "1.7.0",
     "solid-js": "1.7.1"
@@ -45,17 +46,17 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-solid": "0.12.0",
+    "husky": "^8.0.0",
     "postcss": "8.4.21",
     "react": "18.2.0",
     "rollup": "3.23.0",
-    "rollup-plugin-livereload": "2.0.5",
+    "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-postcss": "4.0.2",
-    "rollup-plugin-serve": "2.0.2",
+    "rollup-plugin-serve": "^1.1.1",
     "rollup-plugin-typescript-paths": "1.4.0",
     "rollup-plugin-uglify": "^6.0.4",
     "tailwindcss": "3.3.1",
     "typescript": "5.0.3",
-    "uuid": "^9.0.1",
-    "husky": "^8.0.0"
+    "uuid": "^9.0.1"
   }
 }
