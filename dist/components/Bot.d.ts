@@ -18,12 +18,13 @@ export type BotProps = {
     badgeBackgroundColor?: string;
     bubbleBackgroundColor?: string;
     bubbleTextColor?: string;
+    showTitle?: boolean;
     title?: string;
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
 };
-export declare const Bot: (props: BotProps & {
+export declare const Bot: (botProps: BotProps & {
     class?: string;
 }) => import("solid-js").JSX.Element;
 export {};
