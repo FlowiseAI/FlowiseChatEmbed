@@ -54,6 +54,7 @@ export const Bubble = (props: BubbleProps) => {
             badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
             bubbleBackgroundColor={bubbleProps.theme?.button?.backgroundColor ?? defaultButtonColor}
             bubbleTextColor={bubbleProps.theme?.button?.iconColor ?? defaultIconColor}
+            showTitle={bubbleProps.theme?.chatWindow?.showTitle}
             title={bubbleProps.theme?.chatWindow?.title}
             titleAvatarSrc={bubbleProps.theme?.chatWindow?.titleAvatarSrc}
             welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}

@@ -24,6 +24,7 @@ export type BotMessageTheme = {
     avatarSrc?: string;
 };
 export type ChatWindowTheme = {
+    showTitle?: boolean;
     title?: string;
     titleAvatarSrc?: string;
     welcomeMessage?: string;
