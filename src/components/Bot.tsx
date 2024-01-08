@@ -176,10 +176,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
     localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
   };
 
-  const extractProductRecommendation = (msg: string): string | null => {
-    const match = msg.match(/<pr>(\d+)<\/pr>/);
-    return match ? match[1].toString() : null;
+  const extractProductRecommendations = (msg: string): string[] | null => {
+    const match = msg.match(/<pr sku=(\d+)><\/pr>/);
+    return match ? match : null;
   };
+
+  const fetchedProducts: {
+    [productId: string]: Product | null;
+  } = {};
 
   const fetchProductBySku = async (sku: string): Promise<Product> => {
     const response = await fetch(`https://glowi.ai/wp-json/custom-api/v1/product-by-sku/${sku}`);
@@ -187,13 +191,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
   };
 
   function injectProduct(msg: string, product: Product) {
-    const rgx = new RegExp(`<pr>${product.sku}</pr>`);
+    const rgx = new RegExp(`<pr sku=${product.sku}></pr>`);
     return msg.replace(rgx, `![${product.name}](${product.imageUrl})`);
   }
 
-  const fetchedProduct: {
-    [productId: string]: Product;
-  } = {};
 
   const updateLastMessageWithProduct = (product: Product) => {
     setMessages((data) => {
@@ -221,13 +222,22 @@ export const Bot = (props: BotProps & { class?: string }) => {
         return item;
       });
       addChatMessage(updated);
-      const productSku = extractProductRecommendation(msg);
-      if (productSku !== null) {
-        fetchProductBySku(productSku).then((product) => {
-          fetchedProduct[product.sku] = product;
-          updateLastMessageWithProduct(product);
-        });
+      const productSkus = extractProductRecommendations(msg);
+      productSkus?.slice(1).forEach((productSku) => {
+        if (productSku in fetchedProducts) {
+          const product = fetchedProducts[productSku];
+          if (product !== null) updateLastMessageWithProduct(product);
+          // elif product is null, it means we are still fetching it
+        } else {
+          fetchedProducts[productSku] = null; // mark as fetching
+          fetchProductBySku(productSku).then((product) => {
+            fetchedProducts[product.sku] = product;
+            console.log('fetched product', product);
+            updateLastMessageWithProduct(product);
+          });
       }
+      });
+      
       return [...updated];
     });
   };
