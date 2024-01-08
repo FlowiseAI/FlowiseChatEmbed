@@ -39,13 +39,15 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
+      - name: Copy only web.js to new folder
+        run: mkdir ./to-be-deployed && cp ./dist/web.js ./to-be-deployed/web.js
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload web.js to the artifact
-          path: './dist'
+          path: ./to-be-deployed
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
