@@ -134,13 +134,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
   const [messages, setMessages] = createSignal<MessageType[]>(
     [
       {
-        message: "Context: <small>"+ props.document_text +"</small>" ?? 'Nothing selected.',
+        message: 'Context: <small>' + props.document_text + '</small>' ?? 'Nothing selected.',
         type: 'apiMessage',
       },
       {
         message: props.welcomeMessage ?? defaultWelcomeMessage,
         type: 'apiMessage',
-      }
+      },
     ],
     { equals: false },
   );
@@ -233,7 +233,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     });
 
     const body: IncomingInput = {
-      question: value +". Use this context: "+ props.document_text,
+      question: value + '. Use this context: ' + props.document_text,
       history: messageList,
       chatId: chatId(),
     };
