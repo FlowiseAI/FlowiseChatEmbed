@@ -1,1 +1,3 @@
 node_modules
+dist/*.map
+dist/constants.d.ts.map

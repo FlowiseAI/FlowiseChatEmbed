@@ -26,6 +26,7 @@ export type MessageType = {
 export type BotProps = {
   chatflowid: string;
   apiHost?: string;
+  document_text?: string;
   chatflowConfig?: Record<string, unknown>;
   welcomeMessage?: string;
   botMessage?: BotMessageTheme;
@@ -41,11 +42,11 @@ export type BotProps = {
   isFullPage?: boolean;
 };
 
-const defaultWelcomeMessage = 'Hi there! How can I help?';
+const defaultWelcomeMessage = 'Hello, how can I help?</br><small>rewrite, improve, summarize, lengthen, shorten...</small>';
 
 /*const sourceDocuments = [
     {
-        "pageContent": "OpenAI’s CEO Sam Altman has been touring Europe for the past few days, meeting heads of governments and startup communities to talk about AI regulation, ChatGPT and beyond. In his latest onstage appearance at Station F in Paris, Altman answered questions from local entrepreneurs and shared his views about artificial intelligence. A few days ago, Altman met with Emmanuel Macron. Station F director Roxanne Varza first asked him about the content of the conversation. As expected, the discussion mostly revolved around regulation. 'It was great, we talked about how to get the balance right between protection with this technology and letting it flourish,' Altman said. He then explained why he’s been traveling from one country to another at a frenetic pace. 'The reason for doing this trip is to get out of the Bay Area tech bubble,' he said. Altman then listed some of the reasons why he is excited about the current state of artificial intelligence. According to him, AI is having a moment because it’s pretty good at many different things, and not just one thing. For instance, AI can be particularly useful when it comes to education and we could be on the verge of a major shift in education around the world. Of course, he also mentioned how GPT and other AI models have been useful in order to improve productivity across a wide variety of jobs, including software development. The discussion then shifted toward regulation. A couple of days ago, at a similar event at University College London, Altman warned that overreaching European regulation could lead to OpenAI leaving the continent altogether. While he already backtracked on Twitter, saying that 'we are excited to continue to operate here and of course have no plans to leave,' he spent some time explaining his thinking. 'We plan to comply, we really like Europe and we want to offer our services in Europe but we just want to be able to make sure that we’re technically able to,' Altman said. In this Q&A session, Altman appeared as a radical optimist, saying that there will be some major technological breakthroughs (around nuclear fusion in particular) that will solve climate change in the near future. Similarly, he asked for tough questions from the audience, but he still believes that the benefits of artificial intelligence greatly outweigh the downsides. 'The discussion has been too focused on the negatives,' Altman said. 'It does seem the balance has gotten off given all the value that people are getting from these tools these days.' He asked once again for a 'global regulatory framework' similar to nuclear or biotech regulation. 'I think it’s going to get to a good place. I think it’s important that we do this. Regulatory clarity is a good thing,' he said. Competition & improving models What’s next for OpenAI? The roadmap is quite simple. Altman says that the team is working on 'better, smarter, cheaper, faster, more capable models.' OpenAI and ChatGPT’s success have also led to more competition. There are other companies and AI labs working on large language models and generative AI in general. But Altman views competition as a good thing. 'People competing with each other to make better and better models is awesome,' he said. 'As long as we’re not competing in a way that would put safety at risk — if we’re competing for models while raising the bar around safety — I think it’s a good thing.' In fact, there isn’t going to be one model that rules them all. Some models will become more specialized. Some models will be better at some tasks than others. 'There are going to be a ton of models in the world. I think the trajectory we’re on is that it’s going to be a fundamental enabling of technology,' Altman said. AI as a tool to augment humans In many ways, Altman views AI as a tool that can be leveraged by humans to create new things, unlock potential and change how we should think about specific problems. For instance, he doesn’t believe that AI presents a risk to employment. 'This idea that artificial intelligence is going to progress to a point where humans don’t have any work to do or don’t have any purpose has never resonated with me,' Altman said. 'There will be some people who choose not to work, and I think that’s great. I think that should be a valid choice and there’s a lot of other ways to find meaning in life. But I’ve never seen convincing evidence that what we do with better tools is to work less.' For instance, when talking about journalism, Altman says that AI can help journalists focus on what they do best: more investigation and spending more time finding new information that is worth sharing. 'What if each of your journalists had a team of 100 people working for them in different areas?' he said. And this is probably the most dizzying effect of the current AI wave. In Altman’s mind, artificial intelligence will adapt to human needs and humans will adapt to what artificial intelligence can do. 'This technology and society will coevolve. People will use it in different ways and for different reasons,' Altman said.",
+        "pageContent": "Build faster, with more focus. From the small stuff to the big picture, our product organizes work so teams are clear what to do, why it matters, and how to get it done.",
         "metadata": {
           "source": "blob",
           "blobType": "",
@@ -56,7 +57,8 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
             }
           }
         }
-    },
+    }
+  ,
     {
         "pageContent": "The HP Garage is a private museum where the company Hewlett-Packard (HP) was founded. It is located at 367 Addison Avenue in Palo Alto, California. It is considered to be the 'Birthplace of Silicon Valley'. The garage has since been designated a California Historical Landmark and is listed on the National Register of Historic Places. Though not open for public tours, the property can be viewed from the sidewalk and driveway. History: The home, originally designated as 367 Addison Avenue, was first occupied in 1905 by John Spencer, his wife Ione, and their two adult daughters. John Spencer became Palo Alto's first mayor in 1909. In 1918, the house was divided into two separate apartments, numbered 367 and 369. In 1937, David 'Dave' Packard, then 25 years old, visited William 'Bill' Hewlett in Palo Alto and the pair had their first business meeting. Both men attended Stanford University, where its Dean of Engineering Frederick Terman encouraged his students to establish their own electronics companies in the area instead of leaving California. In 1938, newly married Dave and Lucile Packard moved into 367 Addison Ave, the first-floor three-room apartment, with Bill Hewlett sleeping in the shed. Mrs. Spencer, now widowed, moved into the second-floor apartment, 369 Addison. Hewlett and Packard began to use the one-car garage, with $538 (equivalent to $11,185 in 2022) in capital. In 1939, Packard and Hewlett formed their partnership with a coin toss, creating the name Hewlett-Packard. Hewlett-Packard's first product, built in the garage, was an audio oscillator, the HP200A. One of Hewlett-Packard's first customers was Walt Disney Studios, which purchased eight oscillators to test and certify the sound systems in theaters that were going to run the first major film released in stereophonic sound, Fantasia.",
         "metadata": {
@@ -132,9 +134,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
   const [messages, setMessages] = createSignal<MessageType[]>(
     [
       {
-        message: props.welcomeMessage ?? defaultWelcomeMessage,
+        message: "Context: <small>"+ props.document_text +"</small>" ?? 'Nothing selected.',
         type: 'apiMessage',
       },
+      {
+        message: props.welcomeMessage ?? defaultWelcomeMessage,
+        type: 'apiMessage',
+      }
     ],
     { equals: false },
   );
@@ -227,7 +233,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     });
 
     const body: IncomingInput = {
-      question: value,
+      question: value +". Use this context: "+ props.document_text,
       history: messageList,
       chatId: chatId(),
     };

@@ -65,6 +65,7 @@ export const Bubble = (props: BubbleProps) => {
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
+            document_text={props.document_text}
           />
         </Show>
       </div>

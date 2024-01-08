@@ -13,6 +13,7 @@ export type IncomingInput = {
 export type MessageRequest = {
   chatflowid?: string;
   apiHost?: string;
+  document_text?: string;
   body?: IncomingInput;
 };
 

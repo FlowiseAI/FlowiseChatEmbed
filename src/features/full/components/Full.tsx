@@ -54,6 +54,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
+            document_text={props.document_text}
             isFullPage={true}
           />
         </div>
