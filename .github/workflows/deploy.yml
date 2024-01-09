@@ -25,8 +25,7 @@ jobs:
   # Single deploy job since we're just deploying
   deploy:
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: prod
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,19 +34,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          registry-url: "https://registry.npmjs.org"
       - name: Install with yarn
         run: yarn install
       - name: Build
         run: yarn build
-      - name: Copy only web.js to new folder
-        run: mkdir ./to-be-deployed && cp ./dist/web.js ./to-be-deployed/web.js
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload web.js to the artifact
-          path: ./to-be-deployed
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish to npmjs.org
+        run: yarn publish --access public --tag latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}

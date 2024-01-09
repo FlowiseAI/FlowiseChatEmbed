@@ -1,10 +1,15 @@
 {
-  "name": "flowise-embed",
-  "version": "1.0.17",
-  "description": "Javascript library to display flowise chatbot on your website",
+  "name": "@glowi/glowi-chatbot",
+  "version": "0.0.7",
+  "description": "Javascript library to display glowi-customized flowise chatbot on your website",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/web.js",
+  "browser": "dist/web.js",
+  "jsdelivr": "dist/web.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/web.js"
+  ],
   "scripts": {
     "dev": "rollup --watch --config rollup.config.js",
     "build": "rollup --config rollup.config.js",
