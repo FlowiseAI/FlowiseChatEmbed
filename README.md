@@ -94,6 +94,7 @@ You can also customize chatbot with different configuration
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
       },
       chatWindow: {
+        showTitle: true, // show/hide the title bar
         title: 'Flowise Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
