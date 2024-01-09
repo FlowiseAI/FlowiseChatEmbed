@@ -4,6 +4,8 @@ export type MessageType = {
     message: string;
     type: messageType;
     sourceDocuments?: any;
+    streamable?: boolean;
+    id?: string;
 };
 export type BotProps = {
     chatflowid: string;

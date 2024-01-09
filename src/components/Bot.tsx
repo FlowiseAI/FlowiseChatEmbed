@@ -15,7 +15,9 @@ type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 export type MessageType = {
     message: string
     type: messageType,
-    sourceDocuments?: any
+    sourceDocuments?: any,
+    streamable?:boolean
+    id?: string
 }
 
 export type BotProps = {
@@ -147,8 +149,19 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const updateLastMessage = (text: string) => {
         setMessages(data => {
             const updated = data.map((item, i) => {
-                if (i === data.length - 1) {
+                if (i === data.length - 1 && item.type === "apiMessage" && item.streamable) {
                     return { ...item, message: item.message + text };
+                }
+                return item;
+            });
+            return [...updated];
+        });
+    }
+    const updateFullMessage= (text: string, id:string) => {
+        setMessages(data => {
+            const updated = data.map((item, i) => {
+                if (item.type === "apiMessage" && item.id === id) {
+                    return { ...item, message: text, streamable:false };
                 }
                 return item;
             });
@@ -186,18 +199,16 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         setLoading(true)
         scrollToBottom()
-
         // Send user question and history to API
         const welcomeMessage = props.welcomeMessage ?? defaultWelcomeMessage
-        const messageList = messages().filter((msg) => msg.message !== welcomeMessage)
-
-        setMessages((prevMessages) => [...prevMessages, { message: value, type: 'userMessage' }])
+        const messageList = messages().filter((msg) => !msg?.streamable)
+        const message_id = String(Math.random())
+        setMessages((prevMessages) => [...prevMessages, { message: value, type: 'userMessage' },{ message: '', type: 'apiMessage', streamable:true,id:message_id}])
 
         const body: IncomingInput = {
             question: value,
             history: messageList
         }
-
         if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
@@ -220,7 +231,9 @@ export const Bot = (props: BotProps & { class?: string }) => {
                     ])
                 }
             } else {
-                if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
+                //console.log(message_id,result.data)
+                updateFullMessage(result.data,message_id)
+                //if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
             }
             setLoading(false)
             setUserInput('')
@@ -263,7 +276,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         })
 
         socket.on('start', () => {
-            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }])
+            // setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }])
         })
 
         socket.on('sourceDocuments', updateLastMessageSourceDocuments)
