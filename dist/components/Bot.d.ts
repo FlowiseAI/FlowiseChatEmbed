@@ -1,5 +1,7 @@
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
 export type MessageType = {
     message: string;
     type: messageType;
@@ -23,6 +25,7 @@ export type BotProps = {
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
+    observersConfig?: observersConfigType;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;

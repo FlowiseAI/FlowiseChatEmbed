@@ -1,8 +1,11 @@
+import { observersConfigType } from './components/Bot';
+
 /* eslint-disable solid/reactivity */
 type BotProps = {
   chatflowid: string;
   apiHost?: string;
   chatflowConfig?: Record<string, unknown>;
+  observersConfig?: observersConfigType;
 };
 
 export const initFull = (props: BotProps & { id?: string }) => {
