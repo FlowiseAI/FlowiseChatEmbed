@@ -15,10 +15,10 @@ export const DefaultAvatar = () => {
         class={'absolute top-0 left-0 ' + (isMobile() ? ' w-6 h-6 text-sm' : 'w-full h-full text-xl')}
       >
         <mask id="mask0" x="0" y="0" mask-type="alpha">
-          <circle cx="37.5" cy="37.5" r="37.5" fill="#0042DA" />
+          <circle cx="37.5" cy="37.5" r="37.5" fill="#1E1F28" />
         </mask>
         <g mask="url(#mask0)">
-          <rect x="-30" y="-43" width="131" height="154" fill="#0042DA" />
+          <rect x="-30" y="-43" width="131" height="154" fill="#1E1F28" />
           <rect
             x="2.50413"
             y="120.333"
