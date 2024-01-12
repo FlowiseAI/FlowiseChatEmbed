@@ -474,7 +474,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 top: 0,
                 left: 0,
                 width: '100%',
-                background: props.bubbleBackgroundColor,
+                background: #1E1F28,
                 color: props.bubbleTextColor,
                 'border-top-left-radius': props.isFullPage ? '0px' : '6px',
                 'border-top-right-radius': props.isFullPage ? '0px' : '6px',
