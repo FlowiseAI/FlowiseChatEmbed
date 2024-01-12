@@ -129,8 +129,9 @@ export type Product = {
   description: string;
   shortDescription: string;
   imageUrl: string;
-  category: string;
+  categories: string;
   permalink: string;
+  affiliateLink: string;
 };
 
 export const Bot = (props: BotProps & { class?: string }) => {
@@ -192,10 +193,11 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
   function injectProduct(msg: string, product: Product) {
     const rgx = new RegExp(`<pr sku=${product.sku}></pr>`);
-    return msg.replace(rgx, `![${product.name}](${product.imageUrl})`);
+    return msg.replace(
+      rgx,
+      `<div class="max-w-xs m-4"><img src="${product.imageUrl}" alt="${product.name}" class="w-full aspect-square object-contain p-4 bg-white" /><a href="${product.affiliateLink}" class="w-full text-center border-x border-b border-black py-2 px-4 block bg-white text-black hover:bg-black hover:text-white no-underline hover:no-underline">ACQUISTA PRODOTTO</a></div>`,
+    );
   }
-
-
   const updateLastMessageWithProduct = (product: Product) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
@@ -235,9 +237,9 @@ export const Bot = (props: BotProps & { class?: string }) => {
             console.log('fetched product', product);
             updateLastMessageWithProduct(product);
           });
-      }
+        }
       });
-      
+
       return [...updated];
     });
   };
@@ -538,9 +540,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
               width: '100%',
               background: props.bubbleBackgroundColor,
               color: props.bubbleTextColor,
-              'border-top-left-radius': props.isFullPage ? '0px' : '6px',
-              'border-top-right-radius': props.isFullPage ? '0px' : '6px',
             }}
+            class={!props.isFullPage ? 'rounded-t-xl' : ''}
           >
             <Show when={props.titleAvatarSrc}>
               <>
@@ -580,8 +581,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
             </div>
           </Show>
         </Show>
-        <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
-        <BottomSpacer ref={bottomSpacer} />
       </div>
       {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
     </>

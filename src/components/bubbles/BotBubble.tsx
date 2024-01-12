@@ -48,7 +48,7 @@ export const BotBubble = (props: Props) => {
           const button = document.createElement('button');
           button.textContent = annotations.fileName;
           button.className =
-            'py-2 px-4 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
+            'p-3 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
           button.addEventListener('click', function () {
             downloadFile(annotations);
           });
@@ -70,12 +70,11 @@ export const BotBubble = (props: Props) => {
       </Show>
       <span
         ref={botMessageEl}
-        class="px-4 py-2 ml-2 whitespace-pre-wrap max-w-full chatbot-host-bubble"
+        class="px-3 py-2 ml-2 whitespace-pre-wrap max-w-full rounded-xl chatbot-host-bubble"
         data-testid="host-bubble"
         style={{
           'background-color': props.backgroundColor ?? defaultBackgroundColor,
           color: props.textColor ?? defaultTextColor,
-          'border-radius': '6px',
         }}
       />
     </div>

@@ -12,7 +12,7 @@ export const SourceBubble = (props: Props) => (
       onClick={() => props.onSourceClick?.()}
     >
       <span
-        class="px-2 py-1 ml-1 whitespace-pre-wrap max-w-full chatbot-host-bubble"
+        class="px-2 py-1 ml-1 whitespace-pre-wrap max-w-full rounded-2xl chatbot-host-bubble"
         data-testid="host-bubble"
         style={{
           width: 'max-content',
