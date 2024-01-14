@@ -84,7 +84,12 @@ export const TextInput = (props: Props) => {
       >
         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
       </SendButton>
-      <Upload uploadColor={props.sendButtonColor ?? defaultButtonColor} chatId={props.chatId} customerId={props.peleAIConfig?.customerId} onUpload={props.onUpload} />
+      <Upload
+        uploadColor={props.sendButtonColor ?? defaultButtonColor}
+        chatId={props.chatId}
+        customerId={props.peleAIConfig?.customerId}
+        onUpload={props.onUpload}
+      />
     </div>
   );
 };

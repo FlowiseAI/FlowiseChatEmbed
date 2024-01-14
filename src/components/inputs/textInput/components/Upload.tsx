@@ -30,7 +30,7 @@ export const Upload = (props: UploadProps) => {
 
   const uploadFiles = (fileData: any) => {
     if (fileData && fileData.size) {
-      const gb = fileData.size / (1024 ** 3);
+      const gb = fileData.size / 1024 ** 3;
       if (gb > 2) {
         props.onUpload(false, 'Please do not upload a file larger than 2 GB');
         return;
