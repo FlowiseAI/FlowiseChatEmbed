@@ -67,6 +67,7 @@ export const Bubble = (props: BubbleProps) => {
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
             peleAIConfig={props.peleAIConfig}
+            isRTL={bubbleProps.theme?.chatWindow?.isRTL}
           />
         </Show>
       </div>

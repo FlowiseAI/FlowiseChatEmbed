@@ -24,6 +24,7 @@ export type BotProps = {
     fontSize?: number;
     isFullPage?: boolean;
     peleAIConfig?: PeleAIConfig;
+    isRTL?: boolean;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;
