@@ -9,7 +9,6 @@ import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
-import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
@@ -141,7 +140,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     ],
     { equals: false },
   );
-  const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
@@ -164,32 +162,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
    */
   const addChatMessage = (allMessage: MessageType[]) => {
     localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
-  };
-
-  const updateLastMessage = (text: string) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, message: item.message + text };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
-    });
-  };
-
-  const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, sourceDocuments: sourceDocuments };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
-    });
   };
 
   // Handle errors
@@ -236,8 +208,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     };
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
-
-    if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId();
 
     const result = await sendMessageQuery({
       chatflowid: props.chatflowid,
@@ -346,20 +316,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
 
-    const socket = socketIOClient(props.apiHost as string);
-
-    socket.on('connect', () => {
-      setSocketIOClientId(socket.id);
-    });
-
-    socket.on('start', () => {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
-    });
-
-    socket.on('sourceDocuments', updateLastMessageSourceDocuments);
-
-    socket.on('token', updateLastMessage);
-
     // eslint-disable-next-line solid/reactivity
     return () => {
       setUserInput('');
@@ -370,10 +326,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           type: 'apiMessage',
         },
       ]);
-      if (socket) {
-        socket.disconnect();
-        setSocketIOClientId('');
-      }
     };
   });
 
