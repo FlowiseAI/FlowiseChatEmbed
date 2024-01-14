@@ -1,12 +1,11 @@
-
-import { createSignal, createEffect, For, onMount, Show } from 'solid-js'
-import { v4 as uuidv4 } from 'uuid'
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput } from '@/queries/sendMessageQuery'
-import { TextInput } from './inputs/textInput'
-import { GuestBubble } from './bubbles/GuestBubble'
-import { BotBubble } from './bubbles/BotBubble'
-import { LoadingBubble } from './bubbles/LoadingBubble'
-import { SourceBubble } from './bubbles/SourceBubble'
+import { createSignal, createEffect, For, onMount, Show, mergeProps } from 'solid-js';
+import { v4 as uuidv4 } from 'uuid';
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
+import { TextInput } from './inputs/textInput';
+import { GuestBubble } from './bubbles/GuestBubble';
+import { BotBubble } from './bubbles/BotBubble';
+import { LoadingBubble } from './bubbles/LoadingBubble';
+import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types'
 import { Badge } from './Badge'
@@ -26,22 +25,23 @@ export type MessageType = {
 };
 
 export type BotProps = {
-    chatflowid: string
-    apiHost?: string
-    chatflowConfig?: Record<string, unknown>
-    welcomeMessage?: string
-    botMessage?: BotMessageTheme
-    userMessage?: UserMessageTheme
-    textInput?: TextInputTheme
-    poweredByTextColor?: string
-    badgeBackgroundColor?: string
-    bubbleBackgroundColor?: string
-    bubbleTextColor?: string
-    title?: string
-    titleAvatarSrc?: string
-    fontSize?: number
-    isFullPage?: boolean
-    toggleSize?: () => void // AIT: Define the type for toggleSize function
+  chatflowid: string;
+  apiHost?: string;
+  chatflowConfig?: Record<string, unknown>;
+  welcomeMessage?: string;
+  botMessage?: BotMessageTheme;
+  userMessage?: UserMessageTheme;
+  textInput?: TextInputTheme;
+  poweredByTextColor?: string;
+  badgeBackgroundColor?: string;
+  bubbleBackgroundColor?: string;
+  bubbleTextColor?: string;
+  showTitle?: boolean;
+  title?: string;
+  titleAvatarSrc?: string;
+  fontSize?: number;
+  isFullPage?: boolean;
+  toggleSize?: () => void // AIT: Define the type for toggleSize function
 };
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
@@ -123,7 +123,9 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
     },
 ]*/
 
-export const Bot = (props: BotProps & { class?: string }) => {
+export const Bot = (botProps: BotProps & { class?: string }) => {
+  // set a default value for showTitle if not set and merge with other props
+  const props = mergeProps({ showTitle: true }, botProps);
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
@@ -144,7 +146,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
-  const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], {equals: false});
+  const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -206,7 +208,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
   const promptClick = (prompt: string) => {
     handleSubmit(prompt);
-  }
+  };
 
   // Handle form submission
   const handleSubmit = async (value: string) => {
@@ -338,11 +340,11 @@ export const Bot = (props: BotProps & { class?: string }) => {
     });
 
     if (result.data) {
-      const chatbotConfig = result.data
+      const chatbotConfig = result.data;
       if (chatbotConfig.starterPrompts) {
-        const prompts: string[] = []
+        const prompts: string[] = [];
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
-          prompts.push(chatbotConfig.starterPrompts[key].prompt)
+          prompts.push(chatbotConfig.starterPrompts[key].prompt);
         });
         setStarterPrompts(prompts);
       }
@@ -466,20 +468,20 @@ export const Bot = (props: BotProps & { class?: string }) => {
             </For>
           </div>
           <div
-            style={{
-              display: 'flex',
-              'flex-direction': 'row',
-              'align-items': 'center',
-              height: '50px',
-              position: props.isFullPage ? 'fixed' : 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              background: props.bubbleBackgroundColor,
-              color: props.bubbleTextColor,
-              'border-top-left-radius': props.isFullPage ? '0px' : '6px',
-              'border-top-right-radius': props.isFullPage ? '0px' : '6px',
-            }}
+              style={{
+                display: 'flex',
+                'flex-direction': 'row',
+                'align-items': 'center',
+                height: '50px',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                background: props.bubbleBackgroundColor,
+                color: props.bubbleTextColor,
+                'border-top-left-radius': props.isFullPage ? '0px' : '6px',
+                'border-top-right-radius': props.isFullPage ? '0px' : '6px',
+              }}
           >
             <Show when={props.titleAvatarSrc}>
               <>
@@ -504,9 +506,27 @@ export const Bot = (props: BotProps & { class?: string }) => {
               class="my-2 ml-2"
               on:click={clearChat}
             >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
-            </DeleteButton>
-          </div>
+              <Show when={props.titleAvatarSrc}>
+                <>
+                  <div style={{ width: '15px' }} />
+                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
+                </>
+              </Show>
+              <Show when={props.title}>
+                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+              </Show>
+              <div style={{ flex: 1 }} />
+              <DeleteButton
+                sendButtonColor={props.bubbleTextColor}
+                type="button"
+                isDisabled={messages().length === 1}
+                class="my-2 ml-2"
+                on:click={clearChat}
+              >
+                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+              </DeleteButton>
+            </div>
+          ) : null}
           <TextInput
             backgroundColor={props.textInput?.backgroundColor}
             textColor={props.textInput?.textColor}
@@ -520,15 +540,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
         </div>
         <Show when={messages().length === 1}>
           <Show when={starterPrompts().length > 0}>
-            <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', "flex-wrap": 'wrap'}}>
-              <For each={[...starterPrompts()]}>
-                {(key) => (
-                  <StarterPromptBubble
-                    prompt={key}
-                    onPromptClick={() => promptClick(key)}
-                  />
-                )}
-              </For>
+            <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', 'flex-wrap': 'wrap' }}>
+              <For each={[...starterPrompts()]}>{(key) => <StarterPromptBubble prompt={key} onPromptClick={() => promptClick(key)} />}</For>
             </div>
           </Show>
         </Show>
