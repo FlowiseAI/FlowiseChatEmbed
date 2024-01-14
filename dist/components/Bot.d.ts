@@ -1,4 +1,4 @@
-import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
+import { BotMessageTheme, PeleAIConfig, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 export type MessageType = {
     message: string;
@@ -23,6 +23,7 @@ export type BotProps = {
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
+    peleAIConfig?: PeleAIConfig;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;

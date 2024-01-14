@@ -7,7 +7,7 @@ import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
 import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
-import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
+import { BotMessageTheme, PeleAIConfig, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
@@ -40,6 +40,7 @@ export type BotProps = {
   titleAvatarSrc?: string;
   fontSize?: number;
   isFullPage?: boolean;
+  peleAIConfig?: PeleAIConfig;
 };
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
@@ -276,6 +277,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
+  const handleUpload = (isSuccess: boolean, message: string) => {
+    setMessages((prevMessages) => [...prevMessages, { message, type: 'apiMessage' }]);
+  };
+
   const clearChat = () => {
     try {
       localStorage.removeItem(`${props.chatflowid}_EXTERNAL`);
@@ -507,9 +512,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             placeholder={props.textInput?.placeholder}
             sendButtonColor={props.textInput?.sendButtonColor}
             fontSize={props.fontSize}
+            peleAIConfig={props.peleAIConfig}
+            chatId={chatId()}
             disabled={loading()}
             defaultValue={userInput()}
             onSubmit={handleSubmit}
+            onUpload={handleUpload}
           />
         </div>
         <Show when={messages().length === 1}>

@@ -51,3 +51,7 @@ export type ButtonTheme = {
   bottom?: number;
   right?: number;
 };
+
+export type PeleAIConfig = {
+  customerId?: string;
+};
