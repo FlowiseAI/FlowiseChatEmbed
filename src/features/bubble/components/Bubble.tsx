@@ -61,7 +61,7 @@ export const Bubble = (props: BubbleProps) => {
         class={
           //`fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` + // AIT: Remove this. Fixed stuff is not wanted.
           `fixed sm:right-5 rounded-lg` + // AIT: Only keep the good styling.
-          (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
+          (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') //+ // AIT: Not needed anymore
           //(props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20') // AIT: Not needed anymore
         }
       >
@@ -81,8 +81,9 @@ export const Bubble = (props: BubbleProps) => {
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
-            toggleSize={toggleSize} {/* AIT: Added this to pass toggleSize as a prop */}
+            toggleSize={toggleSize}
           />
+          {/* AIT: Added toggleSize above to pass toggleSize as a prop */}
         </Show>
       </div>
     </>

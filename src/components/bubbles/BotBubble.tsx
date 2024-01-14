@@ -51,25 +51,6 @@ export const BotBubble = (props: Props) => {
     }
   }  
 
-  const downloadFile = async (fileAnnotation: any) => {
-    try {
-        const response = await sendFileDownloadQuery({
-          apiHost: props.apiHost,
-          body: { question: '', history: [], fileName: fileAnnotation.fileName }
-        })
-        const blob = new Blob([response.data])
-        const downloadUrl = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = downloadUrl
-        link.download = fileAnnotation.fileName
-        document.body.appendChild(link)
-        link.click()
-        link.remove()
-    } catch (error) {
-        console.error('Download failed:', error)
-    }
-  }
-
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message);

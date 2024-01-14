@@ -1,6 +1,6 @@
 import { JSX } from 'solid-js/jsx-runtime';
 type ShortTextInputProps = {
-    ref: HTMLTextAreaElement | undefined;
+    ref: HTMLInputElement | undefined;
     onInput: (value: string) => void;
     fontSize?: number;
     disabled?: boolean;
