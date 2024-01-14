@@ -153,7 +153,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
-      });
+  });
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -409,8 +409,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   return (
     <>
       <div
-        ref={botContainer} dir={props.isRTL ? "rtl" : "ltr"}
-        class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class} 
+        ref={botContainer}
+        dir={props.isRTL ? 'rtl' : 'ltr'}
+        class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}
       >
         <div class="flex w-full h-full justify-center">
           <div
