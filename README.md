@@ -84,6 +84,21 @@ You can also customize chatbot with different configuration
     chatflowConfig: {
       // topK: 2
     },
+    observersConfig: {
+      // (optional) Allows you to execute code in parent based upon signal observations within the chatbot.
+      // The userinput field submitted to bot ("" when reset by bot)
+      observeUserInput: (userInput) => {
+        console.log({ userInput });
+      },
+      // The bot message stack has changed
+      observeMessages: (messages) => {
+        console.log({ messages });
+      },
+      // The bot loading signal changed
+      observeLoading: (loading) => {
+        console.log({ loading });
+      },
+    },
     theme: {
       button: {
         backgroundColor: '#3B81F6',
