@@ -16,6 +16,9 @@ else
   exit
 fi
 
+# Build the project
+yarn build
+
 if [ "$flag" == "$js" ]; then
 
   # Push the JS source to S3 and update the filename based on the environment
