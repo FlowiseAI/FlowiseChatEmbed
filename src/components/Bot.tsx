@@ -133,10 +133,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
   const [sourcePopupSrc, setSourcePopupSrc] = createSignal({});
   const [messages, setMessages] = createSignal<MessageType[]>(
     [
-      {
-        message: 'Context: <small>' + props.document_text + '</small>' ?? 'Nothing selected.',
-        type: 'apiMessage',
-      },
+      // {
+      //   message: 'Context: <small>' + props.document_text + '</small>' ?? 'Nothing selected.',
+      //   type: 'apiMessage',
+      // },
       {
         message: props.welcomeMessage ?? defaultWelcomeMessage,
         type: 'apiMessage',
