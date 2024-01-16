@@ -1,3 +1,9 @@
 node_modules
-dist/*.map
+dist/constants.d.ts.map
+dist/queries/sendMessageQuery.d.ts.map
+dist/features/full/components/Full.d.ts.map
+dist/features/bubble/components/Bubble.d.ts.map
+dist/components/Bot.d.ts.map
+dist/window.d.ts.map
+dist/web.d.ts.map
 dist/constants.d.ts.map
