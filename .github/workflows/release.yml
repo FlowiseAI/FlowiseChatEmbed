@@ -55,7 +55,7 @@ jobs:
         with:
           accessKeyId: ${{ secrets.ACCESS_KEY_ID }}
           accessKeySecret: ${{ secrets.ACCESS_KEY_SECRET }}
-          bucket: yiruocloud-static
+          bucket: yiruoai-open
           # use your own endpoint
           endpoint: oss-cn-beijing.aliyuncs.com
           folder: dist
