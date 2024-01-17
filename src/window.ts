@@ -17,7 +17,7 @@ export const init = (props: BotProps) => {
   document.body.appendChild(element);
 };
 
-type Chatbot = {
+export type Chatbot = {
   initFull: typeof initFull;
   init: typeof init;
 };
