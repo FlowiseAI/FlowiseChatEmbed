@@ -1,6 +1,5 @@
 import { createSignal, createEffect, For, onMount, Show, mergeProps } from 'solid-js';
-import { v4 as uuidv4 } from 'uuid';
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig, clearMessages } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -12,6 +11,7 @@ import { Badge } from './Badge';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
+import { chatInfo } from '@/window';
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
@@ -20,11 +20,10 @@ export type MessageType = {
   type: messageType;
   sourceDocuments?: any;
   fileAnnotations?: any;
+  isErrorMsg?: boolean;
 };
 
 export type BotProps = {
-  chatflowid: string;
-  apiHost?: string;
   chatflowConfig?: Record<string, unknown>;
   welcomeMessage?: string;
   botMessage?: BotMessageTheme;
@@ -141,7 +140,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     { equals: false },
   );
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal(uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
 
   onMount(() => {
@@ -161,13 +159,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
    * Add each chat message into localStorage
    */
   const addChatMessage = (allMessage: MessageType[]) => {
-    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
+    localStorage.setItem(`${chatInfo.apptoken}_EXTERNAL`, JSON.stringify({ chatHistory: allMessage }));
   };
 
   // Handle errors
   const handleError = (message = 'Oops! There seems to be an error. Please try again.') => {
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message, type: 'apiMessage' }];
+      const messages: MessageType[] = [...prevMessages, { message, type: 'apiMessage', isErrorMsg: true }];
       addChatMessage(messages);
       return messages;
     });
@@ -191,10 +189,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(true);
     scrollToBottom();
 
-    // Send user question and history to API
-    const welcomeMessage = props.welcomeMessage ?? defaultWelcomeMessage;
-    const messageList = messages().filter((msg) => msg.message !== welcomeMessage);
-
     setMessages((prevMessages) => {
       const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }];
       addChatMessage(messages);
@@ -203,17 +197,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const body: IncomingInput = {
       question: value,
-      history: messageList,
-      chatId: chatId(),
     };
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
-    const result = await sendMessageQuery({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-      body,
-    });
+    const result = await sendMessageQuery(body);
 
     if (result.data) {
       const data = result.data;
@@ -246,10 +234,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
-  const clearChat = () => {
+  const clearChat = async () => {
     try {
-      localStorage.removeItem(`${props.chatflowid}_EXTERNAL`);
-      setChatId(uuidv4());
+      localStorage.removeItem(`${chatInfo.apptoken}_EXTERNAL`);
+      await clearMessages();
       setMessages([
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
@@ -273,10 +261,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
-    const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
+    const chatMessage = localStorage.getItem(`${chatInfo.apptoken}_EXTERNAL`);
     if (chatMessage) {
       const objChatMessage = JSON.parse(chatMessage);
-      setChatId(objChatMessage.chatId);
       const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
         const chatHistory: MessageType = {
           message: message.message,
@@ -290,20 +277,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     // Determine if particular chatflow is available for streaming
-    const { data } = await isStreamAvailableQuery({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-    });
+    const { data } = await isStreamAvailableQuery();
 
     if (data) {
       setIsChatFlowAvailableToStream(data?.isStreaming ?? false);
     }
 
     // Get the chatbotConfig
-    const result = await getChatbotConfig({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-    });
+    const result = await getChatbotConfig();
 
     if (result.data) {
       const chatbotConfig = result.data;
@@ -380,11 +361,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     <BotBubble
                       message={message.message}
                       fileAnnotations={message.fileAnnotations}
-                      apiHost={props.apiHost}
                       backgroundColor={props.botMessage?.backgroundColor}
                       textColor={props.botMessage?.textColor}
                       showAvatar={props.botMessage?.showAvatar}
                       avatarSrc={props.botMessage?.avatarSrc}
+                      isErrorMsg={message.isErrorMsg}
                     />
                   )}
                   {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
