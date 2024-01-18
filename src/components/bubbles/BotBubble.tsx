@@ -1,7 +1,9 @@
-import { Show, onMount } from 'solid-js';
+import { For, Show, createEffect, createSignal, onMount } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { sendFileDownloadQuery } from '@/queries/sendMessageQuery';
+import ProductInfo, { Product } from '../ProductInfo';
+import { products } from '../Bot';
 
 type Props = {
   message: string;
@@ -18,8 +20,11 @@ const defaultTextColor = '#303235';
 
 Marked.setOptions({ isNoP: true });
 
+type MessagePart = {text: string} | {sku: string, product: Product}; 
+
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
+  const [messageElements, setMessageElements] = createSignal<MessagePart[]>([]);
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -40,28 +45,57 @@ export const BotBubble = (props: Props) => {
     }
   };
 
-  onMount(() => {
-    if (botMessageEl) {
-      botMessageEl.innerHTML = Marked.parse(props.message);
-      if (props.fileAnnotations && props.fileAnnotations.length) {
-        for (const annotations of props.fileAnnotations) {
-          const button = document.createElement('button');
-          button.textContent = annotations.fileName;
-          button.className =
-            'p-3 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
-          button.addEventListener('click', function () {
-            downloadFile(annotations);
-          });
-          const svgContainer = document.createElement('div');
-          svgContainer.className = 'ml-2';
-          svgContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>`;
+  const updateMessageElementsWithProducts = (prevEls: MessagePart[]) => {
+    const ps = products();
+    const newEls = prevEls.map((el) => {
+      if ('sku' in el) {
+        return { sku: el.sku, product: ps.get(el.sku) };
+      } else {
+        return { text: el.text };
+      }
+    })
+    return [...newEls];
+  }
 
-          button.appendChild(svgContainer);
-          botMessageEl.appendChild(button);
-        }
+  onMount(() => {
+    const msgString = Marked.parse(props.message);
+    const rgx = /<pr sku=(\d+)><\/pr>/;
+    const parts = msgString.split(rgx);
+
+    const els = parts.map((p, idx) => {
+      if ((idx + 1) % 2 === 0) {
+        return { sku: p };
+      } else {
+        return { text: p };
+      }
+    });
+
+    setMessageElements(els);
+    setMessageElements(updateMessageElementsWithProducts);
+
+      
+    if (props.fileAnnotations && props.fileAnnotations.length) {
+      for (const annotations of props.fileAnnotations) {
+        const button = document.createElement('button');
+        button.textContent = annotations.fileName;
+        button.className =
+          'p-3 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
+        button.addEventListener('click', function () {
+          downloadFile(annotations);
+        });
+        const svgContainer = document.createElement('div');
+        svgContainer.className = 'ml-2';
+        svgContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>`;
+
+        button.appendChild(svgContainer);
+        botMessageEl.appendChild(button);
       }
     }
   });
+
+  const reactivityForProducts = createEffect(() => {
+    setMessageElements(updateMessageElementsWithProducts);
+  })
 
   return (
     <div class="flex justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -69,14 +103,23 @@ export const BotBubble = (props: Props) => {
         <Avatar initialAvatarSrc={props.avatarSrc} />
       </Show>
       <span
-        ref={botMessageEl}
         class="px-3 py-2 ml-2 whitespace-pre-wrap max-w-full rounded-xl chatbot-host-bubble"
         data-testid="host-bubble"
         style={{
           'background-color': props.backgroundColor ?? defaultBackgroundColor,
           color: props.textColor ?? defaultTextColor,
         }}
-      />
+      >
+          <For each={messageElements()}>{
+          el => {
+            if ('sku' in el) {
+              return <ProductInfo key={el.sku} product={el.product}/>;
+            } else {
+              return <span innerHTML={el.text} />;
+            }
+          }}
+          </For>
+      </span>
     </div>
   );
 };

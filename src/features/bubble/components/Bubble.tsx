@@ -2,12 +2,12 @@ import { createSignal, Show, splitProps } from 'solid-js';
 import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
-import { Bot, BotProps } from '../../../components/Bot';
+import { Bot, BotProps, UserProps } from '../../../components/Bot';
 
 const defaultButtonColor = '#3B81F6';
 const defaultIconColor = 'white';
 
-export type BubbleProps = BotProps & BubbleParams;
+export type BubbleProps = BotProps & BubbleParams & UserProps;
 
 export const Bubble = (props: BubbleProps) => {
   const [bubbleProps] = splitProps(props, ['theme']);
@@ -65,6 +65,8 @@ export const Bubble = (props: BubbleProps) => {
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
+            customerEmail={props.customerEmail}
+            customerName={props.customerName}
           />
         </Show>
       </div>

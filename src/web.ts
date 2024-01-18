@@ -7,7 +7,7 @@ const chatbot = parseChatbot();
 
 const createDefaultChatBot = () => {
 
-    function manageSessionParam(key: string) {
+    function getFromUrlParamOrLocal(key: string) : string | null {
         // Assuming you're working with the current page's URL
         const urlParams = new URLSearchParams(window.location.search);
         const value = urlParams.get(key);
@@ -19,8 +19,8 @@ const createDefaultChatBot = () => {
     }
 
     function getChatflowDefaultProps(){    
-        const customerEmail: string | null = manageSessionParam('customerEmail');
-        const customerName: string | null = manageSessionParam('customerName');
+        const customerEmail: string | null = getFromUrlParamOrLocal('customerEmail');
+        const customerName: string | null = getFromUrlParamOrLocal('customerName');
 
         let cfg, msg;
 
@@ -39,6 +39,8 @@ const createDefaultChatBot = () => {
             chatflowid: "be759955-62ff-4e16-9837-06dfbdacc2b4",
             apiHost: "https://flowiseai-railway-production-9c7c.up.railway.app",
             chatflowConfig: cfg,
+            customerName: customerName,
+            customerEmail: customerEmail,
             theme: {
                 button: {
                     backgroundColor: "#fecdab",

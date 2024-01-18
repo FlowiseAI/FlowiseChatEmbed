@@ -208,13 +208,6 @@ textarea {
   padding: 10px; /* Add padding to create space around the text */
 }
 
-.chatbot-host-bubble img,
-.chatbot-host-bubble iframe,
-.chatbot-host-bubble video {
-  /* border-radius: var(--chatbot-border-radius); */
-  border: black 1px solid;
-}
-
 .chatbot-guest-bubble {
   color: var(--chatbot-guest-bubble-color);
   background-color: #3b81f6;

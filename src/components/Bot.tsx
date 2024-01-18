@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, Show } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
@@ -8,12 +8,12 @@ import { LoadingBubble } from './bubbles/LoadingBubble';
 import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
-import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
-import { update } from 'lodash';
+import { Product } from './ProductInfo';
+import { last, set } from 'lodash';
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
@@ -22,6 +22,11 @@ export type MessageType = {
   type: messageType;
   sourceDocuments?: any;
   fileAnnotations?: any;
+};
+
+export type UserProps = {
+  customerEmail: string;
+  customerName: string;
 };
 
 export type BotProps = {
@@ -121,20 +126,26 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
     },
 ]*/
 
-export type Product = {
-  id: number;
-  sku: string;
-  name: string;
-  price: number | null;
-  description: string;
-  shortDescription: string;
-  imageUrl: string;
-  categories: string;
-  permalink: string;
-  affiliateLink: string;
+export const [products, setProducts] = createSignal(new Map<string, Product | { loading: true }>());
+
+const updateProducts = async (sku: string): Promise<null> => {
+  try {
+    const response = await fetch(`https://glowi.ai/wp-json/custom-api/v1/product-by-sku/${sku}`);
+    const ret = await response.json();
+    console.log('Fetched product:', ret);
+    setProducts((prevProducts) => {
+      prevProducts.delete(sku);
+      const newProducts = new Map(prevProducts);
+      newProducts.set(sku, ret);
+      return newProducts;
+    });
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+  }
+  return null;
 };
 
-export const Bot = (props: BotProps & { class?: string }) => {
+export const Bot = (props: BotProps & { class?: string } & UserProps) => {
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
@@ -154,7 +165,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
   );
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal(uuidv4());
+
+  const [chatId, setChatId] = createSignal(props.customerEmail);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
 
   onMount(() => {
@@ -177,69 +189,32 @@ export const Bot = (props: BotProps & { class?: string }) => {
     localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
   };
 
-  const extractProductRecommendations = (msg: string): string[] | null => {
-    const match = msg.match(/<pr sku=(\d+)><\/pr>/);
-    return match ? match : null;
-  };
-
-  const fetchedProducts: {
-    [productId: string]: Product | null;
-  } = {};
-
-  const fetchProductBySku = async (sku: string): Promise<Product> => {
-    const response = await fetch(`https://glowi.ai/wp-json/custom-api/v1/product-by-sku/${sku}`);
-    return response.json();
-  };
-
-  function injectProduct(msg: string, product: Product) {
-    const rgx = new RegExp(`<pr sku=${product.sku}></pr>`);
-    return msg.replace(
-      rgx,
-      `<div class="max-w-xs m-4"><img src="${product.imageUrl}" alt="${product.name}" class="w-full aspect-square object-contain p-4 bg-white" /><a target="blank" href="${product.affiliateLink}" class="w-full text-center border-x border-b border-black py-2 px-4 block bg-white text-black hover:bg-black hover:text-white no-underline hover:no-underline" style="font-family:Jost;font-size:11px;font-weight: 800;">ACQUISTA PRODOTTO</a></div>`,
-    );
-  }
-  const updateLastMessageWithProduct = (product: Product) => {
+  const updateLastMessage = (new_token: string) => {
     setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, message: injectProduct(item.message, product) };
+      const lastMsg = data[data.length - 1].message;
+
+      const skus = [...lastMsg.matchAll(/<pr sku=(\d+)><\/pr>/g)].map((m) => m[1]);
+
+      skus.forEach((sku) => {
+        if (products().has(sku)) {
+          return;
         }
-        return item;
+        updateProducts(sku);
+        setProducts((prevProducts) => {
+          const newProducts = new Map(prevProducts);
+          newProducts.set(sku, { loading: true });
+          return newProducts;
+        });
+        return;
       });
 
-      addChatMessage(updated);
-
-      return [...updated];
-    });
-  };
-
-  const updateLastMessage = (text: string) => {
-    setMessages((data) => {
-      let msg = '';
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          msg = item.message + text;
-          return { ...item, message: item.message + text };
+          return { ...item, message: item.message + new_token };
         }
         return item;
       });
       addChatMessage(updated);
-      const productSkus = extractProductRecommendations(msg);
-      productSkus?.slice(1).forEach((productSku) => {
-        if (productSku in fetchedProducts) {
-          const product = fetchedProducts[productSku];
-          if (product !== null) updateLastMessageWithProduct(product);
-          // elif product is null, it means we are still fetching it
-        } else {
-          fetchedProducts[productSku] = null; // mark as fetching
-          fetchProductBySku(productSku).then((product) => {
-            fetchedProducts[product.sku] = product;
-            console.log('fetched product', product);
-            updateLastMessageWithProduct(product);
-          });
-        }
-      });
-
       return [...updated];
     });
   };
@@ -477,7 +452,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             ref={chatContainer}
             class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth"
           >
-            <For each={[...messages()]}>
+            <For each={messages()}>
               {(message, index) => (
                 <>
                   {message.type === 'userMessage' && (

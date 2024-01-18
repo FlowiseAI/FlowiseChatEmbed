@@ -1,12 +1,12 @@
 import styles from '../../../assets/index.css';
-import { Bot, BotProps } from '@/components/Bot';
+import { Bot, BotProps, UserProps } from '@/components/Bot';
 import { BubbleParams } from '@/features/bubble/types';
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 
 const defaultButtonColor = '#3B81F6';
 const defaultIconColor = 'white';
 
-export type FullProps = BotProps & BubbleParams;
+export type FullProps = BotProps & BubbleParams & UserProps;
 
 export const Full = (props: FullProps, { element }: { element: HTMLElement }) => {
   const [isBotDisplayed, setIsBotDisplayed] = createSignal(false);
@@ -55,6 +55,8 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
             isFullPage={true}
+            customerEmail={props.customerEmail}
+            customerName={props.customerName}
           />
         </div>
       </Show>
