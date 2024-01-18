@@ -1,44 +1,55 @@
-import { MessageType } from '@/components/Bot';
 import { sendRequest } from '@/utils/index';
+import { chatInfo } from '@/window';
 
 export type IncomingInput = {
   question: string;
-  history: MessageType[];
   overrideConfig?: Record<string, unknown>;
-  socketIOClientId?: string;
   chatId?: string;
-  fileName?: string; // Only for assistant
 };
 
-export type MessageRequest = {
-  chatflowid?: string;
-  apiHost?: string;
-  body?: IncomingInput;
-};
-
-export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: MessageRequest) =>
+export const sendMessageQuery = (data: IncomingInput) =>
   sendRequest<any>({
     method: 'POST',
-    url: `${apiHost}/api/v1/prediction/${chatflowid}`,
-    body,
+    url: `${chatInfo.apiHost}/v1/chat-open/prediction`,
+    headers: {
+      apptoken: chatInfo.apptoken,
+    },
+    body: {
+      ...data,
+      groupId: chatInfo.groupId,
+      thirdUserId: chatInfo.thirdUserId,
+    },
   });
 
-export const getChatbotConfig = ({ chatflowid, apiHost = 'http://localhost:3000' }: MessageRequest) =>
+
+
+export const clearMessages = () =>
+  sendRequest<any>({
+    method: 'DELETE',
+    url: `${chatInfo.apiHost}/v1/chat-open/chatmessage`,
+    headers: {
+      apptoken: chatInfo.apptoken,
+    },
+    body: {
+      groupId: chatInfo.groupId,
+      thirdUserId: chatInfo.thirdUserId,
+    },
+  });
+
+export const getChatbotConfig = () =>
   sendRequest<any>({
     method: 'GET',
-    url: `${apiHost}/api/v1/public-chatbotConfig/${chatflowid}`,
+    url: `${chatInfo.apiHost}/v1/chat-open/chatbot-config`,
+    headers: {
+      apptoken: chatInfo.apptoken,
+    },
   });
 
-export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost:3000' }: MessageRequest) =>
+export const isStreamAvailableQuery = () =>
   sendRequest<any>({
     method: 'GET',
-    url: `${apiHost}/api/v1/chatflows-streaming/${chatflowid}`,
-  });
-
-export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body }: MessageRequest) =>
-  sendRequest<any>({
-    method: 'POST',
-    url: `${apiHost}/api/v1/openai-assistants-file`,
-    body,
-    type: 'blob',
+    url: `${chatInfo.apiHost}/v1/chat-open/chatflows-streaming`,
+    headers: {
+      apptoken: chatInfo.apptoken,
+    },
   });
