@@ -7,7 +7,7 @@ const chatbot = parseChatbot();
 
 const createDefaultChatBot = () => {
 
-    function getFromUrlParamOrLocal(key: string) : string | null {
+    function getFromUrlParamOrLocal(key: string): string | null {
         // Assuming you're working with the current page's URL
         const urlParams = new URLSearchParams(window.location.search);
         const value = urlParams.get(key);
@@ -18,26 +18,26 @@ const createDefaultChatBot = () => {
         return localStorage.getItem(key);
     }
 
-    function getChatflowDefaultProps(){    
+    function getChatflowDefaultProps(chatflowId: string, apiHost: string) {
         const customerEmail: string | null = getFromUrlParamOrLocal('customerEmail');
         const customerName: string | null = getFromUrlParamOrLocal('customerName');
 
         let cfg, msg;
 
         if (customerEmail && customerName) {
-        cfg = { // overrideConfig
-            "functionInputVariables": {
-            "customerEmail": customerEmail,
-            }
-        };
-        msg = `Ciao ${customerName}! Sono Glowi, il tuo skin coach :). Ho qui il tuo quiz, da dove cominciamo?`;
+            cfg = { // overrideConfig
+                "functionInputVariables": {
+                    "customerEmail": customerEmail,
+                }
+            };
+            msg = `Ciao ${customerName}! Sono Glowi, il tuo skin coach :). Ho qui il tuo quiz, da dove cominciamo?`;
         } else {
-        cfg = {};
-        msg = "Ciao! Sono Glowi, il tuo skin coach :) Puoi farmi tutte le domande che vuoi sulla cura della pelle. Da dove cominciamo?";
+            cfg = {};
+            msg = "Ciao! Sono Glowi, il tuo skin coach :) Puoi farmi tutte le domande che vuoi sulla cura della pelle. Da dove cominciamo?";
         }
         return {
-            chatflowid: "be759955-62ff-4e16-9837-06dfbdacc2b4",
-            apiHost: "https://flowiseai-railway-production-9c7c.up.railway.app",
+            chatflowid: chatflowId,
+            apiHost: apiHost,
             chatflowConfig: cfg,
             customerName: customerName,
             customerEmail: customerEmail,
@@ -80,8 +80,8 @@ const createDefaultChatBot = () => {
     return {
         'init': chatbot.init,
         'initFull': chatbot.initFull,
-        'initWithDefaults': () =>  chatbot.init(getChatflowDefaultProps()),
-        'initFullWithDefaults': () => chatbot.initFull(getChatflowDefaultProps())
+        'initWithDefaults': (chatflowId: string, apiHost: string) => chatbot.init(getChatflowDefaultProps(chatflowId, apiHost)),
+        'initFullWithDefaults': (chatflowId: string, apiHost: string) => chatbot.initFull(getChatflowDefaultProps(chatflowId, apiHost))
     }
 }
 
