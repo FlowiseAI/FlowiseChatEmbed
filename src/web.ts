@@ -51,13 +51,13 @@ const createDefaultChatBot = () => {
                 },
                 chatWindow: {
                     welcomeMessage: msg,
-                    backgroundColor: "#ffffff",
+                    backgroundColor: "#FFF2E0",
                     fontSize: 16,
                     poweredByTextColor: "#ffffff",
                     title: 'Glowi',
                     titleAvatarSrc: "https://glowi.ai/wp-content/uploads/2023/07/cropped-retouch.png",
                     botMessage: {
-                        backgroundColor: "#FFF2E0",
+                        backgroundColor: "#ffffff",
                         textColor: "#2f4858",
                         showAvatar: false,
                         avatarSrc: "https://glowi.ai/wp-content/uploads/2023/07/cropped-retouch.png",
