@@ -2,8 +2,8 @@ import { For, Show, createEffect, createSignal, onMount } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { sendFileDownloadQuery } from '@/queries/sendMessageQuery';
-import ProductInfo, { Product } from '../ProductInfo';
-import { products } from '../Bot';
+import { Product, products } from '../Products';
+import ProductInfo from '../ProductInfo';
 
 type Props = {
   message: string;

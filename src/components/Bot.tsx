@@ -12,8 +12,7 @@ import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
-import { Product } from './ProductInfo';
-import { last, set } from 'lodash';
+import { products, setProducts, updateProducts } from './Products';
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
@@ -125,25 +124,6 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
         }
     },
 ]*/
-
-export const [products, setProducts] = createSignal(new Map<string, Product | { loading: true }>());
-
-const updateProducts = async (sku: string): Promise<null> => {
-  try {
-    const response = await fetch(`https://glowi.ai/wp-json/custom-api/v1/product-by-sku/${sku}`);
-    const ret = await response.json();
-    console.log('Fetched product:', ret);
-    setProducts((prevProducts) => {
-      prevProducts.delete(sku);
-      const newProducts = new Map(prevProducts);
-      newProducts.set(sku, ret);
-      return newProducts;
-    });
-  } catch (error) {
-    console.error('Error fetching product data:', error);
-  }
-  return null;
-};
 
 export const Bot = (props: BotProps & { class?: string } & UserProps) => {
   let chatContainer: HTMLDivElement | undefined;
@@ -569,3 +549,5 @@ type BottomSpacerProps = {
 const BottomSpacer = (props: BottomSpacerProps) => {
   return <div ref={props.ref} class="w-full h-32" />;
 };
+
+

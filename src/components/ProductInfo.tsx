@@ -1,24 +1,11 @@
-import { Show, createResource, createSignal } from "solid-js";
-import { products } from "./Bot";
-
-export type Product = {
-  id: number;
-  sku: string;
-  name: string;
-  price: number | null;
-  description: string;
-  shortDescription: string;
-  imageUrl: string;
-  categories: string;
-  permalink: string;
-  affiliateLink: string;
-};
+import { Show } from "solid-js";
+import { Product } from "./Products";
 
 const ProductInfo = (props: {product: Product | {loading: boolean} | undefined}) => {
   const product = props.product;
   return <Show
       when={product != undefined && !product.loading}
-      fallback={ <div class="border border-black max-w-xs m-4 w-full aspect-square bg-white" />}
+      fallback={ <div class="border border-black max-w-xs m-4 aspect-square bg-white" />}
     >
       <div class="border border-black max-w-xs m-4">
           <img src={product.imageUrl} alt={product.name} class="w-full aspect-square object-contain p-4 bg-white" />
