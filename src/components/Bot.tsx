@@ -169,11 +169,15 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
   };
 
+  const getSkus = (message: string) => {
+    return [...(message.matchAll(/<pr sku=(\d+)><\/pr>/g))].map((m) => m[1]);
+  };
+
   const updateLastMessage = (new_token: string) => {
     setMessages((data) => {
       const lastMsg = data[data.length - 1].message;
 
-      const skus = [...lastMsg.matchAll(/<pr sku=(\d+)><\/pr>/g)].map((m) => m[1]);
+      const skus = getSkus(lastMsg);
 
       skus.forEach((sku) => {
         if (products().has(sku)) {
@@ -323,20 +327,16 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
-    const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
-    if (chatMessage) {
-      const objChatMessage = JSON.parse(chatMessage);
-      setChatId(objChatMessage.chatId);
-      const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
-        const chatHistory: MessageType = {
-          message: message.message,
-          type: message.type,
-        };
-        if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-        if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-        return chatHistory;
+    const localChatsData = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
+    if (localChatsData) {
+      const localChats: {chatHistory: MessageType[], chatId: string} = JSON.parse(localChatsData);
+      setChatId(localChats.chatId);
+      const msgs: MessageType[] = [];
+      localChats.chatHistory.forEach((message: MessageType) => {
+        msgs.push(message);
+        setMessages([...msgs]);
+        updateLastMessage("");
       });
-      setMessages([...loadedMessages]);
     }
 
     // Determine if particular chatflow is available for streaming
