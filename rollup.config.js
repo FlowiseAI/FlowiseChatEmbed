@@ -33,7 +33,8 @@ const indexConfig = {
       minimize: true,
       inject: false,
     }),
-    typescript({ sourceMap: true, inlineSources: true, tsconfig: './tsconfig.json' }),
+    // typescript({ sourceMap: true, inlineSources: false, tsconfig: './tsconfig.json' }),
+    typescript({ inlineSources: false, tsconfig: './tsconfig.json' }),
     sourcemaps(),
     typescriptPaths({ preserveExtensions: true }),
     terser({ output: { comments: false } }),
@@ -54,7 +55,7 @@ const configs = [
     ...indexConfig,
     input: './src/web.ts',
     output: {
-      sourcemap: 'inline',
+      sourcemap: true,
       file: 'dist/web.js',
       format: 'es',
     },

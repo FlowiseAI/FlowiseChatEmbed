@@ -10,8 +10,12 @@
             "name": "Launch Chrome against localhost",
             "webRoot": "${workspaceFolder}",
             "sourceMaps": true,
-            "url": "http://127.0.0.1:3001/index_fullpage_test.html",
-            "preLaunchTask": "Live Preview: Run Server"
+            "url": "http://127.0.0.1:3001/index.html",
+            "preLaunchTask": "Live Preview: Run Server",
+            "sourceMapRenames": true,
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js",
+            ]
         }
     ]
 }
