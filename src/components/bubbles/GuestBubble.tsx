@@ -28,7 +28,7 @@ export const GuestBubble = (props: Props) => {
     <div class="flex justify-end mb-2 items-end guest-container" style={{ 'margin-left': '50px' }}>
       <span
         ref={userMessageEl}
-        class="px-3 py-2 rounded-xl mr-2 whitespace-pre-wrap max-w-full chatbot-guest-bubble"
+        class="px-4 py-2 rounded-xl mr-2 whitespace-pre-wrap max-w-full chatbot-guest-bubble"
         data-testid="guest-bubble"
         style={{
           'background-color': props.backgroundColor ?? defaultBackgroundColor,

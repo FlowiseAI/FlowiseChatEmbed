@@ -496,8 +496,11 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
               background: props.bubbleBackgroundColor,
               color: props.bubbleTextColor,
             }}
-            class={!props.isFullPage ? 'rounded-t-xl' : ''}
+            class={!props.isFullPage ? 'rounded-t-3xl' : ''}
           >
+            <svg style="position: absolute; width: 100%; height: 25px; top: 50px;" viewBox="0 0 100 10" preserveAspectRatio="none">
+                <path d="M0,0 S15,10 35,5 S55,0 100,5 L100,0 L0,0" fill={props.bubbleBackgroundColor} />
+            </svg>
             <Show when={props.titleAvatarSrc}>
               <>
                 <div style={{ width: '15px' }} />
@@ -527,6 +530,7 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
             disabled={loading()}
             defaultValue={userInput()}
             onSubmit={handleSubmit}
+            isFullPage={props.isFullPage}
           />
         </div>
         <Show when={messages().length === 1}>
@@ -547,7 +551,7 @@ type BottomSpacerProps = {
   ref: HTMLDivElement | undefined;
 };
 const BottomSpacer = (props: BottomSpacerProps) => {
-  return <div ref={props.ref} class="w-full h-32" />;
+  return <div ref={props.ref} class="w-full h-16" />;
 };
 
 

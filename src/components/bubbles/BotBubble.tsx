@@ -103,7 +103,7 @@ export const BotBubble = (props: Props) => {
         <Avatar initialAvatarSrc={props.avatarSrc} />
       </Show>
       <span
-        class="px-3 py-2 ml-2 whitespace-pre-wrap max-w-full rounded-xl chatbot-host-bubble"
+        class="px-4 py-2 ml-2 whitespace-pre-wrap max-w-full rounded-xl chatbot-host-bubble"
         data-testid="host-bubble"
         style={{
           'background-color': props.backgroundColor ?? defaultBackgroundColor,

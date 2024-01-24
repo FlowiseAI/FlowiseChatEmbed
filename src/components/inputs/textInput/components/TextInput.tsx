@@ -12,6 +12,7 @@ type Props = {
   fontSize?: number;
   disabled?: boolean;
   onSubmit: (value: string) => void;
+  isFullPage?: boolean;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -46,14 +47,14 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class={'flex items-end justify-between chatbot-input rounded-full shadow-sm'}
+      class={(props.isFullPage? "" : "rounded-b-3xl") + ' flex items-end justify-between chatbot-input shadow-sm'}
       data-testid="input"
       style={{
         'border-top': '1px solid #eeeeee',
         position: 'absolute',
-        left: '30px',
-        right: '30px',
-        bottom: '30px',
+        left: '0px',
+        right: '0px',
+        bottom: '0px',
         margin: 'auto',
         'z-index': 1000,
         'background-color': props.backgroundColor ?? defaultBackgroundColor,
