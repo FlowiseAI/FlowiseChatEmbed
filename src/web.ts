@@ -43,35 +43,35 @@ const createDefaultChatBot = () => {
             customerEmail: customerEmail,
             theme: {
                 button: {
-                    backgroundColor: "#fecdab",
+                    backgroundColor: "#FFF2E0",
                     right: 20,
                     bottom: 20,
                     size: "medium",
                     iconColor: "white",
+                    bubbleButtonColor: "#fdcdab",
+                    topbarColor: "#fff1e0",
                 },
                 chatWindow: {
                     welcomeMessage: msg,
                     backgroundColor: "#FFF2E0",
                     fontSize: 16,
                     poweredByTextColor: "#ffffff",
-                    title: 'Glowi',
-                    titleAvatarSrc: "https://glowi.ai/wp-content/uploads/2023/07/cropped-retouch.png",
+                    title: 'GLOWI',
+                    titleColor: "black",
                     botMessage: {
                         backgroundColor: "#ffffff",
-                        textColor: "#2f4858",
-                        showAvatar: false,
-                        avatarSrc: "https://glowi.ai/wp-content/uploads/2023/07/cropped-retouch.png",
+                        textColor: "#283E4D",
                     },
                     userMessage: {
-                        backgroundColor: "#e5a9a4",
-                        textColor: "#ffffff",
+                        backgroundColor: "#fdcdab",
+                        textColor: "#283E4D",
                         showAvatar: false,
                     },
                     textInput: {
-                        placeholder: "Scrivi qui...",
                         backgroundColor: "#ffffff",
-                        textColor: "#2f4858",
-                        sendButtonColor: "black",
+                        textColor: "#283E4D",
+                        placeholder: "Scrivi qui...",
+                        sendButtonColor: "#7f7970",
                     }
                 }
             }

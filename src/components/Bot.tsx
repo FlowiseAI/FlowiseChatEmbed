@@ -38,8 +38,10 @@ export type BotProps = {
   textInput?: TextInputTheme;
   poweredByTextColor?: string;
   badgeBackgroundColor?: string;
-  bubbleBackgroundColor?: string;
+  bubbleButtonColor?: string;
+  topbarColor?: string;
   bubbleTextColor?: string;
+  titleColor?: string;
   title?: string;
   titleAvatarSrc?: string;
   fontSize?: number;
@@ -485,34 +487,22 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
           </div>
           <div
             style={{
-              display: 'flex',
-              'flex-direction': 'row',
-              'align-items': 'center',
-              height: '50px',
-              position: props.isFullPage ? 'fixed' : 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              background: props.bubbleBackgroundColor,
+              background: props.topbarColor,
               color: props.bubbleTextColor,
+              'border-bottom-color': props.bubbleButtonColor,
             }}
-            class={!props.isFullPage ? 'rounded-t-3xl' : ''}
+            class={(props.isFullPage ? 'fixed' : 'absolute rounded-t-3xl') + " flex flex-row items-center top-0 left-0 w-full border-b-2 h-14"}
           >
-            <svg style="position: absolute; width: 100%; height: 25px; top: 50px;" viewBox="0 0 100 10" preserveAspectRatio="none">
-                <path d="M0,0 S15,10 35,5 S55,0 100,5 L100,0 L0,0" fill={props.bubbleBackgroundColor} />
-            </svg>
+            <div class='w-2' />
             <Show when={props.titleAvatarSrc}>
-              <>
-                <div style={{ width: '15px' }} />
                 <Avatar initialAvatarSrc={props.titleAvatarSrc} />
-              </>
             </Show>
             <Show when={props.title}>
-              <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+              <span class="px-3 whitespace-pre-wrap font-semibold max-w-full" style={{"font-family":"Jost","color":props.titleColor}}>{props.title}</span>
             </Show>
             <div style={{ flex: 1 }} />
             <DeleteButton
-              sendButtonColor={props.bubbleTextColor}
+              sendButtonColor={props.textInput?.sendButtonColor}
               type="button"
               isDisabled={messages().length === 1}
               class="my-2 ml-2"

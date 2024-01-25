@@ -30,6 +30,7 @@ export type BotMessageTheme = {
 
 export type ChatWindowTheme = {
   title?: string;
+  titleColor?: string;
   titleAvatarSrc?: string;
   welcomeMessage?: string;
   backgroundColor?: string;
@@ -44,7 +45,8 @@ export type ChatWindowTheme = {
 
 export type ButtonTheme = {
   size?: 'medium' | 'large';
-  backgroundColor?: string;
+  bubbleButtonColor?: string;
+  topbarColor?: string;
   iconColor?: string;
   customIconSrc?: string;
   bottom?: number;

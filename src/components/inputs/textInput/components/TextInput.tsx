@@ -47,7 +47,7 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class={(props.isFullPage? "" : "rounded-b-3xl") + ' flex items-end justify-between chatbot-input shadow-sm'}
+      class={(props.isFullPage? "" : "rounded-b-3xl") + ' flex items-end justify-between chatbot-input shadow-sm h-14'}
       data-testid="input"
       style={{
         'border-top': '1px solid #eeeeee',
