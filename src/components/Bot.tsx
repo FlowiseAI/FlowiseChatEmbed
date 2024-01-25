@@ -501,15 +501,6 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
               <span class="px-3 whitespace-pre-wrap font-semibold max-w-full" style={{"font-family":"Jost","color":props.titleColor}}>{props.title}</span>
             </Show>
             <div style={{ flex: 1 }} />
-            <DeleteButton
-              sendButtonColor={props.textInput?.sendButtonColor}
-              type="button"
-              isDisabled={messages().length === 1}
-              class="my-2 ml-2"
-              on:click={clearChat}
-            >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
-            </DeleteButton>
           </div>
           <TextInput
             backgroundColor={props.textInput?.backgroundColor}
@@ -521,6 +512,8 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
             defaultValue={userInput()}
             onSubmit={handleSubmit}
             isFullPage={props.isFullPage}
+            clearChat={clearChat}
+            isDeleteEnabled={messages().length > 1}
           />
         </div>
         <Show when={messages().length === 1}>

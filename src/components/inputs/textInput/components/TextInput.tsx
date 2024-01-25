@@ -1,7 +1,7 @@
 import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { createSignal, createEffect, onMount } from 'solid-js';
-import { SendButton } from '@/components/SendButton';
+import { DeleteButton, SendButton } from '@/components/SendButton';
 
 type Props = {
   placeholder?: string;
@@ -13,6 +13,8 @@ type Props = {
   disabled?: boolean;
   onSubmit: (value: string) => void;
   isFullPage?: boolean;
+  clearChat: () => void;
+  isDeleteEnabled: boolean;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -74,11 +76,20 @@ export const TextInput = (props: Props) => {
         sendButtonColor={props.sendButtonColor}
         type="button"
         isDisabled={props.disabled || inputValue() === ''}
-        class="my-2 ml-2"
+        class="my-2"
         on:click={submit}
       >
         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
       </SendButton>
+      <DeleteButton
+        sendButtonColor={props.sendButtonColor}
+        type="button"
+        isDisabled={!props.isDeleteEnabled}
+        class="my-2"
+        on:click={props.clearChat}
+      >
+        <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+      </DeleteButton> 
     </div>
   );
 };
