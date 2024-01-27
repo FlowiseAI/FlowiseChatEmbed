@@ -33,7 +33,6 @@ export const init = async (props: BotProps) => {
  
     const config_data = JSON.parse(config?.body)
     const default_open = config_data?.default_open
-    console.log(config_data)
     props.theme = config_data?.theme;
     props.chatflowid = config_data?.chatflowid;
     props.apiHost = config_data?.apiHost;
