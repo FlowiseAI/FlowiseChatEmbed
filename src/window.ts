@@ -38,7 +38,7 @@ export const init = async (props: BotProps) => {
     props.apiHost = config_data?.apiHost;
     props.includeQuestions = config_data?.includeQuestions;
     props.isOpen = window?.innerWidth ? (window?.innerWidth > 1000): false;
-    props.isOpen = props.isOpen && default_open
+    props.isOpen = props.isOpen || default_open
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
     document.body.appendChild(element)
