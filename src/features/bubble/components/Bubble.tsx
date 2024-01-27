@@ -10,11 +10,10 @@ export type BubbleProps = BotProps & BubbleParams
 export const Bubble = (props: BubbleProps) => {
     const [bubbleProps] = splitProps(props, ['theme'])
     //check cookie for how many times the site as been loaded
-    const numLoadedCookie: string =  getCookie("numLoadedChat");
-    let numLoaded: number  = parseInt(numLoadedCookie);
-    numLoaded = numLoaded ? numLoaded : 0;  
-    const isOpen: boolean = numLoaded < 4 ? true : false;
-
+    // const numLoadedCookie: string =  getCookie("numLoadedChat");
+    // let numLoaded: number  = parseInt(numLoadedCookie);
+    // numLoaded = numLoaded ? numLoaded : 0;  
+    const isOpen = props.isOpen? props.isOpen : false;
     const [isBotOpened, setIsBotOpened] = createSignal(isOpen)
     const [isBotStarted, setIsBotStarted] = createSignal(isOpen)
     const [isVisible,setIsVisible] = createSignal(true)

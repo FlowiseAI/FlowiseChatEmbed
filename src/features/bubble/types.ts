@@ -1,5 +1,6 @@
 export type BubbleParams = {
     theme?: BubbleTheme
+    isOpen?: boolean
 }
 
 export type BubbleTheme = {

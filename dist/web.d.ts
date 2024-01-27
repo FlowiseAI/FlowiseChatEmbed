@@ -6,6 +6,7 @@ declare const chatbot: {
         userID?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
+        isOpen?: Boolean | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -16,6 +17,7 @@ declare const chatbot: {
         userID?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
+        isOpen?: Boolean | undefined;
     }) => Promise<void>;
 };
 export default chatbot;

@@ -5,5 +5,6 @@ export const defaultBotProps: BubbleProps = {
     includeQuestions: false,
     apiHost: undefined,
     chatflowConfig: undefined,
-    theme: undefined
+    theme: undefined,
+    isOpen: true
 }

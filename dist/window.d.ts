@@ -5,6 +5,7 @@ type BotProps = {
     userID?: string;
     chatflowConfig?: Record<string, unknown>;
     theme?: Record<string, unknown>;
+    isOpen?: Boolean;
 };
 export declare const initFull: (props: BotProps & {
     id?: string;
