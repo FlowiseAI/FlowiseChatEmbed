@@ -50,7 +50,7 @@ export const Badge = (props: Props) => {
         'background-color': props.badgeBackgroundColor ?? '#ffffff',
       }}
     >
-      Powered 
+      Powered
       <a
         ref={liteBadge}
         href={'https://flowiseai.com'}
