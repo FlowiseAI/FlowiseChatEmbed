@@ -543,7 +543,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </div>
           </Show>
         </Show>
-        
+
         <BottomSpacer ref={bottomSpacer} />
       </div>
       {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
