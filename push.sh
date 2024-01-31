@@ -11,7 +11,7 @@ if [ "$flag" != "$mt" ]; then
   echo ""
 else
   echo ""
-  echo "     Usage push.sh [ js or css ] [ dev or prd ]"
+  echo "     Usage push.sh [ js or css ] [ www or editor ]"
   echo ""
   exit
 fi
@@ -30,7 +30,7 @@ if [ "$flag" == "$js" ]; then
   # Build the JS source
   yarn build
   
-  if [ "$env" == "prd" ]; then
+  if [ "$env" == "www" ]; then
     aws s3 cp dist/web.js s3://trelles-assets/js/web.js
   else
     aws s3 cp dist/web.js s3://trelles-assets/js/web_dev.js
