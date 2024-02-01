@@ -160,7 +160,7 @@ textarea {
   opacity: 1 !important;
 }
 
-/* Override bottom location of chat window */
+/* Override bottom location of chat window. for editor only, not www */
 .bottom-20 {
   bottom: 165px !important;
 }

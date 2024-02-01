@@ -233,7 +233,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
     });
 
     const body: IncomingInput = {
-      question: value + '. Use this context: ' + props.document_text,
+      //question: value, // for www
+      question: value + '. Use this context: ' + props.document_text, // For editor
       history: messageList,
       chatId: chatId(),
     };
