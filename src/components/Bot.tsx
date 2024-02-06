@@ -166,7 +166,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
    * Add each chat message into localStorage
    */
   const addChatMessage = (allMessage: MessageType[]) => {
-    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
+    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: "" }));
   };
 
   const updateLastMessage = (text: string) => {
@@ -311,6 +311,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
     if (chatMessage) {
       const objChatMessage = JSON.parse(chatMessage);
       setChatId(objChatMessage.chatId);
+      // Ignore history outside of the current chat bot window
+      if (objChatMessage.chatHistory.map === undefined) return;
       const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
         const chatHistory: MessageType = {
           message: message.message,
