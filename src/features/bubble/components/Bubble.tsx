@@ -13,6 +13,9 @@ export const Bubble = (props: BubbleProps) => {
     // const numLoadedCookie: string =  getCookie("numLoadedChat");
     // let numLoaded: number  = parseInt(numLoadedCookie);
     // numLoaded = numLoaded ? numLoaded : 0;  
+    const isMobile =  window?.innerWidth ? (window?.innerWidth < 1000): false;
+
+    const height_calc = isMobile? "calc(min(300px, max(100% - 100px,250px)))" : "calc(min(500px, max(100% - 100px,300px)))"
     const isOpen = props.isOpen? props.isOpen : false;
     const [isBotOpened, setIsBotOpened] = createSignal(isOpen)
     const [isBotStarted, setIsBotStarted] = createSignal(isOpen)
@@ -55,11 +58,14 @@ export const Bubble = (props: BubbleProps) => {
     return (
         <>
             <style>{styles}</style>
+            <>
+                <link rel="icon" href="data:,"/>
+            </>
             <BubbleButton {...bubbleProps.theme?.button} toggleBot={toggleBot} isBotOpened={isBotOpened()} />
             <div
-                part='bot'
+                part='bot' //ADD CHANGE TO HIGH LINE BASED ON IS MOBILE 
                 style={{
-                    height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(min(500px, max(100% - 100px,300px)))',
+                    height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : height_calc,
                     transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
                     'transform-origin': 'bottom right',
                     transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
