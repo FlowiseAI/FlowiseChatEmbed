@@ -1,6 +1,6 @@
 import { Show } from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
-import { AddImageIcon } from './icons';
+import { AddImageIcon } from '../icons';
 
 type ImageUploadButtonProps = {
   buttonColor?: string;
