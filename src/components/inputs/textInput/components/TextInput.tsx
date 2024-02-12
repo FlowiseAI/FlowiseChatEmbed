@@ -2,6 +2,9 @@ import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { SendButton } from '@/components/SendButton';
+import { UploadsConfig } from '@/components/Bot';
+import { ImageUploadButton } from '@/components/ImageUploadButton';
+import { RecordAudioButton } from '@/components/RecordAudioButton';
 
 type Props = {
   placeholder?: string;
@@ -12,6 +15,7 @@ type Props = {
   fontSize?: number;
   disabled?: boolean;
   onSubmit: (value: string) => void;
+  uploadsConfig?: Partial<UploadsConfig>;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -46,7 +50,7 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class={'flex items-end justify-between chatbot-input'}
+      class={'flex items-center justify-between chatbot-input'}
       data-testid="input"
       style={{
         'border-top': '1px solid #eeeeee',
@@ -61,6 +65,11 @@ export const TextInput = (props: Props) => {
       }}
       onKeyDown={submitWhenEnter}
     >
+      {props.uploadsConfig?.isImageUploadAllowed ? (
+        <ImageUploadButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={submit}>
+          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+        </ImageUploadButton>
+      ) : null}
       <ShortTextInput
         ref={inputRef as HTMLInputElement}
         onInput={handleInput}
@@ -69,11 +78,16 @@ export const TextInput = (props: Props) => {
         disabled={props.disabled}
         placeholder={props.placeholder ?? 'Type your question'}
       />
+      {props.uploadsConfig?.isSpeechToTextEnabled ? (
+        <RecordAudioButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={submit}>
+          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+        </RecordAudioButton>
+      ) : null}
       <SendButton
         sendButtonColor={props.sendButtonColor}
         type="button"
         isDisabled={props.disabled || inputValue() === ''}
-        class="my-2 ml-2"
+        class="ml-2"
         on:click={submit}
       >
         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>

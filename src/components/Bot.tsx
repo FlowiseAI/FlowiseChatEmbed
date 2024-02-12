@@ -14,6 +14,17 @@ import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
 
+type ImageUploadConstraits = {
+  fileTypes: string[];
+  maxUploadSize: number;
+};
+
+export type UploadsConfig = {
+  imgUploadSizeAndTypes: ImageUploadConstraits[];
+  isImageUploadAllowed: boolean;
+  isSpeechToTextEnabled: boolean;
+};
+
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
 export type MessageType = {
@@ -145,6 +156,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
+  const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -344,6 +356,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
         setStarterPrompts(prompts);
       }
+      if (chatbotConfig.uploads) {
+        setUploadsConfig(chatbotConfig.uploads);
+      }
     }
 
     const socket = socketIOClient(props.apiHost as string);
@@ -510,6 +525,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             disabled={loading()}
             defaultValue={userInput()}
             onSubmit={handleSubmit}
+            uploadsConfig={uploadsConfig()}
           />
         </div>
         <Show when={messages().length === 1}>
