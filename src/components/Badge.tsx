@@ -38,12 +38,8 @@ export const Badge = (props: Props) => {
 
   return (
     <span
+      class="w-full text-center px-[10px] pt-[6px] pb-[10px] m-auto text-[13px]"
       style={{
-        'font-size': '13px',
-        padding: '10px',
-        margin: 'auto',
-        width: '100%',
-        'text-align': 'center',
         color: props.poweredByTextColor ?? defaultTextColor,
         'background-color': props.badgeBackgroundColor ?? '#ffffff',
       }}

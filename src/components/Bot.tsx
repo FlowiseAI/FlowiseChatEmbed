@@ -441,15 +441,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       >
         {props.showTitle ? (
           <div
+            class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
             style={{
-              display: 'flex',
-              'flex-direction': 'row',
-              'align-items': 'center',
-              height: '50px',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
               background: props.bubbleBackgroundColor,
               color: props.bubbleTextColor,
               'border-top-left-radius': props.isFullPage ? '0px' : '6px',
@@ -477,10 +470,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </DeleteButton>
           </div>
         ) : null}
-        <div class="flex flex-col flex-grow w-full h-full justify-start">
+        <div class="flex flex-col flex-shrink w-full h-full justify-start z-0">
           <div
             ref={chatContainer}
-            class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
+            class="overflow-y-scroll flex flex-col min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
           >
             <For each={[...messages()]}>
               {(message, index) => (
@@ -541,7 +534,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </Show>
           </Show>
           <Show when={previews().length > 0}>
-            <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 pb-1 border-t border-[#eeeeee]">
+            <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
               <For each={[...previews()]}>
                 {(item) => (
                   <button
@@ -557,7 +550,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </For>
             </div>
           </Show>
-          <div class="w-full px-5 py-1">
+          <div class="w-full px-5 pt-2 pb-1">
             <TextInput
               backgroundColor={props.textInput?.backgroundColor}
               textColor={props.textInput?.textColor}
@@ -571,8 +564,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               setPreviews={setPreviews}
             />
           </div>
+          <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
         </div>
-        <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
       </div>
       {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
     </>
