@@ -1,3 +1,4 @@
+import { UploadsConfig } from '@/components/Bot';
 type Props = {
     placeholder?: string;
     backgroundColor?: string;
@@ -7,6 +8,7 @@ type Props = {
     fontSize?: number;
     disabled?: boolean;
     onSubmit: (value: string) => void;
+    uploadsConfig?: Partial<UploadsConfig>;
 };
 export declare const TextInput: (props: Props) => import("solid-js").JSX.Element;
 export {};
