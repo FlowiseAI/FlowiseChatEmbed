@@ -1,4 +1,13 @@
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
+type ImageUploadConstraits = {
+    fileTypes: string[];
+    maxUploadSize: number;
+};
+export type UploadsConfig = {
+    imgUploadSizeAndTypes: ImageUploadConstraits[];
+    isImageUploadAllowed: boolean;
+    isSpeechToTextEnabled: boolean;
+};
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 export type MessageType = {
     message: string;
