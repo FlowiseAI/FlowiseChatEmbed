@@ -1,6 +1,6 @@
 import { Show } from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
-import { RecordIcon } from './icons';
+import { RecordIcon } from '../icons';
 
 type RecordAudioButtonProps = {
   buttonColor?: string;

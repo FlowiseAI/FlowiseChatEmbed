@@ -40,8 +40,6 @@ export const Badge = (props: Props) => {
     <span
       style={{
         'font-size': '13px',
-        position: 'absolute',
-        bottom: 0,
         padding: '10px',
         margin: 'auto',
         width: '100%',

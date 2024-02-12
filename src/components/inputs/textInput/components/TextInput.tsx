@@ -1,10 +1,10 @@
 import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
-import { createSignal, createEffect, onMount } from 'solid-js';
-import { SendButton } from '@/components/SendButton';
+import { createSignal, createEffect, onMount, Setter } from 'solid-js';
+import { SendButton } from '@/components/buttons/SendButton';
 import { UploadsConfig } from '@/components/Bot';
-import { ImageUploadButton } from '@/components/ImageUploadButton';
-import { RecordAudioButton } from '@/components/RecordAudioButton';
+import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
+import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
 
 type Props = {
   placeholder?: string;
@@ -16,6 +16,11 @@ type Props = {
   disabled?: boolean;
   onSubmit: (value: string) => void;
   uploadsConfig?: Partial<UploadsConfig>;
+  setPreviews: Setter<unknown[]>;
+};
+
+type Event<T = EventTarget> = {
+  target: T;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -24,6 +29,7 @@ const defaultTextColor = '#303235';
 export const TextInput = (props: Props) => {
   const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
+  let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
 
   const handleInput = (inputValue: string) => setInputValue(inputValue);
 
@@ -40,6 +46,65 @@ export const TextInput = (props: Props) => {
     if (e.key === 'Enter' && !isIMEComposition) submit();
   };
 
+  const isFileAllowedForUpload = (file: File) => {
+    let acceptFile = false;
+    if (props.uploadsConfig && props.uploadsConfig.isImageUploadAllowed && props.uploadsConfig?.imgUploadSizeAndTypes) {
+      const fileType = file.type;
+      const sizeInMB = file.size / 1024 / 1024;
+      props.uploadsConfig.imgUploadSizeAndTypes.map((allowed) => {
+        if (allowed.fileTypes.includes(fileType) && sizeInMB <= allowed.maxUploadSize) {
+          acceptFile = true;
+        }
+      });
+    }
+    if (!acceptFile) {
+      alert(`Cannot upload file. Kindly check the allowed file types and maximum allowed size.`);
+    }
+    return acceptFile;
+  };
+
+  const handleImageUploadClick = () => {
+    if (fileUploadRef) fileUploadRef.click();
+  };
+
+  const handleFileChange = async (event: Event<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    const filesList = [];
+    for (const file of files) {
+      if (isFileAllowedForUpload(file) === false) {
+        return;
+      }
+      const reader = new FileReader();
+      const { name } = file;
+      filesList.push(
+        new Promise((resolve) => {
+          reader.onload = (evt) => {
+            if (!evt?.target?.result) {
+              return;
+            }
+            const { result } = evt.target;
+            resolve({
+              data: result,
+              preview: URL.createObjectURL(file),
+              type: 'file',
+              name: name,
+              mime: file.type,
+            });
+          };
+          reader.readAsDataURL(file);
+        }),
+      );
+    }
+
+    const newFiles = await Promise.all(filesList);
+    props.setPreviews((prevPreviews) => [...prevPreviews, ...newFiles]);
+    // 👇️ reset file input
+    // event.target.value = '';
+  };
+
   createEffect(() => {
     if (!props.disabled && !isMobile() && inputRef) inputRef.focus();
   });
@@ -50,25 +115,22 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class={'flex items-center justify-between chatbot-input'}
+      class={'flex items-center justify-between chatbot-input border border-[#eeeeee]'}
       data-testid="input"
       style={{
-        'border-top': '1px solid #eeeeee',
-        position: 'absolute',
-        left: '20px',
-        right: '20px',
-        bottom: '40px',
         margin: 'auto',
-        'z-index': 1000,
         'background-color': props.backgroundColor ?? defaultBackgroundColor,
         color: props.textColor ?? defaultTextColor,
       }}
       onKeyDown={submitWhenEnter}
     >
       {props.uploadsConfig?.isImageUploadAllowed ? (
-        <ImageUploadButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={submit}>
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-        </ImageUploadButton>
+        <>
+          <ImageUploadButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={handleImageUploadClick}>
+            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+          </ImageUploadButton>
+          <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} />
+        </>
       ) : null}
       <ShortTextInput
         ref={inputRef as HTMLInputElement}
