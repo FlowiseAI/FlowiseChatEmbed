@@ -11,6 +11,7 @@ type Props = {
     onSubmit: (value: string) => void;
     uploadsConfig?: Partial<UploadsConfig>;
     setPreviews: Setter<unknown[]>;
+    onMicrophoneClicked: () => void;
 };
 export declare const TextInput: (props: Props) => import("solid-js").JSX.Element;
 export {};

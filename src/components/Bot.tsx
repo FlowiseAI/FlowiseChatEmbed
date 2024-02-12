@@ -12,8 +12,10 @@ import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
-import { DeleteButton } from '@/components/buttons/SendButton';
-import { TrashIcon } from './icons';
+import { DeleteButton, SendButton } from '@/components/buttons/SendButton';
+import { CircleDotIcon, TrashIcon } from './icons';
+import { CancelButton } from './buttons/CancelButton';
+import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 
 type ImageUploadConstraits = {
   fileTypes: string[];
@@ -26,8 +28,10 @@ export type UploadsConfig = {
   isSpeechToTextEnabled: boolean;
 };
 
+type FilePreviewData = string | ArrayBuffer;
+
 type FilePreview = {
-  data: string;
+  data: FilePreviewData;
   mime: string;
   name: string;
   preview: string;
@@ -141,6 +145,9 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
     },
 ]*/
 
+const defaultBackgroundColor = '#ffffff';
+const defaultTextColor = '#303235';
+
 export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
   const props = mergeProps({ showTitle: true }, botProps);
@@ -166,8 +173,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [chatId, setChatId] = createSignal(uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
+
+  // drag & drop file input
   // TODO: fix this type
   const [previews, setPreviews] = createSignal<FilePreview[]>([]);
+
+  // audio recording
+  const [elapsedTime, setElapsedTime] = createSignal('00:00');
+  const [isRecording, setIsRecording] = createSignal(false);
+  const [recordingNotSupported, setRecordingNotSupported] = createSignal(false);
+  const [isLoadingRecording, setIsLoadingRecording] = createSignal(false);
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -426,11 +441,45 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     return newSourceDocuments;
   };
 
+  const addRecordingToPreviews = (blob: Blob) => {
+    const mimeType = blob.type.substring(0, blob.type.indexOf(';'));
+    // read blob and add to previews
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onloadend = () => {
+      const base64data = reader.result as FilePreviewData;
+      const upload: FilePreview = {
+        data: base64data,
+        preview: '../assets/wave-sound.jpg',
+        type: 'audio',
+        name: 'audio.wav',
+        mime: mimeType,
+      };
+      setPreviews((prevPreviews) => [...prevPreviews, upload]);
+    };
+  };
+
   const handleDeletePreview = (itemToDelete: FilePreview) => {
     if (itemToDelete.type === 'file') {
       URL.revokeObjectURL(itemToDelete.preview); // Clean up for file
     }
     setPreviews(previews().filter((item) => item !== itemToDelete));
+  };
+
+  const onMicrophoneClicked = () => {
+    setIsRecording(true);
+    startAudioRecording(setIsRecording, setRecordingNotSupported, setElapsedTime);
+  };
+
+  const onRecordingCancelled = () => {
+    if (!recordingNotSupported) cancelAudioRecording();
+    setIsRecording(false);
+    setRecordingNotSupported(false);
+  };
+
+  const onRecordingStopped = async () => {
+    setIsLoadingRecording(true);
+    stopAudioRecording(addRecordingToPreviews);
   };
 
   return (
@@ -541,7 +590,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     class="group w-12 h-12 flex items-center justify-center relative rounded-[10px] overflow-hidden transition-colors duration-200"
                     onClick={() => handleDeletePreview(item)}
                   >
-                    <img class="w-full h-full bg-cover" src={item.data} />
+                    <img class="w-full h-full bg-cover" src={item.data as string} />
                     <span class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
                       <TrashIcon />
                     </span>
@@ -551,18 +600,59 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </div>
           </Show>
           <div class="w-full px-5 pt-2 pb-1">
-            <TextInput
-              backgroundColor={props.textInput?.backgroundColor}
-              textColor={props.textInput?.textColor}
-              placeholder={props.textInput?.placeholder}
-              sendButtonColor={props.textInput?.sendButtonColor}
-              fontSize={props.fontSize}
-              disabled={loading()}
-              defaultValue={userInput()}
-              onSubmit={handleSubmit}
-              uploadsConfig={uploadsConfig()}
-              setPreviews={setPreviews}
-            />
+            {isRecording() ? (
+              <>
+                {recordingNotSupported() ? (
+                  <div>Recording not supported</div>
+                ) : (
+                  <div
+                    class={'flex items-center justify-between chatbot-input border border-[#eeeeee]'}
+                    data-testid="input"
+                    style={{
+                      margin: 'auto',
+                      'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
+                      color: props.textInput?.textColor ?? defaultTextColor,
+                    }}
+                  >
+                    <div class="flex items-center gap-3">
+                      <span class="red-recording-dot">
+                        <CircleDotIcon />
+                      </span>
+                      <span>{elapsedTime() || '00:00'}</span>
+                      {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="ml-2" on:click={onRecordingCancelled}>
+                        <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+                      </CancelButton>
+                      <SendButton
+                        sendButtonColor={props.textInput?.sendButtonColor}
+                        type="button"
+                        isDisabled={loading()}
+                        class="ml-2"
+                        on:click={onRecordingStopped}
+                      >
+                        <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+                      </SendButton>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <TextInput
+                backgroundColor={props.textInput?.backgroundColor}
+                textColor={props.textInput?.textColor}
+                placeholder={props.textInput?.placeholder}
+                sendButtonColor={props.textInput?.sendButtonColor}
+                fontSize={props.fontSize}
+                disabled={loading()}
+                defaultValue={userInput()}
+                onSubmit={handleSubmit}
+                uploadsConfig={uploadsConfig()}
+                setPreviews={setPreviews}
+                onMicrophoneClicked={onMicrophoneClicked}
+              />
+            )}
           </div>
           <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
         </div>

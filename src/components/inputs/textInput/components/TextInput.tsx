@@ -17,6 +17,7 @@ type Props = {
   onSubmit: (value: string) => void;
   uploadsConfig?: Partial<UploadsConfig>;
   setPreviews: Setter<unknown[]>;
+  onMicrophoneClicked: () => void;
 };
 
 type Event<T = EventTarget> = {
@@ -141,7 +142,7 @@ export const TextInput = (props: Props) => {
         placeholder={props.placeholder ?? 'Type your question'}
       />
       {props.uploadsConfig?.isSpeechToTextEnabled ? (
-        <RecordAudioButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={submit}>
+        <RecordAudioButton buttonColor={props.sendButtonColor} type="button" class="m-0 start-recording-button" on:click={props.onMicrophoneClicked}>
           <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
         </RecordAudioButton>
       ) : null}
@@ -149,7 +150,7 @@ export const TextInput = (props: Props) => {
         sendButtonColor={props.sendButtonColor}
         type="button"
         isDisabled={props.disabled || inputValue() === ''}
-        class="ml-2"
+        class="m-0"
         on:click={submit}
       >
         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
