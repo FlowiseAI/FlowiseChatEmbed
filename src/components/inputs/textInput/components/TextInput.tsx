@@ -2,7 +2,7 @@ import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { createSignal, createEffect, onMount, Setter } from 'solid-js';
 import { SendButton } from '@/components/buttons/SendButton';
-import { UploadsConfig } from '@/components/Bot';
+import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
 
@@ -18,10 +18,7 @@ type Props = {
   uploadsConfig?: Partial<UploadsConfig>;
   setPreviews: Setter<unknown[]>;
   onMicrophoneClicked: () => void;
-};
-
-type Event<T = EventTarget> = {
-  target: T;
+  handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -47,63 +44,8 @@ export const TextInput = (props: Props) => {
     if (e.key === 'Enter' && !isIMEComposition) submit();
   };
 
-  const isFileAllowedForUpload = (file: File) => {
-    let acceptFile = false;
-    if (props.uploadsConfig && props.uploadsConfig.isImageUploadAllowed && props.uploadsConfig?.imgUploadSizeAndTypes) {
-      const fileType = file.type;
-      const sizeInMB = file.size / 1024 / 1024;
-      props.uploadsConfig.imgUploadSizeAndTypes.map((allowed) => {
-        if (allowed.fileTypes.includes(fileType) && sizeInMB <= allowed.maxUploadSize) {
-          acceptFile = true;
-        }
-      });
-    }
-    if (!acceptFile) {
-      alert(`Cannot upload file. Kindly check the allowed file types and maximum allowed size.`);
-    }
-    return acceptFile;
-  };
-
   const handleImageUploadClick = () => {
     if (fileUploadRef) fileUploadRef.click();
-  };
-
-  const handleFileChange = async (event: Event<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) {
-      return;
-    }
-    const filesList = [];
-    for (const file of files) {
-      if (isFileAllowedForUpload(file) === false) {
-        return;
-      }
-      const reader = new FileReader();
-      const { name } = file;
-      filesList.push(
-        new Promise((resolve) => {
-          reader.onload = (evt) => {
-            if (!evt?.target?.result) {
-              return;
-            }
-            const { result } = evt.target;
-            resolve({
-              data: result,
-              preview: URL.createObjectURL(file),
-              type: 'file',
-              name: name,
-              mime: file.type,
-            });
-          };
-          reader.readAsDataURL(file);
-        }),
-      );
-    }
-
-    const newFiles = await Promise.all(filesList);
-    props.setPreviews((prevPreviews) => [...prevPreviews, ...newFiles]);
-    // 👇️ reset file input
-    // event.target.value = '';
   };
 
   createEffect(() => {
@@ -130,7 +72,7 @@ export const TextInput = (props: Props) => {
           <ImageUploadButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={handleImageUploadClick}>
             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
           </ImageUploadButton>
-          <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} />
+          <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={props.handleFileChange} />
         </>
       ) : null}
       <ShortTextInput
