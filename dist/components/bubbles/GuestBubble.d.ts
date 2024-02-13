@@ -1,5 +1,6 @@
+import { MessageType } from '../Bot';
 type Props = {
-    message: string;
+    message: MessageType;
     showAvatar?: boolean;
     avatarSrc?: string;
     backgroundColor?: string;
