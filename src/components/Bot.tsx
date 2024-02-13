@@ -196,7 +196,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isLoadingRecording, setIsLoadingRecording] = createSignal(false);
 
   // drag & drop
-  const [isDragActive, setIsDragActive] = createSignal(true);
+  const [isDragActive, setIsDragActive] = createSignal(false);
 
   onMount(() => {
     if (botProps?.observersConfig) {
