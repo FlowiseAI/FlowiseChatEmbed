@@ -892,8 +892,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     }}
                   >
                     <div class="flex items-center gap-3 px-4 py-2">
-                      <span class="text-red">
-                        <CircleDotIcon />
+                      <span>
+                        <CircleDotIcon color="red" />
                       </span>
                       <span>{elapsedTime() || '00:00'}</span>
                       {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
