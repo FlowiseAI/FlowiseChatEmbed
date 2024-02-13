@@ -16,6 +16,41 @@ export type MessageRequest = {
   body?: IncomingInput;
 };
 
+export type FeedbackRatingType = 'thumbsUp' | 'thumbsDown';
+
+export type FeedbackInput = {
+  chatId: string;
+  messageId: string;
+  rating: FeedbackRatingType;
+  content?: string;
+};
+
+export type CreateFeedbackRequest = {
+  chatflowid?: string;
+  apiHost?: string;
+  body?: FeedbackInput;
+};
+
+export type UpdateFeedbackRequest = {
+  id: string;
+  apiHost?: string;
+  body?: Partial<FeedbackInput>;
+};
+
+export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: CreateFeedbackRequest) =>
+  sendRequest({
+    method: 'POST',
+    url: `${apiHost}/api/v1/feedback/${chatflowid}`,
+    body,
+  });
+
+export const updateFeedbackQuery = ({ id, apiHost = 'http://localhost:3000', body }: UpdateFeedbackRequest) =>
+  sendRequest({
+    method: 'PUT',
+    url: `${apiHost}/api/v1/feedback/${id}`,
+    body,
+  });
+
 export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: MessageRequest) =>
   sendRequest<any>({
     method: 'POST',

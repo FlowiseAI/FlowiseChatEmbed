@@ -1,10 +1,15 @@
-import { Show, onMount } from 'solid-js';
+import { Show, createSignal, onMount } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
-import { sendFileDownloadQuery } from '@/queries/sendMessageQuery';
+import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
+import { MessageType } from '../Bot';
+import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
+import FeedbackContentDialog from '../FeedbackContentDialog';
 
 type Props = {
-  message: string;
+  message: MessageType;
+  chatflowid: string;
+  chatId: string;
   apiHost?: string;
   fileAnnotations?: any;
   showAvatar?: boolean;
@@ -20,6 +25,9 @@ Marked.setOptions({ isNoP: true });
 
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
+  const [rating, setRating] = createSignal('');
+  const [feedbackId, setFeedbackId] = createSignal('');
+  const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -40,9 +48,86 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  const copyMessageToClipboard = async () => {
+    try {
+      const text = botMessageEl ? botMessageEl?.textContent : '';
+      await navigator.clipboard.writeText(text || '');
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+    }
+  };
+
+  const onThumbsUpClick = async () => {
+    if (rating() === '') {
+      const body = {
+        chatflowid: props.chatflowid,
+        chatId: props.chatId,
+        messageId: props.message?.messageId as string,
+        rating: 'thumbsUp' as FeedbackRatingType,
+        content: '',
+      };
+      const result = await sendFeedbackQuery({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        body,
+      });
+
+      if (result.data) {
+        const data = result.data as any;
+        let id = '';
+        if (data && data.id) id = data.id;
+        setRating('thumbsUp');
+        setFeedbackId(id);
+        setShowFeedbackContentModal(true);
+      }
+    }
+  };
+
+  const onThumbsDownClick = async () => {
+    if (rating() === '') {
+      const body = {
+        chatflowid: props.chatflowid,
+        chatId: props.chatId,
+        messageId: props.message?.messageId as string,
+        rating: 'thumbsDown' as FeedbackRatingType,
+        content: '',
+      };
+      const result = await sendFeedbackQuery({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        body,
+      });
+
+      if (result.data) {
+        const data = result.data as any;
+        let id = '';
+        if (data && data.id) id = data.id;
+        setRating('thumbsDown');
+        setFeedbackId(id);
+        setShowFeedbackContentModal(true);
+      }
+    }
+  };
+
+  const submitFeedbackContent = async (text: string) => {
+    const body = {
+      content: text,
+    };
+    const result = await updateFeedbackQuery({
+      id: feedbackId(),
+      apiHost: props.apiHost,
+      body,
+    });
+
+    if (result.data) {
+      setFeedbackId('');
+      setShowFeedbackContentModal(false);
+    }
+  };
+
   onMount(() => {
     if (botMessageEl) {
-      botMessageEl.innerHTML = Marked.parse(props.message);
+      botMessageEl.innerHTML = Marked.parse(props.message.message);
       if (props.fileAnnotations && props.fileAnnotations.length) {
         for (const annotations of props.fileAnnotations) {
           const button = document.createElement('button');
@@ -64,7 +149,7 @@ export const BotBubble = (props: Props) => {
   });
 
   return (
-    <div class="flex justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
+    <div class="flex flex-col justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
       <Show when={props.showAvatar}>
         <Avatar initialAvatarSrc={props.avatarSrc} />
       </Show>
@@ -78,6 +163,22 @@ export const BotBubble = (props: Props) => {
           'border-radius': '6px',
         }}
       />
+      <div class="flex items-center px-2">
+        <CopyToClipboardButton onClick={() => copyMessageToClipboard()} />
+        {rating() === '' || rating() === 'thumbsUp' ? (
+          <ThumbsUpButton isDisabled={rating() === 'thumbsUp'} rating={rating()} onClick={onThumbsUpClick} />
+        ) : null}
+        {rating() === '' || rating() === 'thumbsDown' ? (
+          <ThumbsDownButton isDisabled={rating() === 'thumbsDown'} rating={rating()} onClick={onThumbsDownClick} />
+        ) : null}
+      </div>
+      <Show when={showFeedbackContentDialog()}>
+        <FeedbackContentDialog
+          isOpen={showFeedbackContentDialog()}
+          onClose={() => setShowFeedbackContentModal(false)}
+          onSubmit={submitFeedbackContent}
+        />
+      </Show>
     </div>
   );
 };
