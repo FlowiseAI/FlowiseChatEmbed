@@ -1,0 +1,1 @@
+{"version":3,"file":"FeedbackContentDialog.d.ts","sourceRoot":"","sources":["../../src/components/FeedbackContentDialog.tsx"],"names":[],"mappings":"AAEA,KAAK,0BAA0B,GAAG;IAChC,MAAM,EAAE,OAAO,CAAC;IAChB,OAAO,EAAE,MAAM,IAAI,CAAC;IACpB,QAAQ,EAAE,CAAC,IAAI,EAAE,MAAM,KAAK,IAAI,CAAC;CAClC,CAAC;AAEF,QAAA,MAAM,qBAAqB,UAAW,0BAA0B,mCAyE/D,CAAC;AAEF,eAAe,qBAAqB,CAAC"}
