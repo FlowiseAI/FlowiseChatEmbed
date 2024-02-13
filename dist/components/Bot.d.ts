@@ -8,12 +8,22 @@ export type UploadsConfig = {
     isImageUploadAllowed: boolean;
     isSpeechToTextEnabled: boolean;
 };
+type FilePreviewData = string | ArrayBuffer;
+type FilePreview = {
+    data: FilePreviewData;
+    mime: string;
+    name: string;
+    preview: string;
+    type: string;
+};
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+export type FileUpload = Omit<FilePreview, 'preview'>;
 export type MessageType = {
     message: string;
     type: messageType;
     sourceDocuments?: any;
     fileAnnotations?: any;
+    fileUploads?: FileUpload[];
 };
 export type BotProps = {
     chatflowid: string;
