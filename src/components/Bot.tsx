@@ -17,6 +17,10 @@ import { CircleDotIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 
+export type FileEvent<T = EventTarget> = {
+  target: T;
+};
+
 type ImageUploadConstraits = {
   fileTypes: string[];
   maxUploadSize: number;
@@ -186,6 +190,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isRecording, setIsRecording] = createSignal(false);
   const [recordingNotSupported, setRecordingNotSupported] = createSignal(false);
   const [isLoadingRecording, setIsLoadingRecording] = createSignal(false);
+
+  // drag & drop
+  const [isDragActive, setIsDragActive] = createSignal(false);
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -485,6 +492,151 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     };
   };
 
+  const isFileAllowedForUpload = (file: File) => {
+    let acceptFile = false;
+    if (uploadsConfig() && uploadsConfig()?.isImageUploadAllowed && uploadsConfig()?.imgUploadSizeAndTypes) {
+      const fileType = file.type;
+      const sizeInMB = file.size / 1024 / 1024;
+      uploadsConfig()?.imgUploadSizeAndTypes.map((allowed) => {
+        if (allowed.fileTypes.includes(fileType) && sizeInMB <= allowed.maxUploadSize) {
+          acceptFile = true;
+        }
+      });
+    }
+    if (!acceptFile) {
+      alert(`Cannot upload file. Kindly check the allowed file types and maximum allowed size.`);
+    }
+    return acceptFile;
+  };
+
+  const handleFileChange = async (event: FileEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    const filesList = [];
+    for (const file of files) {
+      if (isFileAllowedForUpload(file) === false) {
+        return;
+      }
+      const reader = new FileReader();
+      const { name } = file;
+      filesList.push(
+        new Promise((resolve) => {
+          reader.onload = (evt) => {
+            if (!evt?.target?.result) {
+              return;
+            }
+            const { result } = evt.target;
+            resolve({
+              data: result,
+              preview: URL.createObjectURL(file),
+              type: 'file',
+              name: name,
+              mime: file.type,
+            });
+          };
+          reader.readAsDataURL(file);
+        }),
+      );
+    }
+
+    const newFiles = await Promise.all(filesList);
+    setPreviews((prevPreviews) => [...prevPreviews, ...(newFiles as FilePreview[])]);
+    // 👇️ reset file input
+    event.target.value = '';
+  };
+
+  const handleDrag = (e: DragEvent) => {
+    if (uploadsConfig()?.isImageUploadAllowed) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.type === 'dragenter' || e.type === 'dragover') {
+        setIsDragActive(true);
+      } else if (e.type === 'dragleave') {
+        setIsDragActive(false);
+      }
+    }
+  };
+
+  const handleDrop = async (e: InputEvent | DragEvent) => {
+    if (!uploadsConfig()?.isImageUploadAllowed) {
+      return;
+    }
+    e.preventDefault();
+    setIsDragActive(false);
+    const files = [];
+    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+      for (const file of e.dataTransfer.files) {
+        if (isFileAllowedForUpload(file) === false) {
+          return;
+        }
+        const reader = new FileReader();
+        const { name } = file;
+        files.push(
+          new Promise((resolve) => {
+            reader.onload = (evt) => {
+              if (!evt?.target?.result) {
+                return;
+              }
+              const { result } = evt.target;
+              let previewUrl;
+              if (file.type.startsWith('audio/')) {
+                previewUrl = '../assets/wave-sound.jpg';
+              } else if (file.type.startsWith('image/')) {
+                previewUrl = URL.createObjectURL(file);
+              }
+              resolve({
+                data: result,
+                preview: previewUrl,
+                type: 'file',
+                name: name,
+                mime: file.type,
+              });
+            };
+            reader.readAsDataURL(file);
+          }),
+        );
+      }
+
+      const newFiles = await Promise.all(files);
+      setPreviews((prevPreviews) => [...prevPreviews, ...(newFiles as FilePreview[])]);
+    }
+
+    if (e.dataTransfer && e.dataTransfer.items) {
+      for (const item of e.dataTransfer.items) {
+        if (item.kind === 'string' && item.type.match('^text/uri-list')) {
+          item.getAsString((s: string) => {
+            const upload: FilePreview = {
+              data: s,
+              preview: s,
+              type: 'url',
+              name: s.substring(s.lastIndexOf('/') + 1),
+              mime: '',
+            };
+            setPreviews((prevPreviews) => [...prevPreviews, upload]);
+          });
+        } else if (item.kind === 'string' && item.type.match('^text/html')) {
+          item.getAsString((s: string) => {
+            if (s.indexOf('href') === -1) return;
+            //extract href
+            const start = s.substring(s.indexOf('href') + 6);
+            const hrefStr = start.substring(0, start.indexOf('"'));
+
+            const upload: FilePreview = {
+              data: hrefStr,
+              preview: hrefStr,
+              type: 'url',
+              name: hrefStr.substring(hrefStr.lastIndexOf('/') + 1),
+              mime: '',
+            };
+            setPreviews((prevPreviews) => [...prevPreviews, upload]);
+          });
+        }
+      }
+    }
+  };
+
   const handleDeletePreview = (itemToDelete: FilePreview) => {
     if (itemToDelete.type === 'file') {
       URL.revokeObjectURL(itemToDelete.preview); // Clean up for file
@@ -530,7 +682,37 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       <div
         ref={botContainer}
         class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}
+        onDragEnter={handleDrag}
       >
+        {isDragActive() && (
+          <div
+            class="absolute top-0 left-0 bottom-0 right-0 w-full h-full z-50"
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragEnd={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          />
+        )}
+        {isDragActive() && uploadsConfig()?.isImageUploadAllowed && (
+          <div
+            class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-gray-500/25 z-40 gap-2 border-2 border-dashed"
+            style={{ 'border-color': props.bubbleBackgroundColor }}
+          >
+            <h2 class="text-xl font-semibold">Drop here to upload</h2>
+            <For each={uploadsConfig()?.imgUploadSizeAndTypes}>
+              {(allowed) => {
+                return (
+                  <>
+                    <span>{allowed.fileTypes?.join(', ')}</span>
+                    <span>Max Allowed Size: {allowed.maxUploadSize} MB</span>
+                  </>
+                );
+              }}
+            </For>
+          </div>
+        )}
+
         {props.showTitle ? (
           <div
             class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
@@ -562,10 +744,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </DeleteButton>
           </div>
         ) : null}
-        <div class="flex flex-col flex-shrink w-full h-full justify-start z-0">
+        <div class="flex flex-col w-full h-full justify-start z-0">
           <div
             ref={chatContainer}
-            class="overflow-y-scroll flex flex-col min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
+            class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
           >
             <For each={[...messages()]}>
               {(message, index) => (
@@ -723,6 +905,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 uploadsConfig={uploadsConfig()}
                 setPreviews={setPreviews}
                 onMicrophoneClicked={onMicrophoneClicked}
+                handleFileChange={handleFileChange}
               />
             )}
           </div>

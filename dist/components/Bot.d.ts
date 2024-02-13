@@ -1,4 +1,7 @@
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
+export type FileEvent<T = EventTarget> = {
+    target: T;
+};
 type ImageUploadConstraits = {
     fileTypes: string[];
     maxUploadSize: number;
