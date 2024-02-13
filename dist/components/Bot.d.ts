@@ -28,6 +28,8 @@ export type MessageType = {
     fileAnnotations?: any;
     fileUploads?: FileUpload[];
 };
+type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;
@@ -45,6 +47,7 @@ export type BotProps = {
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
+    observersConfig?: observersConfigType;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;
