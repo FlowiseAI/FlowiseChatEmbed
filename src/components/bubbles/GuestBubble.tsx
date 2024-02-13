@@ -37,7 +37,7 @@ export const GuestBubble = (props: Props) => {
         }}
       >
         {props.message.fileUploads && props.message.fileUploads.length > 0 && (
-          <div class="flex flex-wrap w-full gap-2">
+          <div class="flex flex-col items-start flex-wrap w-full gap-2">
             <For each={props.message.fileUploads}>
               {(item) => {
                 return (
