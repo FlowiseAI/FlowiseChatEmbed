@@ -377,6 +377,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         };
         if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
         if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+        if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
         return chatHistory;
       });
       setMessages([...loadedMessages]);
@@ -508,6 +509,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   createEffect(
+    // listen for changes in previews
     on(previews, (uploads) => {
       // wait for audio recording to load and then send
       const containsAudio = uploads.filter((item) => item.type === 'audio').length > 0;
@@ -570,7 +572,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 <>
                   {message.type === 'userMessage' && (
                     <GuestBubble
-                      message={message.message}
+                      message={message}
                       backgroundColor={props.userMessage?.backgroundColor}
                       textColor={props.userMessage?.textColor}
                       showAvatar={props.userMessage?.showAvatar}
