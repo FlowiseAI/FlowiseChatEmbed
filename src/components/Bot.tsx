@@ -192,7 +192,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isLoadingRecording, setIsLoadingRecording] = createSignal(false);
 
   // drag & drop
-  const [isDragActive, setIsDragActive] = createSignal(false);
+  const [isDragActive, setIsDragActive] = createSignal(true);
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -696,7 +696,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         )}
         {isDragActive() && uploadsConfig()?.isImageUploadAllowed && (
           <div
-            class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-gray-500/25 z-40 gap-2 border-2 border-dashed"
+            class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white z-40 gap-2 border-2 border-dashed"
             style={{ 'border-color': props.bubbleBackgroundColor }}
           >
             <h2 class="text-xl font-semibold">Drop here to upload</h2>
