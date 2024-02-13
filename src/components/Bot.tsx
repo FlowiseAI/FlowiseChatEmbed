@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, Show, mergeProps } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, mergeProps, on } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
@@ -40,11 +40,14 @@ type FilePreview = {
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
+export type FileUpload = Omit<FilePreview, 'preview'>;
+
 export type MessageType = {
   message: string;
   type: messageType;
   sourceDocuments?: any;
   fileAnnotations?: any;
+  fileUploads?: FileUpload[];
 };
 
 export type BotProps = {
@@ -230,6 +233,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
+  const clearPreviews = () => {
+    // Revoke the data uris to avoid memory leaks
+    previews().forEach((file) => URL.revokeObjectURL(file.preview));
+    setPreviews([]);
+  };
+
   // Handle errors
   const handleError = (message = 'Oops! There seems to be an error. Please try again.') => {
     setMessages((prevMessages) => {
@@ -251,7 +260,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput(value);
 
     if (value.trim() === '') {
-      return;
+      const containsAudio = previews().filter((item) => item.type === 'audio').length > 0;
+      if (!(previews().length >= 1 && containsAudio)) {
+        return;
+      }
     }
 
     setLoading(true);
@@ -261,8 +273,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const welcomeMessage = props.welcomeMessage ?? defaultWelcomeMessage;
     const messageList = messages().filter((msg) => msg.message !== welcomeMessage);
 
+    const urls = previews().map((item) => {
+      return {
+        data: item.data,
+        type: item.type,
+        name: item.name,
+        mime: item.mime,
+      };
+    });
+
+    clearPreviews();
+
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }];
+      const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage', fileUploads: urls }];
       addChatMessage(messages);
       return messages;
     });
@@ -272,6 +295,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       history: messageList,
       chatId: chatId(),
     };
+
+    if (urls && urls.length > 0) body.uploads = urls;
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
@@ -482,6 +507,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     stopAudioRecording(addRecordingToPreviews);
   };
 
+  createEffect(
+    on(previews, (uploads) => {
+      // wait for audio recording to load and then send
+      const containsAudio = uploads.filter((item) => item.type === 'audio').length > 0;
+      if (uploads.length >= 1 && containsAudio) {
+        setIsRecording(false);
+        setRecordingNotSupported(false);
+        promptClick('');
+      }
+
+      return () => {
+        setPreviews([]);
+      };
+    }),
+  );
+
   return (
     <>
       <div
@@ -586,15 +627,33 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
               <For each={[...previews()]}>
                 {(item) => (
-                  <button
-                    class="group w-12 h-12 flex items-center justify-center relative rounded-[10px] overflow-hidden transition-colors duration-200"
-                    onClick={() => handleDeletePreview(item)}
-                  >
-                    <img class="w-full h-full bg-cover" src={item.data as string} />
-                    <span class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
-                      <TrashIcon />
-                    </span>
-                  </button>
+                  <>
+                    {item.mime.startsWith('image/') ? (
+                      <button
+                        class="group w-12 h-12 flex items-center justify-center relative rounded-[10px] overflow-hidden transition-colors duration-200"
+                        onClick={() => handleDeletePreview(item)}
+                      >
+                        <img class="w-full h-full bg-cover" src={item.data as string} />
+                        <span class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
+                          <TrashIcon />
+                        </span>
+                      </button>
+                    ) : (
+                      <div
+                        class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
+                        style={{
+                          width: `${
+                            chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
+                          }px`,
+                        }}
+                      >
+                        <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
+                        <button class="w-7 h-7 flex items-center justify-center bg-transparent p-1" onClick={() => handleDeletePreview(item)}>
+                          <TrashIcon color="white" />
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </For>
             </div>
@@ -603,10 +662,21 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             {isRecording() ? (
               <>
                 {recordingNotSupported() ? (
-                  <div>Recording not supported</div>
+                  <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee]">
+                    <div class="w-full flex items-center justify-between gap-3">
+                      <span class="text-base">To record audio, use modern browsers like Chrome or Firefox that support audio recording.</span>
+                      <button
+                        class="py-2 px-4 justify-center flex items-center bg-red-500 text-white rounded-md"
+                        type="button"
+                        onClick={() => onRecordingCancelled()}
+                      >
+                        Okay
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <div
-                    class={'flex items-center justify-between chatbot-input border border-[#eeeeee]'}
+                    class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
                     data-testid="input"
                     style={{
                       margin: 'auto',
@@ -614,22 +684,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       color: props.textInput?.textColor ?? defaultTextColor,
                     }}
                   >
-                    <div class="flex items-center gap-3">
-                      <span class="red-recording-dot">
+                    <div class="flex items-center gap-3 px-4 py-2">
+                      <span class="text-red">
                         <CircleDotIcon />
                       </span>
                       <span>{elapsedTime() || '00:00'}</span>
                       {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
                     </div>
-                    <div class="flex items-center gap-3">
-                      <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="ml-2" on:click={onRecordingCancelled}>
+                    <div class="flex items-center">
+                      <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0" on:click={onRecordingCancelled}>
                         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
                       </CancelButton>
                       <SendButton
                         sendButtonColor={props.textInput?.sendButtonColor}
                         type="button"
                         isDisabled={loading()}
-                        class="ml-2"
+                        class="m-0"
                         on:click={onRecordingStopped}
                       >
                         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
