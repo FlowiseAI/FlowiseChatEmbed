@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, Show, mergeProps, on } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
@@ -54,6 +54,9 @@ export type MessageType = {
   fileUploads?: FileUpload[];
 };
 
+type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+
 export type BotProps = {
   chatflowid: string;
   apiHost?: string;
@@ -71,6 +74,7 @@ export type BotProps = {
   titleAvatarSrc?: string;
   fontSize?: number;
   isFullPage?: boolean;
+  observersConfig?: observersConfigType;
 };
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
@@ -195,6 +199,25 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isDragActive, setIsDragActive] = createSignal(true);
 
   onMount(() => {
+    if (botProps?.observersConfig) {
+      const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
+      typeof observeUserInput === 'function' &&
+        // eslint-disable-next-line solid/reactivity
+        createMemo(() => {
+          observeUserInput(userInput());
+        });
+      typeof observeLoading === 'function' &&
+        // eslint-disable-next-line solid/reactivity
+        createMemo(() => {
+          observeLoading(loading());
+        });
+      typeof observeMessages === 'function' &&
+        // eslint-disable-next-line solid/reactivity
+        createMemo(() => {
+          observeMessages(messages());
+        });
+    }
+
     if (!bottomSpacer) return;
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
