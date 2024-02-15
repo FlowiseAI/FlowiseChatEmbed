@@ -12,7 +12,7 @@ import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
-import { DeleteButton } from '@/components/SendButton';
+import { DeleteButton } from '@/components/buttons/SendButton';
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
