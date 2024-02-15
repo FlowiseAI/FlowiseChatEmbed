@@ -282,7 +282,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           const messages: MessageType[] = [
             ...prevMessages,
             {
-              messageId: data?.messageId,
+              messageId: data?.chatMessageId,
               message: text,
               sourceDocuments: data?.sourceDocuments,
               fileAnnotations: data?.fileAnnotations,
@@ -296,7 +296,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         setMessages((items) => {
           const updated = items.map((item, i) => {
             if (i === items.length - 1) {
-              return { ...item, messageId: data?.messageId };
+              return { ...item, messageId: data?.chatMessageId };
             }
             return item;
           });
