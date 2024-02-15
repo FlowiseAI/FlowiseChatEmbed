@@ -10,7 +10,7 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
   const [inputValue, setInputValue] = createSignal('');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
 
-  const handleInput = (event) => setInputValue(event.currentTarget.value);
+  const handleInput = (value: string) => setInputValue(value);
 
   const checkIfInputIsValid = () => inputValue() !== '' && inputRef?.reportValidity();
 
@@ -56,7 +56,7 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
             </div>
             <div class="relative p-6 flex-auto">
               <textarea
-                onInput={handleInput}
+                onInput={(e) => handleInput(e.currentTarget.value)}
                 ref={inputRef as HTMLTextAreaElement}
                 rows="4"
                 class="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"

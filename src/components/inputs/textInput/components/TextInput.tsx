@@ -1,7 +1,7 @@
 import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { createSignal, createEffect, onMount } from 'solid-js';
-import { SendButton } from '@/components/SendButton';
+import { SendButton } from '@/components/buttons/SendButton';
 
 type Props = {
   placeholder?: string;
