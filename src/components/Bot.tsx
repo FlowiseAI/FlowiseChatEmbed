@@ -340,6 +340,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (result.data) {
       const data = result.data;
+      const question = data.question;
+      if (value === '' && question) {
+        setMessages((data) => {
+          const messages = data.map((item, i) => {
+            if (i === data.length - 2) {
+              return { ...item, message: question };
+            }
+            return item;
+          });
+          addChatMessage(messages);
+          return [...messages];
+        });
+      }
       if (!isChatFlowAvailableToStream()) {
         let text = '';
         if (data.text) text = data.text;
