@@ -51,7 +51,7 @@ export type MessageType = {
   type: messageType;
   sourceDocuments?: any;
   fileAnnotations?: any;
-  fileUploads?: FileUpload[];
+  fileUploads?: Partial<FileUpload>[];
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
@@ -362,7 +362,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             if (i === data.length - 2) {
               if (item.fileUploads) {
                 const fileUploads = item?.fileUploads.map((file) => ({
-                  data: '',
                   type: file.type,
                   name: file.name,
                   mime: file.mime,

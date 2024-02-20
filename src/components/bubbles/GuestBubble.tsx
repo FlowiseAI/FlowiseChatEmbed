@@ -47,7 +47,7 @@ export const GuestBubble = (props: Props) => {
                 const fileData = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${item.name}`;
                 return (
                   <>
-                    {item.mime.startsWith('image/') ? (
+                    {item.mime && item.mime.startsWith('image/') ? (
                       <div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0">
                         <img class="w-full h-full bg-cover" src={!props.isUploading ? fileData : (item.data as string)} />
                       </div>
