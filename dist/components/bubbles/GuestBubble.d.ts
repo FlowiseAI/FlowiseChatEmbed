@@ -8,6 +8,7 @@ type Props = {
     avatarSrc?: string;
     backgroundColor?: string;
     textColor?: string;
+    isUploading?: boolean;
 };
 export declare const GuestBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

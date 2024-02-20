@@ -188,6 +188,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // drag & drop file input
   // TODO: fix this type
   const [previews, setPreviews] = createSignal<FilePreview[]>([]);
+  const [isUploading, setIsUploading] = createSignal<boolean>(false);
 
   // audio recording
   const [elapsedTime, setElapsedTime] = createSignal('00:00');
@@ -320,6 +321,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return messages;
     });
 
+    setIsUploading(true);
+
     const body: IncomingInput = {
       question: value,
       history: messageList,
@@ -352,6 +355,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           addChatMessage(messages);
           return [...messages];
         });
+      }
+      if (urls && urls.length > 0) {
+        setMessages((data) => {
+          const messages = data.map((item, i) => {
+            if (i === data.length - 2) {
+              if (item.fileUploads) {
+                const fileUploads = item?.fileUploads.map((file) => ({
+                  data: '',
+                  type: file.type,
+                  name: file.name,
+                  mime: file.mime,
+                }));
+                return { ...item, fileUploads };
+              }
+            }
+            return item;
+          });
+          addChatMessage(messages);
+          return [...messages];
+        });
+        setIsUploading(false);
       }
       if (!isChatFlowAvailableToStream()) {
         let text = '';
@@ -798,6 +822,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       textColor={props.userMessage?.textColor}
                       showAvatar={props.userMessage?.showAvatar}
                       avatarSrc={props.userMessage?.avatarSrc}
+                      isUploading={isUploading()}
                     />
                   )}
                   {message.type === 'apiMessage' && (
