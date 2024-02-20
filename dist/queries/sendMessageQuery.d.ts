@@ -12,7 +12,7 @@ export type MessageRequest = {
     apiHost?: string;
     body?: IncomingInput;
 };
-export type FeedbackRatingType = 'thumbsUp' | 'thumbsDown';
+export type FeedbackRatingType = 'THUMBS_UP' | 'THUMBS_DOWN';
 export type FeedbackInput = {
     chatId: string;
     messageId: string;
