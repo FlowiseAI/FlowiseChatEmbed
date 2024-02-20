@@ -9,6 +9,7 @@ type Props = {
     avatarSrc?: string;
     backgroundColor?: string;
     textColor?: string;
+    chatFeedbackStatus?: boolean;
 };
 export declare const BotBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

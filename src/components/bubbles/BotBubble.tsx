@@ -16,6 +16,7 @@ type Props = {
   avatarSrc?: string;
   backgroundColor?: string;
   textColor?: string;
+  chatFeedbackStatus?: boolean;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -63,7 +64,7 @@ export const BotBubble = (props: Props) => {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
         messageId: props.message?.messageId as string,
-        rating: 'thumbsUp' as FeedbackRatingType,
+        rating: 'THUMBS_UP' as FeedbackRatingType,
         content: '',
       };
       const result = await sendFeedbackQuery({
@@ -76,7 +77,7 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRating('thumbsUp');
+        setRating('THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
       }
@@ -89,7 +90,7 @@ export const BotBubble = (props: Props) => {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
         messageId: props.message?.messageId as string,
-        rating: 'thumbsDown' as FeedbackRatingType,
+        rating: 'THUMBS_DOWN' as FeedbackRatingType,
         content: '',
       };
       const result = await sendFeedbackQuery({
@@ -102,7 +103,7 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRating('thumbsDown');
+        setRating('THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
       }
@@ -163,22 +164,26 @@ export const BotBubble = (props: Props) => {
           'border-radius': '6px',
         }}
       />
-      <div class="flex items-center px-2">
-        <CopyToClipboardButton onClick={() => copyMessageToClipboard()} />
-        {rating() === '' || rating() === 'thumbsUp' ? (
-          <ThumbsUpButton isDisabled={rating() === 'thumbsUp'} rating={rating()} onClick={onThumbsUpClick} />
-        ) : null}
-        {rating() === '' || rating() === 'thumbsDown' ? (
-          <ThumbsDownButton isDisabled={rating() === 'thumbsDown'} rating={rating()} onClick={onThumbsDownClick} />
-        ) : null}
-      </div>
-      <Show when={showFeedbackContentDialog()}>
-        <FeedbackContentDialog
-          isOpen={showFeedbackContentDialog()}
-          onClose={() => setShowFeedbackContentModal(false)}
-          onSubmit={submitFeedbackContent}
-        />
-      </Show>
+      {props.chatFeedbackStatus && (
+        <>
+          <div class="flex items-center px-2">
+            <CopyToClipboardButton onClick={() => copyMessageToClipboard()} />
+            {rating() === '' || rating() === 'THUMBS_UP' ? (
+              <ThumbsUpButton isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
+            ) : null}
+            {rating() === '' || rating() === 'THUMBS_DOWN' ? (
+              <ThumbsDownButton isDisabled={rating() === 'THUMBS_DOWN'} rating={rating()} onClick={onThumbsDownClick} />
+            ) : null}
+          </div>
+          <Show when={showFeedbackContentDialog()}>
+            <FeedbackContentDialog
+              isOpen={showFeedbackContentDialog()}
+              onClose={() => setShowFeedbackContentModal(false)}
+              onSubmit={submitFeedbackContent}
+            />
+          </Show>
+        </>
+      )}
     </div>
   );
 };

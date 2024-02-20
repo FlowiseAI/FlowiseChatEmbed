@@ -151,6 +151,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
+  const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
 
   onMount(() => {
     if (botProps?.observersConfig) {
@@ -387,6 +388,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
         setStarterPrompts(prompts);
       }
+      if (chatbotConfig.chatFeedback) {
+        const chatFeedbackStatus = chatbotConfig.chatFeedback.status;
+        setChatFeedbackStatus(chatFeedbackStatus);
+      }
     }
 
     const socket = socketIOClient(props.apiHost as string);
@@ -478,6 +483,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       textColor={props.botMessage?.textColor}
                       showAvatar={props.botMessage?.showAvatar}
                       avatarSrc={props.botMessage?.avatarSrc}
+                      chatFeedbackStatus={chatFeedbackStatus()}
                     />
                   )}
                   {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}

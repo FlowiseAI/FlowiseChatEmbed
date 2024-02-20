@@ -39,7 +39,7 @@ export const ThumbsUpButton = (props: RatingButtonProps) => {
         'p-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
         props.class
       }
-      style={{ background: props.rating === 'thumbsUp' ? 'gray' : 'transparent', border: 'none' }}
+      style={{ background: 'transparent', border: 'none' }}
       title="Thumbs Up"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
@@ -59,7 +59,7 @@ export const ThumbsDownButton = (props: RatingButtonProps) => {
         'p-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
         props.class
       }
-      style={{ background: props.rating === 'thumbsDown' ? 'gray' : 'transparent', border: 'none' }}
+      style={{ background: 'transparent', border: 'none' }}
       title="Thumbs Down"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
