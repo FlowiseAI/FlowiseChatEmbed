@@ -1,6 +1,9 @@
 import { MessageType } from '../Bot';
 type Props = {
     message: MessageType;
+    apiHost?: string;
+    chatflowid: string;
+    chatId: string;
     showAvatar?: boolean;
     avatarSrc?: string;
     backgroundColor?: string;

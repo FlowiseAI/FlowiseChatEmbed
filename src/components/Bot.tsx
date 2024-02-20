@@ -791,6 +791,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   {message.type === 'userMessage' && (
                     <GuestBubble
                       message={message}
+                      apiHost={props.apiHost}
+                      chatflowid={props.chatflowid}
+                      chatId={chatId()}
                       backgroundColor={props.userMessage?.backgroundColor}
                       textColor={props.userMessage?.textColor}
                       showAvatar={props.userMessage?.showAvatar}

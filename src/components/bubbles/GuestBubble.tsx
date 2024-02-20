@@ -5,6 +5,9 @@ import { MessageType } from '../Bot';
 
 type Props = {
   message: MessageType;
+  apiHost?: string;
+  chatflowid: string;
+  chatId: string;
   showAvatar?: boolean;
   avatarSrc?: string;
   backgroundColor?: string;
@@ -40,16 +43,17 @@ export const GuestBubble = (props: Props) => {
           <div class="flex flex-col items-start flex-wrap w-full gap-2">
             <For each={props.message.fileUploads}>
               {(item) => {
+                const fileData = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${item.name}`;
                 return (
                   <>
                     {item.mime.startsWith('image/') ? (
                       <div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0">
-                        <img class="w-full h-full bg-cover" src={item.data as string} />
+                        <img class="w-full h-full bg-cover" src={fileData} />
                       </div>
                     ) : (
                       <audio class="w-[200px] h-10 block bg-cover bg-center rounded-none text-transparent" controls>
                         Your browser does not support the &lt;audio&gt; tag.
-                        <source src={item.data as string} type={item.mime} />
+                        <source src={fileData} type={item.mime} />
                       </audio>
                     )}
                   </>
