@@ -188,7 +188,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // drag & drop file input
   // TODO: fix this type
   const [previews, setPreviews] = createSignal<FilePreview[]>([]);
-  const [isUploading, setIsUploading] = createSignal<boolean>(false);
 
   // audio recording
   const [elapsedTime, setElapsedTime] = createSignal('00:00');
@@ -321,8 +320,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return messages;
     });
 
-    setIsUploading(true);
-
     const body: IncomingInput = {
       question: value,
       history: messageList,
@@ -374,7 +371,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           addChatMessage(messages);
           return [...messages];
         });
-        setIsUploading(false);
       }
       if (!isChatFlowAvailableToStream()) {
         let text = '';
@@ -602,8 +598,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const newFiles = await Promise.all(filesList);
     setPreviews((prevPreviews) => [...prevPreviews, ...(newFiles as FilePreview[])]);
-    // 👇️ reset file input
-    event.target.value = '';
   };
 
   const handleDrag = (e: DragEvent) => {
@@ -821,7 +815,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       textColor={props.userMessage?.textColor}
                       showAvatar={props.userMessage?.showAvatar}
                       avatarSrc={props.userMessage?.avatarSrc}
-                      isUploading={isUploading()}
                     />
                   )}
                   {message.type === 'apiMessage' && (
