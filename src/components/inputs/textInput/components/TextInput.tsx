@@ -56,6 +56,12 @@ export const TextInput = (props: Props) => {
     if (!isMobile() && inputRef) inputRef.focus();
   });
 
+  const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
+    props.handleFileChange(event);
+    // 👇️ reset file input
+    if (event.target) event.target.value = '';
+  };
+
   return (
     <div
       class={'flex items-center justify-between chatbot-input border border-[#eeeeee]'}
@@ -70,9 +76,9 @@ export const TextInput = (props: Props) => {
       {props.uploadsConfig?.isImageUploadAllowed ? (
         <>
           <ImageUploadButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={handleImageUploadClick}>
-            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
           </ImageUploadButton>
-          <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={props.handleFileChange} />
+          <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} />
         </>
       ) : null}
       <ShortTextInput
@@ -85,7 +91,7 @@ export const TextInput = (props: Props) => {
       />
       {props.uploadsConfig?.isSpeechToTextEnabled ? (
         <RecordAudioButton buttonColor={props.sendButtonColor} type="button" class="m-0 start-recording-button" on:click={props.onMicrophoneClicked}>
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
         </RecordAudioButton>
       ) : null}
       <SendButton
