@@ -12,7 +12,6 @@ type Props = {
   avatarSrc?: string;
   backgroundColor?: string;
   textColor?: string;
-  isUploading?: boolean;
 };
 
 const defaultBackgroundColor = '#3B81F6';
@@ -45,16 +44,17 @@ export const GuestBubble = (props: Props) => {
             <For each={props.message.fileUploads}>
               {(item) => {
                 const fileData = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${item.name}`;
+                const src = (item.data as string) ?? fileData;
                 return (
                   <>
                     {item.mime && item.mime.startsWith('image/') ? (
                       <div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0">
-                        <img class="w-full h-full bg-cover" src={!props.isUploading ? fileData : (item.data as string)} />
+                        <img class="w-full h-full bg-cover" src={src} />
                       </div>
                     ) : (
                       <audio class="w-[200px] h-10 block bg-cover bg-center rounded-none text-transparent" controls>
                         Your browser does not support the &lt;audio&gt; tag.
-                        <source src={!props.isUploading ? fileData : (item.data as string)} type={item.mime} />
+                        <source src={src} type={item.mime} />
                       </audio>
                     )}
                   </>
