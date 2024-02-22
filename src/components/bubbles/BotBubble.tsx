@@ -180,6 +180,8 @@ export const BotBubble = (props: Props) => {
               isOpen={showFeedbackContentDialog()}
               onClose={() => setShowFeedbackContentModal(false)}
               onSubmit={submitFeedbackContent}
+              backgroundColor={props.backgroundColor}
+              textColor={props.textColor}
             />
           </Show>
         </>
