@@ -4,7 +4,12 @@ type FeedbackContentDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (text: string) => void;
+  backgroundColor?: string;
+  textColor?: string;
 };
+
+const defaultBackgroundColor = '#ffffff';
+const defaultTextColor = '#303235';
 
 const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
   const [inputValue, setInputValue] = createSignal('');
@@ -27,8 +32,19 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
     <>
       <div class="flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[1002] outline-none focus:outline-none justify-center items-center">
         <div class="relative w-full my-6 mx-auto max-w-3xl">
-          <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-            <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+          <div
+            class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"
+            style={{
+              'background-color': props.backgroundColor ?? defaultBackgroundColor,
+              color: props.textColor ?? defaultTextColor,
+            }}
+          >
+            <div
+              class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"
+              style={{
+                border: '1px solid #eeeeee',
+              }}
+            >
               <h3 class="text-2xl font-semibold">Provide additional feedback</h3>
               <button
                 class="p-1 ml-auto bg-transparent border-0 text-black float-right text-xl leading-none font-semibold outline-none focus:outline-none"
@@ -59,7 +75,11 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
                 onInput={(e) => handleInput(e.currentTarget.value)}
                 ref={inputRef as HTMLTextAreaElement}
                 rows="4"
-                class="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 feedback-input"
+                class="block p-2.5 rounded-lg border focus:ring-blue-500 focus:border-blue-500 bg-transparent flex-1 w-full feedback-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 font-normal"
+                style={{
+                  border: '1px solid #eeeeee',
+                  color: props.textColor ?? defaultTextColor,
+                }}
                 placeholder="What do you think of the response?"
                 value={inputValue()}
               />
