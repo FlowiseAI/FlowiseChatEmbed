@@ -237,11 +237,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
   };
 
-  const updateLastMessage = (text: string) => {
+  const updateLastMessage = (text: string, sourceDocuments: any, fileAnnotations: any) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          return { ...item, message: item.message + text };
+          return { ...item, message: item.message + text, sourceDocuments, fileAnnotations };
         }
         return item;
       });
@@ -330,7 +330,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
-    if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId();
+    if (isChatFlowAvailableToStream()) {
+      body.socketIOClientId = socketIOClientId();
+    } else {
+      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+    }
 
     const result = await sendMessageQuery({
       chatflowid: props.chatflowid,
@@ -378,14 +382,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        setMessages((prevMessages) => {
-          const messages: MessageType[] = [
-            ...prevMessages,
-            { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
-          ];
-          addChatMessage(messages);
-          return messages;
-        });
+        updateLastMessage(text, data?.sourceDocuments, data?.fileAnnotations);
       }
       setLoading(false);
       setUserInput('');
@@ -803,57 +800,60 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
           >
             <For each={[...messages()]}>
-              {(message, index) => (
-                <>
-                  {message.type === 'userMessage' && (
-                    <GuestBubble
-                      message={message}
-                      apiHost={props.apiHost}
-                      chatflowid={props.chatflowid}
-                      chatId={chatId()}
-                      backgroundColor={props.userMessage?.backgroundColor}
-                      textColor={props.userMessage?.textColor}
-                      showAvatar={props.userMessage?.showAvatar}
-                      avatarSrc={props.userMessage?.avatarSrc}
-                    />
-                  )}
-                  {message.type === 'apiMessage' && (
-                    <BotBubble
-                      message={message.message}
-                      fileAnnotations={message.fileAnnotations}
-                      apiHost={props.apiHost}
-                      backgroundColor={props.botMessage?.backgroundColor}
-                      textColor={props.botMessage?.textColor}
-                      showAvatar={props.botMessage?.showAvatar}
-                      avatarSrc={props.botMessage?.avatarSrc}
-                    />
-                  )}
-                  {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                  {message.sourceDocuments && message.sourceDocuments.length && (
-                    <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%' }}>
-                      <For each={[...removeDuplicateURL(message)]}>
-                        {(src) => {
-                          const URL = isValidURL(src.metadata.source);
-                          return (
-                            <SourceBubble
-                              pageContent={URL ? URL.pathname : src.pageContent}
-                              metadata={src.metadata}
-                              onSourceClick={() => {
-                                if (URL) {
-                                  window.open(src.metadata.source, '_blank');
-                                } else {
-                                  setSourcePopupSrc(src);
-                                  setSourcePopupOpen(true);
-                                }
-                              }}
-                            />
-                          );
-                        }}
-                      </For>
-                    </div>
-                  )}
-                </>
-              )}
+              {(message, index) => {
+                return (
+                  <>
+                    {message.type === 'userMessage' && (
+                      <GuestBubble
+                        message={message}
+                        apiHost={props.apiHost}
+                        chatflowid={props.chatflowid}
+                        chatId={chatId()}
+                        backgroundColor={props.userMessage?.backgroundColor}
+                        textColor={props.userMessage?.textColor}
+                        showAvatar={props.userMessage?.showAvatar}
+                        avatarSrc={props.userMessage?.avatarSrc}
+                      />
+                    )}
+                    {message.type === 'apiMessage' && (
+                      <BotBubble
+                        message={message.message}
+                        fileAnnotations={message.fileAnnotations}
+                        apiHost={props.apiHost}
+                        backgroundColor={props.botMessage?.backgroundColor}
+                        textColor={props.botMessage?.textColor}
+                        showAvatar={props.botMessage?.showAvatar}
+                        avatarSrc={props.botMessage?.avatarSrc}
+                      />
+                    )}
+                    {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
+                    {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
+                    {message.sourceDocuments && message.sourceDocuments.length && (
+                      <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%' }}>
+                        <For each={[...removeDuplicateURL(message)]}>
+                          {(src) => {
+                            const URL = isValidURL(src.metadata.source);
+                            return (
+                              <SourceBubble
+                                pageContent={URL ? URL.pathname : src.pageContent}
+                                metadata={src.metadata}
+                                onSourceClick={() => {
+                                  if (URL) {
+                                    window.open(src.metadata.source, '_blank');
+                                  } else {
+                                    setSourcePopupSrc(src);
+                                    setSourcePopupOpen(true);
+                                  }
+                                }}
+                              />
+                            );
+                          }}
+                        </For>
+                      </div>
+                    )}
+                  </>
+                );
+              }}
             </For>
           </div>
           <Show when={messages().length === 1}>
