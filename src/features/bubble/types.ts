@@ -1,6 +1,9 @@
 export type BubbleParams = {
+    defaultOpenDesktop:boolean,
+    defaultOpenMobile:boolean,
+    delayOpenFlag: boolean, 
+    delayOpenSeconds:number,
     theme?: BubbleTheme
-    isOpen?: boolean
 }
 
 export type BubbleTheme = {
