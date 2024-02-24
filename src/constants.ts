@@ -6,5 +6,8 @@ export const defaultBotProps: BubbleProps = {
     apiHost: undefined,
     chatflowConfig: undefined,
     theme: undefined,
-    isOpen: true
+    defaultOpenDesktop:false,
+    defaultOpenMobile:false,
+    delayOpenFlag: true, 
+    delayOpenSeconds:10
 }

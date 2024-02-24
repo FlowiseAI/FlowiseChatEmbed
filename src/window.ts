@@ -3,11 +3,14 @@ import { sendRequest, getCookie, setCookie} from '@/utils/index'
 type BotProps = {
     chatflowid: string
     includeQuestions: boolean
+    defaultOpenDesktop?:boolean,
+    defaultOpenMobile?:boolean,
+    delayOpenFlag?: boolean, 
+    delayOpenSeconds?:number,
     apiHost?: string
     userID?:string
     chatflowConfig?: Record<string, unknown>
     theme?:Record<string, unknown>
-    isOpen?: Boolean
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -32,13 +35,19 @@ export const init = async (props: BotProps) => {
     const config = (await data);
  
     const config_data = JSON.parse(config?.body)
-    const default_open = config_data?.default_open
     props.theme = config_data?.theme;
     props.chatflowid = config_data?.chatflowid;
     props.apiHost = config_data?.apiHost;
     props.includeQuestions = config_data?.includeQuestions;
-    props.isOpen = window?.innerWidth ? (window?.innerWidth > 1000): false;
-    props.isOpen = props.isOpen || default_open
+    // props.isOpen = window?.innerWidth ? (window?.innerWidth > 1000): false;
+
+    props.defaultOpenDesktop = config_data?.defaultOpenDesktop
+    props.defaultOpenMobile = config_data?.defaultOpenMobile
+    props.delayOpenSeconds = config_data?.delayOpenSeconds
+    props.delayOpenFlag = config_data?.delayOpenFlag
+
+
+    // props.isOpen = props.isOpen || default_open
     const element = document.createElement('flowise-chatbot')
     Object.assign(element, props)
     document.body.appendChild(element)

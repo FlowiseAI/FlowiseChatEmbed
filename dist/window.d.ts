@@ -1,11 +1,14 @@
 type BotProps = {
     chatflowid: string;
     includeQuestions: boolean;
+    defaultOpenDesktop?: boolean;
+    defaultOpenMobile?: boolean;
+    delayOpenFlag?: boolean;
+    delayOpenSeconds?: number;
     apiHost?: string;
     userID?: string;
     chatflowConfig?: Record<string, unknown>;
     theme?: Record<string, unknown>;
-    isOpen?: Boolean;
 };
 export declare const initFull: (props: BotProps & {
     id?: string;

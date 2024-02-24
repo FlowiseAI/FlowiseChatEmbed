@@ -16,18 +16,40 @@ export const Bubble = (props: BubbleProps) => {
     const isMobile =  window?.innerWidth ? (window?.innerWidth < 1000): false;
 
     const height_calc = isMobile? "calc(min(300px, max(100% - 100px,250px)))" : "calc(min(500px, max(100% - 100px,300px)))"
-    const isOpen = props.isOpen? props.isOpen : false;
-    const [isBotOpened, setIsBotOpened] = createSignal(isOpen)
-    const [isBotStarted, setIsBotStarted] = createSignal(isOpen)
+    
+    const defaultOpen = isMobile? props.defaultOpenMobile : props.defaultOpenDesktop
+    
+
+
+    //isOpen = false
+    const [isBotOpened, setIsBotOpened] = createSignal(defaultOpen)
+    const [isBotStarted, setIsBotStarted] = createSignal(defaultOpen)
     const [isVisible,setIsVisible] = createSignal(true)
     const [visibleCount,setVisibleCount] = createSignal(0)
+    const [hasClosed,setHasClosed] = createSignal(false)
+
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
         setIsBotOpened(true)
     }
 
+    const timedOpenBot = () => {
+        console.log("Timed Open")
+        if ((!isBotOpened()) && (!hasClosed())){
+            openBot()
+        }
+    }
+
+
+    if (props.delayOpenFlag){
+        setTimeout(timedOpenBot,props.delayOpenSeconds*1000) //convert to mills
+    }
+
+
+
     const closeBot = () => {
         setIsBotOpened(false)
+        setHasClosed(true)
     }
 
     const toggleBot = () => {
