@@ -4,7 +4,7 @@ import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'
 import { Bot, BotProps } from '../../../components/Bot'
 import { getCookie } from '@/utils/index'
-
+import isMobileCheck from '@/utils/isMobileCheck'
 export type BubbleProps = BotProps & BubbleParams
 
 export const Bubble = (props: BubbleProps) => {
@@ -12,9 +12,13 @@ export const Bubble = (props: BubbleProps) => {
     //check cookie for how many times the site as been loaded
     // const numLoadedCookie: string =  getCookie("numLoadedChat");
     // let numLoaded: number  = parseInt(numLoadedCookie);
-    // numLoaded = numLoaded ? numLoaded : 0;  
-    const isMobile =  window?.innerWidth ? (window?.innerWidth < 1000): false;
+    // numLoaded = numLoaded ? numLoaded : 0; 
+    
+    
 
+    //const isMobile =  window?.innerWidth ? (window?.innerWidth < 1000): false;
+    const isMobile = isMobileCheck()
+    console.log("is mobile",isMobile)
     const height_calc = isMobile? "calc(min(300px, max(100% - 100px,250px)))" : "calc(min(500px, max(100% - 100px,300px)))"
     
     const defaultOpen = isMobile? props.defaultOpenMobile : props.defaultOpenDesktop

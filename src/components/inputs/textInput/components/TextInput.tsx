@@ -1,6 +1,6 @@
 import { ShortTextInput } from './ShortTextInput'
 import { SendButton } from '@/components/SendButton'
-import { isMobile } from '@/utils/isMobileSignal'
+import  isMobileCheck  from '@/utils/isMobileCheck'
 import { createSignal, onMount } from 'solid-js'
 
 type Props = {
@@ -36,7 +36,7 @@ export const TextInput = (props: Props) => {
     }
 
     onMount(() => {
-        if (!isMobile() && inputRef) inputRef.focus()
+        if (isMobileCheck() && inputRef) inputRef.focus()
     })
 
     return (
