@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps } from 'solid-js';
+import { createSignal, Show, splitProps, onCleanup } from 'solid-js';
 import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
@@ -27,6 +27,10 @@ export const Bubble = (props: BubbleProps) => {
   const toggleBot = () => {
     isBotOpened() ? closeBot() : openBot();
   };
+  
+  onCleanup(() => {
+    setIsBotStarted(false);
+  });
 
   return (
     <>
