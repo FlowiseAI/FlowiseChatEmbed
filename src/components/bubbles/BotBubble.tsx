@@ -129,6 +129,9 @@ export const BotBubble = (props: Props) => {
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message.message);
+      botMessageEl.querySelectorAll('a').forEach((link) => {
+        link.target = '_blank';
+      });
       if (props.fileAnnotations && props.fileAnnotations.length) {
         for (const annotations of props.fileAnnotations) {
           const button = document.createElement('button');
@@ -154,16 +157,18 @@ export const BotBubble = (props: Props) => {
       <Show when={props.showAvatar}>
         <Avatar initialAvatarSrc={props.avatarSrc} />
       </Show>
-      <span
-        ref={botMessageEl}
-        class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
-        data-testid="host-bubble"
-        style={{
-          'background-color': props.backgroundColor ?? defaultBackgroundColor,
-          color: props.textColor ?? defaultTextColor,
-          'border-radius': '6px',
-        }}
-      />
+      {props.message && (
+        <span
+          ref={botMessageEl}
+          class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
+          data-testid="host-bubble"
+          style={{
+            'background-color': props.backgroundColor ?? defaultBackgroundColor,
+            color: props.textColor ?? defaultTextColor,
+            'border-radius': '6px',
+          }}
+        />
+      )}
       {props.chatFeedbackStatus && props.message.messageId && (
         <>
           <div class="flex items-center px-2">
