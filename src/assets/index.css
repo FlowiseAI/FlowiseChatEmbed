@@ -233,6 +233,7 @@ textarea {
 
 .chatbot-button > .send-icon {
   fill: var(--chatbot-button-color);
+  stroke: var(--chatbot-button-color);
 }
 
 .chatbot-chat-view {
