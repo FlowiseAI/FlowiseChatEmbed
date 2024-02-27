@@ -164,7 +164,7 @@ export const BotBubble = (props: Props) => {
           'border-radius': '6px',
         }}
       />
-      {props.chatFeedbackStatus && (
+      {props.chatFeedbackStatus && props.message.messageId && (
         <>
           <div class="flex items-center px-2">
             <CopyToClipboardButton onClick={() => copyMessageToClipboard()} />
