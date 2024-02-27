@@ -45,7 +45,7 @@ declare const window:
 export const parseChatbot = () => ({
   initFull,
   init,
-  destroy
+  destroy,
 });
 
 export const injectChatbotInWindow = (bot: Chatbot) => {
