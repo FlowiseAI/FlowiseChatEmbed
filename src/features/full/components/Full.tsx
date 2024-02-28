@@ -9,6 +9,8 @@ export const Full = (
   props: FullProps,
   { element }: { element: HTMLElement }
 ) => {
+  console.log("in full")
+  console.log(props)
   const [isBotDisplayed, setIsBotDisplayed] = createSignal(false)
 
   const launchBot = () => {
