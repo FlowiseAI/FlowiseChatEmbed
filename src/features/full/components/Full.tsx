@@ -37,7 +37,7 @@ export const Full = (
         <div
           style={{
             'background-color': props.theme?.chatWindow?.backgroundColor || '#ffffff',
-            'height': props.theme?.chatWindow?.height ? `${props.theme?.chatWindow?.height.toString()}px` : '100vh',
+            'height': props.theme?.chatWindow?.height ? `${props.theme?.chatWindow?.height.toString()}px` : '100%',
             'width': props.theme?.chatWindow?.width ? `${props.theme?.chatWindow?.width.toString()}px` : '100%',
             'margin': '0px'
           }}
@@ -52,7 +52,9 @@ export const Full = (
             fontSize={props.theme?.chatWindow?.fontSize}
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
-            apiHost={props.apiHost} />
+            apiHost={props.apiHost} 
+            fullScreen = {true}
+            />
         </div>
       </Show>
     </>

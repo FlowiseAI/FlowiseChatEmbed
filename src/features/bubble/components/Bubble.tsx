@@ -119,6 +119,7 @@ export const Bubble = (props: BubbleProps) => {
                         apiHost={props.apiHost} 
                         closeBoxFunction={closeBot}
                         includeQuestions={props.includeQuestions}
+                        fullScreen = {false}
                         />
 
                 </Show>
