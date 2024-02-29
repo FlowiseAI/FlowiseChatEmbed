@@ -20,7 +20,6 @@ export const initFull = (props: BotProps & { id?: string }) => {
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
     }).then((response) => {response.data
         const config_data = JSON.parse(response.data?.body)
-        console.log(config_data)
         props.theme = config_data?.theme;
         props.chatflowid = config_data?.chatflowid;
         props.apiHost = config_data?.apiHost;
@@ -30,15 +29,11 @@ export const initFull = (props: BotProps & { id?: string }) => {
         props.delayOpenSeconds = config_data?.delayOpenSeconds
         props.delayOpenFlag = config_data?.delayOpenFlag
 
-        // if (!fullElement) throw new Error('<flowise-fullchatbot> element not found.')
-        // const element = document.createElement('flowise-fullchatbot')
-        // document.body.appendChild(element)
         const fullElement = props.id
         ? document.getElementById(props.id)
         : document.querySelector('flowise-fullchatbot-parent')
 
         if (!fullElement) throw new Error('<flowise-fullchatbot> element not found.')
-        Object.assign(fullElement, props)
         const element = document.createElement('flowise-fullchatbot')
         Object.assign(element, props)
         fullElement.appendChild(element)
@@ -55,27 +50,28 @@ export const init = async (props: BotProps) => {
     const data = sendRequest<any>({
         method: 'GET',
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
-    }).then((response) => response.data);
+    }).then((response) => {
+        const config_data = JSON.parse(response.data.body)
+        props.theme = config_data?.theme;
+        props.chatflowid = config_data?.chatflowid;
+        props.apiHost = config_data?.apiHost;
+        props.includeQuestions = config_data?.includeQuestions;
+        // props.isOpen = window?.innerWidth ? (window?.innerWidth > 1000): false;
+
+        props.defaultOpenDesktop = config_data?.defaultOpenDesktop
+        props.defaultOpenMobile = config_data?.defaultOpenMobile
+        props.delayOpenSeconds = config_data?.delayOpenSeconds
+        props.delayOpenFlag = config_data?.delayOpenFlag
+
+
+        // props.isOpen = props.isOpen || default_open
+        const element = document.createElement('flowise-chatbot')
+        Object.assign(element, props)
+        document.body.appendChild(element)
+        
+    
+    });
     // TODO: need to add error checking and handling 
-    const config = (await data);
- 
-    const config_data = JSON.parse(config?.body)
-    props.theme = config_data?.theme;
-    props.chatflowid = config_data?.chatflowid;
-    props.apiHost = config_data?.apiHost;
-    props.includeQuestions = config_data?.includeQuestions;
-    // props.isOpen = window?.innerWidth ? (window?.innerWidth > 1000): false;
-
-    props.defaultOpenDesktop = config_data?.defaultOpenDesktop
-    props.defaultOpenMobile = config_data?.defaultOpenMobile
-    props.delayOpenSeconds = config_data?.delayOpenSeconds
-    props.delayOpenFlag = config_data?.delayOpenFlag
-
-
-    // props.isOpen = props.isOpen || default_open
-    const element = document.createElement('flowise-chatbot')
-    Object.assign(element, props)
-    document.body.appendChild(element)
 }
 
 type Chatbot = {

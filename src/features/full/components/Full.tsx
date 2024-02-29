@@ -9,8 +9,6 @@ export const Full = (
   props: FullProps,
   { element }: { element: HTMLElement }
 ) => {
-  console.log("in full")
-  console.log(props)
   const [isBotDisplayed, setIsBotDisplayed] = createSignal(false)
 
   const launchBot = () => {
@@ -54,7 +52,9 @@ export const Full = (
             fontSize={props.theme?.chatWindow?.fontSize}
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
-            apiHost={props.apiHost} />
+            apiHost={props.apiHost} 
+            fullScreen = {true}
+            />
         </div>
       </Show>
     </>

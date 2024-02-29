@@ -32,7 +32,8 @@ export type BotProps = {
     textInput?: TextInputTheme
     poweredByTextColor?: string
     badgeBackgroundColor?: string
-    fontSize?: number
+    fontSize?: number,
+    fullScreen?:boolean
 }
 
 const defaultWelcomeMessage = 'Hi there! How can I help?'
@@ -407,7 +408,9 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         </For>
                       
                     </div>
-                    <button class="close-tab-btn" onclick={props.closeBoxFunction}>&times;</button>
+                    <Show when = {!(props?.fullScreen)}>
+                        <button class="close-tab-btn" onclick={props.closeBoxFunction}>&times;</button>
+                    </Show>
                     <Show when={props.includeQuestions && !questionClicked()}>
                         <div class="question-container flex"
                         
