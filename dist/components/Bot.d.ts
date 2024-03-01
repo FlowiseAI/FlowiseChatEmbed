@@ -9,6 +9,8 @@ export type MessageType = {
 };
 export type BotProps = {
     chatflowid: string;
+    loadID: string;
+    userID: string;
     includeQuestions?: boolean;
     closeBoxFunction?: () => void;
     apiHost?: string;

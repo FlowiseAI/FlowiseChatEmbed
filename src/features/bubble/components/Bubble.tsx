@@ -120,6 +120,8 @@ export const Bubble = (props: BubbleProps) => {
                         closeBoxFunction={closeBot}
                         includeQuestions={props.includeQuestions}
                         fullScreen = {false}
+                        userID = {props.userID}
+                        loadID = {props.loadID}
                         />
 
                 </Show>

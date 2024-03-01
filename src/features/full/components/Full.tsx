@@ -54,6 +54,8 @@ export const Full = (
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost} 
             fullScreen = {true}
+            userID = {props.userID}
+            loadID = {props.loadID}
             />
         </div>
       </Show>

@@ -1,12 +1,13 @@
 type BotProps = {
     chatflowid: string;
     includeQuestions: boolean;
+    loadID?: string;
+    userID?: string;
     defaultOpenDesktop?: boolean;
     defaultOpenMobile?: boolean;
     delayOpenFlag?: boolean;
     delayOpenSeconds?: number;
     apiHost?: string;
-    userID?: string;
     chatflowConfig?: Record<string, unknown>;
     theme?: Record<string, unknown>;
 };

@@ -14,11 +14,31 @@ export type MessageRequest = {
     body?: IncomingInput
 }
 
+export type ConvoMesssage = {
+    text: string,
+    type: string,
+    timestamp: string
+}
+
+export type ConvoType = {
+    messages: Array<ConvoMesssage>,
+    realtor_id: string,
+    load_id:string
+}
+
 export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: MessageRequest) =>
     sendRequest<any>({
         method: 'POST',
         url: `${apiHost}/api/v1/prediction/${chatflowid}`,
         body
+    })
+
+
+export const sendLogConvoQuery = (convo: ConvoType) =>
+    sendRequest<any>({
+        method: 'POST',
+        url: "https://kqg01i5ba6.execute-api.us-east-2.amazonaws.com/default/message_collector",
+        body:convo
     })
 
 export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost:3000' }: MessageRequest) =>

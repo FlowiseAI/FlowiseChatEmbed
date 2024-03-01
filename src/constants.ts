@@ -2,6 +2,8 @@ import type { BubbleProps } from './features/bubble'
 
 export const defaultBotProps: BubbleProps = {
     chatflowid: '',
+    loadID: '',
+    userID: '',
     includeQuestions: false,
     apiHost: undefined,
     chatflowConfig: undefined,

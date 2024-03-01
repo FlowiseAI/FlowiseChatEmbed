@@ -1,5 +1,5 @@
 import { createSignal, createEffect, For, onMount, Show } from 'solid-js'
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput } from '@/queries/sendMessageQuery'
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, ConvoType ,sendLogConvoQuery } from '@/queries/sendMessageQuery'
 import { TextInput } from './inputs/textInput'
 import { GuestBubble } from './bubbles/GuestBubble'
 import { BotBubble } from './bubbles/BotBubble'
@@ -22,6 +22,8 @@ export type MessageType = {
 
 export type BotProps = {
     chatflowid: string
+    loadID: string,
+    userID: string,
     includeQuestions?: boolean
     closeBoxFunction?: ()=>void
     apiHost?: string
@@ -35,6 +37,7 @@ export type BotProps = {
     fontSize?: number,
     fullScreen?:boolean
 }
+
 
 const defaultWelcomeMessage = 'Hi there! How can I help?'
 
@@ -134,6 +137,23 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const [socketIOClientId, setSocketIOClientId] = createSignal('')
     const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false)
 
+    
+    const convo_message: ConvoType = {
+        messages:[
+            {
+                text:props.welcomeMessage ? props.welcomeMessage: "",
+                type:"bot",
+                timestamp: new Date().toISOString() 
+            },
+        ],
+        load_id:props.loadID,
+        realtor_id:props.userID
+
+    } 
+
+    sendLogConvoQuery(convo_message)
+
+
     onMount(() => {
         if (!bottomSpacer) return
         setTimeout(() => {
@@ -197,6 +217,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (value.trim() === '') {
             return
         }
+        let message_send_time = new Date().toISOString()
 
         setLoading(true)
         scrollToBottom()
@@ -213,13 +234,32 @@ export const Bot = (props: BotProps & { class?: string }) => {
         if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
-
+        let bot_resp_time = new Date().toISOString()
         const result = await sendMessageQuery({
             chatflowid: props.chatflowid,
             apiHost: props.apiHost,
             body
         })
+        
+        const convo_message: ConvoType = {
+            messages:[
+                {
+                    text:value,
+                    type:"user",
+                    timestamp: message_send_time
+                },
+                {
+                    text:result.data,
+                    type:"bot",
+                    timestamp:bot_resp_time
+                }
+            ],
+            load_id:props.loadID,
+            realtor_id:props.userID
 
+        } 
+
+        sendLogConvoQuery(convo_message)
         if (result.data) {
 
             const data = handleVectaraMetadata(result.data)
