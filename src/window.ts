@@ -21,7 +21,6 @@ export const initFull = (props: BotProps & { id?: string }) => {
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
     }).then((response) => {response.data
         const config_data = JSON.parse(response.data?.body)
-        console.log(config_data)
         props.theme = config_data?.theme;
         props.chatflowid = config_data?.chatflowid;
         props.apiHost = config_data?.apiHost;
@@ -66,7 +65,6 @@ export const init = async (props: BotProps) => {
         props.delayOpenFlag = config_data?.delayOpenFlag
         props.loadID = config_data?.load_id ? config_data?.load_id :""
 
-        console.log(props)
         // props.isOpen = props.isOpen || default_open
         const element = document.createElement('flowise-chatbot')
         Object.assign(element, props)
