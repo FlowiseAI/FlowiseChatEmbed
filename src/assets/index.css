@@ -160,10 +160,11 @@ textarea {
   opacity: 1 !important;
 }
 
-/* Override bottom location of chat window. for editor only, not www */
+/* Override bottom location of chat window. for editor only, not www
 .bottom-20 {
   bottom: 165px !important;
 }
+ */
 
 .chatbot-container {
   background-image: var(--chatbot-container-bg-image);

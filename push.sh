@@ -30,8 +30,8 @@ if [ "$flag" == "$js" ]; then
   # Build the JS source
   yarn build
   
-  if [ "$env" == "www" ]; then
-    aws s3 cp dist/web.js s3://trelles-assets/js/web.js
+  if [ "$env" != "prd" ]; then
+    aws s3 cp dist/web.js s3://trelles-assets-$env/js/web.js
   else
     aws s3 cp dist/web.js s3://trelles-assets/js/web_dev.js
   fi
