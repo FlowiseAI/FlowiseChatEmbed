@@ -1,0 +1,113 @@
+ :root {
+     --primary-color: #007bff;
+     --secondary-color: #6c757d;
+     --success-color: #28a745;
+     --info-color: #17a2b8;
+     --warning-color: #ffc107;
+     --danger-color: #dc3545;
+     --light-color: #f8f9fa;
+     --dark-color: #343a40;
+     --white-color: #fff;
+     --black-color: #000;
+     --max-width: 50rem;
+ }
+
+ *,
+ *::before,
+ *::after {
+     box-sizing: border-box;
+ }
+
+ body {
+     margin: 0;
+     padding: 0;
+     font-family: Inter, Arial, sans-serif;
+     min-height: 100vh;
+     display: flex;
+    flex-direction: column;
+
+ }
+
+ header {
+     background-color: #f0f0f0;
+     padding: 1rem 2rem;
+ }
+
+ header h1 {
+     margin: 0 auto;
+     max-width: var(--max-width);
+     text-align: center;
+ }
+
+ main {
+     padding: 2rem;
+     flex-grow: 1;
+ }
+
+ .container {
+     display: grid;
+     max-width: var(--max-width);
+     margin: 0 auto;
+ }
+
+ footer {
+     background-color: #f0f0f0;
+     padding: 1rem 2rem;
+     position: relative;
+     bottom: 0;
+ }
+ footer .container,
+ header .container {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+ .nav-horizontal {
+     display: flex;
+     gap: .5rem;
+ }
+ .nav-horizontal a {
+    display: inline-block;
+    position: relative;
+     text-decoration: none;
+     color: var(--primary-color);
+     font-weight: 600;
+ }
+ .nav-horizontal a:hover {
+     text-decoration: underline;
+ }
+ /* dividers between nav items */
+.nav-horizontal a:not(:last-child)::after {
+    content: '|';
+    margin-left: .5rem;
+    color: var(--secondary-color);
+}
+
+ /* Form */
+
+ form {
+     display: grid;
+     grid-template-columns: [label] minmax(5rem, 7rem) [field] 1fr;
+     grid-template-rows: auto;
+     gap: 1rem;
+     max-width: 30rem;
+     border: 1px solid #ccc;
+     padding: 1rem;
+ }
+
+ label {
+     grid-column: label;
+ }
+
+ input {
+     padding: 0.5rem;
+     border: 1px solid #ccc;
+     grid-column: field;
+ }
+
+ button {
+     padding: 0.5rem;
+     border: 1px solid #ccc;
+     grid-column: field;
+ }
+
