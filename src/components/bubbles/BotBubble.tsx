@@ -43,7 +43,7 @@ export const BotBubble = (props: Props) => {
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message);
-      botMessageEl.querySelectorAll('a').forEach(link => {
+      botMessageEl.querySelectorAll('a').forEach((link) => {
         link.target = '_blank';
       });
       if (props.fileAnnotations && props.fileAnnotations.length) {
@@ -74,7 +74,7 @@ export const BotBubble = (props: Props) => {
       {props.message && (
         <span
           ref={botMessageEl}
-          class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
+          class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble"
           data-testid="host-bubble"
           style={{
             'background-color': props.backgroundColor ?? defaultBackgroundColor,
