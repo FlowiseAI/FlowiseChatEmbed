@@ -11,5 +11,5 @@ export declare const sendRequest: <ResponseData>(params: {
     error?: Error | undefined;
 }>;
 export declare const getCookie: (name: string) => string;
-export declare const setCookie: (name: string, value: number, daysToLive: number) => void;
+export declare const setCookie: (name: string, value: string, daysToLive: number) => void;
 //# sourceMappingURL=index.d.ts.map

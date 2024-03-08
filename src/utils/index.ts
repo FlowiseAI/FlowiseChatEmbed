@@ -68,7 +68,7 @@ export const getCookie = (name: string): string => {
     return result;
 };
 
-export const setCookie = (name:string,value: number ,daysToLive: number ) =>{
+export const setCookie = (name:string,value: string ,daysToLive: number ) =>{
     const date = new Date();
     date.setTime(date.getTime() + (daysToLive*24*60*60*1000))
     const expires  = "expires="+date.toUTCString();

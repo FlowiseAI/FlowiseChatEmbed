@@ -3,7 +3,7 @@ import styles from '../../../assets/index.css'
 import { BubbleButton } from './BubbleButton'
 import { BubbleParams } from '../types'
 import { Bot, BotProps } from '../../../components/Bot'
-import { getCookie } from '@/utils/index'
+import { getCookie, setCookie } from '@/utils/index'
 import isMobileCheck from '@/utils/isMobileCheck'
 export type BubbleProps = BotProps & BubbleParams
 
@@ -21,9 +21,16 @@ export const Bubble = (props: BubbleProps) => {
     console.log("is mobile",isMobile)
     const height_calc = isMobile? "calc(min(300px, max(100% - 100px,250px)))" : "calc(min(500px, max(100% - 100px,300px)))"
     
-    const defaultOpen = isMobile? props.defaultOpenMobile : props.defaultOpenDesktop
+    let defaultOpen = isMobile? props.defaultOpenMobile : props.defaultOpenDesktop
+    // grab cookie to check if bot has been closed before
+    const cookie_name = `realty-ai-bot-closed-${props.userID}`
+    console.log("checking:",cookie_name)
     
-
+    const bot_closed_before = getCookie(cookie_name)
+    console.log("bot previously closed",bot_closed_before)
+    if (bot_closed_before ==="true"){
+        defaultOpen = false
+    }
 
     //isOpen = false
     const [isBotOpened, setIsBotOpened] = createSignal(defaultOpen)
@@ -39,7 +46,7 @@ export const Bubble = (props: BubbleProps) => {
 
     const timedOpenBot = () => {
         console.log("Timed Open")
-        if ((!isBotOpened()) && (!hasClosed())){
+        if ((!isBotOpened()) && (!hasClosed())&&!(bot_closed_before ==="true")){
             openBot()
         }
     }
@@ -54,6 +61,7 @@ export const Bubble = (props: BubbleProps) => {
     const closeBot = () => {
         setIsBotOpened(false)
         setHasClosed(true)
+        setCookie(cookie_name,"true",1)
     }
 
     const toggleBot = () => {
