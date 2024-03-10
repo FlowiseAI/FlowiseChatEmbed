@@ -7,6 +7,7 @@ type BotProps = {
     defaultOpenMobile?: boolean;
     delayOpenFlag?: boolean;
     delayOpenSeconds?: number;
+    stayClosedFlag?: boolean;
     apiHost?: string;
     chatflowConfig?: Record<string, unknown>;
     theme?: Record<string, unknown>;

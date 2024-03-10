@@ -15,7 +15,6 @@ export const Bubble = (props: BubbleProps) => {
     // numLoaded = numLoaded ? numLoaded : 0; 
     
     
-
     //const isMobile =  window?.innerWidth ? (window?.innerWidth < 1000): false;
     const isMobile = isMobileCheck()
     console.log("is mobile",isMobile)
@@ -28,7 +27,7 @@ export const Bubble = (props: BubbleProps) => {
     
     const bot_closed_before = getCookie(cookie_name)
     console.log("bot previously closed",bot_closed_before)
-    if (bot_closed_before ==="true"){
+    if ((bot_closed_before ==="true") && props.stayClosedFlag){
         defaultOpen = false
     }
 

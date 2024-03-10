@@ -8,6 +8,7 @@ declare const chatbot: {
         defaultOpenMobile?: boolean | undefined;
         delayOpenFlag?: boolean | undefined;
         delayOpenSeconds?: number | undefined;
+        stayClosedFlag?: boolean | undefined;
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
@@ -23,6 +24,7 @@ declare const chatbot: {
         defaultOpenMobile?: boolean | undefined;
         delayOpenFlag?: boolean | undefined;
         delayOpenSeconds?: number | undefined;
+        stayClosedFlag?: boolean | undefined;
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;

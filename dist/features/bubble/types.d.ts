@@ -3,6 +3,7 @@ export type BubbleParams = {
     defaultOpenMobile: boolean;
     delayOpenFlag: boolean;
     delayOpenSeconds: number;
+    stayClosedFlag: boolean;
     theme?: BubbleTheme;
 };
 export type BubbleTheme = {

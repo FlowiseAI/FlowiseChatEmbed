@@ -9,6 +9,7 @@ type BotProps = {
     defaultOpenMobile?:boolean,
     delayOpenFlag?: boolean, 
     delayOpenSeconds?:number,
+    stayClosedFlag?:boolean,
     apiHost?: string
     chatflowConfig?: Record<string, unknown>
     theme?:Record<string, unknown>
@@ -30,6 +31,7 @@ export const initFull = (props: BotProps & { id?: string }) => {
         props.delayOpenSeconds = config_data?.delayOpenSeconds
         props.delayOpenFlag = config_data?.delayOpenFlag
         props.loadID = config_data?.load_id ? config_data?.load_id :""
+        props.stayClosedFlag = config_data?.stayClosedFlag
         const fullElement = props.id
         ? document.getElementById(props.id)
         : document.querySelector('flowise-fullchatbot-parent')
@@ -64,6 +66,7 @@ export const init = async (props: BotProps) => {
         props.delayOpenSeconds = config_data?.delayOpenSeconds
         props.delayOpenFlag = config_data?.delayOpenFlag
         props.loadID = config_data?.load_id ? config_data?.load_id :""
+        props.stayClosedFlag = config_data?.stayClosedFlag
 
         // props.isOpen = props.isOpen || default_open
         const element = document.createElement('flowise-chatbot')

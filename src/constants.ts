@@ -12,5 +12,6 @@ export const defaultBotProps: BubbleProps = {
     defaultOpenMobile:false,
     delayOpenFlag: true, 
     delayOpenSeconds:10,
+    stayClosedFlag: false,
     fullScreen: false,
 }
