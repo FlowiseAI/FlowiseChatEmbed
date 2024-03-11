@@ -53,14 +53,14 @@ export const Badge = (props: Props) => {
       Powered by
       <a
         ref={liteBadge}
-        href={'https://www.gatiendevictor.com'}
+        href={'https://www.growthscalinglab.com'}
         target="_blank"
         rel="noopener noreferrer"
         class="lite-badge"
         id="lite-badge"
         style={{ 'font-weight': 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> GD AI</span>
+        <span> Growth Scaling Lab</span>
       </a>
     </span>
   );
