@@ -17,10 +17,12 @@ type Props = {
   backgroundColor?: string;
   textColor?: string;
   chatFeedbackStatus?: boolean;
+  fontSize?: number
 };
 
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
+const defaultFontSize = 16;
 
 Marked.setOptions({ isNoP: true });
 
@@ -166,6 +168,7 @@ export const BotBubble = (props: Props) => {
             'background-color': props.backgroundColor ?? defaultBackgroundColor,
             color: props.textColor ?? defaultTextColor,
             'border-radius': '6px',
+            'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`
           }}
         />
       )}
