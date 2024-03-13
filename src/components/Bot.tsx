@@ -822,6 +822,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         textColor={props.userMessage?.textColor}
                         showAvatar={props.userMessage?.showAvatar}
                         avatarSrc={props.userMessage?.avatarSrc}
+                        fontSize={props.fontSize}
                       />
                     )}
                     {message.type === 'apiMessage' && (
@@ -836,6 +837,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         showAvatar={props.botMessage?.showAvatar}
                         avatarSrc={props.botMessage?.avatarSrc}
                         chatFeedbackStatus={chatFeedbackStatus()}
+                        fontSize={props.fontSize}
                       />
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
