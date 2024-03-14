@@ -44,9 +44,17 @@ export const Bubble = (props: BubbleProps) => {
     }
 
     const timedOpenBot = () => {
-        console.log("Timed Open")
-        if ((!isBotOpened()) && (!hasClosed())&&!(bot_closed_before ==="true")){
+        console.log("Delayed Bot Popup")
+
+        if (props.stayClosedFlag && (bot_closed_before === "true")){
+            console.log("No Popup - previously closed")
+            return
+        }
+        console.log(props.delayOpenFlag)
+        if (props.delayOpenFlag && (!isBotOpened()) && (!hasClosed())){
             openBot()
+        }else{
+            console.log("No Popup - open and closed already")
         }
     }
 
