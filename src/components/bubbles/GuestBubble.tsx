@@ -1,6 +1,5 @@
 import { For, Show, onMount } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
-import { Marked } from '@ts-stack/markdown';
 import { MessageType } from '../Bot';
 
 type Props = {
@@ -19,14 +18,12 @@ const defaultBackgroundColor = '#3B81F6';
 const defaultTextColor = '#ffffff';
 const defaultFontSize = 16;
 
-Marked.setOptions({ isNoP: true });
-
 export const GuestBubble = (props: Props) => {
   let userMessageEl: HTMLDivElement | undefined;
 
   onMount(() => {
     if (userMessageEl) {
-      userMessageEl.innerHTML = Marked.parse(props.message.message);
+      userMessageEl.textContent = props.message.message;
     }
   });
 
