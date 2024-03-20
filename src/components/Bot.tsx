@@ -16,6 +16,7 @@ import { DeleteButton, SendButton } from '@/components/buttons/SendButton';
 import { CircleDotIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
+import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -42,7 +43,7 @@ type FilePreview = {
   type: string;
 };
 
-type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
 
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
@@ -76,6 +77,14 @@ export type BotProps = {
   fontSize?: number;
   isFullPage?: boolean;
   observersConfig?: observersConfigType;
+};
+
+export type LeadsConfig = {
+  status: boolean;
+  title?: string;
+  name?: boolean;
+  email?: boolean;
+  phone?: boolean;
 };
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
@@ -186,6 +195,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
+  const [leadsConfig, setLeadsConfig] = createSignal<LeadsConfig>();
 
   // drag & drop file input
   // TODO: fix this type
@@ -479,6 +489,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       if (chatbotConfig.uploads) {
         setUploadsConfig(chatbotConfig.uploads);
       }
+      if (chatbotConfig.leads) {
+        setLeadsConfig(chatbotConfig.leads);
+        setMessages((prevMessages) => [...prevMessages, { message: '', type: 'leadCaptureMessage' }]);
+      }
     }
 
     const socket = socketIOClient(props.apiHost as string);
@@ -736,6 +750,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }),
   );
 
+  const handleCancelLeadCapture = () => {
+    setMessages((prevMessages) => prevMessages.filter((message) => message.type !== 'leadCaptureMessage'));
+  };
+
   return (
     <>
       <div
@@ -838,6 +856,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         avatarSrc={props.botMessage?.avatarSrc}
                         chatFeedbackStatus={chatFeedbackStatus()}
                         fontSize={props.fontSize}
+                      />
+                    )}
+                    {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !localStorage.getItem(`${props.chatflowid}_LEAD`) && (
+                      <LeadCaptureBubble
+                        message={message}
+                        chatflowid={props.chatflowid}
+                        chatId={chatId()}
+                        leadsConfig={leadsConfig()}
+                        handleCancelLeadCapture={handleCancelLeadCapture}
+                        sendButtonColor={props.textInput?.sendButtonColor}
                       />
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
