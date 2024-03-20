@@ -56,6 +56,7 @@ export type LeadsConfig = {
     name?: boolean;
     email?: boolean;
     phone?: boolean;
+    successMessage?: string;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;

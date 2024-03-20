@@ -85,6 +85,7 @@ export type LeadsConfig = {
   name?: boolean;
   email?: boolean;
   phone?: boolean;
+  successMessage?: string;
 };
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
