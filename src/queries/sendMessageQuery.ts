@@ -38,6 +38,19 @@ export type UpdateFeedbackRequest = {
   body?: Partial<FeedbackInput>;
 };
 
+export type LeadCaptureInput = {
+  chatflowid: string
+  chatId: string
+  name?: string
+  email?: string
+  phone?: string
+}
+
+export type LeadCaptureRequest = {
+  apiHost?: string
+  body: Partial<LeadCaptureInput>
+}
+
 export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: CreateFeedbackRequest) =>
   sendRequest({
     method: 'POST',
@@ -78,3 +91,11 @@ export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body 
     body,
     type: 'blob',
   });
+
+export const addLeadQuery = ({ apiHost = 'http://localhost:3000', body }: LeadCaptureRequest) =>
+  sendRequest<any>({
+    method: 'POST',
+    url: `${apiHost}/api/v1/leads/`,
+    body,
+  });
+
