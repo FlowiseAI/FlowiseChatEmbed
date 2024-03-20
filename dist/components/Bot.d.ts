@@ -19,7 +19,7 @@ type FilePreview = {
     preview: string;
     type: string;
 };
-type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
 export type FileUpload = Omit<FilePreview, 'preview'>;
 export type MessageType = {
     messageId?: string;
@@ -49,6 +49,13 @@ export type BotProps = {
     fontSize?: number;
     isFullPage?: boolean;
     observersConfig?: observersConfigType;
+};
+export type LeadsConfig = {
+    status: boolean;
+    title?: string;
+    name?: boolean;
+    email?: boolean;
+    phone?: boolean;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;

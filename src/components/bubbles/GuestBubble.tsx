@@ -12,7 +12,7 @@ type Props = {
   avatarSrc?: string;
   backgroundColor?: string;
   textColor?: string;
-  fontSize?: number
+  fontSize?: number;
 };
 
 const defaultBackgroundColor = '#3B81F6';
@@ -65,7 +65,13 @@ export const GuestBubble = (props: Props) => {
             </For>
           </div>
         )}
-        {props.message.message && <span ref={userMessageEl} class="mr-2 whitespace-pre-wrap" style={{'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`}} />}
+        {props.message.message && (
+          <span
+            ref={userMessageEl}
+            class="mr-2 whitespace-pre-wrap"
+            style={{ 'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}` }}
+          />
+        )}
       </div>
       <Show when={props.showAvatar}>
         <Avatar initialAvatarSrc={props.avatarSrc} />
