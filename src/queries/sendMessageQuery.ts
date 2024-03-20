@@ -39,17 +39,17 @@ export type UpdateFeedbackRequest = {
 };
 
 export type LeadCaptureInput = {
-  chatflowid: string
-  chatId: string
-  name?: string
-  email?: string
-  phone?: string
-}
+  chatflowid: string;
+  chatId: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+};
 
 export type LeadCaptureRequest = {
-  apiHost?: string
-  body: Partial<LeadCaptureInput>
-}
+  apiHost?: string;
+  body: Partial<LeadCaptureInput>;
+};
 
 export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: CreateFeedbackRequest) =>
   sendRequest({
@@ -98,4 +98,3 @@ export const addLeadQuery = ({ apiHost = 'http://localhost:3000', body }: LeadCa
     url: `${apiHost}/api/v1/leads/`,
     body,
   });
-
