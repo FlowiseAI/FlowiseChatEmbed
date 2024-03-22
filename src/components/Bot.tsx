@@ -386,7 +386,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
         updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations);
       } else {
-        updateLastMessage('', data?.chatMessageId);
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations);
       }
       setLoading(false);
       setUserInput('');
