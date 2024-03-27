@@ -20,6 +20,8 @@ type Props = {
   sendButtonColor?: string;
   chatFeedbackStatus?: boolean;
   fontSize?: number;
+  isLeadSaved: boolean;
+  setIsLeadSaved: (value: boolean) => void;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -31,7 +33,6 @@ export const LeadCaptureBubble = (props: Props) => {
   const [leadEmail, setLeadEmail] = createSignal('');
   const [leadPhone, setLeadPhone] = createSignal('');
   const [isLeadSaving, setIsLeadSaving] = createSignal(false);
-  const [isLeadSaved, setIsLeadSaved] = createSignal(false);
 
   const handleLeadCaptureSubmit = async () => {
     setIsLeadSaving(true);
@@ -50,9 +51,9 @@ export const LeadCaptureBubble = (props: Props) => {
     });
 
     if (result.data) {
-      localStorage.setItem(`${props.chatflowid}_LEAD`, 'true');
+      localStorage.setItem(`${props.chatflowid}_LEAD`, JSON.stringify({ name: leadName(), email: leadEmail(), phone: leadPhone() }));
       setIsLeadSaving(false);
-      setIsLeadSaved(true);
+      props.setIsLeadSaved(true);
     }
   };
 
@@ -71,7 +72,7 @@ export const LeadCaptureBubble = (props: Props) => {
           'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`,
         }}
       >
-        {isLeadSaved() || localStorage.getItem(`${props.chatflowid}_LEAD`) ? (
+        {props.isLeadSaved || localStorage.getItem(`${props.chatflowid}_LEAD`) ? (
           <div class="flex flex-col gap-2">
             <span>{props.leadsConfig?.successMessage || 'Thank you for submitting your contact information.'}</span>
           </div>
