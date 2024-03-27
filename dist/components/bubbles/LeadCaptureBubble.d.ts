@@ -14,6 +14,8 @@ type Props = {
     sendButtonColor?: string;
     chatFeedbackStatus?: boolean;
     fontSize?: number;
+    isLeadSaved: boolean;
+    setIsLeadSaved: (value: boolean) => void;
 };
 export declare const LeadCaptureBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

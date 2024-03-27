@@ -197,6 +197,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
   const [leadsConfig, setLeadsConfig] = createSignal<LeadsConfig>();
+  const [isLeadSaved, setIsLeadSaved] = createSignal(false);
 
   // drag & drop file input
   // TODO: fix this type
@@ -755,6 +756,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setMessages((prevMessages) => prevMessages.filter((message) => message.type !== 'leadCaptureMessage'));
   };
 
+  createEffect(() => {
+    setIsLeadSaved(!!localStorage.getItem(`${props.chatflowid}_LEAD`));
+  });
+
   return (
     <>
       <div
@@ -867,6 +872,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         leadsConfig={leadsConfig()}
                         handleCancelLeadCapture={handleCancelLeadCapture}
                         sendButtonColor={props.textInput?.sendButtonColor}
+                        isLeadSaved={isLeadSaved()}
+                        setIsLeadSaved={setIsLeadSaved}
                       />
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
@@ -998,7 +1005,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 placeholder={props.textInput?.placeholder}
                 sendButtonColor={props.textInput?.sendButtonColor}
                 fontSize={props.fontSize}
-                disabled={loading()}
+                disabled={loading() || !isLeadSaved()}
                 defaultValue={userInput()}
                 onSubmit={handleSubmit}
                 uploadsConfig={uploadsConfig()}
