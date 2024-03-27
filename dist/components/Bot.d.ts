@@ -23,6 +23,7 @@ export type BotProps = {
     badgeBackgroundColor?: string;
     fontSize?: number;
     fullScreen?: boolean;
+    questions?: Array<string>;
 };
 export declare const Bot: (props: BotProps & {
     class?: string;

@@ -11,6 +11,7 @@ type BotProps = {
     apiHost?: string;
     chatflowConfig?: Record<string, unknown>;
     theme?: Record<string, unknown>;
+    questions?: Array<string>;
 };
 export declare const initFull: (props: BotProps & {
     id?: string;

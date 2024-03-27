@@ -56,6 +56,10 @@ export const Full = (
             fullScreen = {true}
             userID = {props.userID}
             loadID = {props.loadID}
+            questions = {props.questions}
+            includeQuestions={props.includeQuestions}
+                      
+                    
             />
         </div>
       </Show>

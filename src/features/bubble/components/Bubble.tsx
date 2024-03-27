@@ -137,6 +137,7 @@ export const Bubble = (props: BubbleProps) => {
                         fullScreen = {false}
                         userID = {props.userID}
                         loadID = {props.loadID}
+                        questions = {props.questions}
                         />
 
                 </Show>

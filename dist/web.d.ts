@@ -12,6 +12,7 @@ declare const chatbot: {
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
+        questions?: string[] | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -28,6 +29,7 @@ declare const chatbot: {
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
+        questions?: string[] | undefined;
     }) => Promise<void>;
 };
 export default chatbot;

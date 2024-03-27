@@ -35,7 +35,8 @@ export type BotProps = {
     poweredByTextColor?: string
     badgeBackgroundColor?: string
     fontSize?: number,
-    fullScreen?:boolean
+    fullScreen?:boolean,
+    questions?: Array<string>,
 }
 
 
@@ -128,6 +129,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
     const [sourcePopupOpen, setSourcePopupOpen] = createSignal(false)
     const [sourcePopupSrc, setSourcePopupSrc] = createSignal({})
     const [questionClicked,setQuestionClicked] = createSignal(false)
+
     const [messages, setMessages] = createSignal<MessageType[]>([
         {
             message: props.welcomeMessage ?? defaultWelcomeMessage,
@@ -390,6 +392,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     }
 
+    const question_objects = props.questions?.map((item, index) => (
+        <QuestionButton
+            question={item}
+            onQuestionClick={clickPrompt}
+            leftOffset = "0%"
+        />
+    ));
+
     return (
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
@@ -464,21 +474,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
                             "z-index": 1000,
                         }}
                         >
-                            <QuestionButton
-                                question={"Can I book a meeting?"}
-                                onQuestionClick={clickPrompt}
-                                leftOffset = {"0%"}
-                            />
-                            <QuestionButton
-                                question={"What can I buy for $1 Million?"}
-                                onQuestionClick={clickPrompt}
-                                leftOffset = {"30%"}
-                            />
-                            <QuestionButton
-                                question={"Where is best to buy?"}
-                                onQuestionClick={clickPrompt}
-                                leftOffset = {"60%"}
-                            />
+                            {question_objects}
+                            
                         </div>
                     </Show>
                     <TextInput

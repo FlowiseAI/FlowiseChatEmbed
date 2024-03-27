@@ -14,4 +14,5 @@ export const defaultBotProps: BubbleProps = {
     delayOpenSeconds:10,
     stayClosedFlag: false,
     fullScreen: false,
+    questions: []
 }

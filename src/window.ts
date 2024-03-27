@@ -13,6 +13,7 @@ type BotProps = {
     apiHost?: string
     chatflowConfig?: Record<string, unknown>
     theme?:Record<string, unknown>
+    questions?:Array<string>
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -32,6 +33,7 @@ export const initFull = (props: BotProps & { id?: string }) => {
         props.delayOpenFlag = config_data?.delayOpenFlag
         props.loadID = config_data?.load_id ? config_data?.load_id :""
         props.stayClosedFlag = config_data?.stayClosedFlag
+        props.questions = config_data?.questions
         const fullElement = props.id
         ? document.getElementById(props.id)
         : document.querySelector('flowise-fullchatbot-parent')
@@ -67,13 +69,12 @@ export const init = async (props: BotProps) => {
         props.delayOpenFlag = config_data?.delayOpenFlag
         props.loadID = config_data?.load_id ? config_data?.load_id :""
         props.stayClosedFlag = config_data?.stayClosedFlag
-
+        props.questions = config_data?.questions
         // props.isOpen = props.isOpen || default_open
         const element = document.createElement('flowise-chatbot')
         Object.assign(element, props)
         document.body.appendChild(element)
         
-    
     });
     // TODO: need to add error checking and handling 
 }
