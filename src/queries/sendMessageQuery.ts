@@ -9,6 +9,7 @@ export type IncomingInput = {
   socketIOClientId?: string;
   chatId?: string;
   fileName?: string; // Only for assistant
+  leadEmail?: string;
 };
 
 export type MessageRequest = {

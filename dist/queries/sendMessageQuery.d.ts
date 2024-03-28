@@ -7,6 +7,7 @@ export type IncomingInput = {
     socketIOClientId?: string;
     chatId?: string;
     fileName?: string;
+    leadEmail?: string;
 };
 export type MessageRequest = {
     chatflowid?: string;
