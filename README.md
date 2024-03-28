@@ -106,12 +106,12 @@ You can also customize chatbot with different configuration
         bottom: 20,
         size: 'medium',
         iconColor: 'white',
-        customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+        customIconSrc: 'https://github.com/paulstoicasebastian/AIChatBotChatEmbed/tree/main/images/google-messages.svg',
       },
       chatWindow: {
         showTitle: true, // show/hide the title bar
-        title: 'Flowise Bot',
-        titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+        title: 'AI-CHATBOT',
+        titleAvatarSrc: 'https://github.com/paulstoicasebastian/AIChatBotChatEmbed/tree/main/images/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
         backgroundColor: '#ffffff',
         height: 700,
@@ -122,13 +122,13 @@ You can also customize chatbot with different configuration
           backgroundColor: '#f7f8ff',
           textColor: '#303235',
           showAvatar: true,
-          avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/parroticon.png',
+          avatarSrc: 'https://github.com/paulstoicasebastian/AIChatBotChatEmbed/tree/main/images/ai-chatbot.jpg',
         },
         userMessage: {
           backgroundColor: '#3B81F6',
           textColor: '#ffffff',
           showAvatar: true,
-          avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png',
+          avatarSrc: 'https://github.com/paulstoicasebastian/AIChatBotChatEmbed/tree/main/images/usericon.png',
         },
         textInput: {
           placeholder: 'Type your question',
