@@ -198,6 +198,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
   const [leadsConfig, setLeadsConfig] = createSignal<LeadsConfig>();
   const [isLeadSaved, setIsLeadSaved] = createSignal(false);
+  const [leadEmail, setLeadEmail] = createSignal('');
 
   // drag & drop file input
   // TODO: fix this type
@@ -343,6 +344,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (urls && urls.length > 0) body.uploads = urls;
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
+
+    if (leadEmail()) body.leadEmail = leadEmail();
 
     if (isChatFlowAvailableToStream()) {
       body.socketIOClientId = socketIOClientId();
@@ -757,7 +760,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   createEffect(() => {
-    setIsLeadSaved(!!localStorage.getItem(`${props.chatflowid}_LEAD`));
+    const savedLead = localStorage.getItem(`${props.chatflowid}_LEAD`);
+    if (savedLead) {
+      const savedLeadObj = JSON.parse(savedLead);
+      setIsLeadSaved(!!savedLeadObj);
+      setLeadEmail(savedLeadObj.email);
+    }
+  });
+
+  createEffect(() => {
+    console.log(leadEmail());
   });
 
   return (
