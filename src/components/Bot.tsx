@@ -22,6 +22,11 @@ export type FileEvent<T = EventTarget> = {
   target: T;
 };
 
+export type FormEvent<T = EventTarget> = {
+  preventDefault: () => void;
+  currentTarget: T;
+};
+
 type ImageUploadConstraits = {
   fileTypes: string[];
   maxUploadSize: number;
