@@ -16,6 +16,7 @@ type Props = {
     fontSize?: number;
     isLeadSaved: boolean;
     setIsLeadSaved: (value: boolean) => void;
+    setLeadEmail: (value: string) => void;
 };
 export declare const LeadCaptureBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};
