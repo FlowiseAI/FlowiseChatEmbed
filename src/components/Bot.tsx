@@ -773,10 +773,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   });
 
-  createEffect(() => {
-    console.log(leadEmail());
-  });
-
   return (
     <>
       <div
@@ -891,6 +887,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         sendButtonColor={props.textInput?.sendButtonColor}
                         isLeadSaved={isLeadSaved()}
                         setIsLeadSaved={setIsLeadSaved}
+                        setLeadEmail={setLeadEmail}
                       />
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}

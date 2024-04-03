@@ -23,6 +23,7 @@ type Props = {
   fontSize?: number;
   isLeadSaved: boolean;
   setIsLeadSaved: (value: boolean) => void;
+  setLeadEmail: (value: string) => void;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -66,6 +67,7 @@ export const LeadCaptureBubble = (props: Props) => {
       if (result.data) {
         localStorage.setItem(`${props.chatflowid}_LEAD`, JSON.stringify({ name: leadName(), email: leadEmail(), phone: leadPhone() }));
         props.setIsLeadSaved(true);
+        props.setLeadEmail(leadEmail());
       }
     } else {
       const error = res.error.flatten();
