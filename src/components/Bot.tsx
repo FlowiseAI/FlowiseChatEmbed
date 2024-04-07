@@ -898,8 +898,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       <div
                         class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
                         style={{
-                          width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-                            }px`,
+                          width: `${
+                            chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
+                          }px`,
                         }}
                       >
                         <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
