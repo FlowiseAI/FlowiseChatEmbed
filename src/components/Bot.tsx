@@ -182,7 +182,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   );
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal(uuidv4());
+  const [chatId, setChatId] = createSignal(
+    props.chatflowConfig?.customerId ? `${props.chatflowConfig?.customerId.toString()}_${uuidv4()}` : uuidv4(),
+  );
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
@@ -405,7 +407,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const clearChat = () => {
     try {
       localStorage.removeItem(`${props.chatflowid}_EXTERNAL`);
-      setChatId(uuidv4());
+      setChatId(props.chatflowConfig?.customerId ? `${props.chatflowConfig?.customerId.toString()}_${uuidv4()}` : uuidv4());
       setMessages([
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
@@ -896,9 +898,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       <div
                         class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
                         style={{
-                          width: `${
-                            chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-                          }px`,
+                          width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
+                            }px`,
                         }}
                       >
                         <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
