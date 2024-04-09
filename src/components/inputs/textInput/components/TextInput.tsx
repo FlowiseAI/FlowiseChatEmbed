@@ -82,7 +82,7 @@ export const TextInput = (props: Props) => {
         </>
       ) : null}
       <ShortTextInput
-        ref={inputRef as HTMLInputElement}
+        ref={inputRef as HTMLTextAreaElement}
         onInput={handleInput}
         value={inputValue()}
         fontSize={props.fontSize}
