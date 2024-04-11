@@ -1,3 +1,6 @@
+export * from './ClipboardIcon';
+export * from './ThumbsDownIcon';
+export * from './ThumbsUpIcon';
 export * from './AddImageIcon';
 export * from './CircleDotIcon';
 export * from './DeleteIcon';

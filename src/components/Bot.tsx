@@ -47,6 +47,7 @@ type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
 export type MessageType = {
+  messageId?: string;
   message: string;
   type: messageType;
   sourceDocuments?: any;
@@ -183,6 +184,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
+  const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
 
   // drag & drop file input
@@ -237,11 +239,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
   };
 
-  const updateLastMessage = (text: string, sourceDocuments: any, fileAnnotations: any) => {
+  const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          return { ...item, message: item.message + text, sourceDocuments, fileAnnotations };
+          return { ...item, message: item.message + text, messageId, sourceDocuments, fileAnnotations };
         }
         return item;
       });
@@ -382,7 +384,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.sourceDocuments, data?.fileAnnotations);
+        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations);
+      } else {
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations);
       }
       setLoading(false);
       setUserInput('');
@@ -431,6 +435,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       setChatId(objChatMessage.chatId);
       const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
         const chatHistory: MessageType = {
+          messageId: message?.messageId,
           message: message.message,
           type: message.type,
         };
@@ -466,6 +471,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           prompts.push(chatbotConfig.starterPrompts[key].prompt);
         });
         setStarterPrompts(prompts);
+      }
+      if (chatbotConfig.chatFeedback) {
+        const chatFeedbackStatus = chatbotConfig.chatFeedback.status;
+        setChatFeedbackStatus(chatFeedbackStatus);
       }
       if (chatbotConfig.uploads) {
         setUploadsConfig(chatbotConfig.uploads);
@@ -813,23 +822,28 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         textColor={props.userMessage?.textColor}
                         showAvatar={props.userMessage?.showAvatar}
                         avatarSrc={props.userMessage?.avatarSrc}
+                        fontSize={props.fontSize}
                       />
                     )}
                     {message.type === 'apiMessage' && (
                       <BotBubble
-                        message={message.message}
+                        message={message}
                         fileAnnotations={message.fileAnnotations}
+                        chatflowid={props.chatflowid}
+                        chatId={chatId()}
                         apiHost={props.apiHost}
                         backgroundColor={props.botMessage?.backgroundColor}
                         textColor={props.botMessage?.textColor}
                         showAvatar={props.botMessage?.showAvatar}
                         avatarSrc={props.botMessage?.avatarSrc}
+                        chatFeedbackStatus={chatFeedbackStatus()}
+                        fontSize={props.fontSize}
                       />
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.sourceDocuments && message.sourceDocuments.length && (
-                      <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%' }}>
+                      <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
                         <For each={[...removeDuplicateURL(message)]}>
                           {(src) => {
                             const URL = isValidURL(src.metadata.source);

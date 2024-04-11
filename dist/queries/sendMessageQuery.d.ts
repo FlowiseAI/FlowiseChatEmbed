@@ -13,6 +13,31 @@ export type MessageRequest = {
     apiHost?: string;
     body?: IncomingInput;
 };
+export type FeedbackRatingType = 'THUMBS_UP' | 'THUMBS_DOWN';
+export type FeedbackInput = {
+    chatId: string;
+    messageId: string;
+    rating: FeedbackRatingType;
+    content?: string;
+};
+export type CreateFeedbackRequest = {
+    chatflowid?: string;
+    apiHost?: string;
+    body?: FeedbackInput;
+};
+export type UpdateFeedbackRequest = {
+    id: string;
+    apiHost?: string;
+    body?: Partial<FeedbackInput>;
+};
+export declare const sendFeedbackQuery: ({ chatflowid, apiHost, body }: CreateFeedbackRequest) => Promise<{
+    data?: unknown;
+    error?: Error | undefined;
+}>;
+export declare const updateFeedbackQuery: ({ id, apiHost, body }: UpdateFeedbackRequest) => Promise<{
+    data?: unknown;
+    error?: Error | undefined;
+}>;
 export declare const sendMessageQuery: ({ chatflowid, apiHost, body }: MessageRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
