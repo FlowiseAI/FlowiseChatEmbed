@@ -1,5 +1,5 @@
 const chatConfig = {
-  chatflowid: 'b07341b9-97b4-491e-a49e-8cf7da73d235',
+  chatflowid: '<CHATFLOW_ID>',
   apiHost: 'http://localhost:3000',
 };
 
