@@ -1,3 +1,4 @@
+import { defineConfig } from 'rollup';
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 import { babel } from '@rollup/plugin-babel';
@@ -8,10 +9,30 @@ import typescript from '@rollup/plugin-typescript';
 import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 import commonjs from '@rollup/plugin-commonjs';
 import { uglify } from 'rollup-plugin-uglify';
-//import serve from "rollup-plugin-serve";
-//import livereload from "rollup-plugin-livereload";
+
+import serve from 'rollup-plugin-serve';
+import livereload from 'rollup-plugin-livereload';
 
 const extensions = ['.ts', '.tsx'];
+
+// eslint-disable-next-line no-undef
+const isDev = process.env.ROLLUP_WATCH === 'true';
+// const isDev = false;
+
+let serveDevDemoPages = [];
+
+if (isDev) {
+  serveDevDemoPages = [
+    serve({
+      open: true,
+      verbose: true,
+      contentBase: ['dist', 'demo'],
+      host: 'localhost',
+      port: 5678,
+    }),
+    livereload({ watch: 'dist' }),
+  ];
+}
 
 const indexConfig = {
   plugins: [
@@ -35,19 +56,11 @@ const indexConfig = {
     typescript(),
     typescriptPaths({ preserveExtensions: true }),
     terser({ output: { comments: false } }),
-    /* If you want to see the live app
-    serve({
-      open: true,
-      verbose: true,
-      contentBase: ["dist"],
-      host: "localhost",
-      port: 5678,
-    }),
-    livereload({ watch: "dist" }),*/
+    ...(isDev ? serveDevDemoPages : []),
   ],
 };
 
-const configs = [
+const configs = defineConfig([
   {
     ...indexConfig,
     input: './src/web.ts',
@@ -56,6 +69,6 @@ const configs = [
       format: 'es',
     },
   },
-];
+]);
 
 export default configs;

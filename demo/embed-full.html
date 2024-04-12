@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Test ChatBot Embeds</title>
+    <link rel="stylesheet" href="demo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <header>
+        <div class="container">
+            <div>
+                <h1>FlowiseChatEmbed</h1>
+            </div>
+            <nav class="nav-horizontal">
+                <a href="embed-chatbubble.html">ChatBubble</a>
+                <a href="embed-full.html">Full</a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <h2>Some Demo Content</h2>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nulla beatae deserunt quis recusandae sit pariatur,
+                veritatis repellat esse facilis! Autem assumenda impedit consequatur hic facilis. Eligendi, fuga iure! Nihil,
+                fugiat.</p>
+
+            <h3>Config ChatBot</h3>
+            <form id="chatForm" method="GET">
+                <label for="chatflowid">Chatflow ID</label>
+                <input type="text" id="chatflowid" name="chatflowid">
+                <button type="submit">Send</button>
+            </form>
+
+            <div class="chatbot-container">
+                <flowise-fullchatbot></flowise-fullchatbot>
+            </div>
+
+            <!-- Chat Embed-->
+            <script type="module">
+                import Chatbot from 'http://localhost:5678/web.js';
+                import { getChatConfig } from './chatConfig.js';
+                const chatConfig = {
+                    ...getChatConfig(),
+                    theme: {
+                        chatWindow: {
+                            welcomeMessage: "Hello! This is custom welcome message",
+                            backgroundColor: "#ffffff",
+                            height: 700,
+                            fontSize: 16,
+                        }
+                    }
+                };
+                console.log(chatConfig);
+                Chatbot.initFull(chatConfig);
+            </script>
+            <style>
+                .chatbot-container {
+                    border: 1px solid #ccc;
+                    margin-top: 3rem;
+                }
+                flowise-fullchatbot {
+                    height: 100%;
+                    width: 100%;
+                    max-height: 10rem;
+                }
+            </style>
+
+            <h2>Some more Demo Content</h2>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nulla beatae deserunt quis recusandae sit pariatur,
+                veritatis repellat esse facilis! Autem assumenda impedit consequatur hic facilis. Eligendi, fuga iure! Nihil,
+                fugiat.</p>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nulla beatae deserunt quis recusandae sit pariatur,
+                veritatis repellat esse facilis! Autem assumenda impedit consequatur hic facilis. Eligendi, fuga iure! Nihil,
+                fugiat.</p>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nulla beatae deserunt quis recusandae sit pariatur,
+                veritatis repellat esse facilis! Autem assumenda impedit consequatur hic facilis. Eligendi, fuga iure! Nihil,
+                fugiat.</p>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <div>
+                <span>Flowise</span>
+            </div>
+            <div>
+                <a href="https://docs.flowiseai.com/" target="_blank">Docs</a>
+                <a href="https://github.com/FlowiseAI/Flowise" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </footer>
+  </body>
+</html>
