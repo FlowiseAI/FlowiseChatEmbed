@@ -81,6 +81,7 @@ const createDefaultChatBot = () => {
         'init': chatbot.init,
         'initFull': chatbot.initFull,
         'initWithDefaults': (chatflowId: string, apiHost: string) => chatbot.init(getChatflowDefaultProps(chatflowId, apiHost)),
+        'initTwini': (chatflowId: string, apiHost: string) => chatbot.init(getChatflowDefaultProps(chatflowId, apiHost)),
         'initFullWithDefaults': (chatflowId: string, apiHost: string) => chatbot.initFull(getChatflowDefaultProps(chatflowId, apiHost))
     }
 }

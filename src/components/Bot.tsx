@@ -256,50 +256,92 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     });
 
     const body: IncomingInput = {
-      question: value,
-      history: messageList,
-      chatId: chatId(),
+      input: {
+        question: value,
+        chat_history: [],
+      },
     };
 
-    if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
+    // if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
-    if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId();
+    // if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId();
 
-    const result = await sendMessageQuery({
+    setIsChatFlowAvailableToStream(false);
+
+    let async_req = sendMessageQuery({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       body,
     });
-
-    if (result.data) {
-      const data = result.data;
-      if (!isChatFlowAvailableToStream()) {
-        let text = '';
-        if (data.text) text = data.text;
-        else if (data.json) text = JSON.stringify(data.json, null, 2);
-        else text = JSON.stringify(data, null, 2);
-
-        setMessages((prevMessages) => {
-          const messages: MessageType[] = [
-            ...prevMessages,
-            { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
-          ];
-          addChatMessage(messages);
-          return messages;
-        });
+    const eventSource = new EventSource(`${props.apiHost}/${props.chatflowid}/stream`);
+    
+    eventSource.onmessage = (event) => {
+      console.log('EventSource message:', event);
+      let data =  JSON.parse(event.data)
+      if (data.answer) {
+        updateLastMessage(data.answer);
       }
-      setLoading(false);
-      setUserInput('');
-      scrollToBottom();
     }
-    if (result.error) {
-      const error = result.error;
-      console.error(error);
-      const err: any = error;
-      const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
-      handleError(errorData);
-      return;
+
+    eventSource.onerror = (event) => {
+      console.error('EventSource failed:', event);
     }
+    
+    eventSource.onopen = (event) => {
+      console.log('EventSource opened:', event);
+    }
+
+    eventSource.addEventListener('metadata', (event) => {
+      console.log(`metadata event: ${event}`);
+      let data = JSON.parse(event.data);
+      setSocketIOClientId(data.run_id, );
+    });
+
+    eventSource.addEventListener('end', (event) => {
+      console.log('end event:', event);
+    });
+
+    eventSource.addEventListener('data', (event) => {
+      let data =  JSON.parse(event.data)
+      console.log(data)
+      if (data.answer) {
+        updateLastMessage(data.answer);
+      }
+    });
+
+    const result = await async_req;
+    
+    console.log(result);
+
+    // if (result.data) {
+    //   const data = result.data;
+    //   if (!isChatFlowAvailableToStream()) {
+    //     let text = '';
+    //     if (data.text) text = data.text;
+    //     else if (data.json) text = JSON.stringify(data.json, null, 2);
+    //     else text = JSON.stringify(data, null, 2);
+
+    //     setMessages((prevMessages) => {
+    //       const messages: MessageType[] = [
+    //         ...prevMessages,
+    //         { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
+    //       ];
+    //       addChatMessage(messages);
+    //       return messages;
+    //     });
+    //   }
+    //   setLoading(false);
+    //   setUserInput('');
+    //   scrollToBottom();
+    // }
+    // if (result.error) {
+    //   const error = result.error;
+    //   console.error(error);
+    //   const err: any = error;
+    //   const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
+    //   handleError(errorData);
+    //   return;
+    // }
   };
 
   const clearChat = () => {
@@ -340,16 +382,7 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
         updateLastMessage("");
       });
     }
-
-    // Determine if particular chatflow is available for streaming
-    const { data } = await isStreamAvailableQuery({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-    });
-
-    if (data) {
-      setIsChatFlowAvailableToStream(data?.isStreaming ?? false);
-    }
+    setIsChatFlowAvailableToStream(true);
 
     // Get the chatbotConfig
     const result = await getChatbotConfig({
@@ -368,20 +401,6 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
       }
     }
 
-    const socket = socketIOClient(props.apiHost as string);
-
-    socket.on('connect', () => {
-      setSocketIOClientId(socket.id);
-    });
-
-    socket.on('start', () => {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
-    });
-
-    socket.on('sourceDocuments', updateLastMessageSourceDocuments);
-
-    socket.on('token', updateLastMessage);
-
     // eslint-disable-next-line solid/reactivity
     return () => {
       setUserInput('');
@@ -392,10 +411,6 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
           type: 'apiMessage',
         },
       ]);
-      if (socket) {
-        socket.disconnect();
-        setSocketIOClientId('');
-      }
     };
   });
 
