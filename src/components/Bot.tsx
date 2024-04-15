@@ -268,80 +268,43 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
 
     setIsChatFlowAvailableToStream(false);
 
-    let async_req = sendMessageQuery({
+    const result = await sendMessageQuery({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       body,
     });
-    const eventSource = new EventSource(`${props.apiHost}/${props.chatflowid}/stream`);
-    
-    eventSource.onmessage = (event) => {
-      console.log('EventSource message:', event);
-      let data =  JSON.parse(event.data)
-      if (data.answer) {
-        updateLastMessage(data.answer);
-      }
-    }
 
-    eventSource.onerror = (event) => {
-      console.error('EventSource failed:', event);
-    }
-    
-    eventSource.onopen = (event) => {
-      console.log('EventSource opened:', event);
-    }
-
-    eventSource.addEventListener('metadata', (event) => {
-      console.log(`metadata event: ${event}`);
-      let data = JSON.parse(event.data);
-      setSocketIOClientId(data.run_id, );
-    });
-
-    eventSource.addEventListener('end', (event) => {
-      console.log('end event:', event);
-    });
-
-    eventSource.addEventListener('data', (event) => {
-      let data =  JSON.parse(event.data)
-      console.log(data)
-      if (data.answer) {
-        updateLastMessage(data.answer);
-      }
-    });
-
-    const result = await async_req;
-    
     console.log(result);
 
-    // if (result.data) {
-    //   const data = result.data;
-    //   if (!isChatFlowAvailableToStream()) {
-    //     let text = '';
-    //     if (data.text) text = data.text;
-    //     else if (data.json) text = JSON.stringify(data.json, null, 2);
-    //     else text = JSON.stringify(data, null, 2);
+    if (result.data) {
+      const data = result.data;
+      if (!isChatFlowAvailableToStream()) {
+        let text = '';
+        if (data.output) text = data.output;
+        else if (data.json) text = JSON.stringify(data.json, null, 2);
+        else text = JSON.stringify(data, null, 2);
 
-    //     setMessages((prevMessages) => {
-    //       const messages: MessageType[] = [
-    //         ...prevMessages,
-    //         { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
-    //       ];
-    //       addChatMessage(messages);
-    //       return messages;
-    //     });
-    //   }
-    //   setLoading(false);
-    //   setUserInput('');
-    //   scrollToBottom();
-    // }
-    // if (result.error) {
-    //   const error = result.error;
-    //   console.error(error);
-    //   const err: any = error;
-    //   const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
-    //   handleError(errorData);
-    //   return;
-    // }
+        setMessages((prevMessages) => {
+          const messages: MessageType[] = [
+            ...prevMessages,
+            { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
+          ];
+          addChatMessage(messages);
+          return messages;
+        });
+      }
+      setLoading(false);
+      setUserInput('');
+      scrollToBottom();
+    }
+    if (result.error) {
+      const error = result.error;
+      console.error(error);
+      const err: any = error;
+      const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
+      handleError(errorData);
+      return;
+    }
   };
 
   const clearChat = () => {

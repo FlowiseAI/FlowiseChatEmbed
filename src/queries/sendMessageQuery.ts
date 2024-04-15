@@ -23,7 +23,7 @@ export type MessageRequest = {
 export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: MessageRequest) =>
   sendRequest<any>({
     method: 'POST',
-    url: `${apiHost}/${chatflowid}/stream`,
+    url: `${apiHost}/${chatflowid}/invoke`,
     body,
   });
 
