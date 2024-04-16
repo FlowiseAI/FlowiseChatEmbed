@@ -246,7 +246,12 @@ export const audioRecorder: AudioRecorder = {
       //return a custom error
       return Promise.reject(new Error('mediaDevices API or getUserMedia method is not supported in this browser.'));
     } else {
-      //Feature is supported in browser
+      // Feature is supported in browser
+      const userAgent = navigator.userAgent;
+      // https://stackoverflow.com/questions/49872111/detect-safari-and-stop-script
+      const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+      // https://medium.com/geekculture/detecting-mobile-vs-desktop-browsers-in-javascript-ad46e8d23ce5
+      // const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 
       //create an audio stream
       return (
@@ -271,7 +276,13 @@ export const audioRecorder: AudioRecorder = {
             });
 
             //start the recording by calling the start method on the media recorder
-            audioRecorder.mediaRecorder.start();
+            if (isSafari) {
+              // https://community.openai.com/t/whisper-problem-with-audio-mp4-blobs-from-safari/322252
+              // https://community.openai.com/t/whisper-api-cannot-read-files-correctly/93420/46
+              audioRecorder.mediaRecorder.start(1000);
+            } else {
+              audioRecorder.mediaRecorder.start();
+            }
           })
       );
 
