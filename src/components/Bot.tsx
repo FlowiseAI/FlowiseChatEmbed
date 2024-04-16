@@ -1,6 +1,6 @@
 import { createSignal, createEffect, For, onMount, Show, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig, MessageBE } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -13,13 +13,35 @@ import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
 import { products, setProducts, updateProducts } from './Products';
+import { EventStreamContentType, fetchEventSource } from "@microsoft/fetch-event-source";
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+
+export type InstagramMetadata = {
+  caption: string;
+  kind: string;
+  pk: number;
+  resource_url: string;
+  subtitles: string;
+}
+
+export type ItemMetadata = {
+  name: string;
+  price: string;
+  url: string;
+}
+
+export type SourceDocument = {
+  page_content: string;
+  metadata: ItemMetadata | InstagramMetadata;
+  type: "Document";
+}
+
 
 export type MessageType = {
   message: string;
   type: messageType;
-  sourceDocuments?: any;
+  sourceDocuments?: SourceDocument[];
   fileAnnotations?: any;
 };
 
@@ -49,6 +71,10 @@ export type BotProps = {
 };
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
+
+class RetriableError extends Error { }
+class FatalError extends Error { }
+
 
 /*const sourceDocuments = [
     {
@@ -205,7 +231,8 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     });
   };
 
-  const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
+  const updateLastMessageSourceDocuments = (sourceDocuments: SourceDocument[]) => {
+    console.log('updateLastMessageSourceDocuments', sourceDocuments);
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
@@ -234,8 +261,22 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     handleSubmit(prompt);
   };
 
+  const messageTypeFEtoBE = (msg: messageType) => {
+    switch (msg) {
+      case 'apiMessage':
+        return 'ai';
+      case 'userMessage':
+        return 'human';
+      case 'usermessagewaiting':
+        return 'human';
+      default:
+        return 'system';
+    }
+  }
+
   // Handle form submission
   const handleSubmit = async (value: string) => {
+    console.log('handleSubmit', value);
     setUserInput(value);
 
     if (value.trim() === '') {
@@ -246,8 +287,9 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     scrollToBottom();
 
     // Send user question and history to API
-    const welcomeMessage = props.welcomeMessage ?? defaultWelcomeMessage;
-    const messageList = messages().filter((msg) => msg.message !== welcomeMessage);
+    const messageList: MessageBE[] = messages().map((message) => {
+      return { content: message.message, type:  messageTypeFEtoBE(message.type) };
+    });
 
     setMessages((prevMessages) => {
       const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }];
@@ -258,8 +300,9 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     const body: IncomingInput = {
       input: {
         question: value,
-        chat_history: [],
+        chat_history: messageList,
       },
+      config: {},
     };
 
     // if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
@@ -267,44 +310,106 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     // if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId();
 
     setIsChatFlowAvailableToStream(false);
+    const abortCtrl = new AbortController();
+    setMessages((prevMessages) => {
+      const messages: MessageType[] = [
+        ...prevMessages,
+        { message: "", type: 'apiMessage'},
+      ];
+      return messages;
+    });
+    
+    let currMsg = "";
 
-    const result = await sendMessageQuery({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-      body,
+    await fetchEventSource(`${props.apiHost}/${props.chatflowid}/stream`, {
+      signal: abortCtrl.signal,
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      openWhenHidden: true,
+      onclose: () => {
+        console.log('EventSource closed');
+      },
+      onerror: (err) => {
+        console.error('EventSource error:', err);
+        abortCtrl.abort();
+      },
+      onopen: async (response) => {
+        console.log('EventSource opened', response);
+        // if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
+        //     return; // everything's good
+        // } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+        //     // client-side errors are usually non-retriable:
+        //     throw new FatalError();
+        // } else {
+        //     throw new RetriableError();
+        // }
+      },
+      onmessage(ev) {
+        console.log('EventSource message:', ev.data);
+        if (ev.event === 'metadata') {
+          const data = JSON.parse(ev.data);
+          setChatId(data.run_id);
+        } else if (ev.event === 'close') {
+          abortCtrl.abort();
+        }
+        else if (ev.event === 'data') {
+          const data = JSON.parse(ev.data);
+          if (data.answer) {
+            currMsg += data.answer;
+            updateLastMessage(data.answer);
+          } else if (data.context) {
+            updateLastMessageSourceDocuments(data.context);
+          }
+        }
+      },
+
     });
 
-    console.log(result);
+    setIsChatFlowAvailableToStream(true);
+    setLoading(false);
+    setUserInput('');
+    scrollToBottom();
 
-    if (result.data) {
-      const data = result.data;
-      if (!isChatFlowAvailableToStream()) {
-        let text = '';
-        if (data.output) text = data.output;
-        else if (data.json) text = JSON.stringify(data.json, null, 2);
-        else text = JSON.stringify(data, null, 2);
+    setMessages((prevMessages) => {
+      const messages: MessageType[] = [
+        ...prevMessages
+      ];
+      addChatMessage(messages);
+      return messages;
+    });
 
-        setMessages((prevMessages) => {
-          const messages: MessageType[] = [
-            ...prevMessages,
-            { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
-          ];
-          addChatMessage(messages);
-          return messages;
-        });
-      }
-      setLoading(false);
-      setUserInput('');
-      scrollToBottom();
-    }
-    if (result.error) {
-      const error = result.error;
-      console.error(error);
-      const err: any = error;
-      const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
-      handleError(errorData);
-      return;
-    }
+    // if (result.data) {
+    //   const data = result.data;
+    //   if (!isChatFlowAvailableToStream()) {
+    //     let text = '';
+    //     if (data.text) text = data.text;
+    //     else if (data.json) text = JSON.stringify(data.json, null, 2);
+    //     else text = JSON.stringify(data, null, 2);
+
+    //     setMessages((prevMessages) => {
+    //       const messages: MessageType[] = [
+    //         ...prevMessages,
+    //         { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
+    //       ];
+    //       addChatMessage(messages);
+    //       return messages;
+    //     });
+    //   }
+    //   setLoading(false);
+    //   setUserInput('');
+    //   scrollToBottom();
+    // }
+    // if (result.error) {
+    //   const error = result.error;
+    //   console.error(error);
+    //   const err: any = error;
+    //   const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
+    //   handleError(errorData);
+    //   return;
+    // }
   };
 
   const clearChat = () => {
@@ -436,22 +541,17 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
                     />
                   )}
                   {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                  {message.sourceDocuments && message.sourceDocuments.length && (
-                    <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%' }}>
-                      <For each={[...removeDuplicateURL(message)]}>
-                        {(src) => {
-                          const URL = isValidURL(src.metadata.source);
+                  {message.sourceDocuments && (message.sourceDocuments.length > 0) && (
+                    <div class='flex-row flex-wrap'>
+                      <For each={message.sourceDocuments}>
+                        {(src: SourceDocument) => {
+                          const URL = src.metadata.url || src.metadata.resource_url;
                           return (
                             <SourceBubble
-                              pageContent={URL ? URL.pathname : src.pageContent}
+                              pageContent={src.page_content}
                               metadata={src.metadata}
                               onSourceClick={() => {
-                                if (URL) {
-                                  window.open(src.metadata.source, '_blank');
-                                } else {
-                                  setSourcePopupSrc(src);
-                                  setSourcePopupOpen(true);
-                                }
+                                window.open(URL, '_blank');
                               }}
                             />
                           );

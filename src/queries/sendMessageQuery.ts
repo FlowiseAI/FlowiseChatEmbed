@@ -1,13 +1,23 @@
 import { MessageType } from '@/components/Bot';
 import { sendRequest } from '@/utils/index';
 
-export type ChatbotStreamInput = {
+
+export type MessageTypeBE = "ai" | "human" | "system";
+
+export type MessageBE = {
+  type: string,
+  content: string,
+}
+
+
+export type StreamBody = {
   question: string;
-  chat_history: MessageType[];
+  chat_history: MessageBE[];
 };
 
 export type IncomingInput = {
-  input: ChatbotStreamInput;
+  input: StreamBody;
+  config?: Record<string, unknown>;
   // overrideConfig?: Record<string, unknown>;
   // socketIOClientId?: string;
   // chatId?: string;
@@ -23,7 +33,7 @@ export type MessageRequest = {
 export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: MessageRequest) =>
   sendRequest<any>({
     method: 'POST',
-    url: `${apiHost}/${chatflowid}/invoke`,
+    url: `${apiHost}/${chatflowid}/stream`,
     body,
   });
 
