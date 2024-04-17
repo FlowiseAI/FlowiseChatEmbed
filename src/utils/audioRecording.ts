@@ -1,3 +1,5 @@
+import DeviceDetector from 'device-detector-js';
+
 /**
  * @fileoverview This file contains the API to handle audio recording.
  * Originally from 'https://ralzohairi.medium.com/audio-recording-in-javascript-96eed45b75ee'
@@ -247,11 +249,10 @@ export const audioRecorder: AudioRecorder = {
       return Promise.reject(new Error('mediaDevices API or getUserMedia method is not supported in this browser.'));
     } else {
       // Feature is supported in browser
+      const deviceDetector = new DeviceDetector();
       const userAgent = navigator.userAgent;
-      // https://stackoverflow.com/questions/49872111/detect-safari-and-stop-script
-      const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
-      // https://medium.com/geekculture/detecting-mobile-vs-desktop-browsers-in-javascript-ad46e8d23ce5
-      // const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const device = deviceDetector.parse(userAgent);
+      const isSafari = device.client?.name === 'Mobile Safari';
 
       //create an audio stream
       return (
