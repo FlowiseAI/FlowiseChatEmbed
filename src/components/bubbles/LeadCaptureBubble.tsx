@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { FormEvent, LeadsConfig, MessageType } from '@/components/Bot';
 import { addLeadQuery, LeadCaptureInput } from '@/queries/sendMessageQuery';
 import { ShortTextInput } from '@/components/inputs/textInput/components/ShortTextInput';
-import { CancelLeadCaptureButton, SaveLeadButton } from '@/components/buttons/LeadCaptureButtons';
+import { SaveLeadButton } from '@/components/buttons/LeadCaptureButtons';
 import { Avatar } from '@/components/avatars/Avatar';
 
 type Props = {
@@ -12,7 +12,6 @@ type Props = {
   chatId: string;
   leadsConfig?: LeadsConfig;
   apiHost?: string;
-  handleCancelLeadCapture: () => void;
   fileAnnotations?: any;
   showAvatar?: boolean;
   avatarSrc?: string;
@@ -139,7 +138,6 @@ export const LeadCaptureBubble = (props: Props) => {
                 </div>
               )}
               <div class="flex items-center justify-end gap-1">
-                <CancelLeadCaptureButton buttonColor={props.sendButtonColor} onClick={props.handleCancelLeadCapture} />
                 <SaveLeadButton buttonColor={props.sendButtonColor} isLoading={isLeadSaving()} />
               </div>
             </div>

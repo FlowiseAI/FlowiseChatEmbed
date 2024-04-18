@@ -760,10 +760,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }),
   );
 
-  const handleCancelLeadCapture = () => {
-    setMessages((prevMessages) => prevMessages.filter((message) => message.type !== 'leadCaptureMessage'));
-  };
-
   createEffect(() => {
     const savedLead = localStorage.getItem(`${props.chatflowid}_LEAD`);
     if (savedLead) {
@@ -883,7 +879,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         chatflowid={props.chatflowid}
                         chatId={chatId()}
                         leadsConfig={leadsConfig()}
-                        handleCancelLeadCapture={handleCancelLeadCapture}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         isLeadSaved={isLeadSaved()}
                         setIsLeadSaved={setIsLeadSaved}
