@@ -396,9 +396,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (result.error) {
       const error = result.error;
       console.error(error);
-      const err: any = error;
-      const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
-      handleError(errorData);
+      if (typeof error === 'object') {
+        handleError(`Error: ${error?.message.replaceAll('Error:', ' ')}`);
+        return;
+      }
+      handleError();
       return;
     }
   };
