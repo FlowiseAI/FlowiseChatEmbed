@@ -36,6 +36,7 @@ export type BotProps = {
     apiHost?: string;
     chatflowConfig?: Record<string, unknown>;
     welcomeMessage?: string;
+    errorMessage?: string;
     botMessage?: BotMessageTheme;
     userMessage?: UserMessageTheme;
     textInput?: TextInputTheme;
