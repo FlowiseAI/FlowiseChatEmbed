@@ -429,7 +429,8 @@ textarea {
   align-items: center;
 }
 
-input {
+input,
+textarea {
   background-color: transparent;
   border: none;
   padding: 10px 10px;
