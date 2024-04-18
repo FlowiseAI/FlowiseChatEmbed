@@ -536,7 +536,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const addRecordingToPreviews = (blob: Blob) => {
-    const mimeType = blob.type.substring(0, blob.type.indexOf(';'));
+    let mimeType = '';
+    const pos = blob.type.indexOf(';');
+    if (pos === -1) {
+      mimeType = blob.type;
+    } else {
+      mimeType = blob.type.substring(0, pos);
+    }
+
     // read blob and add to previews
     const reader = new FileReader();
     reader.readAsDataURL(blob);
