@@ -5,7 +5,6 @@ type Props = {
     chatId: string;
     leadsConfig?: LeadsConfig;
     apiHost?: string;
-    handleCancelLeadCapture: () => void;
     fileAnnotations?: any;
     showAvatar?: boolean;
     avatarSrc?: string;
