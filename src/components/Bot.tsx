@@ -470,7 +470,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
           prompts.push(chatbotConfig.starterPrompts[key].prompt);
         });
-        setStarterPrompts(prompts);
+        setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
       }
       if (chatbotConfig.chatFeedback) {
         const chatFeedbackStatus = chatbotConfig.chatFeedback.status;
