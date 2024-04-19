@@ -214,6 +214,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
+        setQuestionClicked(true)
         setUserInput(value)
 
         if (value.trim() === '') {
