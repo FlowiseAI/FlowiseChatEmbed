@@ -491,6 +491,14 @@ input {
 }
 
 /* CSS */
+.outer-questions {
+  display: flex;
+  max-width: 1000px;
+  flex-wrap: wrap;
+}
+
+
+
 .question-button{
   background-color: hsl(0, 0%, 98%);
   border-color: #3B81F6;

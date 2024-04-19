@@ -462,7 +462,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         <button class="close-tab-btn" onclick={props.closeBoxFunction}>&times;</button>
                     </Show>
                     <Show when={props.includeQuestions && !questionClicked()}>
-                        <div class="question-container flex"
+                        <div class="question-container flex outer-questions"
                         
                             style={{
                                 position: 'absolute',
