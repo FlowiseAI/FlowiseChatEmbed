@@ -34,7 +34,7 @@ const createDefaultChatBot = () => {
             msg = `Ciao ${customerName} :) sono l'assistente virtuale di @holidoit! Come posso aiutarti oggi?`;
         } else {
             cfg = {};
-            msg = "🎉 Ciao, avventuriero digitale! 🌍 Sono Twini, il gemello digitale di <a href='https://instgram.com/holidoit'>@holidoit</a>, pronto a svelarti i segreti delle esperienze online più coinvolgenti e dei contenuti social più freschi! 📸✨ <br>Che tu sia qui per un corso di cucina tailandese o un tour virtuale delle piramidi, sono pronto a rendere il tuo viaggio incredibilmente divertente! 🚀💻<br>Pronto a iniziare l'avventura? Scrivimi cosa ti interessa e... partiamo! 🎈<br><br>Per scoprire di più, visita il nostro sito <a href='https://holidoit.com'>holidoit.com</a> e lasciati ispirare!";
+            msg = "🎉 Hello, digital explorer! 🌍 I'm Twini, the digital twin of <a href='https://instgram.com/holidoit'>@holidoit</a>, eager to unveil the secrets behind the most thrilling experiences and the latest in social media content! 📸✨\nAre you ready to embark on this adventure? Tell me what interests you and let’s set off! 🎈\nFor more insights, check out our website <a href='https://holidoit.com'>holidoit.com</a> and let yourself be inspired!";
         }
         return {
             chatflowid: chatflowId,
@@ -55,9 +55,9 @@ const createDefaultChatBot = () => {
                 chatWindow: {
                     welcomeMessage: msg,
                     starterPrompts: [
-                        "Ciao! Mi consigli un'esperienza in Liguria?",
-                        "Hey, Cosa posso fare di bello a Milano?",
-                        "Dove posso andare in vacanza in Italia?",
+                        "Hello! Can you recommend an experience in Liguria?",
+                        "Hey, what nice things can I do in Milan?",
+                        "Where can I go on vacation in Italy?",
                     ],
                     backgroundColor: "#efedff",
                     fontSize: 16,

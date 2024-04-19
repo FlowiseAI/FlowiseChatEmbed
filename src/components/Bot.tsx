@@ -5,7 +5,7 @@ import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
-import { SourcesBubble } from './bubbles/SourceBubble';
+import { Slideshow, ProductSourcesBubble, InstagramSourcesBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 import socketIOClient from 'socket.io-client';
@@ -40,10 +40,23 @@ export type SourceDocument = {
   type: 'Document';
 };
 
+export type ContextEvent = {
+  context: SourceDocument[]; // JSON string of source documents
+};
+
+export type AnswerEvent = {
+  answer: string;
+};
+
+export type MetadataEvent = {
+  run_id: string;
+};
+
 export type MessageType = {
   message: string;
   type: messageType;
-  sourceDocuments?: SourceDocument[];
+  sourceProducts?: SourceDocument[];
+  sourceInstagramPosts?: SourceDocument[];
   fileAnnotations?: any;
 };
 
@@ -203,6 +216,12 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     return [...message.matchAll(/<pr sku=(\d+)><\/pr>/g)].map((m) => m[1]);
   };
 
+  const addEmptyMessage = () =>
+    setMessages((prevMessages) => {
+      const messages: MessageType[] = [...prevMessages, { message: '', type: 'apiMessage' }];
+      return messages;
+    });
+
   const updateLastMessage = (new_token: string) => {
     setMessages((data) => {
       const lastMsg = data[data.length - 1].message;
@@ -233,12 +252,15 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     });
   };
 
-  const updateLastMessageSourceDocuments = (sourceDocuments: SourceDocument[]) => {
-    console.log('updateLastMessageSourceDocuments', sourceDocuments);
+  const updateLastMessageSources = (sourceProducts?: SourceDocument[], sourceInstagramPosts?: SourceDocument[]) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          return { ...item, sourceDocuments: sourceDocuments };
+          return {
+            ...item,
+            sourceProducts: sourceProducts || item.sourceProducts,
+            sourceInstagramPosts: sourceInstagramPosts || item.sourceInstagramPosts,
+          };
         }
         return item;
       });
@@ -278,8 +300,6 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
 
   // Handle form submission
   const handleSubmit = async (value: string) => {
-    const [showDocs, setShowDocs] = createSignal(false);
-
     console.log('handleSubmit', value);
     setUserInput(value);
 
@@ -312,6 +332,8 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     const abortCtrl = new AbortController();
 
     let currMsg = '';
+    let sourceProducts: SourceDocument[] = [];
+    let sourceInstagramPosts: SourceDocument[] = [];
 
     await fetchEventSource(`${props.apiHost}/${props.chatflowid}/stream`, {
       signal: abortCtrl.signal,
@@ -334,69 +356,38 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
       onmessage(ev) {
         console.log('EventSource message:', ev.data);
         if (ev.event === 'metadata') {
-          const data = JSON.parse(ev.data);
+          const data: MetadataEvent = JSON.parse(ev.data);
           setChatId(data.run_id);
         } else if (ev.event === 'close') {
           abortCtrl.abort();
         } else if (ev.event === 'data') {
-          const data = JSON.parse(ev.data);
+          const data: ContextEvent | AnswerEvent = JSON.parse(ev.data);
           if (data.answer) {
             if (currMsg === '') {
-              setMessages((prevMessages) => {
-                const messages: MessageType[] = [...prevMessages, { message: '', type: 'apiMessage' }];
-                return messages;
-              });
+              addEmptyMessage();
             }
             currMsg += data.answer;
             updateLastMessage(data.answer);
           } else if (data.context) {
-            updateLastMessageSourceDocuments(data.context);
+            let ctx: SourceDocument[] = data.context;
+            sourceInstagramPosts = ctx.filter((doc) => doc.metadata?.media_url);
+            sourceProducts = ctx.filter((doc) => doc.metadata?.item_url);
           }
         }
       },
     });
 
     setIsChatFlowAvailableToStream(true);
+    updateLastMessageSources(sourceProducts, sourceInstagramPosts);
     setLoading(false);
     setUserInput('');
     scrollToBottom();
-    setShowDocs(true);
 
     setMessages((prevMessages) => {
       const messages: MessageType[] = [...prevMessages];
       addChatMessage(messages);
       return messages;
     });
-
-    // if (result.data) {
-    //   const data = result.data;
-    //   if (!isChatFlowAvailableToStream()) {
-    //     let text = '';
-    //     if (data.text) text = data.text;
-    //     else if (data.json) text = JSON.stringify(data.json, null, 2);
-    //     else text = JSON.stringify(data, null, 2);
-
-    //     setMessages((prevMessages) => {
-    //       const messages: MessageType[] = [
-    //         ...prevMessages,
-    //         { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' },
-    //       ];
-    //       addChatMessage(messages);
-    //       return messages;
-    //     });
-    //   }
-    //   setLoading(false);
-    //   setUserInput('');
-    //   scrollToBottom();
-    // }
-    // if (result.error) {
-    //   const error = result.error;
-    //   console.error(error);
-    //   const err: any = error;
-    //   const errorData = typeof err === 'string' ? err : err.response.data || `${err.response.status}: ${err.response.statusText}`;
-    //   handleError(errorData);
-    //   return;
-    // }
   };
 
   const clearChat = () => {
@@ -466,9 +457,8 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
         ref={botContainer}
         class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}
       >
-        <div class="flex w-full h-full justify-center">
+        <div class="flex w-full h-full justify-center pb-5 pt-16">
           <div
-            style={{ 'padding-bottom': '100px', 'padding-top': '70px' }}
             ref={chatContainer}
             class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth"
           >
@@ -496,8 +486,11 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
                     />
                   )}
                   {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                  {message.sourceDocuments && message.sourceDocuments.length > 0 && (
-                    <SourcesBubble sources={message.sourceDocuments} backgroundColor={props.botMessage?.backgroundColor} />
+                  {message.sourceProducts && message.sourceProducts.length > 0 && (
+                    <ProductSourcesBubble sources={message.sourceProducts} backgroundColor={props.botMessage?.backgroundColor} />
+                  )}
+                  {message.sourceInstagramPosts && message.sourceInstagramPosts.length > 0 && (
+                    <InstagramSourcesBubble sources={message.sourceInstagramPosts} backgroundColor={props.botMessage?.backgroundColor} />
                   )}
                 </>
               )}
@@ -538,7 +531,7 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
         </div>
         <Show when={messages().length === 1}>
           <Show when={starterPrompts().length > 0}>
-            <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', 'flex-wrap': 'wrap' }}>
+            <div class="relative flex flex-row p-2 w-full flex-wrap">
               <For each={[...starterPrompts()]}>{(prompt) => <StarterPromptBubble prompt={prompt} onPromptClick={() => promptClick(prompt)} />}</For>
             </div>
           </Show>
