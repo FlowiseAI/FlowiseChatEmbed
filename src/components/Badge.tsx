@@ -23,14 +23,14 @@ export const Badge = (props: Props) => {
     });
   };
 
-  // onMount(() => {
-  //   if (!document || !props.botContainer) return;
-  //   observer = new MutationObserver(appendBadgeIfNecessary);
-  //   observer.observe(props.botContainer, {
-  //     subtree: false,
-  //     childList: true,
-  //   });
-  // });
+  onMount(() => {
+    if (!document || !props.botContainer) return;
+    observer = new MutationObserver(appendBadgeIfNecessary);
+    observer.observe(props.botContainer, {
+      subtree: false,
+      childList: true,
+    });
+  });
 
   onCleanup(() => {
     if (observer) observer.disconnect();
@@ -44,8 +44,8 @@ export const Badge = (props: Props) => {
         'background-color': props.badgeBackgroundColor ?? '#ffffff',
       }}
     >
-      Powered by ✨
-      {/* <a
+      Powered by
+      <a
         ref={liteBadge}
         href={'https://flowiseai.com'}
         target="_blank"
@@ -55,7 +55,7 @@ export const Badge = (props: Props) => {
         style={{ 'font-weight': 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
         <span> Flowise</span>
-      </a> */}
+      </a>
     </span>
   );
 };
