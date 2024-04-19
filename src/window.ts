@@ -1,9 +1,5 @@
-/* eslint-disable solid/reactivity */
-type BotProps = {
-  chatflowid: string;
-  apiHost?: string;
-  chatflowConfig?: Record<string, unknown>;
-};
+import { BotProps } from "./components/Bot";
+
 
 export const initFull = (props: BotProps & { id?: string }) => {
   const fullElement = props.id ? document.getElementById(props.id) : document.querySelector('flowise-fullchatbot');
@@ -24,8 +20,8 @@ export type Chatbot = {
 
 declare const window:
   | {
-      Chatbot: Chatbot | undefined;
-    }
+    Chatbot: Chatbot | undefined;
+  }
   | undefined;
 
 export const parseChatbot = () => ({

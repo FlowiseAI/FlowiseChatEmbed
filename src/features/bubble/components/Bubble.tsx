@@ -69,6 +69,7 @@ export const Bubble = (props: BubbleProps) => {
             apiHost={props.apiHost}
             customerEmail={props.customerEmail}
             customerName={props.customerName}
+            starterPrompts={props.theme?.chatWindow?.starterPrompts}
           />
         </Show>
       </div>

@@ -5,7 +5,7 @@ import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
-import { SourceBubble } from './bubbles/SourceBubble';
+import { SourcesBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
 import socketIOClient from 'socket.io-client';
@@ -13,7 +13,9 @@ import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton } from '@/components/SendButton';
 import { products, setProducts, updateProducts } from './Products';
-import { EventStreamContentType, fetchEventSource } from "@microsoft/fetch-event-source";
+import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source';
+import { config } from 'process';
+import { create } from 'lodash';
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
 
@@ -22,21 +24,21 @@ export type InstagramMetadata = {
   kind: string;
   pk: number;
   resource_url: string;
+  media_url: string;
   subtitles: string;
-}
+};
 
-export type ItemMetadata = {
+export type ProductMetadata = {
   name: string;
   price: string;
-  url: string;
-}
+  item_url: string;
+};
 
 export type SourceDocument = {
   page_content: string;
-  metadata: ItemMetadata | InstagramMetadata;
-  type: "Document";
-}
-
+  metadata: ProductMetadata | InstagramMetadata;
+  type: 'Document';
+};
 
 export type MessageType = {
   message: string;
@@ -52,8 +54,9 @@ export type UserProps = {
 
 export type BotProps = {
   chatflowid: string;
-  apiHost?: string;
+  apiHost: string;
   chatflowConfig?: Record<string, unknown>;
+  starterPrompts?: string[];
   welcomeMessage?: string;
   botMessage?: BotMessageTheme;
   userMessage?: UserMessageTheme;
@@ -72,9 +75,8 @@ export type BotProps = {
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
 
-class RetriableError extends Error { }
-class FatalError extends Error { }
-
+class RetriableError extends Error {}
+class FatalError extends Error {}
 
 /*const sourceDocuments = [
     {
@@ -157,6 +159,7 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
+  console.log('props', props);
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -171,11 +174,10 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     ],
     { equals: false },
   );
-  const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
 
   const [chatId, setChatId] = createSignal(props.customerEmail);
-  const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
+  const [starterPrompts, setStarterPrompts] = createSignal<string[]>(props.starterPrompts || [], { equals: false });
 
   onMount(() => {
     if (!bottomSpacer) return;
@@ -198,7 +200,7 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
   };
 
   const getSkus = (message: string) => {
-    return [...(message.matchAll(/<pr sku=(\d+)><\/pr>/g))].map((m) => m[1]);
+    return [...message.matchAll(/<pr sku=(\d+)><\/pr>/g)].map((m) => m[1]);
   };
 
   const updateLastMessage = (new_token: string) => {
@@ -272,10 +274,12 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
       default:
         return 'system';
     }
-  }
+  };
 
   // Handle form submission
   const handleSubmit = async (value: string) => {
+    const [showDocs, setShowDocs] = createSignal(false);
+
     console.log('handleSubmit', value);
     setUserInput(value);
 
@@ -286,17 +290,16 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     setLoading(true);
     scrollToBottom();
 
-    // Send user question and history to API
-    const messageList: MessageBE[] = messages().map((message) => {
-      return { content: message.message, type:  messageTypeFEtoBE(message.type) };
-    });
-
     setMessages((prevMessages) => {
       const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }];
       addChatMessage(messages);
       return messages;
     });
 
+    // Send user question and history to API
+    const messageList: MessageBE[] = messages().map((message) => {
+      return { content: message.message, type: messageTypeFEtoBE(message.type) };
+    });
     const body: IncomingInput = {
       input: {
         question: value,
@@ -305,21 +308,10 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
       config: {},
     };
 
-    // if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
-
-    // if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId();
-
     setIsChatFlowAvailableToStream(false);
     const abortCtrl = new AbortController();
-    setMessages((prevMessages) => {
-      const messages: MessageType[] = [
-        ...prevMessages,
-        { message: "", type: 'apiMessage'},
-      ];
-      return messages;
-    });
-    
-    let currMsg = "";
+
+    let currMsg = '';
 
     await fetchEventSource(`${props.apiHost}/${props.chatflowid}/stream`, {
       signal: abortCtrl.signal,
@@ -338,14 +330,6 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
       },
       onopen: async (response) => {
         console.log('EventSource opened', response);
-        // if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
-        //     return; // everything's good
-        // } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-        //     // client-side errors are usually non-retriable:
-        //     throw new FatalError();
-        // } else {
-        //     throw new RetriableError();
-        // }
       },
       onmessage(ev) {
         console.log('EventSource message:', ev.data);
@@ -354,10 +338,15 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
           setChatId(data.run_id);
         } else if (ev.event === 'close') {
           abortCtrl.abort();
-        }
-        else if (ev.event === 'data') {
+        } else if (ev.event === 'data') {
           const data = JSON.parse(ev.data);
           if (data.answer) {
+            if (currMsg === '') {
+              setMessages((prevMessages) => {
+                const messages: MessageType[] = [...prevMessages, { message: '', type: 'apiMessage' }];
+                return messages;
+              });
+            }
             currMsg += data.answer;
             updateLastMessage(data.answer);
           } else if (data.context) {
@@ -365,18 +354,16 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
           }
         }
       },
-
     });
 
     setIsChatFlowAvailableToStream(true);
     setLoading(false);
     setUserInput('');
     scrollToBottom();
+    setShowDocs(true);
 
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [
-        ...prevMessages
-      ];
+      const messages: MessageType[] = [...prevMessages];
       addChatMessage(messages);
       return messages;
     });
@@ -441,33 +428,16 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
   createEffect(async () => {
     const localChatsData = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
     if (localChatsData) {
-      const localChats: {chatHistory: MessageType[], chatId: string} = JSON.parse(localChatsData);
+      const localChats: { chatHistory: MessageType[]; chatId: string } = JSON.parse(localChatsData);
       setChatId(localChats.chatId);
       const msgs: MessageType[] = [];
       localChats.chatHistory.forEach((message: MessageType) => {
         msgs.push(message);
         setMessages([...msgs]);
-        updateLastMessage("");
+        updateLastMessage('');
       });
     }
     setIsChatFlowAvailableToStream(true);
-
-    // Get the chatbotConfig
-    const result = await getChatbotConfig({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-    });
-
-    if (result.data) {
-      const chatbotConfig = result.data;
-      if (chatbotConfig.starterPrompts) {
-        const prompts: string[] = [];
-        Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
-          prompts.push(chatbotConfig.starterPrompts[key].prompt);
-        });
-        setStarterPrompts(prompts);
-      }
-    }
 
     // eslint-disable-next-line solid/reactivity
     return () => {
@@ -488,21 +458,6 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
     } catch (err) {
       return undefined;
     }
-  };
-
-  const removeDuplicateURL = (message: MessageType) => {
-    const visitedURLs: string[] = [];
-    const newSourceDocuments: any = [];
-
-    message.sourceDocuments.forEach((source: any) => {
-      if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
-        visitedURLs.push(source.metadata.source);
-        newSourceDocuments.push(source);
-      } else if (!isValidURL(source.metadata.source)) {
-        newSourceDocuments.push(source);
-      }
-    });
-    return newSourceDocuments;
   };
 
   return (
@@ -541,23 +496,8 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
                     />
                   )}
                   {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                  {message.sourceDocuments && (message.sourceDocuments.length > 0) && (
-                    <div class='flex-row flex-wrap'>
-                      <For each={message.sourceDocuments}>
-                        {(src: SourceDocument) => {
-                          const URL = src.metadata.url || src.metadata.resource_url;
-                          return (
-                            <SourceBubble
-                              pageContent={src.page_content}
-                              metadata={src.metadata}
-                              onSourceClick={() => {
-                                window.open(URL, '_blank');
-                              }}
-                            />
-                          );
-                        }}
-                      </For>
-                    </div>
+                  {message.sourceDocuments && message.sourceDocuments.length > 0 && (
+                    <SourcesBubble sources={message.sourceDocuments} backgroundColor={props.botMessage?.backgroundColor} />
                   )}
                 </>
               )}
@@ -569,14 +509,16 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
               color: props.bubbleTextColor,
               'border-bottom-color': props.bubbleButtonColor,
             }}
-            class={(props.isFullPage ? 'fixed' : 'absolute rounded-t-3xl') + " flex flex-row items-center top-0 left-0 w-full border-b-2 h-14"}
+            class={(props.isFullPage ? 'fixed' : 'absolute rounded-t-3xl') + ' flex flex-row items-center top-0 left-0 w-full border-b-2 h-14'}
           >
-            <div class='w-2' />
+            <div class="w-2" />
             <Show when={props.titleAvatarSrc}>
-                <Avatar initialAvatarSrc={props.titleAvatarSrc} />
+              <Avatar initialAvatarSrc={props.titleAvatarSrc} />
             </Show>
             <Show when={props.title}>
-              <span class="px-3 whitespace-pre-wrap font-semibold max-w-full" style={{"font-family":"Jost","color":props.titleColor}}>{props.title}</span>
+              <span class="px-3 whitespace-pre-wrap font-semibold max-w-full" style={{ 'font-family': 'Jost', color: props.titleColor }}>
+                {props.title}
+              </span>
             </Show>
             <div style={{ flex: 1 }} />
           </div>
@@ -597,7 +539,7 @@ export const Bot = (props: BotProps & { class?: string } & UserProps) => {
         <Show when={messages().length === 1}>
           <Show when={starterPrompts().length > 0}>
             <div style={{ display: 'flex', 'flex-direction': 'row', padding: '10px', width: '100%', 'flex-wrap': 'wrap' }}>
-              <For each={[...starterPrompts()]}>{(key) => <StarterPromptBubble prompt={key} onPromptClick={() => promptClick(key)} />}</For>
+              <For each={[...starterPrompts()]}>{(prompt) => <StarterPromptBubble prompt={prompt} onPromptClick={() => promptClick(prompt)} />}</For>
             </div>
           </Show>
         </Show>
@@ -614,5 +556,3 @@ type BottomSpacerProps = {
 const BottomSpacer = (props: BottomSpacerProps) => {
   return <div ref={props.ref} class="w-full h-16" />;
 };
-
-

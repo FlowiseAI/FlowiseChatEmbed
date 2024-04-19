@@ -59,6 +59,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             isFullPage={true}
             customerEmail={props.customerEmail}
             customerName={props.customerName}
+            starterPrompts={props.theme?.chatWindow?.starterPrompts}
           />
         </div>
       </Show>

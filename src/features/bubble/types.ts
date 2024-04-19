@@ -33,6 +33,7 @@ export type ChatWindowTheme = {
   titleColor?: string;
   titleAvatarSrc?: string;
   welcomeMessage?: string;
+  starterPrompts?: string[];
   backgroundColor?: string;
   height?: number;
   width?: number;

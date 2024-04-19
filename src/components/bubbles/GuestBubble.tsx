@@ -33,6 +33,7 @@ export const GuestBubble = (props: Props) => {
         style={{
           'background-color': props.backgroundColor ?? defaultBackgroundColor,
           color: props.textColor ?? defaultTextColor,
+          'max-width': 'min(66vw, 75%)',
         }}
       />
       <Show when={props.showAvatar}>

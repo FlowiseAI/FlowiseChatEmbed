@@ -20,7 +20,7 @@ const defaultTextColor = '#303235';
 
 Marked.setOptions({ isNoP: true });
 
-type MessagePart = {text: string} | {sku: string, product: Product}; 
+type MessagePart = { text: string } | { sku: string; product: Product };
 
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
@@ -30,7 +30,7 @@ export const BotBubble = (props: Props) => {
     try {
       const response = await sendFileDownloadQuery({
         apiHost: props.apiHost,
-        body: { input: {question: '', chat_history: []}, fileName: fileAnnotation.fileName },
+        body: { input: { question: '', chat_history: [] }, fileName: fileAnnotation.fileName },
       });
       const blob = new Blob([response.data]);
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -53,9 +53,9 @@ export const BotBubble = (props: Props) => {
       } else {
         return { text: el.text };
       }
-    })
+    });
     return [...newEls];
-  }
+  };
 
   onMount(() => {
     const msgString = Marked.parse(props.message);
@@ -73,7 +73,6 @@ export const BotBubble = (props: Props) => {
     setMessageElements(els);
     setMessageElements(updateMessageElementsWithProducts);
 
-      
     if (props.fileAnnotations && props.fileAnnotations.length) {
       for (const annotations of props.fileAnnotations) {
         const button = document.createElement('button');
@@ -95,7 +94,7 @@ export const BotBubble = (props: Props) => {
 
   const reactivityForProducts = createEffect(() => {
     setMessageElements(updateMessageElementsWithProducts);
-  })
+  });
 
   return (
     <div class="flex justify-start items-start host-container mr-12 mt-5">
@@ -108,17 +107,18 @@ export const BotBubble = (props: Props) => {
         style={{
           'background-color': props.backgroundColor ?? defaultBackgroundColor,
           color: props.textColor ?? defaultTextColor,
+          'max-width': 'min(66vw, 75%)',
         }}
       >
-          <For each={messageElements()}>{
-          el => {
+        <For each={messageElements()}>
+          {(el) => {
             if ('sku' in el) {
-              return <ProductInfo key={el.sku} product={el.product}/>;
+              return <ProductInfo key={el.sku} product={el.product} />;
             } else {
               return <span innerHTML={el.text} />;
             }
           }}
-          </For>
+        </For>
       </span>
     </div>
   );

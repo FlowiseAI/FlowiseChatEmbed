@@ -1,3 +1,4 @@
+import { JSX } from 'solid-js';
 import { registerWebComponents } from './register';
 import { parseChatbot, injectChatbotInWindow } from './window';
 
@@ -22,7 +23,7 @@ const createDefaultChatBot = () => {
         const customerEmail: string | null = getFromUrlParamOrLocal('customerEmail');
         const customerName: string | null = getFromUrlParamOrLocal('customerName');
 
-        let cfg, msg;
+        let cfg, msg: JSX.Element;
 
         if (customerEmail && customerName) {
             cfg = { // overrideConfig
@@ -30,10 +31,10 @@ const createDefaultChatBot = () => {
                     "customerEmail": customerEmail,
                 }
             };
-            msg = `Ciao ${customerName}! Sono Glowi, il tuo skin coach :). Ho qui il tuo quiz, da dove cominciamo?`;
+            msg = `Ciao ${customerName} :) sono l'assistente virtuale di @holidoit! Come posso aiutarti oggi?`;
         } else {
             cfg = {};
-            msg = "Ciao! Sono Glowi, il tuo skin coach :) Puoi farmi tutte le domande che vuoi sulla cura della pelle. Da dove cominciamo?";
+            msg = "🎉 Ciao, avventuriero digitale! 🌍 Sono Twini, il gemello digitale di <a href='https://instgram.com/holidoit'>@holidoit</a>, pronto a svelarti i segreti delle esperienze online più coinvolgenti e dei contenuti social più freschi! 📸✨ <br>Che tu sia qui per un corso di cucina tailandese o un tour virtuale delle piramidi, sono pronto a rendere il tuo viaggio incredibilmente divertente! 🚀💻<br>Pronto a iniziare l'avventura? Scrivimi cosa ti interessa e... partiamo! 🎈<br><br>Per scoprire di più, visita il nostro sito <a href='https://holidoit.com'>holidoit.com</a> e lasciati ispirare!";
         }
         return {
             chatflowid: chatflowId,
@@ -43,27 +44,35 @@ const createDefaultChatBot = () => {
             customerEmail: customerEmail,
             theme: {
                 button: {
-                    backgroundColor: "#FFF2E0",
+                    backgroundColor: "#efedff",
                     right: 20,
                     bottom: 20,
                     size: "medium",
                     iconColor: "white",
-                    bubbleButtonColor: "#fdcdab",
-                    topbarColor: "#fff1e0",
+                    bubbleButtonColor: "#050a30",
+                    topbarColor: "#33365e",
                 },
                 chatWindow: {
                     welcomeMessage: msg,
-                    backgroundColor: "#FFF2E0",
+                    starterPrompts: [
+                        "Ciao! Mi consigli un'esperienza in Liguria?",
+                        "Hey, Cosa posso fare di bello a Milano?",
+                        "Dove posso andare in vacanza in Italia?",
+                    ],
+                    backgroundColor: "#efedff",
                     fontSize: 16,
                     poweredByTextColor: "#ffffff",
-                    title: 'GLOWI',
-                    titleColor: "black",
+                    title: '@holidoit',
+                    titleAvatarSrc: "/public/avatars/holidoit.jpg",
+                    titleColor: "#ffffff",
                     botMessage: {
-                        backgroundColor: "#ffffff",
+                        backgroundColor: "#ffefca",
                         textColor: "#283E4D",
+                        avatarSrc: "/public/avatars/holidoit.jpg",
+                        showAvatar: true,
                     },
                     userMessage: {
-                        backgroundColor: "#fdcdab",
+                        backgroundColor: "#ffffff",
                         textColor: "#283E4D",
                         showAvatar: false,
                     },
@@ -72,7 +81,7 @@ const createDefaultChatBot = () => {
                         textColor: "#283E4D",
                         placeholder: "Scrivi qui...",
                         sendButtonColor: "#7f7970",
-                    }
+                    },
                 }
             }
         }
@@ -81,7 +90,6 @@ const createDefaultChatBot = () => {
         'init': chatbot.init,
         'initFull': chatbot.initFull,
         'initWithDefaults': (chatflowId: string, apiHost: string) => chatbot.init(getChatflowDefaultProps(chatflowId, apiHost)),
-        'initTwini': (chatflowId: string, apiHost: string) => chatbot.init(getChatflowDefaultProps(chatflowId, apiHost)),
         'initFullWithDefaults': (chatflowId: string, apiHost: string) => chatbot.initFull(getChatflowDefaultProps(chatflowId, apiHost))
     }
 }
