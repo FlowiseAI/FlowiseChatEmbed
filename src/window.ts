@@ -1,5 +1,6 @@
 /* eslint-disable solid/reactivity */
 import { sendRequest, getCookie, setCookie} from '@/utils/index'
+import isMobileCheck from './utils/isMobileCheck'
 type BotProps = {
     chatflowid: string
     includeQuestions: boolean
@@ -38,11 +39,12 @@ export const initFull = (props: BotProps & { id?: string }) => {
         ? document.getElementById(props.id)
         : document.querySelector('flowise-fullchatbot-parent')
 
+        
         if (!fullElement) throw new Error('<flowise-fullchatbot> element not found.')
         const element = document.createElement('flowise-fullchatbot')
         Object.assign(element, props)
         fullElement.appendChild(element)
-    
+        
     });
 }
 
@@ -70,6 +72,18 @@ export const init = async (props: BotProps) => {
         props.loadID = config_data?.load_id ? config_data?.load_id :""
         props.stayClosedFlag = config_data?.stayClosedFlag
         props.questions = config_data?.questions
+
+
+        const isMobile = isMobileCheck()
+        
+        const noMobile = config_data?.noMobile
+        
+        console.log("no mobile:",noMobile,"is mobile:",isMobile)
+        if(isMobile && noMobile){
+            return 
+        } 
+
+
         // props.isOpen = props.isOpen || default_open
         const element = document.createElement('flowise-chatbot')
         Object.assign(element, props)
