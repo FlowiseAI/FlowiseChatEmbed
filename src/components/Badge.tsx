@@ -23,14 +23,14 @@ export const Badge = (props: Props) => {
     });
   };
 
-  // onMount(() => {
-  //   if (!document || !props.botContainer) return;
-  //   observer = new MutationObserver(appendBadgeIfNecessary);
-  //   observer.observe(props.botContainer, {
-  //     subtree: false,
-  //     childList: true,
-  //   });
-  // });
+  onMount(() => {
+    if (!document || !props.botContainer) return;
+    observer = new MutationObserver(appendBadgeIfNecessary);
+    observer.observe(props.botContainer, {
+      subtree: false,
+      childList: true,
+    });
+  });
 
   onCleanup(() => {
     if (observer) observer.disconnect();
