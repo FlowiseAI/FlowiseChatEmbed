@@ -28,23 +28,27 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
     }
   };
 
-   // @ts-expect-error: unknown type
-   const handleKeyDown = (e) => {
+  // @ts-expect-error: unknown type
+  const handleKeyDown = (e) => {
     // Handle Shift + Enter new line
     if (e.keyCode == 13 && e.shiftKey) {
       e.preventDefault();
       e.stopPropagation();
-      e.currentTarget.value += '\n'
-      handleInput(e)
+      e.currentTarget.value += '\n';
+      handleInput(e);
     }
-   }
+  };
 
   return (
     <textarea
       ref={props.ref}
       class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 "
       disabled={props.disabled}
-      style={{ 'font-size': props.fontSize ? `${props.fontSize}px` : '16px', resize: 'none', height: `${props.value !== '' ? height() : DEFAULT_HEIGHT}px` }}
+      style={{
+        'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
+        resize: 'none',
+        height: `${props.value !== '' ? height() : DEFAULT_HEIGHT}px`,
+      }}
       onInput={handleInput}
       onKeyDown={handleKeyDown}
       {...others}
