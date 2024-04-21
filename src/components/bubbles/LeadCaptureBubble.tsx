@@ -42,6 +42,38 @@ export const LeadCaptureBubble = (props: Props) => {
   const [isLeadSaving, setIsLeadSaving] = createSignal(false);
   const [leadFormError, setLeadFormError] = createSignal<Record<string, string[]>>();
 
+  const setLocalStorageChatflow = (chatflowid: string, chatId: string, saveObj: any = {}) => {
+    const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`)
+    const obj = { ...saveObj }
+    if (chatId) obj.chatId = chatId
+
+    if (!chatDetails) {
+        localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj))
+    } else {
+        try {
+            const parsedChatDetails = JSON.parse(chatDetails)
+            localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedChatDetails, ...obj }))
+        } catch (e) {
+            const chatId = chatDetails
+            obj.chatId = chatId
+            localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj))
+        }
+    }
+  }
+
+  const getLeadsFromLocalStorage = (chatflowid: string) => {
+    const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
+    if (chatDetails) {
+      try {
+        const objchatDetails = JSON.parse(chatDetails);
+        return objchatDetails?.lead ?? undefined
+      } catch (e) {
+        return undefined
+      }
+    }
+    return undefined
+  }
+
   const handleLeadCaptureSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLeadSaving(true);
@@ -64,7 +96,7 @@ export const LeadCaptureBubble = (props: Props) => {
       });
 
       if (result.data) {
-        localStorage.setItem(`${props.chatflowid}_LEAD`, JSON.stringify({ name: leadName(), email: leadEmail(), phone: leadPhone() }));
+        setLocalStorageChatflow(props.chatflowid, props.chatId, { lead: { name: leadName(), email: leadEmail(), phone: leadPhone() } })
         props.setIsLeadSaved(true);
         props.setLeadEmail(leadEmail());
       }
@@ -91,7 +123,7 @@ export const LeadCaptureBubble = (props: Props) => {
           'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`,
         }}
       >
-        {props.isLeadSaved || localStorage.getItem(`${props.chatflowid}_LEAD`) ? (
+        {props.isLeadSaved || getLeadsFromLocalStorage(props.chatflowid) ? (
           <div class="flex flex-col gap-2">
             <span>{props.leadsConfig?.successMessage || 'Thank you for submitting your contact information.'}</span>
           </div>
