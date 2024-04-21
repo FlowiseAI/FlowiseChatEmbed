@@ -250,11 +250,34 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }, 50);
   };
 
+  const getLeadsFromLocalStorage = () => {
+    const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
+    if (chatMessage) {
+      try {
+        const objChatMessage = JSON.parse(chatMessage);
+        return objChatMessage?.lead ?? undefined
+      } catch (e) {
+        return undefined
+      }
+    }
+    return undefined
+  }
+
   /**
    * Add each chat message into localStorage
    */
   const addChatMessage = (allMessage: MessageType[]) => {
-    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
+    const chatDetails = localStorage.getItem(`${props.chatflowid}_EXTERNAL`)
+    if (!chatDetails) {
+      localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
+    } else {
+      try {
+        const parsedChatDetails = JSON.parse(chatDetails)
+        localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedChatDetails, chatId: chatId(), chatHistory: allMessage }))
+      } catch (e) {
+        localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
+      }
+    }
   };
 
   const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null) => {
@@ -453,6 +476,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (chatMessage) {
       const objChatMessage = JSON.parse(chatMessage);
       setChatId(objChatMessage.chatId);
+      const savedLead = objChatMessage.lead
+      if (savedLead) {
+        setIsLeadSaved(!!savedLead);
+        setLeadEmail(savedLead.email);
+      }
       const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
         const chatHistory: MessageType = {
           messageId: message?.messageId,
@@ -760,15 +788,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }),
   );
 
-  createEffect(() => {
-    const savedLead = localStorage.getItem(`${props.chatflowid}_LEAD`);
-    if (savedLead) {
-      const savedLeadObj = JSON.parse(savedLead);
-      setIsLeadSaved(!!savedLeadObj);
-      setLeadEmail(savedLeadObj.email);
-    }
-  });
-
   return (
     <>
       <div
@@ -873,7 +892,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                       />
                     )}
-                    {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !localStorage.getItem(`${props.chatflowid}_LEAD`) && (
+                    {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLeadsFromLocalStorage() && (
                       <LeadCaptureBubble
                         message={message}
                         chatflowid={props.chatflowid}
