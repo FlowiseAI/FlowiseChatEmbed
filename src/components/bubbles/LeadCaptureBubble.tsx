@@ -2,7 +2,6 @@ import { createSignal, Show } from 'solid-js';
 import { z } from 'zod';
 import { FormEvent, LeadsConfig, MessageType } from '@/components/Bot';
 import { addLeadQuery, LeadCaptureInput } from '@/queries/sendMessageQuery';
-import { ShortTextInput } from '@/components/inputs/textInput/components/ShortTextInput';
 import { SaveLeadButton } from '@/components/buttons/LeadCaptureButtons';
 import { Avatar } from '@/components/avatars/Avatar';
 
@@ -28,17 +27,20 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
+);
 
 const LeadCaptureSchema = z.object({
   name: z.string().min(2, 'Name is too short').optional(),
   email: z.string().email('Please provide a valid email').optional(),
-  phone: z.string().min(5, 'Phone number is too short').optional(),
+  phone: z.string().min(5, 'Phone number is too short').regex(phoneRegex, 'Invalid Number!').optional()
 });
 
 export const LeadCaptureBubble = (props: Props) => {
   const [leadName, setLeadName] = createSignal<string>('');
   const [leadEmail, setLeadEmail] = createSignal<string>('');
-  const [leadPhone, setLeadPhone] = createSignal<number>();
+  const [leadPhone, setLeadPhone] = createSignal<string>('');
   const [isLeadSaving, setIsLeadSaving] = createSignal(false);
   const [leadFormError, setLeadFormError] = createSignal<Record<string, string[]>>();
 
@@ -134,7 +136,13 @@ export const LeadCaptureBubble = (props: Props) => {
               {props.leadsConfig?.name && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
                   <div class={'w-full flex items-center justify-between chatbot-input border border-[#eeeeee]'}>
-                    <ShortTextInput ref={undefined} placeholder="Name" name="name" value={leadName()} onInput={setLeadName} />
+                    <input
+                      placeholder="Name"
+                      name="name"
+                      style={{ width: '100%' }}
+                      value={leadName()}
+                      onInput={(e) => setLeadName(e.currentTarget.value)}
+                    />
                   </div>
                   {leadFormError() && leadFormError()?.name && <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
                 </div>
@@ -142,13 +150,13 @@ export const LeadCaptureBubble = (props: Props) => {
               {props.leadsConfig?.email && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
                   <div class={'w-full flex items-center justify-between chatbot-input border border-[#eeeeee]'}>
-                    <ShortTextInput
-                      ref={undefined}
+                    <input
                       type="email"
                       placeholder="Email Address"
                       name="email"
+                      style={{ width: '100%' }}
                       value={leadEmail()}
-                      onInput={setLeadEmail}
+                      onInput={(e) => setLeadEmail(e.currentTarget.value)}
                     />
                   </div>
                   {leadFormError() && leadFormError()?.email && <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
@@ -157,13 +165,13 @@ export const LeadCaptureBubble = (props: Props) => {
               {props.leadsConfig?.phone && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
                   <div class={'w-full flex items-center justify-between chatbot-input border border-[#eeeeee]'}>
-                    <ShortTextInput
-                      ref={undefined}
-                      type="number"
+                    <input
+                      type="tel"
                       placeholder="Phone Number"
                       name="phone"
+                      style={{ width: '100%' }}
                       value={leadPhone()}
-                      onInput={setLeadPhone}
+                      onInput={(e) => setLeadPhone(e.target.value)}
                     />
                   </div>
                   {leadFormError() && leadFormError()?.phone && <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}

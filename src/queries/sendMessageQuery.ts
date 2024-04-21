@@ -44,7 +44,7 @@ export type LeadCaptureInput = {
   chatId: string;
   name?: string;
   email?: string;
-  phone?: number;
+  phone?: string;
 };
 
 export type LeadCaptureRequest = {

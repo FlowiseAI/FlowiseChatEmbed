@@ -113,6 +113,7 @@ You can also customize chatbot with different configuration
         title: 'Flowise Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
+        errorMessage: 'This is a custom error message',
         backgroundColor: '#ffffff',
         height: 700,
         width: 400,
