@@ -184,7 +184,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(
-    (props.chatflowConfig?.vars as any).customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
+    (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
   );
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
@@ -411,7 +411,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     try {
       localStorage.removeItem(`${props.chatflowid}_EXTERNAL`);
       setChatId(
-        (props.chatflowConfig?.vars as any).customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
+        (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
       );
       setMessages([
         {
