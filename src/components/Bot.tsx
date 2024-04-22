@@ -183,7 +183,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   );
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal(uuidv4());
+  const [chatId, setChatId] = createSignal(
+    (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
+  );
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
@@ -408,7 +410,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const clearChat = () => {
     try {
       localStorage.removeItem(`${props.chatflowid}_EXTERNAL`);
-      setChatId(uuidv4());
+      setChatId(
+        (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
+      );
       setMessages([
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
