@@ -37,7 +37,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
       e.currentTarget.value += '\n';
       handleInput(e);
     }
-  }
+}
 
   return (
     <textarea
