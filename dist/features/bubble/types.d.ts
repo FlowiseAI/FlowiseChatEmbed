@@ -23,6 +23,9 @@ export type BotMessageTheme = {
     showAvatar?: boolean;
     avatarSrc?: string;
 };
+export type FeedbackTheme = {
+    color?: string;
+};
 export type ChatWindowTheme = {
     showTitle?: boolean;
     title?: string;
@@ -36,6 +39,7 @@ export type ChatWindowTheme = {
     userMessage?: UserMessageTheme;
     botMessage?: BotMessageTheme;
     textInput?: TextInputTheme;
+    feedback?: FeedbackTheme;
     poweredByTextColor?: string;
 };
 export type ButtonTheme = {
