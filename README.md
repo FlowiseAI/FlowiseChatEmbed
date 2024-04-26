@@ -137,6 +137,9 @@ You can also customize chatbot with different configuration
           textColor: '#303235',
           sendButtonColor: '#3B81F6',
         },
+        feedback: {
+          color: '#303235',
+        },
       },
     },
   });
