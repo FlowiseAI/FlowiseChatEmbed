@@ -7,7 +7,7 @@ import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
 import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
-import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
+import { BotMessageTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
@@ -67,6 +67,7 @@ export type BotProps = {
   botMessage?: BotMessageTheme;
   userMessage?: UserMessageTheme;
   textInput?: TextInputTheme;
+  feedback?: FeedbackTheme;
   poweredByTextColor?: string;
   badgeBackgroundColor?: string;
   bubbleBackgroundColor?: string;
@@ -848,6 +849,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         apiHost={props.apiHost}
                         backgroundColor={props.botMessage?.backgroundColor}
                         textColor={props.botMessage?.textColor}
+                        feedbackColor={props.feedback?.color}
                         showAvatar={props.botMessage?.showAvatar}
                         avatarSrc={props.botMessage?.avatarSrc}
                         chatFeedbackStatus={chatFeedbackStatus()}
