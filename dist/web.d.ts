@@ -13,6 +13,7 @@ declare const chatbot: {
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
         questions?: string[] | undefined;
+        maxPopups?: number | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -30,6 +31,7 @@ declare const chatbot: {
         chatflowConfig?: Record<string, unknown> | undefined;
         theme?: Record<string, unknown> | undefined;
         questions?: string[] | undefined;
+        maxPopups?: number | undefined;
     }) => Promise<void>;
 };
 export default chatbot;

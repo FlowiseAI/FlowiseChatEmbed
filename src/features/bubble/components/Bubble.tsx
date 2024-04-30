@@ -23,6 +23,7 @@ export const Bubble = (props: BubbleProps) => {
     let defaultOpen = isMobile? props.defaultOpenMobile : props.defaultOpenDesktop
     // grab cookie to check if bot has been closed before
     const cookie_name = `realty-ai-bot-closed-${props.userID}`
+    const count_cookie_name = `realty-ai-bot-open-count-${props.userID}`
     console.log("checking:",cookie_name)
     
     const bot_closed_before = getCookie(cookie_name)
@@ -37,11 +38,20 @@ export const Bubble = (props: BubbleProps) => {
     const [isVisible,setIsVisible] = createSignal(true)
     const [visibleCount,setVisibleCount] = createSignal(0)
     const [hasClosed,setHasClosed] = createSignal(false)
+    
+    var openCount = Number(getCookie(count_cookie_name))
+    if(!openCount){
+        openCount = 0
+    }
 
     const openBot = () => {
         if (!isBotStarted()) setIsBotStarted(true)
+        openCount +=1
+        setCookie(count_cookie_name,openCount.toString(),1/48)
         setIsBotOpened(true)
     }
+
+
 
     const timedOpenBot = () => {
         console.log("Delayed Bot Popup")
@@ -50,6 +60,14 @@ export const Bubble = (props: BubbleProps) => {
             console.log("No Popup - previously closed")
             return
         }
+        
+        const maxPopups = props.maxPopups  ? props.maxPopups : 0
+        if((maxPopups < openCount) && maxPopups > 0){
+            console.log("Max Popups",maxPopups)
+            console.log("No Popup - exceeded max popups")
+            return
+        }
+
         console.log(props.delayOpenFlag)
         if (props.delayOpenFlag && (!isBotOpened()) && (!hasClosed())){
             openBot()

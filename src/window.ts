@@ -15,6 +15,7 @@ type BotProps = {
     chatflowConfig?: Record<string, unknown>
     theme?:Record<string, unknown>
     questions?:Array<string>
+    maxPopups?:number
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -72,7 +73,7 @@ export const init = async (props: BotProps) => {
         props.loadID = config_data?.load_id ? config_data?.load_id :""
         props.stayClosedFlag = config_data?.stayClosedFlag
         props.questions = config_data?.questions
-
+        props.maxPopups = config_data?.maxPopups ? config_data?.maxPopups : 0
 
         const isMobile = isMobileCheck()
         

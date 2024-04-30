@@ -5,6 +5,7 @@ export type BubbleParams = {
     delayOpenSeconds: number;
     stayClosedFlag: boolean;
     theme?: BubbleTheme;
+    maxPopups?: number;
 };
 export type BubbleTheme = {
     chatWindow?: ChatWindowTheme;

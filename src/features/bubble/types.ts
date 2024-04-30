@@ -4,7 +4,8 @@ export type BubbleParams = {
     delayOpenFlag: boolean, 
     delayOpenSeconds:number,
     stayClosedFlag:boolean,
-    theme?: BubbleTheme
+    theme?: BubbleTheme,
+    maxPopups?: number
 }
 
 export type BubbleTheme = {
