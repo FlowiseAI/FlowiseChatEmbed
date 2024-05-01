@@ -1,6 +1,6 @@
 import { JSX } from 'solid-js';
 type RatingButtonProps = {
-    sendButtonColor?: string;
+    feedbackColor?: string;
     isDisabled?: boolean;
     isLoading?: boolean;
     disableIcon?: boolean;
