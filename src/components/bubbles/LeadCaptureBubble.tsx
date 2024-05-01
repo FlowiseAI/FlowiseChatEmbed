@@ -64,11 +64,13 @@ export const LeadCaptureBubble = (props: Props) => {
       });
 
       if (result.data) {
-        setLocalStorageChatflow(props.chatflowid, props.chatId, { lead: {
-          name: leadName(),
-          email: leadEmail(),
-          phone: leadPhone(),
-        }})
+        setLocalStorageChatflow(props.chatflowid, props.chatId, {
+          lead: {
+            name: leadName(),
+            email: leadEmail(),
+            phone: leadPhone(),
+          },
+        });
         props.setIsLeadSaved(true);
         props.setLeadEmail(leadEmail());
       }
@@ -80,7 +82,7 @@ export const LeadCaptureBubble = (props: Props) => {
     setIsLeadSaving(false);
   };
 
-  console.log(getLocalStorageChatflow(props.chatflowid))
+  console.log(getLocalStorageChatflow(props.chatflowid));
 
   return (
     <div class="flex flex-col justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -116,8 +118,7 @@ export const LeadCaptureBubble = (props: Props) => {
                       onChange={(e) => setLeadName(e.target.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.name &&
-                    <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
+                  {leadFormError() && leadFormError()?.name && <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.email && (
@@ -132,8 +133,7 @@ export const LeadCaptureBubble = (props: Props) => {
                       onChange={(e) => setLeadEmail(e.target.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.email &&
-                    <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
+                  {leadFormError() && leadFormError()?.email && <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.phone && (
@@ -148,8 +148,7 @@ export const LeadCaptureBubble = (props: Props) => {
                       onChange={(e) => setLeadPhone(parseInt(e.target.value, 10))}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.phone &&
-                    <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
+                  {leadFormError() && leadFormError()?.phone && <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
                 </div>
               )}
               <div class="flex items-center justify-end gap-1">
