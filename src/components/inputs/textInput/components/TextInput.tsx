@@ -64,7 +64,7 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class={'flex items-center justify-between chatbot-input border border-[#eeeeee]'}
+      class={'w-full h-auto max-h-[128px] min-h-[56px] flex items-end justify-between chatbot-input border border-[#eeeeee]'}
       data-testid="input"
       style={{
         margin: 'auto',
@@ -75,14 +75,19 @@ export const TextInput = (props: Props) => {
     >
       {props.uploadsConfig?.isImageUploadAllowed ? (
         <>
-          <ImageUploadButton buttonColor={props.sendButtonColor} type="button" class="m-0" on:click={handleImageUploadClick}>
+          <ImageUploadButton
+            buttonColor={props.sendButtonColor}
+            type="button"
+            class="m-0 h-14 flex items-center justify-center"
+            on:click={handleImageUploadClick}
+          >
             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
           </ImageUploadButton>
           <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} />
         </>
       ) : null}
       <ShortTextInput
-        ref={inputRef as HTMLInputElement}
+        ref={inputRef as HTMLTextAreaElement}
         onInput={handleInput}
         value={inputValue()}
         fontSize={props.fontSize}
@@ -90,7 +95,12 @@ export const TextInput = (props: Props) => {
         placeholder={props.placeholder ?? 'Type your question'}
       />
       {props.uploadsConfig?.isSpeechToTextEnabled ? (
-        <RecordAudioButton buttonColor={props.sendButtonColor} type="button" class="m-0 start-recording-button" on:click={props.onMicrophoneClicked}>
+        <RecordAudioButton
+          buttonColor={props.sendButtonColor}
+          type="button"
+          class="m-0 start-recording-button h-14 flex items-center justify-center"
+          on:click={props.onMicrophoneClicked}
+        >
           <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
         </RecordAudioButton>
       ) : null}
@@ -98,7 +108,7 @@ export const TextInput = (props: Props) => {
         sendButtonColor={props.sendButtonColor}
         type="button"
         isDisabled={props.disabled || inputValue() === ''}
-        class="m-0"
+        class="m-0 h-14 flex items-center justify-center"
         on:click={submit}
       >
         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
