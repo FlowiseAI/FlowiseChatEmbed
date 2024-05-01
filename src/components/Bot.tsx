@@ -227,20 +227,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (botProps?.observersConfig) {
       const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
       typeof observeUserInput === 'function' &&
-        // eslint-disable-next-line solid/reactivity
-        createMemo(() => {
-          observeUserInput(userInput());
-        });
+      // eslint-disable-next-line solid/reactivity
+      createMemo(() => {
+        observeUserInput(userInput());
+      });
       typeof observeLoading === 'function' &&
-        // eslint-disable-next-line solid/reactivity
-        createMemo(() => {
-          observeLoading(loading());
-        });
+      // eslint-disable-next-line solid/reactivity
+      createMemo(() => {
+        observeLoading(loading());
+      });
       typeof observeMessages === 'function' &&
-        // eslint-disable-next-line solid/reactivity
-        createMemo(() => {
-          observeMessages(messages());
-        });
+      // eslint-disable-next-line solid/reactivity
+      createMemo(() => {
+        observeMessages(messages());
+      });
     }
 
     if (!bottomSpacer) return;
@@ -461,19 +461,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatMessage = getLocalStorageChatflow(props.chatflowid);
     if (chatMessage) {
       setChatId(chatMessage.chatId);
+      const savedLead = chatMessage.lead;
+      if (savedLead) {
+        setIsLeadSaved(!!savedLead);
+        setLeadEmail(savedLead.email);
+      }
       const loadedMessages =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              return chatHistory;
-            })
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            return chatHistory;
+          })
           : [];
       setMessages([...loadedMessages]);
     }
@@ -778,16 +783,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }),
   );
 
-  createEffect(() => {
-    const parsedChatflowDetails = getLocalStorageChatflow(props.chatflowid);
-    const savedLead = parsedChatflowDetails?.lead;
-    if (savedLead) {
-      const savedLeadObj = JSON.parse(savedLead);
-      setIsLeadSaved(!!savedLeadObj);
-      setLeadEmail(savedLeadObj.email);
-    }
-  });
-
   return (
     <>
       <div
@@ -905,8 +900,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         setLeadEmail={setLeadEmail}
                       />
                     )}
-                    {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                    {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
+                    {message.type === 'userMessage' && loading() && index() === messages().length - 1 &&
+                      <LoadingBubble />}
+                    {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 &&
+                      <LoadingBubble />}
                     {message.sourceDocuments && message.sourceDocuments.length && (
                       <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
                         <For each={[...removeDuplicateURL(message)]}>
@@ -938,7 +935,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           <Show when={messages().length === 1}>
             <Show when={starterPrompts().length > 0}>
               <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
-                <For each={[...starterPrompts()]}>{(key) => <StarterPromptBubble prompt={key} onPromptClick={() => promptClick(key)} />}</For>
+                <For each={[...starterPrompts()]}>{(key) => <StarterPromptBubble prompt={key}
+                                                                                 onPromptClick={() => promptClick(key)} />}</For>
               </div>
             </Show>
           </Show>
@@ -953,7 +951,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         onClick={() => handleDeletePreview(item)}
                       >
                         <img class="w-full h-full bg-cover" src={item.data as string} />
-                        <span class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
+                        <span
+                          class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
                           <TrashIcon />
                         </span>
                       </button>
@@ -966,8 +965,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           }px`,
                         }}
                       >
-                        <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
-                        <button class="w-7 h-7 flex items-center justify-center bg-transparent p-1" onClick={() => handleDeletePreview(item)}>
+                        <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls
+                               src={item.data as string} />
+                        <button class="w-7 h-7 flex items-center justify-center bg-transparent p-1"
+                                onClick={() => handleDeletePreview(item)}>
                           <TrashIcon color="white" />
                         </button>
                       </div>
@@ -1011,7 +1012,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
                     </div>
                     <div class="flex items-center">
-                      <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0" on:click={onRecordingCancelled}>
+                      <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0"
+                                    on:click={onRecordingCancelled}>
                         <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
                       </CancelButton>
                       <SendButton
@@ -1044,10 +1046,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               />
             )}
           </div>
-          <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
+          <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor}
+                 botContainer={botContainer} />
         </div>
       </div>
-      {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
+      {sourcePopupOpen() &&
+        <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
     </>
   );
 };

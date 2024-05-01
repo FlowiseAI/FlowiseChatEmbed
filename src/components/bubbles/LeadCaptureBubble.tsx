@@ -28,17 +28,20 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
+);
 
 const LeadCaptureSchema = z.object({
   name: z.string().min(2, 'Name is too short').optional(),
   email: z.string().email('Please provide a valid email').optional(),
-  phone: z.string().min(5, 'Phone number is too short').optional(),
+  phone: z.string().min(5, 'Phone number is too short').regex(phoneRegex, 'Invalid Number!').optional(),
 });
 
 export const LeadCaptureBubble = (props: Props) => {
   const [leadName, setLeadName] = createSignal<string>('');
   const [leadEmail, setLeadEmail] = createSignal<string>('');
-  const [leadPhone, setLeadPhone] = createSignal<number>();
+  const [leadPhone, setLeadPhone] = createSignal<string>('');
   const [isLeadSaving, setIsLeadSaving] = createSignal(false);
   const [leadFormError, setLeadFormError] = createSignal<Record<string, string[]>>();
 
@@ -114,11 +117,13 @@ export const LeadCaptureBubble = (props: Props) => {
                       class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 "
                       placeholder="Name"
                       name="name"
+                      style={{ width: '100%' }}
                       value={leadName()}
-                      onChange={(e) => setLeadName(e.target.value)}
+                      onchange={(e) => setLeadName(e.currentTarget.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.name && <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
+                  {leadFormError() && leadFormError()?.name &&
+                    <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.email && (
@@ -129,11 +134,13 @@ export const LeadCaptureBubble = (props: Props) => {
                       type="email"
                       placeholder="Email Address"
                       name="email"
+                      style={{ width: '100%' }}
                       value={leadEmail()}
-                      onChange={(e) => setLeadEmail(e.target.value)}
+                      onChange={(e) => setLeadEmail(e.currentTarget.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.email && <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
+                  {leadFormError() && leadFormError()?.email &&
+                    <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.phone && (
@@ -144,11 +151,13 @@ export const LeadCaptureBubble = (props: Props) => {
                       type="number"
                       placeholder="Phone Number"
                       name="phone"
+                      style={{ width: '100%' }}
                       value={leadPhone()}
-                      onChange={(e) => setLeadPhone(parseInt(e.target.value, 10))}
+                      onChange={(e) => setLeadPhone(e.target.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.phone && <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
+                  {leadFormError() && leadFormError()?.phone &&
+                    <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
                 </div>
               )}
               <div class="flex items-center justify-end gap-1">
