@@ -458,20 +458,23 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
-    const chatMessage = getLocalStorageChatflow(props.chatflowid)
+    const chatMessage = getLocalStorageChatflow(props.chatflowid);
     if (chatMessage) {
       setChatId(chatMessage.chatId);
-      const loadedMessages = chatMessage?.chatHistory?.length > 0 ? chatMessage.chatHistory?.map((message: MessageType) => {
-        const chatHistory: MessageType = {
-          messageId: message?.messageId,
-          message: message.message,
-          type: message.type,
-        };
-        if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-        if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-        if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-        return chatHistory;
-      }) : [];
+      const loadedMessages =
+        chatMessage?.chatHistory?.length > 0
+          ? chatMessage.chatHistory?.map((message: MessageType) => {
+              const chatHistory: MessageType = {
+                messageId: message?.messageId,
+                message: message.message,
+                type: message.type,
+              };
+              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+              return chatHistory;
+            })
+          : [];
       setMessages([...loadedMessages]);
     }
 
@@ -777,7 +780,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   createEffect(() => {
     const parsedChatflowDetails = getLocalStorageChatflow(props.chatflowid);
-    const savedLead = parsedChatflowDetails?.lead
+    const savedLead = parsedChatflowDetails?.lead;
     if (savedLead) {
       const savedLeadObj = JSON.parse(savedLead);
       setIsLeadSaved(!!savedLeadObj);

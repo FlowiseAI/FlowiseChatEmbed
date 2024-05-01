@@ -58,31 +58,30 @@ export const sendRequest = async <ResponseData>(
 };
 
 export const setLocalStorageChatflow = (chatflowid: string, chatId: string, saveObj: Record<string, any> = {}) => {
-  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`)
-  const obj = { ...saveObj }
-  if (chatId) obj.chatId = chatId
+  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
+  const obj = { ...saveObj };
+  if (chatId) obj.chatId = chatId;
 
   if (!chatDetails) {
-    localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj))
+    localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
   } else {
     try {
-      const parsedChatDetails = JSON.parse(chatDetails)
-      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedChatDetails, ...obj }))
+      const parsedChatDetails = JSON.parse(chatDetails);
+      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedChatDetails, ...obj }));
     } catch (e) {
-      const chatId = chatDetails
-      obj.chatId = chatId
-      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj))
+      const chatId = chatDetails;
+      obj.chatId = chatId;
+      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
     }
   }
-}
+};
 
 export const getLocalStorageChatflow = (chatflowid: string) => {
-  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`)
-  if (!chatDetails) return {}
+  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
+  if (!chatDetails) return {};
   try {
-    return JSON.parse(chatDetails)
+    return JSON.parse(chatDetails);
   } catch (e) {
-    return {}
+    return {};
   }
-}
-
+};
