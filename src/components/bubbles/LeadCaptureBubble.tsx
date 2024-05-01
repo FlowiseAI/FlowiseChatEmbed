@@ -28,9 +28,7 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
-const phoneRegex = new RegExp(
-  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
-);
+const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/);
 
 const LeadCaptureSchema = z.object({
   name: z.string().min(2, 'Name is too short').optional(),
@@ -119,11 +117,10 @@ export const LeadCaptureBubble = (props: Props) => {
                       name="name"
                       style={{ width: '100%' }}
                       value={leadName()}
-                      onchange={(e) => setLeadName(e.currentTarget.value)}
+                      onChange={(e) => setLeadName(e.currentTarget.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.name &&
-                    <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
+                  {leadFormError() && leadFormError()?.name && <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.email && (
@@ -139,8 +136,7 @@ export const LeadCaptureBubble = (props: Props) => {
                       onChange={(e) => setLeadEmail(e.currentTarget.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.email &&
-                    <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
+                  {leadFormError() && leadFormError()?.email && <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.phone && (
@@ -156,8 +152,7 @@ export const LeadCaptureBubble = (props: Props) => {
                       onChange={(e) => setLeadPhone(e.target.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.phone &&
-                    <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
+                  {leadFormError() && leadFormError()?.phone && <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
                 </div>
               )}
               <div class="flex items-center justify-end gap-1">
