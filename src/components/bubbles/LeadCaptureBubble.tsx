@@ -102,11 +102,11 @@ export const LeadCaptureBubble = (props: Props) => {
       >
         {props.isLeadSaved || getLocalStorageChatflow(props.chatflowid)?.lead ? (
           <div class="flex flex-col gap-2">
-            <span>{props.leadsConfig?.successMessage || 'Thank you for submitting your contact information.'}</span>
+            <span style={{ "white-space": 'pre-line' }}>{props.leadsConfig?.successMessage || 'Thank you for submitting your contact information.'}</span>
           </div>
         ) : (
           <form class="flex flex-col gap-2" onSubmit={handleLeadCaptureSubmit}>
-            <span>{props.leadsConfig?.title || 'Let us know where we can reach you:'}</span>
+            <span style={{ "white-space": 'pre-line' }}>{props.leadsConfig?.title || 'Let us know where we can reach you:'}</span>
             <div class="flex flex-col gap-2 w-full">
               {props.leadsConfig?.name && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
