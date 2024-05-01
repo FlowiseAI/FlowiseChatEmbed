@@ -17,6 +17,7 @@ import { CircleDotIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
+import { getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -258,7 +259,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
    * Add each chat message into localStorage
    */
   const addChatMessage = (allMessage: MessageType[]) => {
-    localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ chatId: chatId(), chatHistory: allMessage }));
+    setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: allMessage });
   };
 
   const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null) => {
@@ -457,11 +458,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
-    const chatMessage = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
+    const chatMessage = getLocalStorageChatflow(props.chatflowid)
     if (chatMessage) {
-      const objChatMessage = JSON.parse(chatMessage);
-      setChatId(objChatMessage.chatId);
-      const loadedMessages = objChatMessage.chatHistory.map((message: MessageType) => {
+      setChatId(chatMessage.chatId);
+      const loadedMessages = chatMessage?.chatHistory?.length > 0 ? chatMessage.chatHistory?.map((message: MessageType) => {
         const chatHistory: MessageType = {
           messageId: message?.messageId,
           message: message.message,
@@ -471,7 +471,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
         if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
         return chatHistory;
-      });
+      }) : [];
       setMessages([...loadedMessages]);
     }
 
@@ -776,7 +776,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   );
 
   createEffect(() => {
-    const savedLead = localStorage.getItem(`${props.chatflowid}_LEAD`);
+    const parsedChatflowDetails = getLocalStorageChatflow(props.chatflowid);
+    const savedLead = parsedChatflowDetails?.lead
     if (savedLead) {
       const savedLeadObj = JSON.parse(savedLead);
       setIsLeadSaved(!!savedLeadObj);
@@ -889,7 +890,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         fontSize={props.fontSize}
                       />
                     )}
-                    {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !localStorage.getItem(`${props.chatflowid}_LEAD`) && (
+                    {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
                       <LeadCaptureBubble
                         message={message}
                         chatflowid={props.chatflowid}
@@ -1030,7 +1031,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 placeholder={props.textInput?.placeholder}
                 sendButtonColor={props.textInput?.sendButtonColor}
                 fontSize={props.fontSize}
-                disabled={loading() || !isLeadSaved()}
+                disabled={loading() || (leadsConfig()?.status && !isLeadSaved())}
                 defaultValue={userInput()}
                 onSubmit={handleSubmit}
                 uploadsConfig={uploadsConfig()}

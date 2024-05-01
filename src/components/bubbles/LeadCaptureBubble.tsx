@@ -2,9 +2,9 @@ import { createSignal, Show } from 'solid-js';
 import { z } from 'zod';
 import { FormEvent, LeadsConfig, MessageType } from '@/components/Bot';
 import { addLeadQuery, LeadCaptureInput } from '@/queries/sendMessageQuery';
-import { ShortTextInput } from '@/components/inputs/textInput/components/ShortTextInput';
 import { SaveLeadButton } from '@/components/buttons/LeadCaptureButtons';
 import { Avatar } from '@/components/avatars/Avatar';
+import { getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
 
 type Props = {
   message: MessageType;
@@ -64,7 +64,11 @@ export const LeadCaptureBubble = (props: Props) => {
       });
 
       if (result.data) {
-        localStorage.setItem(`${props.chatflowid}_LEAD`, JSON.stringify({ name: leadName(), email: leadEmail(), phone: leadPhone() }));
+        setLocalStorageChatflow(props.chatflowid, props.chatId, { lead: {
+          name: leadName(),
+          email: leadEmail(),
+          phone: leadPhone(),
+        }})
         props.setIsLeadSaved(true);
         props.setLeadEmail(leadEmail());
       }
@@ -75,6 +79,8 @@ export const LeadCaptureBubble = (props: Props) => {
 
     setIsLeadSaving(false);
   };
+
+  console.log(getLocalStorageChatflow(props.chatflowid))
 
   return (
     <div class="flex flex-col justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -91,7 +97,7 @@ export const LeadCaptureBubble = (props: Props) => {
           'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`,
         }}
       >
-        {props.isLeadSaved || localStorage.getItem(`${props.chatflowid}_LEAD`) ? (
+        {props.isLeadSaved || getLocalStorageChatflow(props.chatflowid)?.lead ? (
           <div class="flex flex-col gap-2">
             <span>{props.leadsConfig?.successMessage || 'Thank you for submitting your contact information.'}</span>
           </div>
@@ -102,39 +108,48 @@ export const LeadCaptureBubble = (props: Props) => {
               {props.leadsConfig?.name && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
                   <div class={'w-full flex items-center justify-between chatbot-input border border-[#eeeeee]'}>
-                    <ShortTextInput ref={undefined} placeholder="Name" name="name" value={leadName()} onInput={setLeadName} />
+                    <input
+                      class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 "
+                      placeholder="Name"
+                      name="name"
+                      value={leadName()}
+                      onChange={(e) => setLeadName(e.target.value)}
+                    />
                   </div>
-                  {leadFormError() && leadFormError()?.name && <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
+                  {leadFormError() && leadFormError()?.name &&
+                    <span class="text-sm text-red-500">{leadFormError()?.name[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.email && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
                   <div class={'w-full flex items-center justify-between chatbot-input border border-[#eeeeee]'}>
-                    <ShortTextInput
-                      ref={undefined}
+                    <input
+                      class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 "
                       type="email"
                       placeholder="Email Address"
                       name="email"
                       value={leadEmail()}
-                      onInput={setLeadEmail}
+                      onChange={(e) => setLeadEmail(e.target.value)}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.email && <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
+                  {leadFormError() && leadFormError()?.email &&
+                    <span class="text-sm text-red-500">{leadFormError()?.email[0]}</span>}
                 </div>
               )}
               {props.leadsConfig?.phone && (
                 <div class="w-full flex flex-col items-start justify-start gap-1">
                   <div class={'w-full flex items-center justify-between chatbot-input border border-[#eeeeee]'}>
-                    <ShortTextInput
-                      ref={undefined}
+                    <input
+                      class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 "
                       type="number"
                       placeholder="Phone Number"
                       name="phone"
                       value={leadPhone()}
-                      onInput={setLeadPhone}
+                      onChange={(e) => setLeadPhone(parseInt(e.target.value, 10))}
                     />
                   </div>
-                  {leadFormError() && leadFormError()?.phone && <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
+                  {leadFormError() && leadFormError()?.phone &&
+                    <span class="text-sm text-red-500">{leadFormError()?.phone[0]}</span>}
                 </div>
               )}
               <div class="flex items-center justify-end gap-1">
