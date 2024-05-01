@@ -1,5 +1,6 @@
 import { JSX, Show } from 'solid-js';
 import { Spinner } from '@/components';
+import { SendButton } from '@/components/buttons/SendButton';
 
 type LeadCaptureButtonProps = {
   buttonColor?: string;
@@ -8,6 +9,7 @@ type LeadCaptureButtonProps = {
   disableIcon?: boolean;
 } & JSX.ButtonHTMLAttributes<HTMLButtonElement>;
 
+// Not being used for now, keep it for future in case we want to allow users to cancel the form
 export const CancelLeadCaptureButton = (props: LeadCaptureButtonProps) => {
   return (
     <button
@@ -36,19 +38,16 @@ const SaveLeadFallback = () => {
 
 export const SaveLeadButton = (props: LeadCaptureButtonProps) => {
   return (
-    <button
-      disabled={props.isDisabled || props.isLoading}
-      {...props}
-      class={
-        'h-10 p-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
-        props.class
-      }
-      style={{ 'background-color': props.buttonColor }}
-      title="Submit Lead"
-    >
-      <Show when={!props.isLoading} fallback={<SaveLeadFallback />}>
-        Submit
-      </Show>
-    </button>
+    <SendButton
+        sendButtonColor={props.buttonColor}
+        type="submit"
+        isDisabled={props.isDisabled || props.isLoading}
+        class="m-0 h-14 flex items-center justify-center"
+        {...props}
+      >
+        <Show when={!props.isLoading} fallback={<SaveLeadFallback />}>
+          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Submit</span>
+        </Show>
+    </SendButton>
   );
 };
