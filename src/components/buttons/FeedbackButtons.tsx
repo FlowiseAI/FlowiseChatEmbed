@@ -3,12 +3,14 @@ import { Spinner } from './SendButton';
 import { ClipboardIcon, ThumbsDownIcon, ThumbsUpIcon } from '../icons';
 
 type RatingButtonProps = {
-  sendButtonColor?: string;
+  feedbackColor?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
   disableIcon?: boolean;
   rating?: string;
 } & JSX.ButtonHTMLAttributes<HTMLButtonElement>;
+
+const defaultFeedbackColor = '#3B81F6';
 
 export const CopyToClipboardButton = (props: RatingButtonProps) => {
   return (
@@ -23,7 +25,7 @@ export const CopyToClipboardButton = (props: RatingButtonProps) => {
       title="Copy to clipboard"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <ClipboardIcon color={props.sendButtonColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <ClipboardIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
       </Show>
     </button>
   );
@@ -43,7 +45,7 @@ export const ThumbsUpButton = (props: RatingButtonProps) => {
       title="Thumbs Up"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <ThumbsUpIcon color={props.sendButtonColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <ThumbsUpIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
       </Show>
     </button>
   );
@@ -63,7 +65,7 @@ export const ThumbsDownButton = (props: RatingButtonProps) => {
       title="Thumbs Down"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <ThumbsDownIcon color={props.sendButtonColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <ThumbsDownIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
       </Show>
     </button>
   );
