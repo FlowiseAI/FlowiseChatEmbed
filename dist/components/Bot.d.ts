@@ -1,4 +1,4 @@
-import { BotMessageTheme, TextInputTheme, UserMessageTheme } from '@/features/bubble/types';
+import { BotMessageTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
@@ -36,9 +36,11 @@ export type BotProps = {
     apiHost?: string;
     chatflowConfig?: Record<string, unknown>;
     welcomeMessage?: string;
+    errorMessage?: string;
     botMessage?: BotMessageTheme;
     userMessage?: UserMessageTheme;
     textInput?: TextInputTheme;
+    feedback?: FeedbackTheme;
     poweredByTextColor?: string;
     badgeBackgroundColor?: string;
     bubbleBackgroundColor?: string;
