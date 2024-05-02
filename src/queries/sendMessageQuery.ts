@@ -1,14 +1,14 @@
-import { FileUpload, MessageType } from '@/components/Bot';
+import { FileUpload } from '@/components/Bot';
 import { sendRequest } from '@/utils/index';
 
 export type IncomingInput = {
   question: string;
-  history: MessageType[];
   uploads?: FileUpload[];
   overrideConfig?: Record<string, unknown>;
   socketIOClientId?: string;
   chatId?: string;
   fileName?: string; // Only for assistant
+  leadEmail?: string;
 };
 
 export type MessageRequest = {
@@ -36,6 +36,19 @@ export type UpdateFeedbackRequest = {
   id: string;
   apiHost?: string;
   body?: Partial<FeedbackInput>;
+};
+
+export type LeadCaptureInput = {
+  chatflowid: string;
+  chatId: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+};
+
+export type LeadCaptureRequest = {
+  apiHost?: string;
+  body: Partial<LeadCaptureInput>;
 };
 
 export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body }: CreateFeedbackRequest) =>
@@ -77,4 +90,11 @@ export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body 
     url: `${apiHost}/api/v1/openai-assistants-file`,
     body,
     type: 'blob',
+  });
+
+export const addLeadQuery = ({ apiHost = 'http://localhost:3000', body }: LeadCaptureRequest) =>
+  sendRequest<any>({
+    method: 'POST',
+    url: `${apiHost}/api/v1/leads/`,
+    body,
   });
