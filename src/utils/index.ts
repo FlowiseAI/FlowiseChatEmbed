@@ -85,3 +85,21 @@ export const getLocalStorageChatflow = (chatflowid: string) => {
     return {};
   }
 };
+
+export const removeLocalStorageChatHistory = (chatflowid: string) => {
+  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
+  if (!chatDetails) return;
+  try {
+    const parsedChatDetails = JSON.parse(chatDetails);
+    if (parsedChatDetails.lead) {
+      // Dont remove lead when chat is cleared
+      const obj = { lead: parsedChatDetails.lead };
+      localStorage.removeItem(`${chatflowid}_EXTERNAL`);
+      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
+    } else {
+      localStorage.removeItem(`${chatflowid}_EXTERNAL`);
+    }
+  } catch (e) {
+    return;
+  }
+};
