@@ -17,7 +17,7 @@ import { CircleDotIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
-import { getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
+import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -200,9 +200,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   );
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal(
-    (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
-  );
+  const [chatId, setChatId] = createSignal((props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4());
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
@@ -324,10 +322,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(true);
     scrollToBottom();
 
-    // Send user question and history to API
-    const welcomeMessage = props.welcomeMessage ?? defaultWelcomeMessage;
-    const messageList = messages().filter((msg) => msg.message !== welcomeMessage);
-
     const urls = previews().map((item) => {
       return {
         data: item.data,
@@ -347,7 +341,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const body: IncomingInput = {
       question: value,
-      history: messageList,
       chatId: chatId(),
     };
 
@@ -431,16 +424,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const clearChat = () => {
     try {
-      localStorage.removeItem(`${props.chatflowid}_EXTERNAL`);
+      removeLocalStorageChatHistory(props.chatflowid);
       setChatId(
         (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
       );
-      setMessages([
+      const messages: MessageType[] = [
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
           type: 'apiMessage',
-        },
-      ]);
+        }
+      ]
+      if (leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead) {
+        messages.push({ message: '', type: 'leadCaptureMessage' });
+      }
+      setMessages(messages);
     } catch (error: any) {
       const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
       console.error(`error: ${errorData}`);
@@ -459,14 +456,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
     const chatMessage = getLocalStorageChatflow(props.chatflowid);
-    if (chatMessage) {
-      setChatId(chatMessage.chatId);
+    if (chatMessage && Object.keys(chatMessage).length) {
+      if (chatMessage.chatId) setChatId(chatMessage.chatId);
       const savedLead = chatMessage.lead;
       if (savedLead) {
         setIsLeadSaved(!!savedLead);
         setLeadEmail(savedLead.email);
       }
-      const loadedMessages =
+      const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
               const chatHistory: MessageType = {
@@ -479,8 +476,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
               return chatHistory;
             })
-          : [];
-      setMessages([...loadedMessages]);
+          : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage'}];
+
+      const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage')
+      setMessages([...filteredMessages]);
     }
 
     // Determine if particular chatflow is available for streaming
@@ -517,7 +516,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       if (chatbotConfig.leads) {
         setLeadsConfig(chatbotConfig.leads);
-        setMessages((prevMessages) => [...prevMessages, { message: '', type: 'leadCaptureMessage' }]);
+        if (chatbotConfig.leads?.status && !getLocalStorageChatflow(props.chatflowid)?.lead) {
+          setMessages((prevMessages) => [...prevMessages, { message: '', type: 'leadCaptureMessage' }]);
+        }
       }
     }
 

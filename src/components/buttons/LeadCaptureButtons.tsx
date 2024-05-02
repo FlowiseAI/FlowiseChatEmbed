@@ -39,15 +39,15 @@ const SaveLeadFallback = () => {
 export const SaveLeadButton = (props: LeadCaptureButtonProps) => {
   return (
     <SendButton
-        sendButtonColor={props.buttonColor}
-        type="submit"
-        isDisabled={props.isDisabled || props.isLoading}
-        class="m-0 h-14 flex items-center justify-center"
-        {...props}
-      >
-        <Show when={!props.isLoading} fallback={<SaveLeadFallback />}>
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Submit</span>
-        </Show>
+      sendButtonColor={props.buttonColor}
+      type="submit"
+      isDisabled={props.isDisabled || props.isLoading}
+      class="m-0 h-14 flex items-center justify-center"
+      {...props}
+    >
+      <Show when={!props.isLoading} fallback={<SaveLeadFallback />}>
+        <span style={{ 'font-family': 'Poppins, sans-serif' }}>Submit</span>
+      </Show>
     </SendButton>
   );
 };

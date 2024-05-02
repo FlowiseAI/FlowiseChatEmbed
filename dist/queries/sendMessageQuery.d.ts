@@ -1,7 +1,6 @@
-import { FileUpload, MessageType } from '@/components/Bot';
+import { FileUpload } from '@/components/Bot';
 export type IncomingInput = {
     question: string;
-    history: MessageType[];
     uploads?: FileUpload[];
     overrideConfig?: Record<string, unknown>;
     socketIOClientId?: string;
