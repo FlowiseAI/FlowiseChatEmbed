@@ -2,6 +2,10 @@ import { BotMessageTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
+export type FormEvent<T = EventTarget> = {
+    preventDefault: () => void;
+    currentTarget: T;
+};
 type ImageUploadConstraits = {
     fileTypes: string[];
     maxUploadSize: number;
@@ -19,7 +23,7 @@ type FilePreview = {
     preview: string;
     type: string;
 };
-type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting';
+type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
 export type FileUpload = Omit<FilePreview, 'preview'>;
 export type MessageType = {
     messageId?: string;
@@ -51,6 +55,14 @@ export type BotProps = {
     fontSize?: number;
     isFullPage?: boolean;
     observersConfig?: observersConfigType;
+};
+export type LeadsConfig = {
+    status: boolean;
+    title?: string;
+    name?: boolean;
+    email?: boolean;
+    phone?: boolean;
+    successMessage?: string;
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;
