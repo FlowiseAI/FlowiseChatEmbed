@@ -1,3 +1,5 @@
+import isMobileCheck from "@/utils/isMobileCheck";
+import { Show } from "solid-js";
 
 type Props = {
     question: string
@@ -8,6 +10,8 @@ type Props = {
 export const QuestionButton = (props:Props) =>{
     
     // compute the left offset
+
+    const isMobile = isMobileCheck()
     const leftPosition:string = 'calc(20px + '+props.leftOffset+')'
     return (
             <div
@@ -17,9 +21,17 @@ export const QuestionButton = (props:Props) =>{
                         padding: '5px',
                     }}
                     >
-                        <button class={'justify-between question-button'}onClick={()=>{props.onQuestionClick(props.question)}} >
-                            {props.question}
-                        </button> 
+                    
+                <Show when={isMobile}>
+                            <button class={'justify-between question-button-mobile'}onClick={()=>{props.onQuestionClick(props.question)}} >
+                                {props.question}
+                            </button> 
+                </Show>
+                <Show when={!isMobile}>
+                            <button class={'justify-between question-button-desktop'}onClick={()=>{props.onQuestionClick(props.question)}} >
+                                {props.question}
+                            </button> 
+                </Show>
             </div>
     )
 };
