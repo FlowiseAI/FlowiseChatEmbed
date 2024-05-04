@@ -18,7 +18,7 @@ export const Bubble = (props: BubbleProps) => {
     //const isMobile =  window?.innerWidth ? (window?.innerWidth < 1000): false;
     const isMobile = isMobileCheck()
     console.log("is mobile",isMobile)
-    const height_calc = isMobile? "calc(min(300px, max(100% - 100px,250px)))" : "calc(min(500px, max(100% - 100px,300px)))"
+    const height_calc = isMobile? "calc(min(350px, max(100% - 100px,275px)))" : "calc(min(500px, max(100% - 100px,300px)))"
     
     let defaultOpen = isMobile? props.defaultOpenMobile : props.defaultOpenDesktop
     // grab cookie to check if bot has been closed before
