@@ -15,5 +15,7 @@ export const defaultBotProps: BubbleProps = {
     stayClosedFlag: false,
     fullScreen: false,
     questions: [],
-    maxPopups: 0
+    maxPopups: 0,
+    mobileQuestionFontSize: '10px',
+    desktopQuestionFontSize: '12px'
 }

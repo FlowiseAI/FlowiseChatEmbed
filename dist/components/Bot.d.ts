@@ -11,6 +11,8 @@ export type BotProps = {
     chatflowid: string;
     loadID: string;
     userID: string;
+    mobileQuestionFontSize: string;
+    desktopQuestionFontSize: string;
     includeQuestions?: boolean;
     closeBoxFunction?: () => void;
     apiHost?: string;

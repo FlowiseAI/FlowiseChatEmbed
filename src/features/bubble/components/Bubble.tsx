@@ -156,6 +156,8 @@ export const Bubble = (props: BubbleProps) => {
                         userID = {props.userID}
                         loadID = {props.loadID}
                         questions = {props.questions}
+                        mobileQuestionFontSize={props.mobileQuestionFontSize}
+                        desktopQuestionFontSize={props.desktopQuestionFontSize}
                         />
 
                 </Show>

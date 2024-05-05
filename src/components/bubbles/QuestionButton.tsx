@@ -5,6 +5,8 @@ type Props = {
     question: string
     onQuestionClick:(question:string) => void
     leftOffset: string
+    desktopQuestionFontSize: string
+    mobileQuestionFontSize: string
 }
 
 export const QuestionButton = (props:Props) =>{
@@ -13,6 +15,8 @@ export const QuestionButton = (props:Props) =>{
 
     const isMobile = isMobileCheck()
     const leftPosition:string = 'calc(20px + '+props.leftOffset+')'
+
+
     return (
             <div
                     class={'flex'}
@@ -23,12 +27,12 @@ export const QuestionButton = (props:Props) =>{
                     >
                     
                 <Show when={isMobile}>
-                            <button class={'justify-between question-button-mobile'}onClick={()=>{props.onQuestionClick(props.question)}} >
+                            <button class={'justify-between question-button-mobile'} style = {{'font-size':props.mobileQuestionFontSize}} onClick={()=>{props.onQuestionClick(props.question)}} >
                                 {props.question}
                             </button> 
                 </Show>
                 <Show when={!isMobile}>
-                            <button class={'justify-between question-button-desktop'}onClick={()=>{props.onQuestionClick(props.question)}} >
+                            <button class={'justify-between question-button-desktop'} style = {{'font-size':props.desktopQuestionFontSize}} onClick={()=>{props.onQuestionClick(props.question)}} >
                                 {props.question}
                             </button> 
                 </Show>

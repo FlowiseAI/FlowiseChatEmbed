@@ -13,6 +13,8 @@ type BotProps = {
     theme?: Record<string, unknown>;
     questions?: Array<string>;
     maxPopups?: number;
+    mobileQuestionFontSize?: string;
+    desktopQuestionFontSize?: string;
 };
 export declare const initFull: (props: BotProps & {
     id?: string;

@@ -14,6 +14,8 @@ declare const chatbot: {
         theme?: Record<string, unknown> | undefined;
         questions?: string[] | undefined;
         maxPopups?: number | undefined;
+        mobileQuestionFontSize?: string | undefined;
+        desktopQuestionFontSize?: string | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -32,6 +34,8 @@ declare const chatbot: {
         theme?: Record<string, unknown> | undefined;
         questions?: string[] | undefined;
         maxPopups?: number | undefined;
+        mobileQuestionFontSize?: string | undefined;
+        desktopQuestionFontSize?: string | undefined;
     }) => Promise<void>;
 };
 export default chatbot;

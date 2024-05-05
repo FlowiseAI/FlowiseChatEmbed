@@ -16,6 +16,8 @@ type BotProps = {
     theme?:Record<string, unknown>
     questions?:Array<string>
     maxPopups?:number
+    mobileQuestionFontSize?: string
+    desktopQuestionFontSize?: string
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -74,6 +76,10 @@ export const init = async (props: BotProps) => {
         props.stayClosedFlag = config_data?.stayClosedFlag
         props.questions = config_data?.questions
         props.maxPopups = config_data?.maxPopups ? config_data?.maxPopups : 0
+        
+
+        props.mobileQuestionFontSize = config_data?.mobileQuestionFontSize ? config_data?.mobileQuestionFontSize : "10px"
+        props.desktopQuestionFontSize = config_data?.desktopQuestionFontSize ? config_data?.desktopQuestionFontSize : "20px"
 
         const isMobile = isMobileCheck()
         

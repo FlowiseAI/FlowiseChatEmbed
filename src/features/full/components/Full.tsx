@@ -58,6 +58,9 @@ export const Full = (
             loadID = {props.loadID}
             questions = {props.questions}
             includeQuestions={props.includeQuestions}
+            mobileQuestionFontSize={props.mobileQuestionFontSize}
+
+            desktopQuestionFontSize={props.desktopQuestionFontSize}
                       
                     
             />

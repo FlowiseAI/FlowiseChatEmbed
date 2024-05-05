@@ -24,6 +24,8 @@ export type BotProps = {
     chatflowid: string
     loadID: string,
     userID: string,
+    mobileQuestionFontSize: string
+    desktopQuestionFontSize: string
     includeQuestions?: boolean
     closeBoxFunction?: ()=>void
     apiHost?: string
@@ -398,6 +400,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
             question={item}
             onQuestionClick={clickPrompt}
             leftOffset = "0%"
+            mobileQuestionFontSize={props.mobileQuestionFontSize}
+            desktopQuestionFontSize={props.desktopQuestionFontSize}
         />
     ));
 
