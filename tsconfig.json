@@ -1,7 +1,7 @@
 {
     "extends": "./base.json",
     "include": ["src/**/*"],
-    "exclude": ["dist", "node_modules"],
+    "exclude": ["lib", "node_modules"],
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
@@ -13,7 +13,7 @@
         "target": "ESNext",
         "declaration": true,
         "declarationMap": true,
-        "outDir": "dist",
+        "outDir": "lib",
         "emitDeclarationOnly": true
     }
 }
