@@ -1,10 +1,10 @@
 import { JSX } from 'solid-js';
 type RatingButtonProps = {
-  feedbackColor?: string;
-  isDisabled?: boolean;
-  isLoading?: boolean;
-  disableIcon?: boolean;
-  rating?: string;
+    feedbackColor?: string;
+    isDisabled?: boolean;
+    isLoading?: boolean;
+    disableIcon?: boolean;
+    rating?: string;
 } & JSX.ButtonHTMLAttributes<HTMLButtonElement>;
 export declare const CopyToClipboardButton: (props: RatingButtonProps) => JSX.Element;
 export declare const ThumbsUpButton: (props: RatingButtonProps) => JSX.Element;
