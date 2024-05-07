@@ -54,7 +54,7 @@ const configs = [
     ...indexConfig,
     input: './src/web.ts',
     output: {
-      file: 'lib/app.js',
+      file: 'dist/app.js',
       format: 'es',
     },
   },
