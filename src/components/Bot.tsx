@@ -417,6 +417,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         handleError(`Error: ${error?.message.replaceAll('Error:', ' ')}`);
         return;
       }
+      if (typeof error === 'string') {
+        handleError(error);
+        return;
+      }
       handleError();
       return;
     }
