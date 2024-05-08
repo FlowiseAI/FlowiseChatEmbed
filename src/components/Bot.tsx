@@ -303,7 +303,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
     setLoading(false);
     setUserInput('');
-    scrollToBottom();
+    // scrollToBottom();
   };
 
   const promptClick = (prompt: string) => {
@@ -322,7 +322,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setLoading(true);
-    scrollToBottom();
+    // scrollToBottom();
 
     const urls = previews().map((item) => {
       return {
@@ -410,7 +410,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       setLoading(false);
       setUserInput('');
-      scrollToBottom();
+      // scrollToBottom();
     }
     if (result.error) {
       const error = result.error;
