@@ -31,7 +31,7 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
   return (
     <>
       <div class="flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[1002] outline-none focus:outline-none justify-center items-center">
-        <div class="relative w-full my-6 mx-auto max-w-3xl">
+        <div class="relative w-full my-6 max-w-3xl mx-4">
           <div
             class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"
             style={{
@@ -40,12 +40,12 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
             }}
           >
             <div
-              class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"
+              class="flex items-center justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"
               style={{
                 border: '1px solid #eeeeee',
               }}
             >
-              <h3 class="text-2xl font-semibold">Provide additional feedback</h3>
+              <span class="whitespace-pre-wrap font-semibold max-w-full">Provide additional feedback</span>
               <button
                 class="p-1 ml-auto bg-transparent border-0 text-black float-right text-xl leading-none font-semibold outline-none focus:outline-none"
                 type="button"
@@ -86,7 +86,7 @@ const FeedbackContentDialog = (props: FeedbackContentDialogProps) => {
             </div>
             <div class="flex items-center justify-end p-4 border-t border-solid border-blueGray-200 rounded-b">
               <button
-                class="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                class="bg-emerald-500 text-white active:bg-emerald-600 font-bold text-sm px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                 type="button"
                 onClick={submit}
               >
