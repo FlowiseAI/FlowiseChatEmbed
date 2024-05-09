@@ -181,7 +181,12 @@ export const BotBubble = (props: Props) => {
             <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton feedbackColor={props.feedbackColor} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
+                <ThumbsUpButton
+                  feedbackColor={props.feedbackColor}
+                  isDisabled={rating() === 'THUMBS_UP'}
+                  rating={rating()}
+                  onClick={onThumbsUpClick}
+                />
               ) : null}
               {rating() === '' || rating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton
