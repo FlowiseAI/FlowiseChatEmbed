@@ -5,13 +5,11 @@ type Props = {
     chatId: string;
     leadsConfig?: LeadsConfig;
     apiHost?: string;
-    fileAnnotations?: any;
     showAvatar?: boolean;
     avatarSrc?: string;
     backgroundColor?: string;
     textColor?: string;
     sendButtonColor?: string;
-    chatFeedbackStatus?: boolean;
     fontSize?: number;
     isLeadSaved: boolean;
     setIsLeadSaved: (value: boolean) => void;
