@@ -898,6 +898,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         message={message}
                         chatflowid={props.chatflowid}
                         chatId={chatId()}
+                        apiHost={props.apiHost}
                         leadsConfig={leadsConfig()}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         isLeadSaved={isLeadSaved()}
