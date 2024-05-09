@@ -156,50 +156,59 @@ export const BotBubble = (props: Props) => {
   });
 
   return (
-    <div class="flex flex-col justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
-      <Show when={props.showAvatar}>
-        <Avatar initialAvatarSrc={props.avatarSrc} />
-      </Show>
-      {props.message.message && (
-        <span
-          ref={botMessageEl}
-          class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
-          data-testid="host-bubble"
-          style={{
-            'background-color': props.backgroundColor ?? defaultBackgroundColor,
-            color: props.textColor ?? defaultTextColor,
-            'border-radius': '6px',
-            'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`,
-          }}
-        />
-      )}
-      {props.chatFeedbackStatus && props.message.messageId && (
-        <>
-          <div class="flex items-center px-2">
-            <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
-            {rating() === '' || rating() === 'THUMBS_UP' ? (
-              <ThumbsUpButton feedbackColor={props.feedbackColor} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
-            ) : null}
-            {rating() === '' || rating() === 'THUMBS_DOWN' ? (
-              <ThumbsDownButton
-                feedbackColor={props.feedbackColor}
-                isDisabled={rating() === 'THUMBS_DOWN'}
-                rating={rating()}
-                onClick={onThumbsDownClick}
+    <div>
+      <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
+        <Show when={props.showAvatar}>
+          <Avatar initialAvatarSrc={props.avatarSrc} />
+        </Show>
+        {props.message.message && (
+          <span
+            ref={botMessageEl}
+            class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
+            data-testid="host-bubble"
+            style={{
+              'background-color': props.backgroundColor ?? defaultBackgroundColor,
+              color: props.textColor ?? defaultTextColor,
+              'border-radius': '6px',
+              'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`,
+            }}
+          />
+        )}
+      </div>
+      <div>
+        {props.chatFeedbackStatus && props.message.messageId && (
+          <>
+            <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
+              <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
+              {rating() === '' || rating() === 'THUMBS_UP' ? (
+                <ThumbsUpButton
+                  feedbackColor={props.feedbackColor}
+                  isDisabled={rating() === 'THUMBS_UP'}
+                  rating={rating()}
+                  onClick={onThumbsUpClick}
+                />
+              ) : null}
+              {rating() === '' || rating() === 'THUMBS_DOWN' ? (
+                <ThumbsDownButton
+                  feedbackColor={props.feedbackColor}
+                  isDisabled={rating() === 'THUMBS_DOWN'}
+                  rating={rating()}
+                  onClick={onThumbsDownClick}
+                />
+              ) : null}
+            </div>
+            <Show when={showFeedbackContentDialog()}>
+              <FeedbackContentDialog
+                isOpen={showFeedbackContentDialog()}
+                onClose={() => setShowFeedbackContentModal(false)}
+                onSubmit={submitFeedbackContent}
+                backgroundColor={props.backgroundColor}
+                textColor={props.textColor}
               />
-            ) : null}
-          </div>
-          <Show when={showFeedbackContentDialog()}>
-            <FeedbackContentDialog
-              isOpen={showFeedbackContentDialog()}
-              onClose={() => setShowFeedbackContentModal(false)}
-              onSubmit={submitFeedbackContent}
-              backgroundColor={props.backgroundColor}
-              textColor={props.textColor}
-            />
-          </Show>
-        </>
-      )}
+            </Show>
+          </>
+        )}
+      </div>
     </div>
   );
 };

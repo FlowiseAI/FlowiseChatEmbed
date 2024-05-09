@@ -452,7 +452,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // Auto scroll chat to bottom
   createEffect(() => {
-    if (messages()) scrollToBottom();
+    if (messages()) {
+      if (messages().length > 1) {
+        setTimeout(() => {
+          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+        }, 400);
+      }
+    }
   });
 
   createEffect(() => {
@@ -901,6 +907,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         chatflowid={props.chatflowid}
                         chatId={chatId()}
                         apiHost={props.apiHost}
+                        backgroundColor={props.botMessage?.backgroundColor}
+                        textColor={props.botMessage?.textColor}
+                        fontSize={props.fontSize}
+                        showAvatar={props.botMessage?.showAvatar}
+                        avatarSrc={props.botMessage?.avatarSrc}
                         leadsConfig={leadsConfig()}
                         sendButtonColor={props.textInput?.sendButtonColor}
                         isLeadSaved={isLeadSaved()}
