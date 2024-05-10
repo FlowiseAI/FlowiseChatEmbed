@@ -129,9 +129,22 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  const getValidTextToParse = (text: string) => {
+    const regex = /!?\[.*?\]\([^)]*?(?=\n|\r|$)/g;
+    let match;
+    let lastValidMatch = '';
+
+    while ((match = regex.exec(text)) !== null) {
+      lastValidMatch = match[0];
+    }
+
+    return text.replace(lastValidMatch, '');
+  }
+  
   onMount(() => {
     if (botMessageEl) {
-      botMessageEl.innerHTML = Marked.parse(props.message.message);
+      const textToParse = getValidTextToParse(props.message.message);
+      botMessageEl.innerHTML = Marked.parse(textToParse);
       botMessageEl.querySelectorAll('a').forEach((link) => {
         link.target = '_blank';
       });
