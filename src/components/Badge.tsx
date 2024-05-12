@@ -4,6 +4,7 @@ type Props = {
   botContainer: HTMLDivElement | undefined;
   poweredByTextColor?: string;
   badgeBackgroundColor?: string;
+  poweredByText?: string;
 };
 
 const defaultTextColor = '#303235';
@@ -54,7 +55,7 @@ export const Badge = (props: Props) => {
         id="lite-badge"
         style={{ 'font-weight': 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> Flowise Test123</span>
+        <span> {props.poweredByText ?? "Flowise"}</span>
       </a>
     </span>
   );

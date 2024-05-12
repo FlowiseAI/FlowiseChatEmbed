@@ -46,6 +46,7 @@ export type BotProps = {
     textInput?: TextInputTheme;
     feedback?: FeedbackTheme;
     poweredByTextColor?: string;
+    poweredByText?: string;
     badgeBackgroundColor?: string;
     bubbleBackgroundColor?: string;
     bubbleTextColor?: string;
