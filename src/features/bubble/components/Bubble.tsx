@@ -65,6 +65,7 @@ export const Bubble = (props: BubbleProps) => {
             welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
             errorMessage={bubbleProps.theme?.chatWindow?.errorMessage}
             poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
+            poweredByText={bubbleProps.theme?.chatWindow?.poweredByText}
             textInput={bubbleProps.theme?.chatWindow?.textInput}
             botMessage={bubbleProps.theme?.chatWindow?.botMessage}
             userMessage={bubbleProps.theme?.chatWindow?.userMessage}

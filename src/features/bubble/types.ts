@@ -47,6 +47,7 @@ export type ChatWindowTheme = {
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
   poweredByTextColor?: string;
+  poweredByText?: string;
 };
 
 export type ButtonTheme = {
