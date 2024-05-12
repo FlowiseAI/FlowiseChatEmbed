@@ -55,7 +55,7 @@ export const Badge = (props: Props) => {
         id="lite-badge"
         style={{ 'font-weight': 'bold', color: props.poweredByTextColor ?? defaultTextColor }}
       >
-        <span> {props.poweredByText ?? "Flowise"}</span>
+        <span> {props.poweredByText ?? 'Flowise'}</span>
       </a>
     </span>
   );
