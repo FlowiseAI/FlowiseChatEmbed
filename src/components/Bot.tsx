@@ -451,15 +451,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   // Auto scroll chat to bottom
-  // createEffect(() => {
-  //   if (messages()) {
-  //     if (messages().length > 1) {
-  //       setTimeout(() => {
-  //         chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-  //       }, 400);
-  //     }
-  //   }
-  // });
+  createEffect(() => {
+    if (messages()) {
+      if (messages().length > 1) {
+        setTimeout(() => {
+          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+        }, 400);
+      }
+    }
+  });
 
   createEffect(() => {
     if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`;
