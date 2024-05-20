@@ -43,7 +43,11 @@ export const Bubble = (props: BubbleProps) => {
           width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : undefined,
           transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
           'transform-origin': 'bottom right',
-          transform: isBotOpened() ? `scale3d(1, 1, 1) translate(${ (bubbleProps.theme?.chatWindow?.windowHorizontalShift ?? 0)}px, ${ (bubbleProps.theme?.chatWindow?.windowVerticalShift ?? 0)}px)` : 'scale3d(0, 0, 1)',
+          transform: isBotOpened()
+            ? `scale3d(1, 1, 1) translate(${bubbleProps.theme?.chatWindow?.windowHorizontalShift ?? 0}px, ${
+                bubbleProps.theme?.chatWindow?.windowVerticalShift ?? 0
+              }px)`
+            : 'scale3d(0, 0, 1)',
           'box-shadow': 'rgba(0, 0, 0, 0.16) 0px 5px 40px',
           'background-color': bubbleProps.theme?.chatWindow?.backgroundColor || '#ffffff',
           'z-index': 42424242,
