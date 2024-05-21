@@ -24,7 +24,7 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
-
+const [copiedMessage, setCopiedMessage] = createSignal(false);
 Marked.setOptions({ isNoP: true });
 
 export const BotBubble = (props: Props) => {
@@ -56,6 +56,10 @@ export const BotBubble = (props: Props) => {
     try {
       const text = botMessageEl ? botMessageEl?.textContent : '';
       await navigator.clipboard.writeText(text || '');
+      setCopiedMessage(true);
+      setTimeout(() => {
+        setCopiedMessage(false);
+      }, 2000); // Hide the message after 2 seconds
     } catch (error) {
       console.error('Error copying to clipboard:', error);
     }
@@ -180,6 +184,10 @@ export const BotBubble = (props: Props) => {
           <>
             <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
+              <Show when={copiedMessage()}>
+                <div class="copied-message" style="color: blue;">Copied!</div>
+              </Show>
+
               {rating() === '' || rating() === 'THUMBS_UP' ? (
                 <ThumbsUpButton
                   feedbackColor={props.feedbackColor}
