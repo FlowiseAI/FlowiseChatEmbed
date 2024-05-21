@@ -24,7 +24,7 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
-const [copiedMessage, setCopiedMessage] = createSignal(false);
+
 Marked.setOptions({ isNoP: true });
 
 export const BotBubble = (props: Props) => {
@@ -32,7 +32,7 @@ export const BotBubble = (props: Props) => {
   const [rating, setRating] = createSignal('');
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
-
+  const [copiedMessage, setCopiedMessage] = createSignal(false);
   const downloadFile = async (fileAnnotation: any) => {
     try {
       const response = await sendFileDownloadQuery({
