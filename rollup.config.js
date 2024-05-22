@@ -61,3 +61,17 @@ const configs = [
 ];
 
 export default configs;
+
+export default {
+  input: 'src/index.ts',  // Ensure this path points to your main TypeScript file
+  output: {
+    file: 'dist/index.js',  // Ensure this path matches the entry point specified in package.json
+    format: 'cjs',  // CommonJS format
+  },
+  plugins: [
+    resolve(),
+    commonjs(),
+    typescript(),
+    terser(),
+  ],
+};
