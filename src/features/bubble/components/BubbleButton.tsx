@@ -1,7 +1,7 @@
 import { Show } from 'solid-js'
 import { isNotDefined } from '@/utils/index'
 import { ButtonTheme } from '../types'
-
+import isMobileCheck from '@/utils/isMobileCheck'
 type Props = ButtonTheme & {
     isBotOpened: boolean
     toggleBot: () => void
@@ -12,11 +12,23 @@ const defaultIconColor = 'white'
 const defaultBottom = '20'
 const defaultRight = '20'
 
+
+
 export const BubbleButton = (props: Props) => {
+    
     return (
         <button
             part='button'
-            onClick={() => props.toggleBot()}
+            onClick={() => {
+                if(!isMobileCheck()){
+                    props.toggleBot()
+                }
+            }}
+            onTouchStart={() => {
+                if(isMobileCheck()){
+                    props.toggleBot()
+                }
+            }}
             class={
                 `fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in` +
                 (props.size === 'large' ? ' w-16 h-16' : ' w-12 h-12')
