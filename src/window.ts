@@ -18,12 +18,11 @@ export const initFull = (props: BotProps & { id?: string }) => {
   elementUsed = fullElement;
 };
 
-export const init = (props: BotProps, style?: HTMLStyleElement) => {
+export const init = (props: BotProps) => {
   destroy();
   const element = document.createElement('flowise-chatbot');
   Object.assign(element, props);
   document.body.appendChild(element);
-  if (style) element.shadowRoot?.appendChild(style);
   elementUsed = element;
 };
 
