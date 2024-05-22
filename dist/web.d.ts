@@ -12,7 +12,7 @@ declare const chatbot: {
         apiHost?: string | undefined;
         chatflowConfig?: Record<string, unknown> | undefined;
         observersConfig?: import("./components/Bot").observersConfigType | undefined;
-    }) => void;
+    }, style?: HTMLStyleElement | undefined) => void;
     destroy: () => void;
 };
 export default chatbot;
