@@ -45,7 +45,7 @@ export type ChatWindowTheme = {
     windowHorizontalShift?: number;
 };
 export type ButtonTheme = {
-    size?: 'medium' | 'large';
+    sizePx?: number;
     backgroundColor?: string;
     iconColor?: string;
     customIconSrc?: string;
