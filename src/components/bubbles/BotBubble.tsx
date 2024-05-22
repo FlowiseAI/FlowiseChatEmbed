@@ -33,6 +33,9 @@ export const BotBubble = (props: Props) => {
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
   const [copiedMessage, setCopiedMessage] = createSignal(false);
+  const [thumbsUpColor, setThumbsUpColor] = createSignal('#3B81F6'); // default color
+  const [thumbsDownColor, setThumbsDownColor] = createSignal('#3B81F6'); // default color
+
   const downloadFile = async (fileAnnotation: any) => {
     try {
       const response = await sendFileDownloadQuery({
@@ -87,6 +90,9 @@ export const BotBubble = (props: Props) => {
         setRating('THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
+
+        // update the thumbs up color state
+        setThumbsUpColor('green');
       }
     }
   };
@@ -113,6 +119,9 @@ export const BotBubble = (props: Props) => {
         setRating('THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
+
+        // update the thumbs down color state
+        setThumbsDownColor('red');
       }
     }
   };
@@ -191,16 +200,12 @@ export const BotBubble = (props: Props) => {
               </Show>
 
               {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton
-                  feedbackColor={props.feedbackColor}
-                  isDisabled={rating() === 'THUMBS_UP'}
-                  rating={rating()}
-                  onClick={onThumbsUpClick}
-                />
+                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
               ) : null}
+
               {rating() === '' || rating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton
-                  feedbackColor={props.feedbackColor}
+                  feedbackColor={thumbsDownColor()}
                   isDisabled={rating() === 'THUMBS_DOWN'}
                   rating={rating()}
                   onClick={onThumbsDownClick}
