@@ -11,19 +11,17 @@ const defaultButtonColor = '#3B81F6';
 const defaultIconColor = 'white';
 const defaultBottom = '20';
 const defaultRight = '20';
-const defaultButtonSize = 48;  // Default button size in pixels
+const defaultButtonSize = 48; // Default button size in pixels
 
 export const BubbleButton = (props: Props) => {
   const buttonSize = props.sizePx ?? defaultButtonSize;
-  const iconSize = buttonSize * 0.75;  // Adjust icon size relative to button size
+  const iconSize = buttonSize * 0.75; // Adjust icon size relative to button size
 
   return (
     <button
       part="button"
       onClick={() => props.toggleBot()}
-      class={
-        `fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in`
-      }
+      class={`fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in`}
       style={{
         'background-color': props.backgroundColor ?? defaultButtonColor,
         'z-index': 42424242,
@@ -39,10 +37,7 @@ export const BubbleButton = (props: Props) => {
           style={{
             stroke: props.iconColor ?? defaultIconColor,
           }}
-          class={
-            `stroke-2 fill-transparent absolute duration-200 transition ` +
-            (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')
-          }
+          class={`stroke-2 fill-transparent absolute duration-200 transition ` + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')}
           width={`${iconSize}px`}
           height={`${iconSize}px`}
         >
@@ -52,10 +47,7 @@ export const BubbleButton = (props: Props) => {
       <Show when={props.customIconSrc}>
         <img
           src={props.customIconSrc}
-          class={
-            'rounded-full object-cover' +
-            (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')
-          }
+          class={'rounded-full object-cover' + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')}
           style={{
             width: `${iconSize}px`,
             height: `${iconSize}px`,
@@ -67,10 +59,7 @@ export const BubbleButton = (props: Props) => {
       <svg
         viewBox="0 0 24 24"
         style={{ fill: props.iconColor ?? 'white' }}
-        class={
-          `absolute duration-200 transition ` +
-          (props.isBotOpened ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-180 opacity-0')
-        }
+        class={`absolute duration-200 transition ` + (props.isBotOpened ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-180 opacity-0')}
         width={`${iconSize}px`}
         height={`${iconSize}px`}
       >

@@ -52,7 +52,7 @@ export type ChatWindowTheme = {
 };
 
 export type ButtonTheme = {
-  sizePx?: number;  // New prop for custom button size in pixels
+  sizePx?: number; // New prop for custom button size in pixels
   backgroundColor?: string;
   iconColor?: string;
   customIconSrc?: string;
