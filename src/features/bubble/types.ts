@@ -47,10 +47,12 @@ export type ChatWindowTheme = {
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
   poweredByTextColor?: string;
+  windowVerticalShift?: number;
+  windowHorizontalShift?: number;
 };
 
 export type ButtonTheme = {
-  size?: 'medium' | 'large';
+  sizePx?: number; // New prop for custom button size in pixels
   backgroundColor?: string;
   iconColor?: string;
   customIconSrc?: string;

@@ -1,0 +1,15 @@
+* [33m2864073[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m Copied! message will show for two second when clicked on copy
+[31m|[m * [33m02770ca[m[33m ([m[1;31morigin/main[m[33m)[m Delete dist/components/bubbles/BotBubble.d.ts.map
+[31m|[m * [33me5be8fa[m Delete src/components/bubbles/BotBubble.tsx
+[31m|[m[31m/[m  
+* [33m1095f7e[m Copied! message will show for two second when clicked on copy
+* [33mf3a2c5d[m Copied! message will show for two second when clicked on copy
+* [33m2c06ddc[m calc px increased for better responsiveness with vertical shift
+* [33mbe4426e[m chat window horizontal and vertical shift
+* [33ma418013[m chat window horizontal and vertical shift
+* [33m83576e2[m[33m ([m[1;31mupstream/main[m[33m, [m[1;31mupstream/HEAD[m[33m)[m 🥳 flowise-embed@1.2.6 release
+*   [33m2d5cbc2[m Merge pull request #153 from FlowiseAI/bugfix/Pass-Props-to-Lead
+[33m|[m[34m\[m  
+[33m|[m * [33m17ce3b1[m[33m ([m[1;31mupstream/bugfix/Pass-Props-to-Lead[m[33m)[m add mx to feedback dialog
+[33m|[m * [33mfbcdc70[m add props to leadcapture bubble, fix avatar
+[33m|[m[33m/[m  

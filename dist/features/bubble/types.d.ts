@@ -41,9 +41,11 @@ export type ChatWindowTheme = {
     textInput?: TextInputTheme;
     feedback?: FeedbackTheme;
     poweredByTextColor?: string;
+    windowVerticalShift?: number;
+    windowHorizontalShift?: number;
 };
 export type ButtonTheme = {
-    size?: 'medium' | 'large';
+    sizePx?: number;
     backgroundColor?: string;
     iconColor?: string;
     customIconSrc?: string;

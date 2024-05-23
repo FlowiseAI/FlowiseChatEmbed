@@ -39,19 +39,23 @@ export const Bubble = (props: BubbleProps) => {
       <div
         part="bot"
         style={{
-          height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 100px)',
+          height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 200px)',
           width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : undefined,
           transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
           'transform-origin': 'bottom right',
-          transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
-          'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
+          transform: isBotOpened()
+            ? `scale3d(1, 1, 1) translate(${bubbleProps.theme?.chatWindow?.windowHorizontalShift ?? 0}px, ${
+                bubbleProps.theme?.chatWindow?.windowVerticalShift ?? 0
+              }px)`
+            : 'scale3d(0, 0, 1)',
+          'box-shadow': 'rgba(0, 0, 0, 0.16) 0px 5px 40px',
           'background-color': bubbleProps.theme?.chatWindow?.backgroundColor || '#ffffff',
           'z-index': 42424242,
         }}
         class={
           `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
-          (props.theme?.button?.size === 'large' ? ' bottom-24' : ' bottom-20')
+          (props.theme?.button?.sizePx ? ` bottom-${props.theme.button.sizePx}px` : ' bottom-20')
         }
       >
         <Show when={isBotStarted()}>

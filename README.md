@@ -104,7 +104,7 @@ You can also customize chatbot with different configuration
         backgroundColor: '#3B81F6',
         right: 20,
         bottom: 20,
-        size: 'medium',
+        sizePx: 100,
         iconColor: 'white',
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
       },
@@ -118,6 +118,8 @@ You can also customize chatbot with different configuration
         height: 700,
         width: 400,
         fontSize: 16,
+        windowVerticalShift: 100,
+        windowHorizontalShift: 0,
         poweredByTextColor: '#303235',
         botMessage: {
           backgroundColor: '#f7f8ff',
