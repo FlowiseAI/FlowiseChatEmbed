@@ -19,7 +19,7 @@ const defaultBackgroundColor = '#3B81F6';
 const defaultTextColor = '#ffffff';
 const defaultFontSize = 16;
 
-Marked.setOptions({ isNoP: true });
+Marked.setOptions({ isNoP: true, sanitize: true });
 
 export const GuestBubble = (props: Props) => {
   let userMessageEl: HTMLDivElement | undefined;
