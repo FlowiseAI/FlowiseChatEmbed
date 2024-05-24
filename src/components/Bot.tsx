@@ -213,6 +213,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
         setUserInput('')
         scrollToBottom()
     }
+    
+    const prepend = (value:any, array:any) => {
+        var newArray = array.slice();
+        newArray.unshift(value);
+        return newArray;
+      }
 
     // Handle form submission
     const handleSubmit = async (value: string) => {
@@ -236,6 +242,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
             question: value,
             history: messageList
         }
+        body.history = prepend({"message":"page url: "+window.location.href,"type": "apiMessage"},body.history)
         if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
