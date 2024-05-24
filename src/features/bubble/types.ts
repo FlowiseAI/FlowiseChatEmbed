@@ -28,6 +28,14 @@ export type BotMessageTheme = {
   avatarSrc?: string;
 };
 
+export type FooterTheme = {
+  showFooter?: boolean;
+  textColor?: string;
+  text?: string;
+  company?: string;
+  companyLink?: string;
+};
+
 export type FeedbackTheme = {
   color?: string;
 };
@@ -46,6 +54,7 @@ export type ChatWindowTheme = {
   botMessage?: BotMessageTheme;
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
+  footer?: FooterTheme;
   poweredByTextColor?: string;
 };
 
