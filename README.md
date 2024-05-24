@@ -118,7 +118,6 @@ You can also customize chatbot with different configuration
         height: 700,
         width: 400,
         fontSize: 16,
-        poweredByTextColor: '#303235',
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',
@@ -139,6 +138,12 @@ You can also customize chatbot with different configuration
         },
         feedback: {
           color: '#303235',
+        },
+        footer: {
+          textColor: '#303235',
+          text: 'Powered by',
+          company: 'Flowise',
+          companyLink: 'https://flowiseai.com'
         },
       },
     },
