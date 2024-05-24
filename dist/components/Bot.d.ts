@@ -1,4 +1,4 @@
-import { BotMessageTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
+import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
@@ -54,6 +54,7 @@ export type BotProps = {
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
+    footer?: FooterTheme;
     observersConfig?: observersConfigType;
 };
 export type LeadsConfig = {
