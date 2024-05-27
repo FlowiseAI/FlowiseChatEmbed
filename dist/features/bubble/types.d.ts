@@ -51,11 +51,12 @@ export type ChatWindowTheme = {
     poweredByTextColor?: string;
 };
 export type ButtonTheme = {
-    size?: 'medium' | 'large';
+    size?: number;
     backgroundColor?: string;
     iconColor?: string;
     customIconSrc?: string;
     bottom?: number;
     right?: number;
+    dragAndDrop?: boolean;
 };
 //# sourceMappingURL=types.d.ts.map
