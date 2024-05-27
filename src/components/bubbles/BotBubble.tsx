@@ -25,7 +25,7 @@ const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
 
-Marked.setOptions({ isNoP: true, sanitize: true});
+Marked.setOptions({ isNoP: true, sanitize: true });
 
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
@@ -197,12 +197,7 @@ export const BotBubble = (props: Props) => {
                 </div>
               </Show>
               {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton
-                  feedbackColor={thumbsUpColor()}
-                  isDisabled={rating() === 'THUMBS_UP'}
-                  rating={rating()}
-                  onClick={onThumbsUpClick}
-                />
+                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
               ) : null}
               {rating() === '' || rating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton

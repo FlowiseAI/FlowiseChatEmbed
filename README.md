@@ -105,7 +105,7 @@ You can also customize chatbot with different configuration
         right: 20,
         bottom: 20,
         size: 100, //Now set the size of chatbot based on custom value
-        dragAndDrop: true,//drag and drop the chatbot horizontally to turn off set the parameter to false
+        dragAndDrop: true, //drag and drop the chatbot horizontally to turn off set the parameter to false
         iconColor: 'white',
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
       },
@@ -144,7 +144,7 @@ You can also customize chatbot with different configuration
           textColor: '#303235',
           text: 'Powered by',
           company: 'Flowise',
-          companyLink: 'https://flowiseai.com'
+          companyLink: 'https://flowiseai.com',
         },
       },
     },
