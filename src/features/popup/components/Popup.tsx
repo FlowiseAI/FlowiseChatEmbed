@@ -7,6 +7,7 @@ export type PopupProps = {
   isOpen?: boolean;
   onOpen?: () => void;
   onClose?: () => void;
+  onClearChat?: () => void;
 };
 
 function syntaxHighlight(json: any) {
@@ -66,7 +67,11 @@ export const Popup = (props: PopupProps) => {
     document.body.style.overflow = 'hidden';
   };
 
+
+
   const closeBot = () => {
+    props.onClearChat?.();
+
     setIsBotOpened(false);
     popupProps.onClose?.();
     document.body.style.overflow = 'auto';
