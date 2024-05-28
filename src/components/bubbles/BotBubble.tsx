@@ -24,6 +24,7 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
+const defaultFeedbackColor = '#3B81F6';
 
 Marked.setOptions({ isNoP: true });
 
@@ -32,6 +33,9 @@ export const BotBubble = (props: Props) => {
   const [rating, setRating] = createSignal('');
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
+  const [copiedMessage, setCopiedMessage] = createSignal(false);
+  const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+  const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -56,6 +60,10 @@ export const BotBubble = (props: Props) => {
     try {
       const text = botMessageEl ? botMessageEl?.textContent : '';
       await navigator.clipboard.writeText(text || '');
+      setCopiedMessage(true);
+      setTimeout(() => {
+        setCopiedMessage(false);
+      }, 2000); // Hide the message after 2 seconds
     } catch (error) {
       console.error('Error copying to clipboard:', error);
     }
@@ -83,6 +91,8 @@ export const BotBubble = (props: Props) => {
         setRating('THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
+        // update the thumbs up color state
+        setThumbsUpColor('#006400');
       }
     }
   };
@@ -109,6 +119,8 @@ export const BotBubble = (props: Props) => {
         setRating('THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
+        // update the thumbs down color state
+        setThumbsDownColor('#8B0000');
       }
     }
   };
@@ -180,17 +192,17 @@ export const BotBubble = (props: Props) => {
           <>
             <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
+              <Show when={copiedMessage()}>
+                <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
+                  Copied!
+                </div>
+              </Show>
               {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton
-                  feedbackColor={props.feedbackColor}
-                  isDisabled={rating() === 'THUMBS_UP'}
-                  rating={rating()}
-                  onClick={onThumbsUpClick}
-                />
+                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
               ) : null}
               {rating() === '' || rating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton
-                  feedbackColor={props.feedbackColor}
+                  feedbackColor={thumbsDownColor()}
                   isDisabled={rating() === 'THUMBS_DOWN'}
                   rating={rating()}
                   onClick={onThumbsDownClick}
