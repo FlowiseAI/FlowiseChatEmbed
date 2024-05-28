@@ -1,6 +1,7 @@
 import styles from '../../../assets/index.css';
 import { createSignal, Show, splitProps, createEffect, onMount } from 'solid-js';
 import { isNotDefined } from '@/utils/index';
+import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
 
 export type PopupProps = {
   value?: any;
@@ -66,9 +67,32 @@ export const Popup = (props: PopupProps) => {
     document.body.style.overflow = 'hidden';
   };
 
+  const clearChat = () => {
+    try {
+      removeLocalStorageChatHistory(props.chatflowid);
+      setChatId(
+        (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
+      );
+      const messages: MessageType[] = [
+        {
+          message: props.welcomeMessage ?? defaultWelcomeMessage,
+          type: 'apiMessage',
+        },
+      ];
+      if (leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead) {
+        messages.push({ message: '', type: 'leadCaptureMessage' });
+      }
+      setMessages(messages);
+    } catch (error: any) {
+      const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
+      console.error(`error: ${errorData}`);
+    }
+  };
+
   const closeBot = () => {
     setIsBotOpened(false);
     popupProps.onClose?.();
+    // clear chat history
     document.body.style.overflow = 'auto';
   };
 
