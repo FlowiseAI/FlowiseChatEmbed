@@ -24,6 +24,7 @@ type Props = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
+const defaultFeedbackColor = '#3B81F6';
 
 Marked.setOptions({ isNoP: true, sanitize: true });
 
@@ -33,8 +34,8 @@ export const BotBubble = (props: Props) => {
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
   const [copiedMessage, setCopiedMessage] = createSignal(false);
-  const [thumbsUpColor, setThumbsUpColor] = createSignal('#000000'); // default color
-  const [thumbsDownColor, setThumbsDownColor] = createSignal('#000000'); // default color
+  const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+  const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -192,7 +193,7 @@ export const BotBubble = (props: Props) => {
             <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
-                <div class="copied-message" style={{ color: 'blue' }}>
+                <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
                   Copied!
                 </div>
               </Show>
