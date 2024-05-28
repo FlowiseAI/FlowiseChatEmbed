@@ -59,10 +59,11 @@ export type ChatWindowTheme = {
 };
 
 export type ButtonTheme = {
-  size?: 'medium' | 'large';
+  size?: number; // custom size of chatbot in pixels
   backgroundColor?: string;
   iconColor?: string;
   customIconSrc?: string;
   bottom?: number;
   right?: number;
+  dragAndDrop?: boolean; // parameter to enable drag and drop(true or false)
 };
