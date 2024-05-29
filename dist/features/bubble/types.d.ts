@@ -51,7 +51,7 @@ export type ChatWindowTheme = {
     poweredByTextColor?: string;
 };
 export type ButtonTheme = {
-    size?: number;
+    size?: 'small' | 'medium' | 'large' | number;
     backgroundColor?: string;
     iconColor?: string;
     customIconSrc?: string;

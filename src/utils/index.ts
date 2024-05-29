@@ -103,3 +103,12 @@ export const removeLocalStorageChatHistory = (chatflowid: string) => {
     return;
   }
 };
+
+export const getBubbleButtonSize = (size: 'small' | 'medium' | 'large' | number | undefined) => {
+  if (!size) return 48;
+  if (typeof size === 'number') return size;
+  if (size === 'small') return 32;
+  if (size === 'medium') return 48;
+  if (size === 'large') return 64;
+  return 48
+}

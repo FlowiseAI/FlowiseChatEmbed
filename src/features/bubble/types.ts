@@ -59,7 +59,7 @@ export type ChatWindowTheme = {
 };
 
 export type ButtonTheme = {
-  size?: number; // custom size of chatbot in pixels
+  size?: 'small' | 'medium' | 'large' | number; // custom size of chatbot in pixels
   backgroundColor?: string;
   iconColor?: string;
   customIconSrc?: string;

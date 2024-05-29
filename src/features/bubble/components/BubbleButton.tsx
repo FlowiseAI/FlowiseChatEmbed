@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js';
 import { Show } from 'solid-js';
-import { isNotDefined } from '@/utils/index';
+import { isNotDefined, getBubbleButtonSize } from '@/utils/index';
 import { ButtonTheme } from '../types';
 
 type Props = ButtonTheme & {
@@ -16,7 +16,7 @@ const defaultBottom = 20;
 const defaultRight = 20;
 
 export const BubbleButton = (props: Props) => {
-  const buttonSize = props.size ?? 48; // Default to 48px if no size is specified
+  const buttonSize = getBubbleButtonSize(props.size); // Default to 48px if no size is specified
 
   const [position, setPosition] = createSignal({
     bottom: props.bottom ?? defaultBottom,
