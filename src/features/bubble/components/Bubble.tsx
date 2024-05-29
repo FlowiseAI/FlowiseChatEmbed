@@ -3,6 +3,7 @@ import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
 import { Bot, BotProps } from '../../../components/Bot';
+import { getBubbleButtonSize } from '@/utils';
 
 const defaultButtonColor = '#3B81F6';
 const defaultIconColor = 'white';
@@ -36,7 +37,7 @@ export const Bubble = (props: BubbleProps) => {
     setIsBotStarted(false);
   });
 
-  const buttonSize = props.theme?.button?.size ?? 48; // Default to 48px if size is not provided
+  const buttonSize = getBubbleButtonSize(props.theme?.button?.size); // Default to 48px if size is not provided
   const buttonBottom = props.theme?.button?.bottom ?? 20;
   const chatWindowBottom = buttonBottom + buttonSize + 10; // Adjust the offset here for slight shift
 
