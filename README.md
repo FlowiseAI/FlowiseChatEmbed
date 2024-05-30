@@ -104,12 +104,13 @@ You can also customize chatbot with different configuration
         backgroundColor: '#3B81F6',
         right: 20,
         bottom: 20,
-        size: 'medium',
+        size: 48, // small | medium | large | number
+        dragAndDrop: true,
         iconColor: 'white',
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
       },
       chatWindow: {
-        showTitle: true, // show/hide the title bar
+        showTitle: true,
         title: 'Flowise Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
@@ -118,7 +119,6 @@ You can also customize chatbot with different configuration
         height: 700,
         width: 400,
         fontSize: 16,
-        poweredByTextColor: '#303235',
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',
@@ -139,6 +139,12 @@ You can also customize chatbot with different configuration
         },
         feedback: {
           color: '#303235',
+        },
+        footer: {
+          textColor: '#303235',
+          text: 'Powered by',
+          company: 'Flowise',
+          companyLink: 'https://flowiseai.com',
         },
       },
     },

@@ -23,6 +23,13 @@ export type BotMessageTheme = {
     showAvatar?: boolean;
     avatarSrc?: string;
 };
+export type FooterTheme = {
+    showFooter?: boolean;
+    textColor?: string;
+    text?: string;
+    company?: string;
+    companyLink?: string;
+};
 export type FeedbackTheme = {
     color?: string;
 };
@@ -40,14 +47,16 @@ export type ChatWindowTheme = {
     botMessage?: BotMessageTheme;
     textInput?: TextInputTheme;
     feedback?: FeedbackTheme;
+    footer?: FooterTheme;
     poweredByTextColor?: string;
 };
 export type ButtonTheme = {
-    size?: 'medium' | 'large';
+    size?: 'small' | 'medium' | 'large' | number;
     backgroundColor?: string;
     iconColor?: string;
     customIconSrc?: string;
     bottom?: number;
     right?: number;
+    dragAndDrop?: boolean;
 };
 //# sourceMappingURL=types.d.ts.map
