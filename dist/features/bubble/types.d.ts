@@ -10,6 +10,7 @@ export type TextInputTheme = {
     textColor?: string;
     placeholder?: string;
     sendButtonColor?: string;
+    maxWords?: number;
 };
 export type UserMessageTheme = {
     backgroundColor?: string;

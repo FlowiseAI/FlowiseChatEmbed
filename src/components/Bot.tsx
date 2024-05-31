@@ -796,7 +796,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       };
     }),
   );
-
+  const [warningMessage, setWarningMessage] = createSignal('');
   return (
     <>
       <div
@@ -949,6 +949,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 );
               }}
             </For>
+            <div class="text-red-500 text-sm" data-testid="warning-message">{warningMessage()}</div>
           </div>
           <Show when={messages().length === 1}>
             <Show when={starterPrompts().length > 0}>
@@ -1044,18 +1045,21 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </>
             ) : (
               <TextInput
-                backgroundColor={props.textInput?.backgroundColor}
-                textColor={props.textInput?.textColor}
-                placeholder={props.textInput?.placeholder}
-                sendButtonColor={props.textInput?.sendButtonColor}
-                fontSize={props.fontSize}
-                disabled={loading() || (leadsConfig()?.status && !isLeadSaved())}
-                defaultValue={userInput()}
-                onSubmit={handleSubmit}
-                uploadsConfig={uploadsConfig()}
-                setPreviews={setPreviews}
-                onMicrophoneClicked={onMicrophoneClicked}
-                handleFileChange={handleFileChange}
+              backgroundColor={props.textInput?.backgroundColor}
+              textColor={props.textInput?.textColor}
+              placeholder={props.textInput?.placeholder}
+              sendButtonColor={props.textInput?.sendButtonColor}
+              maxWords={props.textInput?.maxWords}
+              fontSize={props.fontSize}
+              disabled={loading() || (leadsConfig()?.status && !isLeadSaved())}
+              defaultValue={userInput()}
+              onSubmit={handleSubmit}
+              uploadsConfig={uploadsConfig()}
+              setPreviews={setPreviews}
+              onMicrophoneClicked={onMicrophoneClicked}
+              handleFileChange={handleFileChange}
+              setWarningMessage={setWarningMessage}
+              isSendButtonDisabled={warningMessage() !== ''}
               />
             )}
           </div>
