@@ -19,27 +19,40 @@ type Props = {
   setPreviews: Setter<unknown[]>;
   onMicrophoneClicked: () => void;
   handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
+  maxWords?: number;
+  setWarningMessage: Setter<string>;
+  isSendButtonDisabled: boolean;
 };
 
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 
 export const TextInput = (props: Props) => {
-  const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
+  const [maxWords, setMaxWords] = createSignal(props.defaultValue ?? '');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
 
-  const handleInput = (inputValue: string) => setInputValue(inputValue);
+  const handleInput = (maxWords: string) => {
+    const words = maxWords.trim().split(/\s+/);
+    const wordCount = words.length;
+    
+    if (props.maxWords && wordCount > props.maxWords) {
+      props.setWarningMessage(`You exceeded the word limit. Please input less than ${props.maxWords} words.`);
+      return;
+    }
+    
+    setMaxWords(maxWords);
+    props.setWarningMessage('');
+  };  
 
-  const checkIfInputIsValid = () => inputValue() !== '' && inputRef?.reportValidity();
+  const checkIfInputIsValid = () => maxWords() !== '' && inputRef?.reportValidity();
 
   const submit = () => {
-    if (checkIfInputIsValid()) props.onSubmit(inputValue());
-    setInputValue('');
+    if (checkIfInputIsValid()) props.onSubmit(maxWords());
+    setMaxWords('');
   };
 
   const submitWhenEnter = (e: KeyboardEvent) => {
-    // Check if IME composition is in progress
     const isIMEComposition = e.isComposing || e.keyCode === 229;
     if (e.key === 'Enter' && !isIMEComposition) submit();
   };
@@ -58,7 +71,6 @@ export const TextInput = (props: Props) => {
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
     props.handleFileChange(event);
-    // 👇️ reset file input
     if (event.target) event.target.value = '';
   };
 
@@ -90,7 +102,7 @@ export const TextInput = (props: Props) => {
       <ShortTextInput
         ref={inputRef as HTMLTextAreaElement}
         onInput={handleInput}
-        value={inputValue()}
+        value={maxWords()}
         fontSize={props.fontSize}
         disabled={props.disabled}
         placeholder={props.placeholder ?? 'Type your question'}
@@ -109,7 +121,7 @@ export const TextInput = (props: Props) => {
       <SendButton
         sendButtonColor={props.sendButtonColor}
         type="button"
-        isDisabled={props.disabled || inputValue() === ''}
+        isDisabled={props.disabled || props.isSendButtonDisabled}
         class="m-0 h-14 flex items-center justify-center"
         on:click={submit}
       >
