@@ -35,15 +35,15 @@ export const TextInput = (props: Props) => {
   const handleInput = (maxWords: string) => {
     const words = maxWords.trim().split(/\s+/);
     const wordCount = words.length;
-    
+
     if (props.maxWords && wordCount > props.maxWords) {
       props.setWarningMessage(`You exceeded the word limit. Please input less than ${props.maxWords} words.`);
       return;
     }
-    
+
     setMaxWords(maxWords);
     props.setWarningMessage('');
-  };  
+  };
 
   const checkIfInputIsValid = () => maxWords() !== '' && inputRef?.reportValidity();
 
