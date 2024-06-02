@@ -2,8 +2,10 @@ import { onCleanup, onMount } from 'solid-js'
 
 type Props = {
   botContainer: HTMLDivElement | undefined
+  badgeText?:string
   poweredByTextColor?: string
   badgeBackgroundColor?: string
+
 }
 
 const defaultTextColor = '#303235'
@@ -40,18 +42,9 @@ export const Badge = (props: Props) => {
     if (observer) observer.disconnect()
   })
 
-  return (
-    <span style={{
-      "font-size": '13px',
-      position: 'absolute',
-      bottom: 0,
-      padding: '10px',
-      margin: 'auto',
-      width: '100%',
-      "text-align": 'center',
-      color: props.poweredByTextColor ?? defaultTextColor,
-      "background-color": props.badgeBackgroundColor ?? '#ffffff'
-    }}>Powered by 
+
+
+  const default_text = (<>Powered by 
       <a
         ref={liteBadge}
         href={'https://www.realty-ai.ca'}
@@ -63,6 +56,23 @@ export const Badge = (props: Props) => {
       >
         <span>Realty AI</span>
       </a>
+    </>)
+
+  const badge_text = props.badgeText ? (<span style={{ "font-weight": 'bold', color: props.poweredByTextColor ?? defaultTextColor }}>{props.badgeText}</span>): default_text
+
+  return (
+    <span style={{
+      "font-size": '13px',
+      position: 'absolute',
+      bottom: 0,
+      padding: '10px',
+      margin: 'auto',
+      width: '100%',
+      "text-align": 'center',
+      color: props.poweredByTextColor ?? defaultTextColor,
+      "background-color": props.badgeBackgroundColor ?? '#ffffff'
+    }}>
+      {badge_text}
     </span>
   )
 }

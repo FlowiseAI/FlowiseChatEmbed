@@ -16,6 +16,7 @@ declare const chatbot: {
         maxPopups?: number | undefined;
         mobileQuestionFontSize?: string | undefined;
         desktopQuestionFontSize?: string | undefined;
+        badgeText?: string | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -36,6 +37,7 @@ declare const chatbot: {
         maxPopups?: number | undefined;
         mobileQuestionFontSize?: string | undefined;
         desktopQuestionFontSize?: string | undefined;
+        badgeText?: string | undefined;
     }) => Promise<void>;
 };
 export default chatbot;

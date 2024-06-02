@@ -59,9 +59,8 @@ export const Full = (
             questions = {props.questions}
             includeQuestions={props.includeQuestions}
             mobileQuestionFontSize={props.mobileQuestionFontSize}
-
             desktopQuestionFontSize={props.desktopQuestionFontSize}
-                      
+            badgeText={props.badgeText}  
                     
             />
         </div>

@@ -17,7 +17,8 @@ type BotProps = {
     questions?:Array<string>
     maxPopups?:number
     mobileQuestionFontSize?: string
-    desktopQuestionFontSize?: string
+    desktopQuestionFontSize?: string,
+    badgeText?:string,
 }
 
 export const initFull = (props: BotProps & { id?: string }) => {
@@ -38,6 +39,7 @@ export const initFull = (props: BotProps & { id?: string }) => {
         props.loadID = config_data?.load_id ? config_data?.load_id :""
         props.stayClosedFlag = config_data?.stayClosedFlag
         props.questions = config_data?.questions
+        props.badgeText = config_data?.badgeText
         const fullElement = props.id
         ? document.getElementById(props.id)
         : document.querySelector('flowise-fullchatbot-parent')
@@ -80,7 +82,8 @@ export const init = async (props: BotProps) => {
 
         props.mobileQuestionFontSize = config_data?.mobileQuestionFontSize ? config_data?.mobileQuestionFontSize : "10px"
         props.desktopQuestionFontSize = config_data?.desktopQuestionFontSize ? config_data?.desktopQuestionFontSize : "20px"
-
+        props.badgeText = config_data?.badgeText
+        
         const isMobile = isMobileCheck()
         
         const noMobile = config_data?.noMobile

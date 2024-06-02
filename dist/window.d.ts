@@ -15,6 +15,7 @@ type BotProps = {
     maxPopups?: number;
     mobileQuestionFontSize?: string;
     desktopQuestionFontSize?: string;
+    badgeText?: string;
 };
 export declare const initFull: (props: BotProps & {
     id?: string;

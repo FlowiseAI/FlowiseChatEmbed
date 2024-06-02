@@ -6,6 +6,7 @@ export type BubbleParams = {
     stayClosedFlag: boolean;
     theme?: BubbleTheme;
     maxPopups?: number;
+    badgeText?: string;
 };
 export type BubbleTheme = {
     chatWindow?: ChatWindowTheme;

@@ -158,6 +158,7 @@ export const Bubble = (props: BubbleProps) => {
                         questions = {props.questions}
                         mobileQuestionFontSize={props.mobileQuestionFontSize}
                         desktopQuestionFontSize={props.desktopQuestionFontSize}
+                        badgeText = {props.badgeText}
                         />
 
                 </Show>

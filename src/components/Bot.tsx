@@ -39,6 +39,7 @@ export type BotProps = {
     fontSize?: number,
     fullScreen?:boolean,
     questions?: Array<string>,
+    badgeText?: string,
 }
 
 
@@ -503,7 +504,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 </div>
                 
                
-                <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} />
+                <Badge badgeBackgroundColor={props.badgeBackgroundColor} poweredByTextColor={props.poweredByTextColor} botContainer={botContainer} badgeText={props.badgeText}/>
                 <BottomSpacer ref={bottomSpacer} />
                 
             </div>
