@@ -21,8 +21,9 @@ type BotProps = {
     badgeText?:string,
 }
 
+const version = "realty-ai-bot-version:1.0"
 export const initFull = (props: BotProps & { id?: string }) => {
-
+    console.log(version)
     const data = sendRequest<any>({
         method: 'GET',
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
@@ -55,10 +56,7 @@ export const initFull = (props: BotProps & { id?: string }) => {
 
 
 export const init = async (props: BotProps) => {
-    // const numLoadedCookie: string =  getCookie("numLoadedChat");
-    // let numLoaded: number  = parseInt(numLoadedCookie);
-    // numLoaded = numLoaded ? numLoaded : 0; 
-    // setCookie("numLoadedChat",numLoaded + 1,1)
+    console.log(version)
     const data = sendRequest<any>({
         method: 'GET',
         url: `https://vshdvtqafk.execute-api.us-east-2.amazonaws.com/default/user_config_api/?username=`+props.userID,
