@@ -110,5 +110,5 @@ export const getBubbleButtonSize = (size: 'small' | 'medium' | 'large' | number 
   if (size === 'small') return 32;
   if (size === 'medium') return 48;
   if (size === 'large') return 64;
-  return 48
-}
+  return 48;
+};

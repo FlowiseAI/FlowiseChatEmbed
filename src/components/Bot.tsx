@@ -796,7 +796,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       };
     }),
   );
-
   return (
     <>
       <div
@@ -1048,6 +1047,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 textColor={props.textInput?.textColor}
                 placeholder={props.textInput?.placeholder}
                 sendButtonColor={props.textInput?.sendButtonColor}
+                maxWords={props.textInput?.maxWords}
+                maxWordsWarningMessage={props.textInput?.maxWordsWarningMessage}
                 fontSize={props.fontSize}
                 disabled={loading() || (leadsConfig()?.status && !isLeadSaved())}
                 defaultValue={userInput()}
@@ -1071,10 +1072,3 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     </>
   );
 };
-
-// type BottomSpacerProps = {
-//   ref: HTMLDivElement | undefined;
-// };
-// const BottomSpacer = (props: BottomSpacerProps) => {
-//   return <div ref={props.ref} class="w-full h-32" />;
-// };

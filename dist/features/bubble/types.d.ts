@@ -10,6 +10,8 @@ export type TextInputTheme = {
     textColor?: string;
     placeholder?: string;
     sendButtonColor?: string;
+    maxWords?: number;
+    maxWordsWarningMessage?: string;
 };
 export type UserMessageTheme = {
     backgroundColor?: string;
