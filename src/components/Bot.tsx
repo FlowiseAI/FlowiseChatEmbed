@@ -796,7 +796,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       };
     }),
   );
-  // const [warningMessage, setWarningMessage] = createSignal('');
   return (
     <>
       <div
@@ -949,9 +948,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 );
               }}
             </For>
-            {/* ? <div class="text-red-500 text-sm" data-testid="warning-message">
-              {warningMessage()}
-            </div> */}
           </div>
           <Show when={messages().length === 1}>
             <Show when={starterPrompts().length > 0}>
@@ -1052,6 +1048,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 placeholder={props.textInput?.placeholder}
                 sendButtonColor={props.textInput?.sendButtonColor}
                 maxWords={props.textInput?.maxWords}
+                maxWordsWarningMessage={props.textInput?.maxWordsWarningMessage}
                 fontSize={props.fontSize}
                 disabled={loading() || (leadsConfig()?.status && !isLeadSaved())}
                 defaultValue={userInput()}
@@ -1060,8 +1057,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 setPreviews={setPreviews}
                 onMicrophoneClicked={onMicrophoneClicked}
                 handleFileChange={handleFileChange}
-                // setWarningMessage={setWarningMessage}
-                // isSendButtonDisabled={warningMessage() !== ''}
               />
             )}
           </div>
@@ -1077,10 +1072,3 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     </>
   );
 };
-
-// type BottomSpacerProps = {
-//   ref: HTMLDivElement | undefined;
-// };
-// const BottomSpacer = (props: BottomSpacerProps) => {
-//   return <div ref={props.ref} class="w-full h-32" />;
-// };

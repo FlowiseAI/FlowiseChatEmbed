@@ -1,6 +1,6 @@
 import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
-import { createSignal, createEffect, onMount, Setter } from 'solid-js';
+import { Show, createSignal, createEffect, onMount, Setter } from 'solid-js';
 import { SendButton } from '@/components/buttons/SendButton';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
@@ -20,6 +20,7 @@ type Props = {
   onMicrophoneClicked: () => void;
   handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
   maxWords?: number;
+  maxWordsWarningMessage?: string;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -37,7 +38,7 @@ export const TextInput = (props: Props) => {
     const wordCount = words.length;
 
     if (props.maxWords && wordCount > props.maxWords) {
-      setWarningMessage(`You exceeded the word limit. Please input less than ${props.maxWords} words.`);
+      setWarningMessage(props.maxWordsWarningMessage ?? `You exceeded the word limit. Please input less than ${props.maxWords} words.`);
       setIsSendButtonDisabled(true);
       return;
     }
@@ -47,7 +48,7 @@ export const TextInput = (props: Props) => {
     setIsSendButtonDisabled(false);
   };
 
-  const checkIfInputIsValid = () => inputValue() !== '' && inputRef?.reportValidity();
+  const checkIfInputIsValid = () => inputValue() !== '' && warningMessage() === '' && inputRef?.reportValidity();
 
   const submit = () => {
     if (checkIfInputIsValid()) props.onSubmit(inputValue());
@@ -56,7 +57,7 @@ export const TextInput = (props: Props) => {
 
   const submitWhenEnter = (e: KeyboardEvent) => {
     const isIMEComposition = e.isComposing || e.keyCode === 229;
-    if (e.key === 'Enter' && !isIMEComposition) submit();
+    if (e.key === 'Enter' && !isIMEComposition && warningMessage() === '') submit();
   };
 
   const handleImageUploadClick = () => {
@@ -87,9 +88,11 @@ export const TextInput = (props: Props) => {
       }}
       onKeyDown={submitWhenEnter}
     >
-      <div class="w-full text-red-500 text-sm" data-testid="warning-message">
-        {warningMessage()}
-      </div>
+      <Show when={warningMessage() !== ''}>
+        <div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">
+          {warningMessage()}
+        </div>
+      </Show>
       <div class="w-full flex items-end justify-between">
         {props.uploadsConfig?.isImageUploadAllowed ? (
           <>

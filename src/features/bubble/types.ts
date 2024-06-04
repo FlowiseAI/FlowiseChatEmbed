@@ -13,6 +13,7 @@ export type TextInputTheme = {
   placeholder?: string;
   sendButtonColor?: string;
   maxWords?: number;
+  maxWordsWarningMessage?: string;
 };
 
 export type UserMessageTheme = {
