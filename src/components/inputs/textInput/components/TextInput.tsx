@@ -100,7 +100,7 @@ export const TextInput = (props: Props) => {
               buttonColor={props.sendButtonColor}
               type="button"
               class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled}
+              isDisabled={props.disabled  || isSendButtonDisabled()}
               on:click={handleImageUploadClick}
             >
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
@@ -121,7 +121,7 @@ export const TextInput = (props: Props) => {
             buttonColor={props.sendButtonColor}
             type="button"
             class="m-0 start-recording-button h-14 flex items-center justify-center"
-            isDisabled={props.disabled}
+            isDisabled={props.disabled || isSendButtonDisabled()}
             on:click={props.onMicrophoneClicked}
           >
             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
