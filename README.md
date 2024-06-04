@@ -136,8 +136,8 @@ You can also customize chatbot with different configuration
           backgroundColor: '#ffffff',
           textColor: '#303235',
           sendButtonColor: '#3B81F6',
-          maxWords: 50,
-          maxWordsWarningMessage: 'You exceeded the word limit. Please input less than 50 words.',
+          maxChars: 50,
+          maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
         },
         feedback: {
           color: '#303235',
