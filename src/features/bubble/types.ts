@@ -12,8 +12,8 @@ export type TextInputTheme = {
   textColor?: string;
   placeholder?: string;
   sendButtonColor?: string;
-  maxWords?: number;
-  maxWordsWarningMessage?: string;
+  maxChars?: number;
+  maxCharsWarningMessage?: string;
 };
 
 export type UserMessageTheme = {

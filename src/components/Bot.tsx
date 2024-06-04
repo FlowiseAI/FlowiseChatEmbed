@@ -1047,8 +1047,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 textColor={props.textInput?.textColor}
                 placeholder={props.textInput?.placeholder}
                 sendButtonColor={props.textInput?.sendButtonColor}
-                maxWords={props.textInput?.maxWords}
-                maxWordsWarningMessage={props.textInput?.maxWordsWarningMessage}
+                maxChars={props.textInput?.maxChars}
+                maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
                 fontSize={props.fontSize}
                 disabled={loading() || (leadsConfig()?.status && !isLeadSaved())}
                 defaultValue={userInput()}
