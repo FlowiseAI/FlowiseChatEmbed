@@ -796,7 +796,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       };
     }),
   );
-  const [warningMessage, setWarningMessage] = createSignal('');
+  // const [warningMessage, setWarningMessage] = createSignal('');
   return (
     <>
       <div
@@ -949,9 +949,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 );
               }}
             </For>
-            <div class="text-red-500 text-sm" data-testid="warning-message">
+           {/* ? <div class="text-red-500 text-sm" data-testid="warning-message">
               {warningMessage()}
-            </div>
+            </div> */}
           </div>
           <Show when={messages().length === 1}>
             <Show when={starterPrompts().length > 0}>
@@ -1060,8 +1060,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 setPreviews={setPreviews}
                 onMicrophoneClicked={onMicrophoneClicked}
                 handleFileChange={handleFileChange}
-                setWarningMessage={setWarningMessage}
-                isSendButtonDisabled={warningMessage() !== ''}
+                // setWarningMessage={setWarningMessage}
+                // isSendButtonDisabled={warningMessage() !== ''}
               />
             )}
           </div>
