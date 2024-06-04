@@ -19,8 +19,8 @@ type Props = {
   setPreviews: Setter<unknown[]>;
   onMicrophoneClicked: () => void;
   handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
-  maxWords?: number;
-  maxWordsWarningMessage?: string;
+  maxChars?: number;
+  maxCharsWarningMessage?: string;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -34,11 +34,10 @@ export const TextInput = (props: Props) => {
   let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
 
   const handleInput = (inputValue: string) => {
-    const words = inputValue.trim().split(/\s+/);
-    const wordCount = words.length;
+    const wordCount = inputValue.length;
 
-    if (props.maxWords && wordCount > props.maxWords) {
-      setWarningMessage(props.maxWordsWarningMessage ?? `You exceeded the word limit. Please input less than ${props.maxWords} words.`);
+    if (props.maxChars && wordCount > props.maxChars) {
+      setWarningMessage(props.maxCharsWarningMessage ?? `You exceeded the characters limit. Please input less than ${props.maxChars} characters.`);
       setIsSendButtonDisabled(true);
       return;
     }

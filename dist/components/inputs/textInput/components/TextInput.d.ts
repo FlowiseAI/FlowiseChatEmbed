@@ -13,8 +13,8 @@ type Props = {
     setPreviews: Setter<unknown[]>;
     onMicrophoneClicked: () => void;
     handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
-    maxWords?: number;
-    maxWordsWarningMessage?: string;
+    maxChars?: number;
+    maxCharsWarningMessage?: string;
 };
 export declare const TextInput: (props: Props) => import("solid-js").JSX.Element;
 export {};
