@@ -949,7 +949,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 );
               }}
             </For>
-           {/* ? <div class="text-red-500 text-sm" data-testid="warning-message">
+            {/* ? <div class="text-red-500 text-sm" data-testid="warning-message">
               {warningMessage()}
             </div> */}
           </div>
