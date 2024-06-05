@@ -99,7 +99,7 @@ export const TextInput = (props: Props) => {
               buttonColor={props.sendButtonColor}
               type="button"
               class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled  || isSendButtonDisabled()}
+              isDisabled={props.disabled || isSendButtonDisabled()}
               on:click={handleImageUploadClick}
             >
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
