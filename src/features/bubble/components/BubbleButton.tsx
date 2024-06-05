@@ -90,7 +90,9 @@ export const BubbleButton = (props: Props) => {
             style={{
               stroke: props.iconColor ?? defaultIconColor,
             }}
-            class={`stroke-2 fill-transparent absolute duration-200 transition ` + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')}
+            class={
+              `stroke-2 fill-transparent absolute duration-200 transition ` + (props.isBotOpened ? 'scale-0 opacity-0' : 'scale-100 opacity-100')
+            }
             width={buttonSize * 0.6}
             height={buttonSize * 0.6}
           >
