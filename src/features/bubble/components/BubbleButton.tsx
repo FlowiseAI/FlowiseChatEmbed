@@ -7,7 +7,6 @@ type Props = ButtonTheme & {
   toggleBot: () => void;
   setButtonPosition: (position: { bottom: number; right: number }) => void; // New prop for updating position
   dragAndDrop: boolean; // Ensure dragAndDrop prop is passed
-  handleCloseChat: () => void; //New prop for handling close chat
 };
 
 const defaultButtonColor = '#3B81F6';

@@ -36,9 +36,7 @@ export const Bubble = (props: BubbleProps) => {
   onCleanup(() => {
     setIsBotStarted(false);
   });
-  const handleCloseChat = () => {
-    console.log('Closing chat window');
-  };
+
   const buttonSize = getBubbleButtonSize(props.theme?.button?.size); // Default to 48px if size is not provided
   const buttonBottom = props.theme?.button?.bottom ?? 20;
   const chatWindowBottom = buttonBottom + buttonSize + 10; // Adjust the offset here for slight shift
@@ -64,7 +62,6 @@ export const Bubble = (props: BubbleProps) => {
         isBotOpened={isBotOpened()}
         setButtonPosition={setButtonPosition}
         dragAndDrop={bubbleProps.theme?.button?.dragAndDrop ?? false}
-        handleCloseChat={handleCloseChat}
       />
       <div
         part="bot"
