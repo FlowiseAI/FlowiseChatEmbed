@@ -297,7 +297,6 @@ export const Bot = (props: BotProps & { class?: string }) => {
             scrollToBottom()
         }
         if (result.error) {
-            console.log("there was and error")
             const error = result.error
             console.error(error)
             const err: any = error
