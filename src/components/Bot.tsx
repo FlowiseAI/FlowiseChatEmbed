@@ -274,9 +274,13 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         sendLogConvoQuery(convo_message)
         if (result.data) {
-
             const data = handleVectaraMetadata(result.data)
-
+            var text = ""
+            if ((typeof result.data === 'object') && ('text' in result.data)){
+                text = result.data.text
+            }else{
+                text = result.data
+            }
             if (typeof data === 'object' && data.text && data.sourceDocuments) {
                 if (!isChatFlowAvailableToStream()) {
                     setMessages((prevMessages) => [
@@ -285,8 +289,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                     ])
                 }
             } else {
-                //console.log(message_id,result.data)
-                updateFullMessage(result.data,message_id)
+                updateFullMessage(text, message_id)
                 //if (!isChatFlowAvailableToStream()) setMessages((prevMessages) => [...prevMessages, { message: data, type: 'apiMessage' }])
             }
             setLoading(false)
