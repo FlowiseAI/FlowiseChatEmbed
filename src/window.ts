@@ -21,7 +21,7 @@ type BotProps = {
     badgeText?:string,
 }
 
-const version = "realty-ai-bot-version:1.0"
+const version = "realty-ai-bot-version:1.1"
 export const initFull = (props: BotProps & { id?: string }) => {
     console.log(version)
     const data = sendRequest<any>({
