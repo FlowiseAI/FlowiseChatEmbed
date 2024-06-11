@@ -86,10 +86,9 @@ export const Bubble = (props: BubbleProps) => {
         <Show when={isBotStarted()}>
           <div class="relative h-full">
             <Show when={isBotOpened()}>
-              {' '}
               {/* Cross button For only mobile screen use this <Show when={isBotOpened() && window.innerWidth <= 640}>  */}
-              <button onClick={closeBot} class="absolute top-0 right-[-8px] m-[6px] p-1 bg-transparent text-white rounded-full z-50">
-                <svg viewBox="0 0 24 24" width="32" height="32">
+              <button onClick={closeBot} class="py-2 pr-3 absolute top-0 right-[-8px] m-[6px] bg-transparent text-white rounded-full z-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75">
+                <svg viewBox="0 0 24 24" width="24" height="24">
                   <path
                     fill="white"
                     d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
