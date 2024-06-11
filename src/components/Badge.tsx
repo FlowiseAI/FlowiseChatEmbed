@@ -58,7 +58,7 @@ export const Badge = (props: Props) => {
             id="lite-badge"
             style={{ 'font-weight': 'bold', color: props.footer?.textColor ?? props.poweredByTextColor ?? defaultTextColor }}
           >
-            <span>&nbsp;{props.footer?.company ?? 'Flowise'}</span>
+            <span>&nbsp;{props.footer?.company ?? 'EchoPod'}</span>
           </a>
         </span>
       </Show>
