@@ -18,7 +18,7 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
-import { setIsMobile } from '@/utils/isMobileSignal'
+import { setIsMobile } from '@/utils/isMobileSignal';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -226,8 +226,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isDragActive, setIsDragActive] = createSignal(false);
 
   const resizeObserver = new ResizeObserver((entries) => {
-    return setIsMobile(entries[0].target.clientWidth <= 640)
-  })
+    return setIsMobile(entries[0].target.clientWidth <= 640);
+  });
 
   onMount(() => {
     if (botProps?.observersConfig) {
@@ -249,7 +249,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
     }
 
-    if (botContainer) resizeObserver.observe(botContainer)
+    if (botContainer) resizeObserver.observe(botContainer);
 
     if (!bottomSpacer) return;
     setTimeout(() => {
@@ -258,9 +258,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   onCleanup(() => {
-    if (!botContainer) return
-    resizeObserver.unobserve(botContainer)
-  })
+    if (!botContainer) return;
+    resizeObserver.unobserve(botContainer);
+  });
 
   const scrollToBottom = () => {
     setTimeout(() => {
