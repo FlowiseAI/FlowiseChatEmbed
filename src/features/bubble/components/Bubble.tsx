@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps, onCleanup } from 'solid-js';
+import { createSignal, Show, splitProps, onCleanup, createEffect } from 'solid-js';
 import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
@@ -41,6 +41,18 @@ export const Bubble = (props: BubbleProps) => {
   const buttonBottom = props.theme?.button?.bottom ?? 20;
   const chatWindowBottom = buttonBottom + buttonSize + 10; // Adjust the offset here for slight shift
 
+  // Add viewport meta tag dynamically
+  createEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0, interactive-widget=resizes-content';
+    document.head.appendChild(meta);
+
+    return () => {
+      document.head.removeChild(meta);
+    };
+  });
+
   return (
     <>
       <style>{styles}</style>
@@ -72,27 +84,43 @@ export const Bubble = (props: BubbleProps) => {
         }
       >
         <Show when={isBotStarted()}>
-          <Bot
-            badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
-            bubbleBackgroundColor={bubbleProps.theme?.button?.backgroundColor ?? defaultButtonColor}
-            bubbleTextColor={bubbleProps.theme?.button?.iconColor ?? defaultIconColor}
-            showTitle={bubbleProps.theme?.chatWindow?.showTitle}
-            title={bubbleProps.theme?.chatWindow?.title}
-            titleAvatarSrc={bubbleProps.theme?.chatWindow?.titleAvatarSrc}
-            welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
-            errorMessage={bubbleProps.theme?.chatWindow?.errorMessage}
-            poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
-            textInput={bubbleProps.theme?.chatWindow?.textInput}
-            botMessage={bubbleProps.theme?.chatWindow?.botMessage}
-            userMessage={bubbleProps.theme?.chatWindow?.userMessage}
-            feedback={bubbleProps.theme?.chatWindow?.feedback}
-            fontSize={bubbleProps.theme?.chatWindow?.fontSize}
-            footer={bubbleProps.theme?.chatWindow?.footer}
-            chatflowid={props.chatflowid}
-            chatflowConfig={props.chatflowConfig}
-            apiHost={props.apiHost}
-            observersConfig={props.observersConfig}
-          />
+          <div class="relative h-full">
+            <Show when={isBotOpened()}>
+              {/* Cross button For only mobile screen use this <Show when={isBotOpened() && window.innerWidth <= 640}>  */}
+              <button
+                onClick={closeBot}
+                class="py-2 pr-3 absolute top-0 right-[-8px] m-[6px] bg-transparent text-white rounded-full z-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75"
+              >
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                  <path
+                    fill="white"
+                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
+                  />
+                </svg>
+              </button>
+            </Show>
+            <Bot
+              badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
+              bubbleBackgroundColor={bubbleProps.theme?.button?.backgroundColor ?? defaultButtonColor}
+              bubbleTextColor={bubbleProps.theme?.button?.iconColor ?? defaultIconColor}
+              showTitle={bubbleProps.theme?.chatWindow?.showTitle}
+              title={bubbleProps.theme?.chatWindow?.title}
+              titleAvatarSrc={bubbleProps.theme?.chatWindow?.titleAvatarSrc}
+              welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
+              errorMessage={bubbleProps.theme?.chatWindow?.errorMessage}
+              poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
+              textInput={bubbleProps.theme?.chatWindow?.textInput}
+              botMessage={bubbleProps.theme?.chatWindow?.botMessage}
+              userMessage={bubbleProps.theme?.chatWindow?.userMessage}
+              feedback={bubbleProps.theme?.chatWindow?.feedback}
+              fontSize={bubbleProps.theme?.chatWindow?.fontSize}
+              footer={bubbleProps.theme?.chatWindow?.footer}
+              chatflowid={props.chatflowid}
+              chatflowConfig={props.chatflowConfig}
+              apiHost={props.apiHost}
+              observersConfig={props.observersConfig}
+            />
+          </div>
         </Show>
       </div>
     </>

@@ -436,3 +436,24 @@ textarea {
   padding: 10px 10px;
   font-family: 'Poppins', sans-serif;
 }
+@media (max-width: 640px) {
+  div[part='bot'] {
+    width: 100% !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    max-width: unset !important;
+    max-height: unset !important;
+    height: 100% !important;
+    overflow: auto; 
+  }
+
+    div[part='button'], div[class='flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10'], .chatbot-container {
+    border-radius: 0px !important;
+  }
+
+button {
+  cursor: default !important;
+}
+
+}

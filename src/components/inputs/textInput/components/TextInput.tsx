@@ -21,6 +21,7 @@ type Props = {
   handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
   maxChars?: number;
   maxCharsWarningMessage?: string;
+  autoFocus?: boolean;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -64,11 +65,11 @@ export const TextInput = (props: Props) => {
   };
 
   createEffect(() => {
-    if (!props.disabled && !isMobile() && inputRef) inputRef.focus();
+    if (!props.disabled && !isMobile() && inputRef && props.autoFocus !== false) inputRef.focus();
   });
 
   onMount(() => {
-    if (!isMobile() && inputRef) inputRef.focus();
+    if (!isMobile() && inputRef && props.autoFocus !== false) inputRef.focus();
   });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
@@ -99,7 +100,7 @@ export const TextInput = (props: Props) => {
               buttonColor={props.sendButtonColor}
               type="button"
               class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled  || isSendButtonDisabled()}
+              isDisabled={props.disabled || isSendButtonDisabled()}
               on:click={handleImageUploadClick}
             >
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>

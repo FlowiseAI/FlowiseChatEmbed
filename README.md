@@ -138,6 +138,7 @@ You can also customize chatbot with different configuration
           sendButtonColor: '#3B81F6',
           maxChars: 50,
           maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
+          autoFocus: true,
         },
         feedback: {
           color: '#303235',
