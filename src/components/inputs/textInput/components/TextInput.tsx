@@ -21,6 +21,7 @@ type Props = {
   handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
   maxChars?: number;
   maxCharsWarningMessage?: string;
+  autoFocus?: boolean;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -63,13 +64,13 @@ export const TextInput = (props: Props) => {
     if (fileUploadRef) fileUploadRef.click();
   };
 
-  // createEffect(() => {
-  //   if (!props.disabled && !isMobile() && inputRef) inputRef.focus();
-  // });
+  createEffect(() => {
+    if (!props.disabled && !isMobile() && inputRef && props.autoFocus !== false) inputRef.focus();
+  });
 
-  // onMount(() => {
-  //   if (!isMobile() && inputRef) inputRef.focus();
-  // });
+  onMount(() => {
+    if (!isMobile() && inputRef && props.autoFocus !== false) inputRef.focus();
+  });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
     props.handleFileChange(event);
