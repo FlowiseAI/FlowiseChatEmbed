@@ -93,7 +93,7 @@ export const LeadCaptureBubble = (props: Props) => {
           'background-color': props.backgroundColor ?? defaultBackgroundColor,
           color: props.textColor ?? defaultTextColor,
           'border-radius': '6px',
-          'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}`,
+          'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
         }}
       >
         {props.isLeadSaved || getLocalStorageChatflow(props.chatflowid)?.lead ? (
