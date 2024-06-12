@@ -1,6 +1,7 @@
 import { createSignal, Show } from 'solid-js';
 import { isNotDefined, getBubbleButtonSize } from '@/utils/index';
 import { ButtonTheme } from '../types';
+import { isMobile } from '@/utils/isMobileSignal';
 
 type Props = ButtonTheme & {
   isBotOpened: boolean;
@@ -21,8 +22,6 @@ export const BubbleButton = (props: Props) => {
     bottom: props.bottom ?? defaultBottom,
     right: props.right ?? defaultRight,
   });
-
-  const [isSmallScreen, setIsSmallScreen] = createSignal(false);
 
   let dragStartX: number;
   let initialRight: number;
@@ -59,18 +58,11 @@ export const BubbleButton = (props: Props) => {
     document.removeEventListener('mouseup', onMouseUp);
   };
 
-  const handleButtonClick = () => {
-    props.toggleBot();
-    if (window.innerWidth <= 640) {
-      setIsSmallScreen(true);
-    }
-  };
-
   return (
-    <Show when={!isSmallScreen() || !props.isBotOpened} keyed>
+    <Show when={!isMobile() || !props.isBotOpened} keyed>
       <button
         part="button"
-        onClick={handleButtonClick}
+        onClick={() => props.toggleBot()}
         onMouseDown={onMouseDown}
         class={`fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in`}
         style={{
