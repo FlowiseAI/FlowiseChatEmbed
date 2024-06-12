@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, onCleanup, Show, mergeProps, on, createMemo } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
@@ -18,7 +18,6 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
-import { setIsMobile } from '@/utils/isMobileSignal';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -225,10 +224,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
 
-  const resizeObserver = new ResizeObserver((entries) => {
-    return setIsMobile(entries[0].target.clientWidth <= 640);
-  });
-
   onMount(() => {
     if (botProps?.observersConfig) {
       const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
@@ -249,17 +244,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
     }
 
-    if (botContainer) resizeObserver.observe(botContainer);
-
     if (!bottomSpacer) return;
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
-  });
-
-  onCleanup(() => {
-    if (!botContainer) return;
-    resizeObserver.unobserve(botContainer);
   });
 
   const scrollToBottom = () => {
