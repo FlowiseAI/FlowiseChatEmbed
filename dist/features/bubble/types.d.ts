@@ -12,6 +12,7 @@ export type TextInputTheme = {
     sendButtonColor?: string;
     maxChars?: number;
     maxCharsWarningMessage?: string;
+    autoFocus?: boolean;
 };
 export type UserMessageTheme = {
     backgroundColor?: string;
