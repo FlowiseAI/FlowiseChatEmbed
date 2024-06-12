@@ -65,11 +65,19 @@ export const TextInput = (props: Props) => {
   };
 
   createEffect(() => {
-    if (!props.disabled && !isMobile() && inputRef && props.autoFocus !== false) inputRef.focus();
+    const shouldAutoFocus = props.autoFocus !== undefined 
+      ? props.autoFocus 
+      : !isMobile() && window.innerWidth > 640;
+
+    if (!props.disabled && shouldAutoFocus && inputRef) inputRef.focus();
   });
 
   onMount(() => {
-    if (!isMobile() && inputRef && props.autoFocus !== false) inputRef.focus();
+    const shouldAutoFocus = props.autoFocus !== undefined 
+      ? props.autoFocus 
+      : !isMobile() && window.innerWidth > 640;
+
+    if (!props.disabled && shouldAutoFocus && inputRef) inputRef.focus();
   });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
