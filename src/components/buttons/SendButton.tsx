@@ -28,13 +28,17 @@ export const SendButton = (props: SendButtonProps) => {
   );
 };
 export const DeleteButton = (props: SendButtonProps) => {
+  // Check if <flowise-fullchatbot> is present in the DOM
+  const isFullChatbot = document.querySelector('flowise-fullchatbot') !== null;
+  const paddingClass = isFullChatbot ? 'px-4' : 'px-12';
+
   return (
     <button
       type="submit"
       disabled={props.isDisabled || props.isLoading}
       {...props}
       class={
-        'py-2 px-4 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
+        `py-2 ${paddingClass} justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ` +
         props.class
       }
       style={{ background: 'transparent', border: 'none' }}
