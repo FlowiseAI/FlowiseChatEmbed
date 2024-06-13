@@ -110,7 +110,6 @@ export const Bubble = (props: BubbleProps) => {
                   />
                 </svg>
               </button>
-
             </Show>
             <Bot
               badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
