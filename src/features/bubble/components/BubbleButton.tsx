@@ -1,13 +1,12 @@
 import { createSignal, Show } from 'solid-js';
 import { isNotDefined, getBubbleButtonSize } from '@/utils/index';
 import { ButtonTheme } from '../types';
-import { isMobile } from '@/utils/isMobileSignal';
 
 type Props = ButtonTheme & {
   isBotOpened: boolean;
   toggleBot: () => void;
-  setButtonPosition: (position: { bottom: number; right: number }) => void; // New prop for updating position
-  dragAndDrop: boolean; // Ensure dragAndDrop prop is passed
+  setButtonPosition: (position: { bottom: number; right: number }) => void;
+  dragAndDrop: boolean;
 };
 
 const defaultButtonColor = '#3B81F6';
@@ -16,12 +15,14 @@ const defaultBottom = 20;
 const defaultRight = 20;
 
 export const BubbleButton = (props: Props) => {
-  const buttonSize = getBubbleButtonSize(props.size); // Default to 48px if no size is specified
+  const buttonSize = getBubbleButtonSize(props.size);
 
   const [position, setPosition] = createSignal({
     bottom: props.bottom ?? defaultBottom,
     right: props.right ?? defaultRight,
   });
+
+  const [isSmallScreen, setIsSmallScreen] = createSignal(false);
 
   let dragStartX: number;
   let initialRight: number;
@@ -40,7 +41,6 @@ export const BubbleButton = (props: Props) => {
     const deltaX = dragStartX - e.clientX;
     const newRight = initialRight + deltaX;
 
-    // Check if the new position is within the screen boundaries
     const screenWidth = window.innerWidth;
     const maxRight = screenWidth - buttonSize;
 
@@ -50,7 +50,7 @@ export const BubbleButton = (props: Props) => {
     };
 
     setPosition(newPosition);
-    props.setButtonPosition(newPosition); // Update parent component's state
+    props.setButtonPosition(newPosition);
   };
 
   const onMouseUp = () => {
@@ -58,11 +58,18 @@ export const BubbleButton = (props: Props) => {
     document.removeEventListener('mouseup', onMouseUp);
   };
 
+  const handleButtonClick = () => {
+    props.toggleBot();
+    if (window.innerWidth <= 640) {
+      setIsSmallScreen(true);
+    }
+  };
+
   return (
-    <Show when={!isMobile() || !props.isBotOpened} keyed>
+    <Show when={!isSmallScreen() || !props.isBotOpened} keyed>
       <button
         part="button"
-        onClick={() => props.toggleBot()}
+        onClick={handleButtonClick}
         onMouseDown={onMouseDown}
         class={`fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in`}
         style={{

@@ -457,3 +457,16 @@ button {
 }
 
 }
+.tooltip {
+  position: fixed;
+  background: var(--tooltip-background-color, black);
+  color: var(--tooltip-text-color, white);
+  padding: 5px 10px;
+  border-radius: 5px;
+  z-index: 42424242;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: calc(100vw - 20px);
+  font-size: var(--tooltip-font-size, 12px);
+  transition: opacity 0.3s ease-in-out;
+}
