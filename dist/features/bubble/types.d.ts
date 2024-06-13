@@ -4,6 +4,7 @@ export type BubbleParams = {
 export type BubbleTheme = {
     chatWindow?: ChatWindowTheme;
     button?: ButtonTheme;
+    tooltip?: ToolTipTheme;
 };
 export type TextInputTheme = {
     backgroundColor?: string;
@@ -61,5 +62,11 @@ export type ButtonTheme = {
     bottom?: number;
     right?: number;
     dragAndDrop?: boolean;
+};
+export type ToolTipTheme = {
+    showTooltip?: boolean;
+    tooltipMessage?: string;
+    tooltipBackgroundColor?: string;
+    tooltipTextColor?: string;
 };
 //# sourceMappingURL=types.d.ts.map
