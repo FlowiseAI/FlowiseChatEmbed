@@ -76,4 +76,4 @@ export type ToolTipTheme = {
   tooltipMessage?: string;
   tooltipBackgroundColor?: string;
   tooltipTextColor?: string;
-}
+};

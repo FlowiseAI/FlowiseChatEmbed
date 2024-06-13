@@ -36,7 +36,7 @@ const Tooltip = (props: TooltipProps) => {
               }
               return acc;
             },
-            [[]]
+            [[]],
           )
           .map((arr) => arr.join(' '))
           .join('\n')

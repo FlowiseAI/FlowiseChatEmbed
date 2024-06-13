@@ -110,10 +110,10 @@ You can also customize chatbot with different configuration
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
       },
       tooltip: {
-          showTooltip: true,
-          tooltipMessage: "Hi There 👋!",
-          tooltipBackgroundColor: "black",
-          tooltipTextColor: "white",
+        showTooltip: true,
+        tooltipMessage: 'Hi There 👋!',
+        tooltipBackgroundColor: 'black',
+        tooltipTextColor: 'white',
       },
       chatWindow: {
         showTitle: true,
@@ -144,7 +144,7 @@ You can also customize chatbot with different configuration
           sendButtonColor: '#3B81F6',
           maxChars: 50,
           maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
-          autoFocus: true,// If not used, autofocus is disabled on mobile and enabled on desktop. true enables it on both, false disables it on both.
+          autoFocus: true, // If not used, autofocus is disabled on mobile and enabled on desktop. true enables it on both, false disables it on both.
         },
         feedback: {
           color: '#303235',
