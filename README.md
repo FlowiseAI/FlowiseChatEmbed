@@ -114,6 +114,7 @@ You can also customize chatbot with different configuration
         tooltipMessage: 'Hi There 👋!',
         tooltipBackgroundColor: 'black',
         tooltipTextColor: 'white',
+        tooltipFontSize: 16,
       },
       chatWindow: {
         showTitle: true,
