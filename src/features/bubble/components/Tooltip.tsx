@@ -3,6 +3,7 @@ import { Show } from 'solid-js';
 const defaultTooltipMessage = 'Hi There 👋!';
 const defaultTooltipBackgroundColor = 'black';
 const defaultTooltipTextColor = 'white';
+const defaultTooltipFontSize = 16; // Default font size for tooltip
 
 type TooltipProps = {
   showTooltip: boolean;
@@ -11,15 +12,14 @@ type TooltipProps = {
   tooltipMessage?: string;
   tooltipBackgroundColor?: string;
   tooltipTextColor?: string;
+  tooltipFontSize?: number; // Add tooltipFontSize to props
 };
 
 const Tooltip = (props: TooltipProps) => {
   const tooltipMessage = props.tooltipMessage ?? defaultTooltipMessage;
   const backgroundColor = props.tooltipBackgroundColor ?? defaultTooltipBackgroundColor;
   const textColor = props.tooltipTextColor ?? defaultTooltipTextColor;
-
-  // Dynamically calculate font size based on button size
-  const fontSize = `${props.buttonSize * 0.25}px`;
+  const fontSize = `${props.tooltipFontSize ?? defaultTooltipFontSize}px`; // Use tooltipFontSize if provided, otherwise default to 16px
 
   // Generate tooltip text with line breaks if needed
   const formattedTooltipMessage =

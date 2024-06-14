@@ -8,6 +8,7 @@ type TooltipProps = {
     tooltipMessage?: string;
     tooltipBackgroundColor?: string;
     tooltipTextColor?: string;
+    tooltipFontSize?: number;
 };
 declare const Tooltip: (props: TooltipProps) => import("solid-js").JSX.Element;
 export default Tooltip;
