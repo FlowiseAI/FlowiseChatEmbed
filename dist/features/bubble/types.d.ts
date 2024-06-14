@@ -68,5 +68,6 @@ export type ToolTipTheme = {
     tooltipMessage?: string;
     tooltipBackgroundColor?: string;
     tooltipTextColor?: string;
+    tooltipFontSize?: number;
 };
 //# sourceMappingURL=types.d.ts.map
