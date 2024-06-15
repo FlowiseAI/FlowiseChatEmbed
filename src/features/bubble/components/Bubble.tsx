@@ -3,6 +3,7 @@ import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
 import { Bot, BotProps } from '../../../components/Bot';
+import Tooltip from './Tooltip';
 import { getBubbleButtonSize } from '@/utils';
 
 const defaultButtonColor = '#3B81F6';
@@ -53,9 +54,20 @@ export const Bubble = (props: BubbleProps) => {
     };
   });
 
+  const showTooltip = bubbleProps.theme?.tooltip?.showTooltip ?? false;
+
   return (
     <>
       <style>{styles}</style>
+      <Tooltip
+        showTooltip={showTooltip && !isBotOpened()}
+        position={buttonPosition()}
+        buttonSize={buttonSize}
+        tooltipMessage={bubbleProps.theme?.tooltip?.tooltipMessage}
+        tooltipBackgroundColor={bubbleProps.theme?.tooltip?.tooltipBackgroundColor}
+        tooltipTextColor={bubbleProps.theme?.tooltip?.tooltipTextColor}
+        tooltipFontSize={bubbleProps.theme?.tooltip?.tooltipFontSize} // Set the tooltip font size
+      />
       <BubbleButton
         {...bubbleProps.theme?.button}
         toggleBot={toggleBot}
@@ -90,6 +102,7 @@ export const Bubble = (props: BubbleProps) => {
               <button
                 onClick={closeBot}
                 class="py-2 pr-3 absolute top-0 right-[-8px] m-[6px] bg-transparent text-white rounded-full z-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75"
+                title="Close Chat"
               >
                 <svg viewBox="0 0 24 24" width="24" height="24">
                   <path
