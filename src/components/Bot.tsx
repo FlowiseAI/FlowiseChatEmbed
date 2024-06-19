@@ -253,6 +253,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
             apiHost: props.apiHost,
             body
         })
+        var text = ""
+        if ((typeof result.data === 'object') && ('text' in result.data)){
+            text = result.data.text
+        }else{
+            text = result.data
+        }
         
         const convo_message: ConvoType = {
             messages:[
@@ -262,25 +268,18 @@ export const Bot = (props: BotProps & { class?: string }) => {
                     timestamp: message_send_time
                 },
                 {
-                    text:result.data,
+                    text:text,
                     type:"bot",
                     timestamp:bot_resp_time
                 }
             ],
             load_id:props.loadID,
             realtor_id:props.userID
-
         } 
 
         sendLogConvoQuery(convo_message)
         if (result.data) {
             const data = handleVectaraMetadata(result.data)
-            var text = ""
-            if ((typeof result.data === 'object') && ('text' in result.data)){
-                text = result.data.text
-            }else{
-                text = result.data
-            }
             if (typeof data === 'object' && data.text && data.sourceDocuments) {
                 if (!isChatFlowAvailableToStream()) {
                     setMessages((prevMessages) => [
