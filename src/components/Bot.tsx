@@ -263,19 +263,35 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: allMessage });
   };
 
-  const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null) => {
+  const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null, resultText: string) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          return { ...item, message: item.message + text, messageId, sourceDocuments, fileAnnotations };
+          const previousText = item.message || '';
+          let newText = previousText + text;
+  
+          if (!previousText && resultText) {
+            newText = resultText;
+          }
+          return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations };
         }
         return item;
       });
+      // Ensure the response is handled
+      if (updated.length % 2 === 0 && resultText) {
+        updated.push({
+          message: resultText,
+          type: 'apiMessage',
+          messageId,
+          sourceDocuments,
+          fileAnnotations,
+        });
+      }
       addChatMessage(updated);
       return [...updated];
     });
-  };
-
+  };  
+  
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
@@ -405,9 +421,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations);
+        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data.text);
       } else {
-        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations);
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data.text);
       }
       setLoading(false);
       setUserInput('');
