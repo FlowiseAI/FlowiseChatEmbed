@@ -269,7 +269,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (i === data.length - 1) {
           const previousText = item.message || '';
           let newText = previousText + text;
-        // Set newText to resultText only if previousText is empty and resultText exists
+          // Set newText to resultText only if previousText is empty and resultText exists
           if (!previousText && resultText) {
             newText = resultText;
           }
