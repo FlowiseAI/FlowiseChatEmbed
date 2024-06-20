@@ -269,7 +269,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (i === data.length - 1) {
           const previousText = item.message || '';
           let newText = previousText + text;
-  
+
           if (!previousText && resultText) {
             newText = resultText;
           }
@@ -290,8 +290,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(updated);
       return [...updated];
     });
-  };  
-  
+  };
+
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
