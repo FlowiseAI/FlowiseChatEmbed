@@ -269,7 +269,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (i === data.length - 1) {
           const previousText = item.message || '';
           let newText = previousText + text;
-
+        // Set newText to resultText only if previousText is empty and resultText exists
           if (!previousText && resultText) {
             newText = resultText;
           }
@@ -277,7 +277,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      // Ensure the response is handled
+      // Add apiMessage if updated array length is even and resultText exists
       if (updated.length % 2 === 0 && resultText) {
         updated.push({
           message: resultText,
