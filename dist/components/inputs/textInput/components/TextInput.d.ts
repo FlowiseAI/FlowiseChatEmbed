@@ -16,6 +16,8 @@ type Props = {
     maxChars?: number;
     maxCharsWarningMessage?: string;
     autoFocus?: boolean;
+    sendMessageSound?: boolean;
+    sendSoundLocation?: string;
 };
 export declare const TextInput: (props: Props) => import("solid-js").JSX.Element;
 export {};
