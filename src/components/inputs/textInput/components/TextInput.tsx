@@ -5,6 +5,7 @@ import { SendButton } from '@/components/buttons/SendButton';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
+import sound from '../../../../assets/sound.json';
 
 type Props = {
   placeholder?: string;
@@ -22,10 +23,14 @@ type Props = {
   maxChars?: number;
   maxCharsWarningMessage?: string;
   autoFocus?: boolean;
+  sendMessageSound?: boolean;
+  sendSoundLocation?: string;
 };
 
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
+// Default base64 string for the sound file
+const defaultSendSound = sound.find(item => item.file_name === "send_sound")?.data;
 
 export const TextInput = (props: Props) => {
   const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
@@ -33,6 +38,7 @@ export const TextInput = (props: Props) => {
   const [warningMessage, setWarningMessage] = createSignal('');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
+  let audioRef: HTMLAudioElement | undefined;
 
   const handleInput = (inputValue: string) => {
     const wordCount = inputValue.length;
@@ -51,8 +57,13 @@ export const TextInput = (props: Props) => {
   const checkIfInputIsValid = () => inputValue() !== '' && warningMessage() === '' && inputRef?.reportValidity();
 
   const submit = () => {
-    if (checkIfInputIsValid()) props.onSubmit(inputValue());
-    setInputValue('');
+    if (checkIfInputIsValid()) {
+      props.onSubmit(inputValue());
+      if (props.sendMessageSound && audioRef) {
+        audioRef.play();
+      }
+      setInputValue('');
+    }
   };
 
   const submitWhenEnter = (e: KeyboardEvent) => {
@@ -74,6 +85,29 @@ export const TextInput = (props: Props) => {
     const shouldAutoFocus = props.autoFocus !== undefined ? props.autoFocus : !isMobile() && window.innerWidth > 640;
 
     if (!props.disabled && shouldAutoFocus && inputRef) inputRef.focus();
+
+    if (props.sendMessageSound) {
+      if (props.sendSoundLocation) {
+        const reader = new FileReader();
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', props.sendSoundLocation, true);
+        xhr.responseType = 'blob';
+        xhr.onload = () => {
+          reader.readAsDataURL(xhr.response);
+        };
+        xhr.send();
+
+        reader.onloadend = () => {
+          if (reader.result) {
+            audioRef = new Audio(reader.result as string);
+          } else {
+            audioRef = new Audio(defaultSendSound);
+          }
+        };
+      } else {
+        audioRef = new Audio(defaultSendSound);
+      }
+    }
   });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {

@@ -18,6 +18,7 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
+import sound from '../assets/sound.json'
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -199,6 +200,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     ],
     { equals: false },
   );
+
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(
@@ -262,7 +264,36 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const addChatMessage = (allMessage: MessageType[]) => {
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: allMessage });
   };
+  // Define the audioRef
+  let audioRef: HTMLAudioElement | undefined;
+  const defaultReceiveSound = sound.find(item => item.file_name === "receive_sound")?.data;
+  const playReceiveSound = () => {
+    if (props.textInput?.receiveMessageSound) {
+      if (props.textInput?.receiveSoundLocation) {
+        const reader = new FileReader();
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', props.textInput?.receiveSoundLocation, true);
+        xhr.responseType = 'blob';
+        xhr.onload = () => {
+          reader.readAsDataURL(xhr.response);
+        };
+        xhr.send();
 
+        reader.onloadend = () => {
+          if (reader.result) {
+            audioRef = new Audio(reader.result as string);
+            audioRef.play().catch((e) => console.error('Error playing sound:', e));
+          } else {
+            audioRef = new Audio(defaultReceiveSound);
+            audioRef.play().catch((e) => console.error('Error playing sound:', e));
+          }
+        };
+      } else {
+        audioRef = new Audio(defaultReceiveSound);
+        audioRef.play().catch((e) => console.error('Error playing sound:', e));
+      }
+    }
+  };
   const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null, resultText: string) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
@@ -286,6 +317,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           sourceDocuments,
           fileAnnotations,
         });
+      }
+      if (resultText) {
+        playReceiveSound();
       }
       addChatMessage(updated);
       return [...updated];
@@ -495,16 +529,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              return chatHistory;
-            })
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            return chatHistory;
+          })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
@@ -991,9 +1025,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       <div
                         class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
                         style={{
-                          width: `${
-                            chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-                          }px`,
+                          width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
+                            }px`,
                         }}
                       >
                         <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
@@ -1074,6 +1107,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 setPreviews={setPreviews}
                 onMicrophoneClicked={onMicrophoneClicked}
                 handleFileChange={handleFileChange}
+                sendMessageSound={props.textInput?.sendMessageSound}
+                sendSoundLocation={props.textInput?.sendSoundLocation}
               />
             )}
           </div>
