@@ -30,7 +30,7 @@ type Props = {
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 // Default base64 string for the sound file
-const defaultSendSound = sound.find(item => item.file_name === "send_sound")?.data;
+const defaultSendSound = sound.find((item) => item.file_name === 'send_sound')?.data;
 
 export const TextInput = (props: Props) => {
   const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
