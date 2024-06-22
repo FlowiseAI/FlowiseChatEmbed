@@ -296,6 +296,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
   const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null, resultText: string) => {
     setMessages((data) => {
+      let uiUpdated = false;
+
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
           const previousText = item.message || '';
@@ -304,12 +306,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           if (!previousText && resultText) {
             newText = resultText;
           }
+          // Check if newText now matches resultText to track UI update
+          if (newText === resultText) {
+            uiUpdated = true;
+          }
           return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations };
         }
         return item;
       });
-      // Add apiMessage if updated array length is even and resultText exists
-      if (updated.length % 2 === 0 && resultText) {
+      // Add apiMessage if resultText exists and ui not updated
+      if (resultText && !uiUpdated) {
         updated.push({
           message: resultText,
           type: 'apiMessage',
@@ -318,9 +324,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           fileAnnotations,
         });
       }
+
       if (resultText) {
         playReceiveSound();
       }
+
       addChatMessage(updated);
       return [...updated];
     });
@@ -529,16 +537,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              return chatHistory;
-            })
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            return chatHistory;
+          })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
@@ -1025,9 +1033,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       <div
                         class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
                         style={{
-                          width: `${
-                            chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-                          }px`,
+                          width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
+                            }px`,
                         }}
                       >
                         <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
