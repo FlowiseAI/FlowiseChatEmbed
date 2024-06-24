@@ -1,10 +1,11 @@
-import { Show, createSignal, onMount } from 'solid-js';
+import { createEffect, on, Show, createSignal, onMount, For } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
 import { MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
 import FeedbackContentDialog from '../FeedbackContentDialog';
+import { AgentReasoningBubble } from './AgentReasoningBubble';
 
 type Props = {
   message: MessageType;
@@ -19,6 +20,8 @@ type Props = {
   chatFeedbackStatus?: boolean;
   fontSize?: number;
   feedbackColor?: string;
+  isLoading: boolean;
+  showAgentMessages?: boolean;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -30,6 +33,8 @@ Marked.setOptions({ isNoP: true });
 
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
+  let botDetailsEl: HTMLDetailsElement | undefined;
+
   const [rating, setRating] = createSignal('');
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
@@ -165,6 +170,18 @@ export const BotBubble = (props: Props) => {
         }
       }
     }
+
+    if (botDetailsEl && props.isLoading) {
+      botDetailsEl.open = true;
+    }
+  });
+
+  createEffect(() => {
+    if (botDetailsEl && props.isLoading) {
+      botDetailsEl.open = true;
+    } else if (botDetailsEl && !props.isLoading) {
+      botDetailsEl.open = false;
+    }
   });
 
   return (
@@ -173,19 +190,45 @@ export const BotBubble = (props: Props) => {
         <Show when={props.showAvatar}>
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
-        {props.message.message && (
-          <span
-            ref={botMessageEl}
-            class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
-            data-testid="host-bubble"
-            style={{
-              'background-color': props.backgroundColor ?? defaultBackgroundColor,
-              color: props.textColor ?? defaultTextColor,
-              'border-radius': '6px',
-              'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
-            }}
-          />
-        )}
+        <div class="flex flex-col justify-start">
+          {props.showAgentMessages && props.message.agentReasoning && (
+            <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
+              <summary class="cursor-pointer">
+                <span class="italic">Agent Messages</span>
+              </summary>
+              <br />
+              <For each={props.message.agentReasoning}>
+                {(agent) => {
+                  const agentMessages = agent.messages ?? [];
+                  let msgContent = agent.instructions || (agentMessages.length > 1 ? agentMessages.join('\\n') : agentMessages[0]);
+                  if (agentMessages.length === 0 && !agent.instructions) msgContent = `<p>Finished</p>`;
+                  return (
+                    <AgentReasoningBubble
+                      agentName={agent.agentName ?? ''}
+                      agentMessage={msgContent}
+                      backgroundColor={props.backgroundColor}
+                      textColor={props.textColor}
+                      fontSize={props.fontSize}
+                    />
+                  );
+                }}
+              </For>
+            </details>
+          )}
+          {props.message.message && (
+            <span
+              ref={botMessageEl}
+              class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
+              data-testid="host-bubble"
+              style={{
+                'background-color': props.backgroundColor ?? defaultBackgroundColor,
+                color: props.textColor ?? defaultTextColor,
+                'border-radius': '6px',
+                'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+              }}
+            />
+          )}
+        </div>
       </div>
       <div>
         {props.chatFeedbackStatus && props.message.messageId && (

@@ -52,6 +52,15 @@ type FilePreview = {
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
 
+export type IAgentReasoning = {
+  agentName?: string;
+  messages?: string[];
+  usedTools?: any[];
+  sourceDocuments?: any[];
+  instructions?: string;
+  nextAgent?: string;
+};
+
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
 export type MessageType = {
@@ -61,6 +70,7 @@ export type MessageType = {
   sourceDocuments?: any;
   fileAnnotations?: any;
   fileUploads?: Partial<FileUpload>[];
+  agentReasoning?: IAgentReasoning[];
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
@@ -81,6 +91,7 @@ export type BotProps = {
   bubbleBackgroundColor?: string;
   bubbleTextColor?: string;
   showTitle?: boolean;
+  showAgentMessages?: boolean;
   title?: string;
   titleAvatarSrc?: string;
   fontSize?: number;
@@ -181,8 +192,8 @@ const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 
 export const Bot = (botProps: BotProps & { class?: string }) => {
-  // set a default value for showTitle if not set and merge with other props
-  const props = mergeProps({ showTitle: true }, botProps);
+  // set a default value for showTitle & showAgentMessages if not set and merge with other props
+  const props = mergeProps({ showTitle: true, showAgentMessages: true }, botProps);
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
@@ -278,7 +289,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           reader.readAsDataURL(xhr.response);
         };
         xhr.send();
-
         reader.onloadend = () => {
           if (reader.result) {
             audioRef = new Audio(reader.result as string);
@@ -294,7 +304,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
   };
-  const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null, resultText: string) => {
+  const updateLastMessage = (
+    text: string,
+    messageId: string,
+    sourceDocuments: any = null,
+    fileAnnotations: any = null,
+    agentReasoning: IAgentReasoning[] = [],
+    resultText: string,
+  ) => {
     setMessages((data) => {
       let uiUpdated = false;
 
@@ -310,10 +327,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           if (newText === resultText) {
             uiUpdated = true;
           }
-          return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations };
+          return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations, agentReasoning };
         }
         return item;
       });
+
       // Add apiMessage if resultText exists and ui not updated
       if (resultText && !uiUpdated) {
         updated.push({
@@ -322,6 +340,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           messageId,
           sourceDocuments,
           fileAnnotations,
+          agentReasoning,
         });
       }
 
@@ -338,7 +357,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          return { ...item, sourceDocuments: sourceDocuments };
+          return { ...item, sourceDocuments };
+        }
+        return item;
+      });
+      addChatMessage(updated);
+      return [...updated];
+    });
+  };
+
+  const updateLastMessageAgentReasoning = (agentReasoning: string | IAgentReasoning[]) => {
+    setMessages((data) => {
+      const updated = data.map((item, i) => {
+        if (i === data.length - 1) {
+          return { ...item, agentReasoning: typeof agentReasoning === 'string' ? JSON.parse(agentReasoning) : agentReasoning };
         }
         return item;
       });
@@ -463,9 +495,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data.text);
+        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data.text);
       } else {
-        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data.text);
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data.text);
       }
       setLoading(false);
       setUserInput('');
@@ -545,6 +577,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
               if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
               if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
               return chatHistory;
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
@@ -604,6 +637,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
 
     socket.on('sourceDocuments', updateLastMessageSourceDocuments);
+
+    socket.on('agentReasoning', updateLastMessageAgentReasoning);
 
     socket.on('token', updateLastMessage);
 
@@ -957,6 +992,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         avatarSrc={props.botMessage?.avatarSrc}
                         chatFeedbackStatus={chatFeedbackStatus()}
                         fontSize={props.fontSize}
+                        isLoading={loading() && index() === messages().length - 1}
+                        showAgentMessages={props.showAgentMessages}
                       />
                     )}
                     {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (

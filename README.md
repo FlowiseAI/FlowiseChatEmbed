@@ -118,6 +118,7 @@ You can also customize chatbot with different configuration
       },
       chatWindow: {
         showTitle: true,
+        showAgentMessages: true,
         title: 'Flowise Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
