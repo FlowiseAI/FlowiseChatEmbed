@@ -39,6 +39,7 @@ export type FeedbackTheme = {
 };
 export type ChatWindowTheme = {
     showTitle?: boolean;
+    showAgentMessages?: boolean;
     title?: string;
     titleAvatarSrc?: string;
     welcomeMessage?: string;
