@@ -15,15 +15,32 @@ const defaultTextColor = '#303235'
 
 Marked.setOptions({ isNoP: true })
 
+const update_links = (message:string) => {
+  const regex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/g;
+  //const result = message.match(regex);
+  const result =  regex.exec(message)
+  
+  //IF THE REGEX MATCHES, SPLIT STRINGS BY RESULT THEN COMBINE INTO MESSAGE AGAIN WITH INSERTED VALUE.
+  if (result){
+    var split = message.split(result[0])
+    const new_message= split[0] + result[0]+' target="_blank"'+split[1]
+    return new_message
+  }
+  return message
+
+
+}
+
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined
 
   onMount(() => {
     if (botMessageEl) {
-      botMessageEl.innerHTML = Marked.parse(props.message)
+      botMessageEl.innerHTML = update_links(Marked.parse(props.message))
     }
   })
-  
+
+
   const showAvatar = (props.showAvatar === undefined) ? true : props.showAvatar;
   return (
     <div
