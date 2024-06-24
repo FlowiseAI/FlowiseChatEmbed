@@ -191,8 +191,8 @@ const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 
 export const Bot = (botProps: BotProps & { class?: string }) => {
-  // set a default value for showTitle & showAgentMessages if not set and merge with other props
-  const props = mergeProps({ showTitle: true, showAgentMessages: true }, botProps);
+  // set a default value for showTitle if not set and merge with other props
+  const props = mergeProps({ showTitle: true }, botProps);
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
