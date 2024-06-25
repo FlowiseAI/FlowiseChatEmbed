@@ -30,16 +30,16 @@ export const AgentReasoningBubble = (props: Props) => {
   return (
     <div class="mb-6">
       {props.agentMessage && (
-          <span
-            ref={botMessageEl}
-            class="prose"
-            style={{
-              'background-color': props.backgroundColor ?? defaultBackgroundColor,
-              color: props.textColor ?? defaultTextColor,
-              'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
-            }}
-          />
-        )}
+        <span
+          ref={botMessageEl}
+          class="prose"
+          style={{
+            'background-color': props.backgroundColor ?? defaultBackgroundColor,
+            color: props.textColor ?? defaultTextColor,
+            'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+          }}
+        />
+      )}
     </div>
   );
 };

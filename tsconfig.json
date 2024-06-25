@@ -3,6 +3,7 @@
     "include": ["src/**/*"],
     "exclude": ["dist", "node_modules"],
     "compilerOptions": {
+        "resolveJsonModule": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"]
