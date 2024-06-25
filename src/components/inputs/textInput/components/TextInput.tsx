@@ -29,7 +29,7 @@ type Props = {
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 // CDN link for default send sound
-const defaultSendSound = 'https://cdn.jsdelivr.net/gh/amansoni7477030/flowiseSound@latest/send_message.mp3';
+const defaultSendSound = 'https://cdn.jsdelivr.net/gh/FlowiseAI/FlowiseChatEmbed@latest/src/assets/send_message.mp3';
 
 export const TextInput = (props: Props) => {
   const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
@@ -92,7 +92,7 @@ export const TextInput = (props: Props) => {
         audioRef = new Audio(defaultSendSound);
       }
     }
-  })
+  });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
     props.handleFileChange(event);
