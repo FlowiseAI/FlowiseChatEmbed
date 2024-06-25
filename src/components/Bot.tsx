@@ -18,7 +18,6 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
-import sound from '../assets/sound.json';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -192,8 +191,8 @@ const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 
 export const Bot = (botProps: BotProps & { class?: string }) => {
-  // set a default value for showTitle & showAgentMessages if not set and merge with other props
-  const props = mergeProps({ showTitle: true, showAgentMessages: true }, botProps);
+  // set a default value for showTitle if not set and merge with other props
+  const props = mergeProps({ showTitle: true }, botProps);
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
@@ -277,33 +276,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
   // Define the audioRef
   let audioRef: HTMLAudioElement | undefined;
-  const defaultReceiveSound = sound.find((item) => item.file_name === 'receive_sound')?.data;
+  // CDN link for default receive sound
+  const defaultReceiveSound = "https://cdn.jsdelivr.net/gh/amansoni7477030/flowiseSound@latest/receive_message.mp3";
   const playReceiveSound = () => {
     if (props.textInput?.receiveMessageSound) {
+      let audioSrc = defaultReceiveSound;
       if (props.textInput?.receiveSoundLocation) {
-        const reader = new FileReader();
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', props.textInput?.receiveSoundLocation, true);
-        xhr.responseType = 'blob';
-        xhr.onload = () => {
-          reader.readAsDataURL(xhr.response);
-        };
-        xhr.send();
-        reader.onloadend = () => {
-          if (reader.result) {
-            audioRef = new Audio(reader.result as string);
-            audioRef.play().catch((e) => console.error('Error playing sound:', e));
-          } else {
-            audioRef = new Audio(defaultReceiveSound);
-            audioRef.play().catch((e) => console.error('Error playing sound:', e));
-          }
-        };
-      } else {
-        audioRef = new Audio(defaultReceiveSound);
-        audioRef.play().catch((e) => console.error('Error playing sound:', e));
+        audioSrc = props.textInput?.receiveSoundLocation;
       }
+      audioRef = new Audio(audioSrc);
+      audioRef.play();
     }
   };
+  
   const updateLastMessage = (
     text: string,
     messageId: string,

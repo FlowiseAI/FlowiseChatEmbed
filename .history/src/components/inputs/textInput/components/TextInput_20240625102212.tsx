@@ -5,6 +5,7 @@ import { SendButton } from '@/components/buttons/SendButton';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
+import sound from '../../../../assets/sound.json';
 
 type Props = {
   placeholder?: string;
@@ -28,8 +29,8 @@ type Props = {
 
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
-// CDN link for default send sound
-const defaultSendSound = 'https://cdn.jsdelivr.net/gh/amansoni7477030/flowiseSound@latest/send_message.mp3';
+// Default base64 string for the sound file
+const defaultSendSound = "https://raw.githubusercontent.com/amansoni7477030/flowiseSound/main/send_sound.txt";
 
 export const TextInput = (props: Props) => {
   const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
@@ -87,12 +88,27 @@ export const TextInput = (props: Props) => {
 
     if (props.sendMessageSound) {
       if (props.sendSoundLocation) {
-        audioRef = new Audio(props.sendSoundLocation);
+        const reader = new FileReader();
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', props.sendSoundLocation, true);
+        xhr.responseType = 'blob';
+        xhr.onload = () => {
+          reader.readAsDataURL(xhr.response);
+        };
+        xhr.send();
+
+        reader.onloadend = () => {
+          if (reader.result) {
+            audioRef = new Audio(reader.result as string);
+          } else {
+            audioRef = new Audio(defaultSendSound);
+          }
+        };
       } else {
         audioRef = new Audio(defaultSendSound);
       }
     }
-  })
+  });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
     props.handleFileChange(event);
