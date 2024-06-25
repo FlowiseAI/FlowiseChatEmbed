@@ -14,6 +14,10 @@ export type TextInputTheme = {
     maxChars?: number;
     maxCharsWarningMessage?: string;
     autoFocus?: boolean;
+    sendMessageSound?: boolean;
+    sendSoundLocation?: string;
+    receiveMessageSound?: boolean;
+    receiveSoundLocation?: string;
 };
 export type UserMessageTheme = {
     backgroundColor?: string;

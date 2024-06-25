@@ -20,7 +20,7 @@ type Props = {
   chatFeedbackStatus?: boolean;
   fontSize?: number;
   feedbackColor?: string;
-  isLoading: boolean
+  isLoading: boolean;
   showAgentMessages?: boolean;
 };
 
@@ -192,26 +192,28 @@ export const BotBubble = (props: Props) => {
         </Show>
         <div class="flex flex-col justify-start">
           {props.showAgentMessages && props.message.agentReasoning && (
-              <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
-                <summary class="cursor-pointer"><span class="italic">Agent Messages</span></summary>
-                <br/>
-                <For each={props.message.agentReasoning}>
-                  {(agent) => {
-                      const agentMessages = agent.messages ?? []
-                      let msgContent = agent.instructions || (agentMessages.length > 1 ? agentMessages.join('\\n') : agentMessages[0]);
-                      if (agentMessages.length === 0 && !agent.instructions) msgContent = `<p>Finished</p>`;
-                      return (
-                        <AgentReasoningBubble
-                          agentName={agent.agentName ?? ''}
-                          agentMessage={msgContent}
-                          backgroundColor={props.backgroundColor}
-                          textColor={props.textColor}
-                          fontSize={props.fontSize}
-                        />    
-                      )
-                  }}
-                </For>
-              </details>
+            <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
+              <summary class="cursor-pointer">
+                <span class="italic">Agent Messages</span>
+              </summary>
+              <br />
+              <For each={props.message.agentReasoning}>
+                {(agent) => {
+                  const agentMessages = agent.messages ?? [];
+                  let msgContent = agent.instructions || (agentMessages.length > 1 ? agentMessages.join('\\n') : agentMessages[0]);
+                  if (agentMessages.length === 0 && !agent.instructions) msgContent = `<p>Finished</p>`;
+                  return (
+                    <AgentReasoningBubble
+                      agentName={agent.agentName ?? ''}
+                      agentMessage={msgContent}
+                      backgroundColor={props.backgroundColor}
+                      textColor={props.textColor}
+                      fontSize={props.fontSize}
+                    />
+                  );
+                }}
+              </For>
+            </details>
           )}
           {props.message.message && (
             <span

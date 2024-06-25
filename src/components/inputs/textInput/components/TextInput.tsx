@@ -22,10 +22,14 @@ type Props = {
   maxChars?: number;
   maxCharsWarningMessage?: string;
   autoFocus?: boolean;
+  sendMessageSound?: boolean;
+  sendSoundLocation?: string;
 };
 
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
+// CDN link for default send sound
+const defaultSendSound = 'https://cdn.jsdelivr.net/gh/FlowiseAI/FlowiseChatEmbed@latest/src/assets/send_message.mp3';
 
 export const TextInput = (props: Props) => {
   const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
@@ -33,6 +37,7 @@ export const TextInput = (props: Props) => {
   const [warningMessage, setWarningMessage] = createSignal('');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
+  let audioRef: HTMLAudioElement | undefined;
 
   const handleInput = (inputValue: string) => {
     const wordCount = inputValue.length;
@@ -51,8 +56,13 @@ export const TextInput = (props: Props) => {
   const checkIfInputIsValid = () => inputValue() !== '' && warningMessage() === '' && inputRef?.reportValidity();
 
   const submit = () => {
-    if (checkIfInputIsValid()) props.onSubmit(inputValue());
-    setInputValue('');
+    if (checkIfInputIsValid()) {
+      props.onSubmit(inputValue());
+      if (props.sendMessageSound && audioRef) {
+        audioRef.play();
+      }
+      setInputValue('');
+    }
   };
 
   const submitWhenEnter = (e: KeyboardEvent) => {
@@ -74,6 +84,14 @@ export const TextInput = (props: Props) => {
     const shouldAutoFocus = props.autoFocus !== undefined ? props.autoFocus : !isMobile() && window.innerWidth > 640;
 
     if (!props.disabled && shouldAutoFocus && inputRef) inputRef.focus();
+
+    if (props.sendMessageSound) {
+      if (props.sendSoundLocation) {
+        audioRef = new Audio(props.sendSoundLocation);
+      } else {
+        audioRef = new Audio(defaultSendSound);
+      }
+    }
   });
 
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {

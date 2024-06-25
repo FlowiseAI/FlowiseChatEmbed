@@ -58,7 +58,7 @@ export type IAgentReasoning = {
   sourceDocuments?: any[];
   instructions?: string;
   nextAgent?: string;
-}
+};
 
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
@@ -210,6 +210,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     ],
     { equals: false },
   );
+
   const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(
@@ -273,15 +274,65 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const addChatMessage = (allMessage: MessageType[]) => {
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: allMessage });
   };
+  // Define the audioRef
+  let audioRef: HTMLAudioElement | undefined;
+  // CDN link for default receive sound
+  const defaultReceiveSound = 'https://cdn.jsdelivr.net/gh/FlowiseAI/FlowiseChatEmbed@latest/src/assets/receive_message.mp3';
+  const playReceiveSound = () => {
+    if (props.textInput?.receiveMessageSound) {
+      let audioSrc = defaultReceiveSound;
+      if (props.textInput?.receiveSoundLocation) {
+        audioSrc = props.textInput?.receiveSoundLocation;
+      }
+      audioRef = new Audio(audioSrc);
+      audioRef.play();
+    }
+  };
 
-  const updateLastMessage = (text: string, messageId: string, sourceDocuments: any = null, fileAnnotations: any = null, agentReasoning: IAgentReasoning[] = []) => {
+  const updateLastMessage = (
+    text: string,
+    messageId: string,
+    sourceDocuments: any = null,
+    fileAnnotations: any = null,
+    agentReasoning: IAgentReasoning[] = [],
+    resultText: string,
+  ) => {
     setMessages((data) => {
+      let uiUpdated = false;
+
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          return { ...item, message: item.message + text, messageId, sourceDocuments, fileAnnotations, agentReasoning };
+          const previousText = item.message || '';
+          let newText = previousText + text;
+          // Set newText to resultText only if previousText is empty and resultText exists
+          if (!previousText && resultText) {
+            newText = resultText;
+          }
+          // Check if newText now matches resultText to track UI update
+          if (newText === resultText) {
+            uiUpdated = true;
+          }
+          return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations, agentReasoning };
         }
         return item;
       });
+
+      // Add apiMessage if resultText exists and ui not updated
+      if (resultText && !uiUpdated) {
+        updated.push({
+          message: resultText,
+          type: 'apiMessage',
+          messageId,
+          sourceDocuments,
+          fileAnnotations,
+          agentReasoning,
+        });
+      }
+
+      if (resultText) {
+        playReceiveSound();
+      }
+
       addChatMessage(updated);
       return [...updated];
     });
@@ -311,7 +362,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(updated);
       return [...updated];
     });
-  }
+  };
 
   const clearPreviews = () => {
     // Revoke the data uris to avoid memory leaks
@@ -429,9 +480,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning);
+        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data.text);
       } else {
-        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning);
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data.text);
       }
       setLoading(false);
       setUserInput('');
@@ -572,7 +623,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     socket.on('sourceDocuments', updateLastMessageSourceDocuments);
 
-    socket.on('agentReasoning', updateLastMessageAgentReasoning)
+    socket.on('agentReasoning', updateLastMessageAgentReasoning);
 
     socket.on('token', updateLastMessage);
 
@@ -974,7 +1025,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       </div>
                     )}
                   </>
-                )}}
+                );
+              }}
             </For>
           </div>
           <Show when={messages().length === 1}>
@@ -1086,6 +1138,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 setPreviews={setPreviews}
                 onMicrophoneClicked={onMicrophoneClicked}
                 handleFileChange={handleFileChange}
+                sendMessageSound={props.textInput?.sendMessageSound}
+                sendSoundLocation={props.textInput?.sendSoundLocation}
               />
             )}
           </div>
