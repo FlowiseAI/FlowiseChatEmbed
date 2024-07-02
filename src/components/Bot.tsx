@@ -272,8 +272,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
    * Add each chat message into localStorage
    */
   const addChatMessage = (allMessage: MessageType[]) => {
-    setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: allMessage });
+    const messages = allMessage.map((item) => {
+      if (item.fileUploads) {
+        const fileUploads = item?.fileUploads.map((file) => ({
+          type: file.type,
+          name: file.name,
+          mime: file.mime,
+        }));
+        return { ...item, fileUploads };
+      }
+      return item;
+    });
+    setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: messages });
   };
+  
   // Define the audioRef
   let audioRef: HTMLAudioElement | undefined;
   // CDN link for default receive sound
