@@ -285,7 +285,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: messages });
   };
-  
+
   // Define the audioRef
   let audioRef: HTMLAudioElement | undefined;
   // CDN link for default receive sound
