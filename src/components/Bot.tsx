@@ -97,6 +97,7 @@ export type BotProps = {
   isFullPage?: boolean;
   footer?: FooterTheme;
   observersConfig?: observersConfigType;
+  starterPromptFontSize?: number;
 };
 
 export type LeadsConfig = {
@@ -285,7 +286,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: messages });
   };
-  
+
   // Define the audioRef
   let audioRef: HTMLAudioElement | undefined;
   // CDN link for default receive sound
@@ -300,6 +301,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       audioRef.play();
     }
   };
+  let hasSoundPlayed = false;
 
   const updateLastMessage = (
     text: string,
@@ -311,6 +313,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   ) => {
     setMessages((data) => {
       let uiUpdated = false;
+      const messageExists = data.some((item) => item.messageId === messageId);
 
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
@@ -324,13 +327,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           if (newText === resultText) {
             uiUpdated = true;
           }
+          // Play sound when message starts streaming
+          if (previousText !== newText && !uiUpdated && !hasSoundPlayed) {
+            playReceiveSound();
+            hasSoundPlayed = true;
+          }
           return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations, agentReasoning };
         }
         return item;
       });
 
       // Add apiMessage if resultText exists and ui not updated
-      if (resultText && !uiUpdated) {
+      if (resultText && !uiUpdated && !messageExists) {
         updated.push({
           message: resultText,
           type: 'apiMessage',
@@ -341,8 +349,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
       }
 
-      if (resultText) {
+      if (resultText && !hasSoundPlayed) {
         playReceiveSound();
+      }
+
+      if (resultText) {
+        hasSoundPlayed = false;
       }
 
       addChatMessage(updated);
@@ -1044,7 +1056,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           <Show when={messages().length === 1}>
             <Show when={starterPrompts().length > 0}>
               <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
-                <For each={[...starterPrompts()]}>{(key) => <StarterPromptBubble prompt={key} onPromptClick={() => promptClick(key)} />}</For>
+                <For each={[...starterPrompts()]}>
+                  {(key) => (
+                    <StarterPromptBubble
+                      prompt={key}
+                      onPromptClick={() => promptClick(key)}
+                      starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
+                    />
+                  )}
+                </For>
               </div>
             </Show>
           </Show>

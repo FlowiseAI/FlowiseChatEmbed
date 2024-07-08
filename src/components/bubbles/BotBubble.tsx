@@ -74,8 +74,34 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  const saveRatingToLocalStorage = (rating: string) => {
+    const storageKey = `_EXTERNAL${props.chatflowid}`;
+    const chatHistory = JSON.parse(localStorage.getItem(storageKey) || '{"chatHistory": []}');
+
+    const messageIndex = chatHistory.chatHistory.findIndex((msg: any) => msg.messageId === props.message?.messageId);
+
+    if (messageIndex !== -1) {
+      chatHistory.chatHistory[messageIndex].rating = rating;
+    } else {
+      chatHistory.chatHistory.push({
+        messageId: props.message?.messageId,
+        rating: rating,
+      });
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(chatHistory));
+  };
+
+  const getRatingFromLocalStorage = () => {
+    const storageKey = `_EXTERNAL${props.chatflowid}`;
+    const chatHistory = JSON.parse(localStorage.getItem(storageKey) || '{"chatHistory": []}');
+
+    const message = chatHistory.chatHistory.find((msg: any) => msg.messageId === props.message?.messageId);
+    return message ? message.rating : null;
+  };
+
   const onThumbsUpClick = async () => {
-    if (rating() === '') {
+    if (rating() !== 'THUMBS_UP') {
       const body = {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
@@ -96,14 +122,17 @@ export const BotBubble = (props: Props) => {
         setRating('THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
-        // update the thumbs up color state
         setThumbsUpColor('#006400');
+        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor); // reset thumbs down color
+
+        // Save to local storage
+        saveRatingToLocalStorage('THUMBS_UP');
       }
     }
   };
 
   const onThumbsDownClick = async () => {
-    if (rating() === '') {
+    if (rating() !== 'THUMBS_DOWN') {
       const body = {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
@@ -124,8 +153,11 @@ export const BotBubble = (props: Props) => {
         setRating('THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
-        // update the thumbs down color state
         setThumbsDownColor('#8B0000');
+        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor); // reset thumbs up color
+
+        // Save to local storage
+        saveRatingToLocalStorage('THUMBS_DOWN');
       }
     }
   };
@@ -147,6 +179,18 @@ export const BotBubble = (props: Props) => {
   };
 
   onMount(() => {
+    const savedRating = getRatingFromLocalStorage();
+    if (savedRating) {
+      setRating(savedRating);
+      if (savedRating === 'THUMBS_UP') {
+        setThumbsUpColor('#006400');
+        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor); // reset thumbs down color
+      } else if (savedRating === 'THUMBS_DOWN') {
+        setThumbsDownColor('#8B0000');
+        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor); // reset thumbs up color
+      }
+    }
+
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message.message);
       botMessageEl.querySelectorAll('a').forEach((link) => {
@@ -240,17 +284,13 @@ export const BotBubble = (props: Props) => {
                   Copied!
                 </div>
               </Show>
-              {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
-              ) : null}
-              {rating() === '' || rating() === 'THUMBS_DOWN' ? (
-                <ThumbsDownButton
-                  feedbackColor={thumbsDownColor()}
-                  isDisabled={rating() === 'THUMBS_DOWN'}
-                  rating={rating()}
-                  onClick={onThumbsDownClick}
-                />
-              ) : null}
+              <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
+              <ThumbsDownButton
+                feedbackColor={thumbsDownColor()}
+                isDisabled={rating() === 'THUMBS_DOWN'}
+                rating={rating()}
+                onClick={onThumbsDownClick}
+              />
             </div>
             <Show when={showFeedbackContentDialog()}>
               <FeedbackContentDialog
