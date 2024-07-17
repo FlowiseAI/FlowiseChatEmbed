@@ -75,11 +75,11 @@ export const BotBubble = (props: Props) => {
   };
 
   const saveRatingToLocalStorage = (rating: string) => {
-    const storageKey = `_EXTERNAL${props.chatflowid}`;
+    const storageKey = `${props.chatflowid}_EXTERNAL`;  // Corrected key naming
     const chatHistory = JSON.parse(localStorage.getItem(storageKey) || '{"chatHistory": []}');
-
+  
     const messageIndex = chatHistory.chatHistory.findIndex((msg: any) => msg.messageId === props.message?.messageId);
-
+  
     if (messageIndex !== -1) {
       chatHistory.chatHistory[messageIndex].rating = rating;
     } else {
@@ -88,80 +88,96 @@ export const BotBubble = (props: Props) => {
         rating: rating,
       });
     }
-
+  
     localStorage.setItem(storageKey, JSON.stringify(chatHistory));
   };
-
+  
   const getRatingFromLocalStorage = () => {
-    const storageKey = `_EXTERNAL${props.chatflowid}`;
+    const storageKey = `${props.chatflowid}_EXTERNAL`; 
     const chatHistory = JSON.parse(localStorage.getItem(storageKey) || '{"chatHistory": []}');
-
+  
     const message = chatHistory.chatHistory.find((msg: any) => msg.messageId === props.message?.messageId);
     return message ? message.rating : null;
   };
+  
+  const throttle = (func: (...args: any[]) => void, limit: number) => {
+    let lastFunc: number | undefined;
+    let lastRan = 0;
 
-  const onThumbsUpClick = async () => {
+    return function(...args: any[]) {
+        const now = Date.now();
+        if (!lastRan || (now - lastRan >= limit)) {
+            func(...args);
+            lastRan = now;
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = window.setTimeout(function() {
+                func(...args);
+                lastRan = Date.now();
+            }, limit - (now - lastRan));
+        }
+    };
+};
+
+const sendFeedback = async (rating: 'THUMBS_UP' | 'THUMBS_DOWN') => {
+    const body = {
+        chatflowid: props.chatflowid,
+        chatId: props.chatId,
+        messageId: props.message?.messageId as string,
+        rating: rating as FeedbackRatingType,
+        content: '',
+    };
+
+    try {
+        const result = await sendFeedbackQuery({
+            chatflowid: props.chatflowid,
+            apiHost: props.apiHost,
+            body,
+        });
+
+        if (result.data) {
+            const data = result.data as any;
+            let id = '';
+            if (data && data.id) id = data.id;
+
+            // Update local state
+            setRating(rating);
+            setFeedbackId(id);
+            setShowFeedbackContentModal(true);
+
+            // Update colors based on rating
+            if (rating === 'THUMBS_UP') {
+                setThumbsUpColor('#006400');
+                setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
+            } else {
+                setThumbsDownColor('#8B0000');
+                setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
+            }
+
+            // Save to local storage after successful update
+            saveRatingToLocalStorage(rating);
+        } else {
+            console.error('Feedback submission failed:', result);
+        }
+    } catch (error) {
+        console.error('Error sending feedback:', error);
+    }
+};
+
+// Use throttled version of sendFeedback
+const throttledSendFeedback = throttle(sendFeedback, 2000); // Adjust the limit as needed
+
+const onThumbsUpClick = async () => {
     if (rating() !== 'THUMBS_UP') {
-      const body = {
-        chatflowid: props.chatflowid,
-        chatId: props.chatId,
-        messageId: props.message?.messageId as string,
-        rating: 'THUMBS_UP' as FeedbackRatingType,
-        content: '',
-      };
-      const result = await sendFeedbackQuery({
-        chatflowid: props.chatflowid,
-        apiHost: props.apiHost,
-        body,
-      });
-
-      if (result.data) {
-        const data = result.data as any;
-        let id = '';
-        if (data && data.id) id = data.id;
-        setRating('THUMBS_UP');
-        setFeedbackId(id);
-        setShowFeedbackContentModal(true);
-        setThumbsUpColor('#006400');
-        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor); // reset thumbs down color
-
-        // Save to local storage
-        saveRatingToLocalStorage('THUMBS_UP');
-      }
+        throttledSendFeedback('THUMBS_UP');
     }
-  };
+};
 
-  const onThumbsDownClick = async () => {
+const onThumbsDownClick = async () => {
     if (rating() !== 'THUMBS_DOWN') {
-      const body = {
-        chatflowid: props.chatflowid,
-        chatId: props.chatId,
-        messageId: props.message?.messageId as string,
-        rating: 'THUMBS_DOWN' as FeedbackRatingType,
-        content: '',
-      };
-      const result = await sendFeedbackQuery({
-        chatflowid: props.chatflowid,
-        apiHost: props.apiHost,
-        body,
-      });
-
-      if (result.data) {
-        const data = result.data as any;
-        let id = '';
-        if (data && data.id) id = data.id;
-        setRating('THUMBS_DOWN');
-        setFeedbackId(id);
-        setShowFeedbackContentModal(true);
-        setThumbsDownColor('#8B0000');
-        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor); // reset thumbs up color
-
-        // Save to local storage
-        saveRatingToLocalStorage('THUMBS_DOWN');
-      }
+        throttledSendFeedback('THUMBS_DOWN');
     }
-  };
-
+};
   const submitFeedbackContent = async (text: string) => {
     const body = {
       content: text,
@@ -208,7 +224,6 @@ export const BotBubble = (props: Props) => {
           const svgContainer = document.createElement('div');
           svgContainer.className = 'ml-2';
           svgContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>`;
-
           button.appendChild(svgContainer);
           botMessageEl.appendChild(button);
         }
