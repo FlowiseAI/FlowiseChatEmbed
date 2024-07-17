@@ -75,11 +75,11 @@ export const BotBubble = (props: Props) => {
   };
 
   const saveRatingToLocalStorage = (rating: string) => {
-    const storageKey = `${props.chatflowid}_EXTERNAL`;  // Corrected key naming
+    const storageKey = `${props.chatflowid}_EXTERNAL`; // Corrected key naming
     const chatHistory = JSON.parse(localStorage.getItem(storageKey) || '{"chatHistory": []}');
-  
+
     const messageIndex = chatHistory.chatHistory.findIndex((msg: any) => msg.messageId === props.message?.messageId);
-  
+
     if (messageIndex !== -1) {
       chatHistory.chatHistory[messageIndex].rating = rating;
     } else {
@@ -88,96 +88,99 @@ export const BotBubble = (props: Props) => {
         rating: rating,
       });
     }
-  
+
     localStorage.setItem(storageKey, JSON.stringify(chatHistory));
   };
-  
+
   const getRatingFromLocalStorage = () => {
-    const storageKey = `${props.chatflowid}_EXTERNAL`; 
+    const storageKey = `${props.chatflowid}_EXTERNAL`;
     const chatHistory = JSON.parse(localStorage.getItem(storageKey) || '{"chatHistory": []}');
-  
+
     const message = chatHistory.chatHistory.find((msg: any) => msg.messageId === props.message?.messageId);
     return message ? message.rating : null;
   };
-  
+
   const throttle = (func: (...args: any[]) => void, limit: number) => {
     let lastFunc: number | undefined;
     let lastRan = 0;
 
-    return function(...args: any[]) {
-        const now = Date.now();
-        if (!lastRan || (now - lastRan >= limit)) {
+    return function (...args: any[]) {
+      const now = Date.now();
+      if (!lastRan || now - lastRan >= limit) {
+        func(...args);
+        lastRan = now;
+      } else {
+        clearTimeout(lastFunc);
+        lastFunc = window.setTimeout(
+          function () {
             func(...args);
-            lastRan = now;
-        } else {
-            clearTimeout(lastFunc);
-            lastFunc = window.setTimeout(function() {
-                func(...args);
-                lastRan = Date.now();
-            }, limit - (now - lastRan));
-        }
+            lastRan = Date.now();
+          },
+          limit - (now - lastRan),
+        );
+      }
     };
-};
+  };
 
-const sendFeedback = async (rating: 'THUMBS_UP' | 'THUMBS_DOWN') => {
+  const sendFeedback = async (rating: 'THUMBS_UP' | 'THUMBS_DOWN') => {
     const body = {
-        chatflowid: props.chatflowid,
-        chatId: props.chatId,
-        messageId: props.message?.messageId as string,
-        rating: rating as FeedbackRatingType,
-        content: '',
+      chatflowid: props.chatflowid,
+      chatId: props.chatId,
+      messageId: props.message?.messageId as string,
+      rating: rating as FeedbackRatingType,
+      content: '',
     };
 
     try {
-        const result = await sendFeedbackQuery({
-            chatflowid: props.chatflowid,
-            apiHost: props.apiHost,
-            body,
-        });
+      const result = await sendFeedbackQuery({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        body,
+      });
 
-        if (result.data) {
-            const data = result.data as any;
-            let id = '';
-            if (data && data.id) id = data.id;
+      if (result.data) {
+        const data = result.data as any;
+        let id = '';
+        if (data && data.id) id = data.id;
 
-            // Update local state
-            setRating(rating);
-            setFeedbackId(id);
-            setShowFeedbackContentModal(true);
+        // Update local state
+        setRating(rating);
+        setFeedbackId(id);
+        setShowFeedbackContentModal(true);
 
-            // Update colors based on rating
-            if (rating === 'THUMBS_UP') {
-                setThumbsUpColor('#006400');
-                setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
-            } else {
-                setThumbsDownColor('#8B0000');
-                setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
-            }
-
-            // Save to local storage after successful update
-            saveRatingToLocalStorage(rating);
+        // Update colors based on rating
+        if (rating === 'THUMBS_UP') {
+          setThumbsUpColor('#006400');
+          setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
         } else {
-            console.error('Feedback submission failed:', result);
+          setThumbsDownColor('#8B0000');
+          setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
         }
+
+        // Save to local storage after successful update
+        saveRatingToLocalStorage(rating);
+      } else {
+        console.error('Feedback submission failed:', result);
+      }
     } catch (error) {
-        console.error('Error sending feedback:', error);
+      console.error('Error sending feedback:', error);
     }
-};
+  };
 
-// Use throttled version of sendFeedback
-const throttledSendFeedback = throttle(sendFeedback, 2000); // Adjust the limit as needed
+  // Use throttled version of sendFeedback
+  const throttledSendFeedback = throttle(sendFeedback, 2000); // Adjust the limit as needed
 
-const onThumbsUpClick = async () => {
+  const onThumbsUpClick = async () => {
     if (rating() !== 'THUMBS_UP') {
-        throttledSendFeedback('THUMBS_UP');
+      throttledSendFeedback('THUMBS_UP');
     }
-};
+  };
 
-const onThumbsDownClick = async () => {
+  const onThumbsDownClick = async () => {
     if (rating() !== 'THUMBS_DOWN') {
-        throttledSendFeedback('THUMBS_DOWN');
+      throttledSendFeedback('THUMBS_DOWN');
     }
-};
+  };
   const submitFeedbackContent = async (text: string) => {
     const body = {
       content: text,
