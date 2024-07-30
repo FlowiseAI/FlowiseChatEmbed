@@ -1,11 +1,12 @@
-import { createEffect, on, Show, createSignal, onMount, For } from 'solid-js';
+import { createEffect, Show, createSignal, onMount, For } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
-import { MessageType } from '../Bot';
+import { IAction, MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
+import { TickIcon, XIcon } from '../icons';
 
 type Props = {
   message: MessageType;
@@ -22,6 +23,7 @@ type Props = {
   feedbackColor?: string;
   isLoading: boolean;
   showAgentMessages?: boolean;
+  handleActionClick: (label: string, action: IAction | undefined | null) => void;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -227,6 +229,43 @@ export const BotBubble = (props: Props) => {
                 'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
               }}
             />
+          )}
+          {props.message.action && (
+            <div class="px-4 py-2 flex flex-row justify-start space-x-2">
+            <For each={props.message.action.elements || []}>
+              {(action) => {
+                return (
+                  <>
+                  {action.type === 'approve-button' ? (
+                      <button
+                        type="button"
+                        class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
+                        onClick={() => props.handleActionClick(action.label, props.message.action)}
+                      >
+                        <TickIcon />
+                        &nbsp;
+                       {action.label}
+                      </button>
+                  ) : action.type === 'reject-button' ? (
+                      <button
+                        type="button"
+                        class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
+                        onClick={() => props.handleActionClick(action.label, props.message.action)}
+                      >
+                        <XIcon isCurrentColor={true}/>
+                        &nbsp;
+                        {action.label}
+                      </button>
+                  ) : (
+                      <button>
+                          {action.label}
+                      </button>
+                  )}
+                </>
+                );
+              }}
+            </For>
+            </div>
           )}
         </div>
       </div>
