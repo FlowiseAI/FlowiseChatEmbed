@@ -61,6 +61,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             apiHost={props.apiHost}
             isFullPage={true}
             observersConfig={props.observersConfig}
+            starterPrompts={props.starterPrompts}
           />
         </div>
       </Show>
