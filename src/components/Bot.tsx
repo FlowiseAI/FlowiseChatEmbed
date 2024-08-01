@@ -111,6 +111,7 @@ export type BotProps = {
   isFullPage?: boolean;
   footer?: FooterTheme;
   observersConfig?: observersConfigType;
+  starterPrompts?: string[];
 };
 
 export type LeadsConfig = {
@@ -583,6 +584,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       console.error(`error: ${errorData}`);
     }
   };
+
+  createEffect(() => {
+    if (props.starterPrompts && props.starterPrompts.length > 0) {
+      const prompts = Object.values(props.starterPrompts).map((prompt) => prompt);
+
+      return setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
+    }
+
+    setStarterPrompts([]);
+  })
 
   // Auto scroll chat to bottom
   createEffect(() => {
