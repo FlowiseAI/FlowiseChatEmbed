@@ -32,6 +32,18 @@ export type IAgentReasoning = {
     instructions?: string;
     nextAgent?: string;
 };
+export type IAction = {
+    id?: string;
+    elements?: Array<{
+        type: string;
+        label: string;
+    }>;
+    mapping?: {
+        approve: string;
+        reject: string;
+        toolCalls: any[];
+    };
+};
 export type FileUpload = Omit<FilePreview, 'preview'>;
 export type MessageType = {
     messageId?: string;
@@ -41,6 +53,7 @@ export type MessageType = {
     fileAnnotations?: any;
     fileUploads?: Partial<FileUpload>[];
     agentReasoning?: IAgentReasoning[];
+    action?: IAction | null;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
