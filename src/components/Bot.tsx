@@ -365,7 +365,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
       }
 
-      if (resultText && !hasSoundPlayed) {
+      if (resultText && !hasSoundPlayed && !messageExists) {
         playReceiveSound();
       }
 
