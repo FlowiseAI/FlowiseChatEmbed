@@ -669,7 +669,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (result.data) {
       const chatbotConfig = result.data;
-      if (!props.starterPrompts && chatbotConfig.starterPrompts) {
+      if (!props.starterPrompts || (props.starterPrompts?.length === 0 && chatbotConfig.starterPrompts)) {
         const prompts: string[] = [];
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
           prompts.push(chatbotConfig.starterPrompts[key].prompt);
