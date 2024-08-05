@@ -129,11 +129,11 @@ export const Bubble = (props: BubbleProps) => {
               feedback={bubbleProps.theme?.chatWindow?.feedback}
               fontSize={bubbleProps.theme?.chatWindow?.fontSize}
               footer={bubbleProps.theme?.chatWindow?.footer}
+              starterPrompts={bubbleProps.theme?.chatWindow?.starterPrompts}
               chatflowid={props.chatflowid}
               chatflowConfig={props.chatflowConfig}
               apiHost={props.apiHost}
               observersConfig={props.observersConfig}
-              starterPrompts={props.starterPrompts}
             />
           </div>
         </Show>
