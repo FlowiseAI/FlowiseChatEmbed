@@ -80,6 +80,7 @@ export type BotProps = {
     footer?: FooterTheme;
     observersConfig?: observersConfigType;
     starterPrompts?: string[];
+    starterPromptFontSize?: number;
 };
 export type LeadsConfig = {
     status: boolean;
