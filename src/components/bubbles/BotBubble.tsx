@@ -232,39 +232,37 @@ export const BotBubble = (props: Props) => {
           )}
           {props.message.action && (
             <div class="px-4 py-2 flex flex-row justify-start space-x-2">
-            <For each={props.message.action.elements || []}>
-              {(action) => {
-                return (
-                  <>
-                  {action.type === 'approve-button' ? (
-                      <button
-                        type="button"
-                        class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-                        onClick={() => props.handleActionClick(action.label, props.message.action)}
-                      >
-                        <TickIcon />
-                        &nbsp;
-                       {action.label}
-                      </button>
-                  ) : action.type === 'reject-button' ? (
-                      <button
-                        type="button"
-                        class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-                        onClick={() => props.handleActionClick(action.label, props.message.action)}
-                      >
-                        <XIcon isCurrentColor={true}/>
-                        &nbsp;
-                        {action.label}
-                      </button>
-                  ) : (
-                      <button>
+              <For each={props.message.action.elements || []}>
+                {(action) => {
+                  return (
+                    <>
+                      {action.type === 'approve-button' ? (
+                        <button
+                          type="button"
+                          class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
+                          onClick={() => props.handleActionClick(action.label, props.message.action)}
+                        >
+                          <TickIcon />
+                          &nbsp;
                           {action.label}
-                      </button>
-                  )}
-                </>
-                );
-              }}
-            </For>
+                        </button>
+                      ) : action.type === 'reject-button' ? (
+                        <button
+                          type="button"
+                          class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
+                          onClick={() => props.handleActionClick(action.label, props.message.action)}
+                        >
+                          <XIcon isCurrentColor={true} />
+                          &nbsp;
+                          {action.label}
+                        </button>
+                      ) : (
+                        <button>{action.label}</button>
+                      )}
+                    </>
+                  );
+                }}
+              </For>
             </div>
           )}
         </div>

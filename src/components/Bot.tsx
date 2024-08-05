@@ -63,15 +63,15 @@ export type IAgentReasoning = {
 export type IAction = {
   id?: string;
   elements?: Array<{
-      type: string;
-      label: string;
+    type: string;
+    label: string;
   }>;
   mapping?: {
-      approve: string;
-      reject: string;
-      toolCalls: any[];
+    approve: string;
+    reject: string;
+    toolCalls: any[];
   };
-}
+};
 
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
@@ -299,7 +299,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: messages });
   };
-  
+
   // Define the audioRef
   let audioRef: HTMLAudioElement | undefined;
   // CDN link for default receive sound
@@ -326,7 +326,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   ) => {
     setMessages((data) => {
       let uiUpdated = false;
-
+      const messageExists = data.some((item) => item.messageId === messageId);
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
           const previousText = item.message || '';
@@ -345,7 +345,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       });
 
       // Add apiMessage if resultText exists and ui not updated
-      if (resultText && !uiUpdated) {
+      if (resultText && !uiUpdated && !messageExists) {
         updated.push({
           message: resultText,
           type: 'apiMessage',
@@ -357,7 +357,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
       }
 
-      if (resultText) {
+      if (resultText && !messageExists) {
         playReceiveSound();
       }
 
@@ -403,7 +403,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(updated);
       return [...updated];
     });
-}
+  };
 
   const clearPreviews = () => {
     // Revoke the data uris to avoid memory leaks
@@ -469,7 +469,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (leadEmail()) body.leadEmail = leadEmail();
 
-    if (action) body.action = action
+    if (action) body.action = action;
 
     if (isChatFlowAvailableToStream()) {
       body.socketIOClientId = socketIOClientId();
@@ -548,7 +548,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleActionClick = async (label: string, action: IAction | undefined | null) => {
-    setUserInput(label)
+    setUserInput(label);
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
@@ -559,7 +559,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(updated);
       return [...updated];
     });
-    handleSubmit(label, action)
+    handleSubmit(label, action);
   };
 
   const clearChat = () => {
@@ -921,12 +921,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const getInputDisabled = (): boolean => {
     const messagesArray = messages();
-    const disabled = loading() || !props.chatflowid || (leadsConfig()?.status && !isLeadSaved()) || (messagesArray[messagesArray.length - 1].action && Object.keys(messagesArray[messagesArray.length - 1].action as any).length > 0)
+    const disabled =
+      loading() ||
+      !props.chatflowid ||
+      (leadsConfig()?.status && !isLeadSaved()) ||
+      (messagesArray[messagesArray.length - 1].action && Object.keys(messagesArray[messagesArray.length - 1].action as any).length > 0);
     if (disabled) {
       return true;
     }
     return false;
-  }
+  };
 
   createEffect(
     // listen for changes in previews
