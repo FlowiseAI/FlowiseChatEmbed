@@ -56,6 +56,7 @@ export type ChatWindowTheme = {
   welcomeMessage?: string;
   errorMessage?: string;
   backgroundColor?: string;
+  backgroundImage?: string;
   height?: number;
   width?: number;
   fontSize?: number;
@@ -65,6 +66,7 @@ export type ChatWindowTheme = {
   feedback?: FeedbackTheme;
   footer?: FooterTheme;
   poweredByTextColor?: string;
+  starterPromptFontSize?: number;
 };
 
 export type ButtonTheme = {
@@ -75,6 +77,7 @@ export type ButtonTheme = {
   bottom?: number;
   right?: number;
   dragAndDrop?: boolean; // parameter to enable drag and drop(true or false)
+  autoWindowOpen?: autoWindowOpenTheme;
 };
 
 export type ToolTipTheme = {
@@ -83,4 +86,10 @@ export type ToolTipTheme = {
   tooltipBackgroundColor?: string;
   tooltipTextColor?: string;
   tooltipFontSize?: number;
+};
+
+export type autoWindowOpenTheme = {
+  autoOpen?: boolean; //parameter to control automatic window opening
+  openDelay?: number; // Optional parameter for delay time in seconds
+  autoOpenOnMobile?: boolean; // Optional parameter for opening on mobile
 };
