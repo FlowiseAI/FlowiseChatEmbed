@@ -56,12 +56,12 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             feedback={props.theme?.chatWindow?.feedback}
             fontSize={props.theme?.chatWindow?.fontSize}
             footer={props.theme?.chatWindow?.footer}
+            starterPrompts={props.theme?.chatWindow?.starterPrompts}
             chatflowid={props.chatflowid}
             chatflowConfig={props.chatflowConfig}
             apiHost={props.apiHost}
             isFullPage={true}
             observersConfig={props.observersConfig}
-            starterPrompts={props.starterPrompts}
           />
         </div>
       </Show>
