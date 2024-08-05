@@ -1,6 +1,6 @@
 {
   "name": "flowise-embed",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "description": "Javascript library to display flowise chatbot on your website",
   "type": "module",
   "main": "dist/index.js",
