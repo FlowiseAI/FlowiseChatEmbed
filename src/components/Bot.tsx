@@ -111,6 +111,7 @@ export type BotProps = {
   isFullPage?: boolean;
   footer?: FooterTheme;
   observersConfig?: observersConfigType;
+  starterPrompts?: string[];
   starterPromptFontSize?: number;
 };
 
@@ -566,6 +567,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
+  createEffect(() => {
+    if (props.starterPrompts && props.starterPrompts.length > 0) {
+      const prompts = Object.values(props.starterPrompts).map((prompt) => prompt);
+
+      return setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
+    }
+  });
+
   // Auto scroll chat to bottom
   createEffect(() => {
     if (messages()) {
@@ -630,7 +639,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (result.data) {
       const chatbotConfig = result.data;
-      if (chatbotConfig.starterPrompts) {
+      if ((!props.starterPrompts || props.starterPrompts?.length === 0) && chatbotConfig.starterPrompts) {
         const prompts: string[] = [];
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
           prompts.push(chatbotConfig.starterPrompts[key].prompt);
