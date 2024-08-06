@@ -108,6 +108,11 @@ You can also customize chatbot with different configuration
         dragAndDrop: true,
         iconColor: 'white',
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+        autoWindowOpen: {
+          autoOpen: true, //parameter to control automatic window opening
+          openDelay: 2, // Optional parameter for delay time in seconds
+          autoOpenOnMobile: false, //parameter to control automatic window opening in mobile
+        },
       },
       tooltip: {
         showTooltip: true,
@@ -124,9 +129,11 @@ You can also customize chatbot with different configuration
         welcomeMessage: 'Hello! This is custom welcome message',
         errorMessage: 'This is a custom error message',
         backgroundColor: '#ffffff',
+        backgroundImage: 'enter image path or link', // If set, this will overlap the background color of the chat window.
         height: 700,
         width: 400,
         fontSize: 16,
+        starterPromptFontSize: 15,
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',
