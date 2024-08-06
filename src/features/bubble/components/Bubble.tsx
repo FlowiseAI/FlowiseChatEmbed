@@ -136,6 +136,7 @@ export const Bubble = (props: BubbleProps) => {
               feedback={bubbleProps.theme?.chatWindow?.feedback}
               fontSize={bubbleProps.theme?.chatWindow?.fontSize}
               footer={bubbleProps.theme?.chatWindow?.footer}
+              starterPrompts={bubbleProps.theme?.chatWindow?.starterPrompts}
               starterPromptFontSize={bubbleProps.theme?.chatWindow?.starterPromptFontSize}
               chatflowid={props.chatflowid}
               chatflowConfig={props.chatflowConfig}
