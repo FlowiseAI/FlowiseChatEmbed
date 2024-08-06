@@ -79,6 +79,7 @@ export type BotProps = {
     isFullPage?: boolean;
     footer?: FooterTheme;
     observersConfig?: observersConfigType;
+    starterPrompts?: string[];
     starterPromptFontSize?: number;
 };
 export type LeadsConfig = {
