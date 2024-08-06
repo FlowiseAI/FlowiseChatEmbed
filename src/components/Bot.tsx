@@ -315,55 +315,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
-  const updateLastMessage = (
-    text: string,
-    messageId: string,
-    sourceDocuments: any = null,
-    fileAnnotations: any = null,
-    agentReasoning: IAgentReasoning[] = [],
-    action: IAction,
-    resultText: string,
-  ) => {
+  let hasSoundPlayed = false;
+  const updateLastMessage = (text: string, messageId: string, sourceDocuments: any, fileAnnotations: any, agentReasoning: IAgentReasoning[] = [], action: IAction, resultText: string) => {
     setMessages((data) => {
-      let uiUpdated = false;
-      const messageExists = data.some((item) => item.messageId === messageId);
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          const previousText = item.message || '';
-          let newText = previousText + text;
-          // Set newText to resultText only if previousText is empty and resultText exists
-          if (!previousText && resultText) {
-            newText = resultText;
+          if (resultText && !hasSoundPlayed) {
+            playReceiveSound();
+            hasSoundPlayed = true;
           }
-          // Check if newText now matches resultText to track UI update
-          if (newText === resultText) {
-            uiUpdated = true;
-          }
-          return { ...item, message: newText, messageId, sourceDocuments, fileAnnotations, agentReasoning };
+          return { ...item, message: item.message + text, sourceDocuments, fileAnnotations, agentReasoning, action };
         }
         return item;
       });
-
-      // Add apiMessage if resultText exists and ui not updated
-      if (resultText && !uiUpdated && !messageExists) {
-        updated.push({
-          message: resultText,
-          type: 'apiMessage',
-          messageId,
-          sourceDocuments,
-          fileAnnotations,
-          agentReasoning,
-          action,
-        });
-      }
-
-      if (resultText && !messageExists) {
-        playReceiveSound();
-      }
-
       addChatMessage(updated);
       return [...updated];
     });
+  
+    // Set hasSoundPlayed to false if resultText exists
+    if (resultText) {
+      hasSoundPlayed = false;
+    }
   };
 
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
