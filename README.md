@@ -133,6 +133,7 @@ You can also customize chatbot with different configuration
         height: 700,
         width: 400,
         fontSize: 16,
+        starterPrompts: ['What is a bot?', 'Who are you?'], // It overrides the starter prompts set by the chat flow passed
         starterPromptFontSize: 15,
         botMessage: {
           backgroundColor: '#f7f8ff',
@@ -167,8 +168,7 @@ You can also customize chatbot with different configuration
           text: 'Powered by',
           company: 'Flowise',
           companyLink: 'https://flowiseai.com',
-        },
-        starterPrompts: ['What is a bot?', 'Who are you?'], // It overrides the starter prompts set by the chat flow passed
+        }
       },
     },
   });
