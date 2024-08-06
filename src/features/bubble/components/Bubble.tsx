@@ -74,6 +74,9 @@ export const Bubble = (props: BubbleProps) => {
         isBotOpened={isBotOpened()}
         setButtonPosition={setButtonPosition}
         dragAndDrop={bubbleProps.theme?.button?.dragAndDrop ?? false}
+        autoOpen={bubbleProps.theme?.button?.autoWindowOpen?.autoOpen ?? false}
+        openDelay={bubbleProps.theme?.button?.autoWindowOpen?.openDelay}
+        autoOpenOnMobile={bubbleProps.theme?.button?.autoWindowOpen?.autoOpenOnMobile ?? false}
       />
       <div
         part="bot"
@@ -85,6 +88,10 @@ export const Bubble = (props: BubbleProps) => {
           transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
           'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
           'background-color': bubbleProps.theme?.chatWindow?.backgroundColor || '#ffffff',
+          'background-image': bubbleProps.theme?.chatWindow?.backgroundImage ? `url(${bubbleProps.theme?.chatWindow?.backgroundImage})` : 'none',
+          'background-size': 'cover',
+          'background-position': 'center',
+          'background-repeat': 'no-repeat',
           'z-index': 42424242,
           bottom: `${Math.min(buttonPosition().bottom + buttonSize + 10, window.innerHeight - chatWindowBottom)}px`,
           right: `${Math.min(buttonPosition().right, window.innerWidth - 410)}px`,
@@ -129,6 +136,7 @@ export const Bubble = (props: BubbleProps) => {
               feedback={bubbleProps.theme?.chatWindow?.feedback}
               fontSize={bubbleProps.theme?.chatWindow?.fontSize}
               footer={bubbleProps.theme?.chatWindow?.footer}
+              starterPromptFontSize={bubbleProps.theme?.chatWindow?.starterPromptFontSize}
               chatflowid={props.chatflowid}
               chatflowConfig={props.chatflowConfig}
               apiHost={props.apiHost}
