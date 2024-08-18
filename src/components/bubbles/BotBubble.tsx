@@ -76,6 +76,21 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  const saveToLocalStorage = (rating: FeedbackRatingType) => {
+    const chatDetails = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
+    if (!chatDetails) return;
+    try {
+      const parsedDetails = JSON.parse(chatDetails);
+      const messages: MessageType[] = parsedDetails.chatHistory || [];
+      const message = messages.find((msg) => msg.messageId === props.message.messageId);
+      if (!message) return;
+      message.rating = rating
+      localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedDetails, chatHistory: messages }));
+    } catch (e) {
+      return;
+    }
+  }
+
   const onThumbsUpClick = async () => {
     if (rating() === '') {
       const body = {
@@ -100,6 +115,7 @@ export const BotBubble = (props: Props) => {
         setShowFeedbackContentModal(true);
         // update the thumbs up color state
         setThumbsUpColor('#006400');
+        saveToLocalStorage('THUMBS_UP');
       }
     }
   };
@@ -128,6 +144,7 @@ export const BotBubble = (props: Props) => {
         setShowFeedbackContentModal(true);
         // update the thumbs down color state
         setThumbsDownColor('#8B0000');
+        saveToLocalStorage('THUMBS_DOWN');
       }
     }
   };
@@ -154,6 +171,14 @@ export const BotBubble = (props: Props) => {
       botMessageEl.querySelectorAll('a').forEach((link) => {
         link.target = '_blank';
       });
+      if (props.message.rating) {
+        setRating(props.message.rating);
+        if (props.message.rating === 'THUMBS_UP') {
+          setThumbsUpColor('#006400');
+        } else if (props.message.rating === 'THUMBS_DOWN') {
+          setThumbsDownColor('#8B0000');
+        }
+      }
       if (props.fileAnnotations && props.fileAnnotations.length) {
         for (const annotations of props.fileAnnotations) {
           const button = document.createElement('button');
