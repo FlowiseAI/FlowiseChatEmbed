@@ -1,3 +1,4 @@
+import { FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
 export type FileEvent<T = EventTarget> = {
     target: T;
@@ -54,6 +55,7 @@ export type MessageType = {
     fileUploads?: Partial<FileUpload>[];
     agentReasoning?: IAgentReasoning[];
     action?: IAction | null;
+    rating?: FeedbackRatingType;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
