@@ -1,6 +1,6 @@
 import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig } from '@/queries/sendMessageQuery';
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig, FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -84,6 +84,7 @@ export type MessageType = {
   fileUploads?: Partial<FileUpload>[];
   agentReasoning?: IAgentReasoning[];
   action?: IAction | null;
+  rating?: FeedbackRatingType;
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
@@ -322,6 +323,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // The solution is to use SSE
   const updateLastMessage = (
     text: string,
+    messageId: string,
     sourceDocuments: any,
     fileAnnotations: any,
     agentReasoning: IAgentReasoning[] = [],
@@ -335,7 +337,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             playReceiveSound();
             hasSoundPlayed = true;
           }
-          return { ...item, message: item.message + text, sourceDocuments, fileAnnotations, agentReasoning, action };
+          return { ...item, message: item.message + text, messageId, sourceDocuments, fileAnnotations, agentReasoning, action };
         }
         return item;
       });
@@ -506,9 +508,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
+        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       } else {
-        updateLastMessage('', data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
+        updateLastMessage('', data?.chatMessageId,data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       }
       setLoading(false);
       setUserInput('');
@@ -607,6 +609,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 messageId: message?.messageId,
                 message: message.message,
                 type: message.type,
+                rating: message.rating,
               };
               if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
               if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
