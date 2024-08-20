@@ -17,7 +17,7 @@ const indexConfig = {
   plugins: [
     resolve({ extensions, browser: true }),
     commonjs(),
-    uglify(),
+    // uglify(),
     babel({
       babelHelpers: "bundled",
       exclude: "node_modules/**",
