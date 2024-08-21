@@ -510,7 +510,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
         updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       } else {
-        updateLastMessage('', data?.chatMessageId,data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       }
       setLoading(false);
       setUserInput('');
