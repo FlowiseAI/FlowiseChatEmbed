@@ -31,6 +31,11 @@ export type UpdateFeedbackRequest = {
     apiHost?: string;
     body?: Partial<FeedbackInput>;
 };
+export type UpsertRequest = {
+    chatflowid: string;
+    apiHost?: string;
+    formData: FormData;
+};
 export type LeadCaptureInput = {
     chatflowid: string;
     chatId: string;
@@ -52,6 +57,10 @@ export declare const updateFeedbackQuery: ({ id, apiHost, body }: UpdateFeedback
 }>;
 export declare const sendMessageQuery: ({ chatflowid, apiHost, body }: MessageRequest) => Promise<{
     data?: any;
+    error?: Error | undefined;
+}>;
+export declare const upsertVectorStoreWithFormData: ({ chatflowid, apiHost, formData }: UpsertRequest) => Promise<{
+    data?: unknown;
     error?: Error | undefined;
 }>;
 export declare const getChatbotConfig: ({ chatflowid, apiHost }: MessageRequest) => Promise<{
