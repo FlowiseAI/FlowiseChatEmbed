@@ -39,7 +39,7 @@ export const GuestBubble = (props: Props) => {
         <div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0">
           <img class="w-full h-full bg-cover" src={src} />
         </div>
-      )
+      );
     } else if (item?.mime?.startsWith('audio/')) {
       const fileData = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${item.name}`;
       const src = (item.data as string) ?? fileData;
@@ -48,17 +48,16 @@ export const GuestBubble = (props: Props) => {
           Your browser does not support the &lt;audio&gt; tag.
           <source src={src} type={item.mime} />
         </audio>
-      )
+      );
     } else {
-      return (<div class={`inline-flex items-center h-12 max-w-max p-2 mr-1 flex-none bg-transparent border border-gray-300 rounded-md`}>
-        <AttachmentIcon color={props.textColor ?? defaultTextColor} />
-        <span class={`ml-1.5 text-inherit`}
-        >
-          {item.name}
-        </span>
-      </div>)
+      return (
+        <div class={`inline-flex items-center h-12 max-w-max p-2 mr-1 flex-none bg-transparent border border-gray-300 rounded-md`}>
+          <AttachmentIcon color={props.textColor ?? defaultTextColor} />
+          <span class={`ml-1.5 text-inherit`}>{item.name}</span>
+        </div>
+      );
     }
-  }
+  };
 
   return (
     <div class="flex justify-end mb-2 items-end guest-container" style={{ 'margin-left': '50px' }}>

@@ -1,6 +1,13 @@
 import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessageQuery, upsertVectorStoreWithFormData, isStreamAvailableQuery, IncomingInput, getChatbotConfig, FeedbackRatingType } from '@/queries/sendMessageQuery';
+import {
+  sendMessageQuery,
+  upsertVectorStoreWithFormData,
+  isStreamAvailableQuery,
+  IncomingInput,
+  getChatbotConfig,
+  FeedbackRatingType,
+} from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -468,25 +475,25 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (uploadedFiles().length > 0) {
-      const formData = new FormData()
+      const formData = new FormData();
       for (const file of uploadedFiles()) {
-          formData.append('files', file)
+        formData.append('files', file);
       }
-      formData.append('chatId', chatId())
+      formData.append('chatId', chatId());
 
-      const response =  await upsertVectorStoreWithFormData({
+      const response = await upsertVectorStoreWithFormData({
         chatflowid: props.chatflowid,
         apiHost: props.apiHost,
         formData: formData,
       });
       if (!response.data) {
-          setMessages((prevMessages) => [...prevMessages, { message: 'Unable to upload documents', type: 'apiMessage' }])
+        setMessages((prevMessages) => [...prevMessages, { message: 'Unable to upload documents', type: 'apiMessage' }]);
       } else {
-          // delay for vector store to be updated
-          const delay = (delayInms: number) => {
-              return new Promise((resolve) => setTimeout(resolve, delayInms))
-          }
-          await delay(2500) //TODO: check if embeddings can be retrieved using file name as metadata filter
+        // delay for vector store to be updated
+        const delay = (delayInms: number) => {
+          return new Promise((resolve) => setTimeout(resolve, delayInms));
+        };
+        await delay(2500); //TODO: check if embeddings can be retrieved using file name as metadata filter
       }
     }
 
@@ -790,17 +797,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       });
     }
     if (uploadsConfig() && uploadsConfig()?.isFileUploadAllowed && uploadsConfig()?.fileUploadSizeAndTypes) {
-      const fileExt = file.name.split('.').pop()
+      const fileExt = file.name.split('.').pop();
       if (fileExt) {
         uploadsConfig()?.fileUploadSizeAndTypes.map((allowed) => {
-              if (allowed.fileTypes.length === 1 && allowed.fileTypes[0] === '*') {
-                  acceptFile = true
-              } else if (allowed.fileTypes.includes(`.${fileExt}`)) {
-                  acceptFile = true
-              }
-          })
+          if (allowed.fileTypes.length === 1 && allowed.fileTypes[0] === '*') {
+            acceptFile = true;
+          } else if (allowed.fileTypes.includes(`.${fileExt}`)) {
+            acceptFile = true;
+          }
+        });
       }
-  }
+    }
     if (!acceptFile) {
       alert(`Cannot upload file. Kindly check the allowed file types and maximum allowed size.`);
     }
@@ -842,7 +849,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     const newFiles = await Promise.all(filesList);
-    setUploadedFiles(uploadedFiles)
+    setUploadedFiles(uploadedFiles);
     setPreviews((prevPreviews) => [...prevPreviews, ...(newFiles as FilePreview[])]);
   };
 
@@ -1004,15 +1011,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             <TrashIcon />
           </span>
         </button>
-      )
+      );
     } else if (item.mime.startsWith('audio/')) {
       return (
         <div
           class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
           style={{
-            width: `${
-              chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-            }px`,
+            width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'}px`,
           }}
         >
           <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
@@ -1020,11 +1025,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             <TrashIcon color="white" />
           </button>
         </div>
-      )
+      );
     } else {
-      return <FilePreview item={item} onDelete={() => handleDeletePreview(item)} />
+      return <FilePreview item={item} onDelete={() => handleDeletePreview(item)} />;
     }
-  }
+  };
 
   return (
     <>
@@ -1049,15 +1054,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             style={{ 'border-color': props.bubbleBackgroundColor }}
           >
             <h2 class="text-xl font-semibold">Drop here to upload</h2>
-            <For each={[
-              ...uploadsConfig()?.imgUploadSizeAndTypes || [],
-              ...uploadsConfig()?.fileUploadSizeAndTypes || [],
-            ]}>
+            <For each={[...(uploadsConfig()?.imgUploadSizeAndTypes || []), ...(uploadsConfig()?.fileUploadSizeAndTypes || [])]}>
               {(allowed) => {
                 return (
                   <>
                     <span>{allowed.fileTypes?.join(', ')}</span>
-                    {allowed.maxUploadSize && (<span>Max Allowed Size: {allowed.maxUploadSize} MB</span>)}
+                    {allowed.maxUploadSize && <span>Max Allowed Size: {allowed.maxUploadSize} MB</span>}
                   </>
                 );
               }}
@@ -1202,13 +1204,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           </Show>
           <Show when={previews().length > 0}>
             <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
-              <For each={[...previews()]}>
-                {(item) => (
-                  <>
-                    {previewDisplay(item)}
-                  </>
-                )}
-              </For>
+              <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
             </div>
           </Show>
           <div class="w-full px-5 pt-2 pb-1">

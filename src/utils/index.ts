@@ -20,19 +20,20 @@ export const sendRequest = async <ResponseData>(
 ): Promise<{ data?: ResponseData; error?: Error }> => {
   try {
     const url = typeof params === 'string' ? params : params.url;
-    const headers = typeof params !== 'string' && isDefined(params.body) ? {
-      'Content-Type': 'application/json',
-      ...params.headers,
-    } : undefined
-    console.log('headers', headers)
-    let body: string | FormData | undefined = typeof params !== 'string' && isDefined(params.body) ? JSON.stringify(params.body) : undefined
-    if (typeof params !== 'string' && params.formData) body = params.formData
-    console.log('body', body)
+    const headers =
+      typeof params !== 'string' && isDefined(params.body)
+        ? {
+            'Content-Type': 'application/json',
+            ...params.headers,
+          }
+        : undefined;
+    let body: string | FormData | undefined = typeof params !== 'string' && isDefined(params.body) ? JSON.stringify(params.body) : undefined;
+    if (typeof params !== 'string' && params.formData) body = params.formData;
     const response = await fetch(url, {
       method: typeof params === 'string' ? 'GET' : params.method,
       mode: 'cors',
       headers,
-      body
+      body,
     });
     let data: any;
     const contentType = response.headers.get('Content-Type');

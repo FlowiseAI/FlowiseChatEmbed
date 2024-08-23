@@ -107,12 +107,12 @@ export const TextInput = (props: Props) => {
 
   const getFileType = () => {
     if (props.uploadsConfig?.fileUploadSizeAndTypes?.length) {
-      const allowedFileTypes = props.uploadsConfig?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
-      if (allowedFileTypes.includes('*')) return '*'
-      else return allowedFileTypes
+      const allowedFileTypes = props.uploadsConfig?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',');
+      if (allowedFileTypes.includes('*')) return '*';
+      else return allowedFileTypes;
     }
-    return '*'
-  }
+    return '*';
+  };
 
   return (
     <div
@@ -142,7 +142,18 @@ export const TextInput = (props: Props) => {
             >
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
             </ImageUploadButton>
-            <input style={{ display: 'none' }} multiple ref={imgUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} accept={props.uploadsConfig?.imgUploadSizeAndTypes?.length ? props.uploadsConfig?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',') : '*'}/>
+            <input
+              style={{ display: 'none' }}
+              multiple
+              ref={imgUploadRef as HTMLInputElement}
+              type="file"
+              onChange={handleFileChange}
+              accept={
+                props.uploadsConfig?.imgUploadSizeAndTypes?.length
+                  ? props.uploadsConfig?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
+                  : '*'
+              }
+            />
           </>
         ) : null}
         {props.uploadsConfig?.isFileUploadAllowed ? (
@@ -156,7 +167,14 @@ export const TextInput = (props: Props) => {
             >
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>File Upload</span>
             </AttachmentUploadButton>
-            <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} accept={getFileType()}/>
+            <input
+              style={{ display: 'none' }}
+              multiple
+              ref={fileUploadRef as HTMLInputElement}
+              type="file"
+              onChange={handleFileChange}
+              accept={getFileType()}
+            />
           </>
         ) : null}
         <ShortTextInput
