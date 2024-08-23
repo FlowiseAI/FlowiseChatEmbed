@@ -93,6 +93,7 @@ export type observersConfigType = Record<'observeUserInput' | 'observeLoading' |
 export type BotProps = {
   chatflowid: string;
   apiHost?: string;
+  onRequest?: (request: RequestInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
   welcomeMessage?: string;
   errorMessage?: string;
@@ -466,6 +467,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       body,
+      onRequest: props.onRequest
     });
 
     if (result.data) {
@@ -510,7 +512,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
         updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       } else {
-        updateLastMessage('', data?.chatMessageId,data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
+        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       }
       setLoading(false);
       setUserInput('');
@@ -605,19 +607,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-                rating: message.rating,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-              if (message.action) chatHistory.action = message.action;
-              return chatHistory;
-            })
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+              rating: message.rating,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+            if (message.action) chatHistory.action = message.action;
+            return chatHistory;
+          })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
@@ -628,6 +630,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const { data } = await isStreamAvailableQuery({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
+      onRequest: props.onRequest
     });
 
     if (data) {
@@ -638,6 +641,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const result = await getChatbotConfig({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
+      onRequest: props.onRequest
     });
 
     if (result.data) {
@@ -681,7 +685,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     socket.on('action', updateLastMessageAction);
 
     socket.on('token', updateLastMessage);
-
+    
     // eslint-disable-next-line solid/reactivity
     return () => {
       setUserInput('');
@@ -1132,9 +1136,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       <div
                         class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
                         style={{
-                          width: `${
-                            chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-                          }px`,
+                          width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
+                            }px`,
                         }}
                       >
                         <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
