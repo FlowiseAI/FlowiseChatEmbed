@@ -15,7 +15,7 @@ export type IncomingInput = {
 type BaseRequest = {
   apiHost?: string;
   onRequest?: (request: RequestInit) => Promise<void>;
-}
+};
 
 export type MessageRequest = BaseRequest & {
   chatflowid?: string;
@@ -64,7 +64,7 @@ export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000
     method: 'POST',
     url: `${apiHost}/api/v1/feedback/${chatflowid}`,
     body,
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const updateFeedbackQuery = ({ id, apiHost = 'http://localhost:3000', body, onRequest }: UpdateFeedbackRequest) =>
@@ -72,7 +72,7 @@ export const updateFeedbackQuery = ({ id, apiHost = 'http://localhost:3000', bod
     method: 'PUT',
     url: `${apiHost}/api/v1/feedback/${id}`,
     body,
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body, onRequest }: MessageRequest) =>
@@ -80,7 +80,7 @@ export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000'
     method: 'POST',
     url: `${apiHost}/api/v1/prediction/${chatflowid}`,
     body,
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const upsertVectorStoreWithFormData = ({ chatflowid, apiHost = 'http://localhost:3000', formData, onRequest }: UpsertRequest) =>
@@ -91,21 +91,21 @@ export const upsertVectorStoreWithFormData = ({ chatflowid, apiHost = 'http://lo
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const getChatbotConfig = ({ chatflowid, apiHost = 'http://localhost:3000', onRequest }: MessageRequest) =>
   sendRequest<any>({
     method: 'GET',
     url: `${apiHost}/api/v1/public-chatbotConfig/${chatflowid}`,
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost:3000', onRequest }: MessageRequest) =>
   sendRequest<any>({
     method: 'GET',
     url: `${apiHost}/api/v1/chatflows-streaming/${chatflowid}`,
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body, onRequest }: MessageRequest) =>
@@ -114,7 +114,7 @@ export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body,
     url: `${apiHost}/api/v1/openai-assistants-file`,
     body,
     type: 'blob',
-    onRequest: onRequest
+    onRequest: onRequest,
   });
 
 export const addLeadQuery = ({ apiHost = 'http://localhost:3000', body, onRequest }: LeadCaptureRequest) =>
@@ -122,5 +122,5 @@ export const addLeadQuery = ({ apiHost = 'http://localhost:3000', body, onReques
     method: 'POST',
     url: `${apiHost}/api/v1/leads/`,
     body,
-    onRequest: onRequest
+    onRequest: onRequest,
   });
