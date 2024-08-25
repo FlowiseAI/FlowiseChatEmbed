@@ -502,7 +502,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       body,
-      onRequest: props.onRequest
+      onRequest: props.onRequest,
     });
 
     if (result.data) {
@@ -644,19 +644,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-            const chatHistory: MessageType = {
-              messageId: message?.messageId,
-              message: message.message,
-              type: message.type,
-              rating: message.rating,
-            };
-            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-            if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-            if (message.action) chatHistory.action = message.action;
-            return chatHistory;
-          })
+              const chatHistory: MessageType = {
+                messageId: message?.messageId,
+                message: message.message,
+                type: message.type,
+                rating: message.rating,
+              };
+              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+              if (message.action) chatHistory.action = message.action;
+              return chatHistory;
+            })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
@@ -667,7 +667,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const { data } = await isStreamAvailableQuery({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
-      onRequest: props.onRequest
+      onRequest: props.onRequest,
     });
 
     if (data) {
@@ -678,7 +678,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const result = await getChatbotConfig({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
-      onRequest: props.onRequest
+      onRequest: props.onRequest,
     });
 
     if (result.data) {
@@ -722,7 +722,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     socket.on('action', updateLastMessageAction);
 
     socket.on('token', updateLastMessage);
-    
+
     // eslint-disable-next-line solid/reactivity
     return () => {
       setUserInput('');
