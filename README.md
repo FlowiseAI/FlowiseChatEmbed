@@ -168,7 +168,7 @@ You can also customize chatbot with different configuration
           text: 'Powered by',
           company: 'Flowise',
           companyLink: 'https://flowiseai.com',
-        }
+        },
       },
     },
   });

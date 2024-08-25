@@ -41,6 +41,12 @@ export type UpdateFeedbackRequest = BaseRequest & {
   body?: Partial<FeedbackInput>;
 };
 
+export type UpsertRequest = BaseRequest & {
+  chatflowid: string;
+  apiHost?: string;
+  formData: FormData;
+};
+
 export type LeadCaptureInput = {
   chatflowid: string;
   chatId: string;
@@ -74,6 +80,17 @@ export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000'
     method: 'POST',
     url: `${apiHost}/api/v1/prediction/${chatflowid}`,
     body,
+    onRequest: onRequest
+  });
+
+export const upsertVectorStoreWithFormData = ({ chatflowid, apiHost = 'http://localhost:3000', formData, onRequest }: UpsertRequest) =>
+  sendRequest({
+    method: 'POST',
+    url: `${apiHost}/api/v1/vector/upsert/${chatflowid}`,
+    formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
     onRequest: onRequest
   });
 

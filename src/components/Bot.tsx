@@ -1,6 +1,13 @@
 import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig, FeedbackRatingType } from '@/queries/sendMessageQuery';
+import {
+  sendMessageQuery,
+  upsertVectorStoreWithFormData,
+  isStreamAvailableQuery,
+  IncomingInput,
+  getChatbotConfig,
+  FeedbackRatingType,
+} from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
@@ -13,6 +20,7 @@ import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton, SendButton } from '@/components/buttons/SendButton';
+import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
 import { CircleDotIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
@@ -28,15 +36,17 @@ export type FormEvent<T = EventTarget> = {
   currentTarget: T;
 };
 
-type ImageUploadConstraits = {
+type IUploadConstraits = {
   fileTypes: string[];
   maxUploadSize: number;
 };
 
 export type UploadsConfig = {
-  imgUploadSizeAndTypes: ImageUploadConstraits[];
+  imgUploadSizeAndTypes: IUploadConstraits[];
+  fileUploadSizeAndTypes: IUploadConstraits[];
   isImageUploadAllowed: boolean;
   isSpeechToTextEnabled: boolean;
+  isFileUploadAllowed: boolean;
 };
 
 type FilePreviewData = string | ArrayBuffer;
@@ -253,6 +263,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
+  const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
 
   onMount(() => {
     if (botProps?.observersConfig) {
@@ -406,6 +417,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
     setLoading(false);
     setUserInput('');
+    setUploadedFiles([]);
     scrollToBottom();
   };
 
@@ -427,7 +439,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(true);
     scrollToBottom();
 
-    const urls = previews().map((item) => {
+    const uploads = previews().map((item) => {
       return {
         data: item.data,
         type: item.type,
@@ -439,7 +451,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     clearPreviews();
 
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage', fileUploads: urls }];
+      const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage', fileUploads: uploads }];
       addChatMessage(messages);
       return messages;
     });
@@ -449,7 +461,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       chatId: chatId(),
     };
 
-    if (urls && urls.length > 0) body.uploads = urls;
+    if (uploads && uploads.length > 0) body.uploads = uploads;
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
@@ -461,6 +473,29 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       body.socketIOClientId = socketIOClientId();
     } else {
       setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+    }
+
+    if (uploadedFiles().length > 0) {
+      const formData = new FormData();
+      for (const file of uploadedFiles()) {
+        formData.append('files', file);
+      }
+      formData.append('chatId', chatId());
+
+      const response = await upsertVectorStoreWithFormData({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        formData: formData,
+      });
+      if (!response.data) {
+        setMessages((prevMessages) => [...prevMessages, { message: 'Unable to upload documents', type: 'apiMessage' }]);
+      } else {
+        // delay for vector store to be updated
+        const delay = (delayInms: number) => {
+          return new Promise((resolve) => setTimeout(resolve, delayInms));
+        };
+        await delay(2500); //TODO: check if embeddings can be retrieved using file name as metadata filter
+      }
     }
 
     const result = await sendMessageQuery({
@@ -485,7 +520,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           return [...messages];
         });
       }
-      if (urls && urls.length > 0) {
+      if (uploads && uploads.length > 0) {
         setMessages((data) => {
           const messages = data.map((item, i) => {
             if (i === data.length - 2) {
@@ -516,6 +551,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       setLoading(false);
       setUserInput('');
+      setUploadedFiles([]);
       scrollToBottom();
     }
     if (result.error) {
@@ -555,6 +591,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       setChatId(
         (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
       );
+      setUploadedFiles([]);
       const messages: MessageType[] = [
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
@@ -689,6 +726,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // eslint-disable-next-line solid/reactivity
     return () => {
       setUserInput('');
+      setUploadedFiles([]);
       setLoading(false);
       setMessages([
         {
@@ -762,6 +800,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       });
     }
+    if (uploadsConfig() && uploadsConfig()?.isFileUploadAllowed && uploadsConfig()?.fileUploadSizeAndTypes) {
+      const fileExt = file.name.split('.').pop();
+      if (fileExt) {
+        uploadsConfig()?.fileUploadSizeAndTypes.map((allowed) => {
+          if (allowed.fileTypes.length === 1 && allowed.fileTypes[0] === '*') {
+            acceptFile = true;
+          } else if (allowed.fileTypes.includes(`.${fileExt}`)) {
+            acceptFile = true;
+          }
+        });
+      }
+    }
     if (!acceptFile) {
       alert(`Cannot upload file. Kindly check the allowed file types and maximum allowed size.`);
     }
@@ -774,10 +824,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return;
     }
     const filesList = [];
+    const uploadedFiles = [];
     for (const file of files) {
       if (isFileAllowedForUpload(file) === false) {
         return;
       }
+      uploadedFiles.push(file);
       const reader = new FileReader();
       const { name } = file;
       filesList.push(
@@ -801,11 +853,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     const newFiles = await Promise.all(filesList);
+    setUploadedFiles(uploadedFiles);
     setPreviews((prevPreviews) => [...prevPreviews, ...(newFiles as FilePreview[])]);
   };
 
   const handleDrag = (e: DragEvent) => {
-    if (uploadsConfig()?.isImageUploadAllowed) {
+    if (uploadsConfig()?.isImageUploadAllowed || uploadsConfig()?.isFileUploadAllowed) {
       e.preventDefault();
       e.stopPropagation();
       if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -817,17 +870,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleDrop = async (e: InputEvent | DragEvent) => {
-    if (!uploadsConfig()?.isImageUploadAllowed) {
+    if (!uploadsConfig()?.isImageUploadAllowed && !uploadsConfig()?.isFileUploadAllowed) {
       return;
     }
     e.preventDefault();
     setIsDragActive(false);
     const files = [];
+    const uploadedFiles = [];
     if (e.dataTransfer && e.dataTransfer.files.length > 0) {
       for (const file of e.dataTransfer.files) {
         if (isFileAllowedForUpload(file) === false) {
           return;
         }
+        uploadedFiles.push(file);
         const reader = new FileReader();
         const { name } = file;
         files.push(
@@ -857,6 +912,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
 
       const newFiles = await Promise.all(files);
+      setUploadedFiles(uploadedFiles);
       setPreviews((prevPreviews) => [...prevPreviews, ...(newFiles as FilePreview[])]);
     }
 
@@ -946,6 +1002,39 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       };
     }),
   );
+
+  const previewDisplay = (item: FilePreview) => {
+    if (item.mime.startsWith('image/')) {
+      return (
+        <button
+          class="group w-12 h-12 flex items-center justify-center relative rounded-[10px] overflow-hidden transition-colors duration-200"
+          onClick={() => handleDeletePreview(item)}
+        >
+          <img class="w-full h-full bg-cover" src={item.data as string} />
+          <span class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
+            <TrashIcon />
+          </span>
+        </button>
+      );
+    } else if (item.mime.startsWith('audio/')) {
+      return (
+        <div
+          class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
+          style={{
+            width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'}px`,
+          }}
+        >
+          <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
+          <button class="w-7 h-7 flex items-center justify-center bg-transparent p-1" onClick={() => handleDeletePreview(item)}>
+            <TrashIcon color="white" />
+          </button>
+        </div>
+      );
+    } else {
+      return <FilePreview item={item} onDelete={() => handleDeletePreview(item)} />;
+    }
+  };
+
   return (
     <>
       <div
@@ -963,18 +1052,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             onDrop={handleDrop}
           />
         )}
-        {isDragActive() && uploadsConfig()?.isImageUploadAllowed && (
+        {isDragActive() && (uploadsConfig()?.isImageUploadAllowed || uploadsConfig()?.isFileUploadAllowed) && (
           <div
             class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white z-40 gap-2 border-2 border-dashed"
             style={{ 'border-color': props.bubbleBackgroundColor }}
           >
             <h2 class="text-xl font-semibold">Drop here to upload</h2>
-            <For each={uploadsConfig()?.imgUploadSizeAndTypes}>
+            <For each={[...(uploadsConfig()?.imgUploadSizeAndTypes || []), ...(uploadsConfig()?.fileUploadSizeAndTypes || [])]}>
               {(allowed) => {
                 return (
                   <>
                     <span>{allowed.fileTypes?.join(', ')}</span>
-                    <span>Max Allowed Size: {allowed.maxUploadSize} MB</span>
+                    {allowed.maxUploadSize && <span>Max Allowed Size: {allowed.maxUploadSize} MB</span>}
                   </>
                 );
               }}
@@ -1119,36 +1208,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           </Show>
           <Show when={previews().length > 0}>
             <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
-              <For each={[...previews()]}>
-                {(item) => (
-                  <>
-                    {item.mime.startsWith('image/') ? (
-                      <button
-                        class="group w-12 h-12 flex items-center justify-center relative rounded-[10px] overflow-hidden transition-colors duration-200"
-                        onClick={() => handleDeletePreview(item)}
-                      >
-                        <img class="w-full h-full bg-cover" src={item.data as string} />
-                        <span class="absolute hidden group-hover:flex items-center justify-center z-10 w-full h-full top-0 left-0 bg-black/10 rounded-[10px] transition-colors duration-200">
-                          <TrashIcon />
-                        </span>
-                      </button>
-                    ) : (
-                      <div
-                        class={`inline-flex basis-auto flex-grow-0 flex-shrink-0 justify-between items-center rounded-xl h-12 p-1 mr-1 bg-gray-500`}
-                        style={{
-                          width: `${chatContainer ? (botProps.isFullPage ? chatContainer?.offsetWidth / 4 : chatContainer?.offsetWidth / 2) : '200'
-                            }px`,
-                        }}
-                      >
-                        <audio class="block bg-cover bg-center w-full h-full rounded-none text-transparent" controls src={item.data as string} />
-                        <button class="w-7 h-7 flex items-center justify-center bg-transparent p-1" onClick={() => handleDeletePreview(item)}>
-                          <TrashIcon color="white" />
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </For>
+              <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
             </div>
           </Show>
           <div class="w-full px-5 pt-2 pb-1">
