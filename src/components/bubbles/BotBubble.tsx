@@ -50,7 +50,7 @@ export const BotBubble = (props: Props) => {
       const response = await sendFileDownloadQuery({
         apiHost: props.apiHost,
         body: { question: '', fileName: fileAnnotation.fileName },
-        onRequest: props.onRequest
+        onRequest: props.onRequest,
       });
       const blob = new Blob([response.data]);
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -106,7 +106,7 @@ export const BotBubble = (props: Props) => {
         chatflowid: props.chatflowid,
         apiHost: props.apiHost,
         body,
-        onRequest: props.onRequest
+        onRequest: props.onRequest,
       });
 
       if (result.data) {
@@ -136,7 +136,7 @@ export const BotBubble = (props: Props) => {
         chatflowid: props.chatflowid,
         apiHost: props.apiHost,
         body,
-        onRequest: props.onRequest
+        onRequest: props.onRequest,
       });
 
       if (result.data) {
@@ -161,7 +161,7 @@ export const BotBubble = (props: Props) => {
       id: feedbackId(),
       apiHost: props.apiHost,
       body,
-      onRequest: props.onRequest
+      onRequest: props.onRequest,
     });
 
     if (result.data) {

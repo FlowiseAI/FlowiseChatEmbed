@@ -15,7 +15,7 @@ export const sendRequest = async <ResponseData>(
         type?: string;
         headers?: Record<string, any>;
         formData?: FormData;
-        onRequest?: (request: RequestInit) => Promise<void>
+        onRequest?: (request: RequestInit) => Promise<void>;
       }
     | string,
 ): Promise<{ data?: ResponseData; error?: Error }> => {
@@ -35,13 +35,13 @@ export const sendRequest = async <ResponseData>(
       method: typeof params === 'string' ? 'GET' : params.method,
       mode: 'cors',
       headers,
-      body
+      body,
     };
 
     if (typeof params !== 'string' && params.onRequest) {
       await params.onRequest(requestInfo);
     }
-    
+
     const response = await fetch(url, requestInfo);
 
     let data: any;
