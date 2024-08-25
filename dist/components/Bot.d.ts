@@ -1,5 +1,6 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
+import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
@@ -7,14 +8,16 @@ export type FormEvent<T = EventTarget> = {
     preventDefault: () => void;
     currentTarget: T;
 };
-type ImageUploadConstraits = {
+type IUploadConstraits = {
     fileTypes: string[];
     maxUploadSize: number;
 };
 export type UploadsConfig = {
-    imgUploadSizeAndTypes: ImageUploadConstraits[];
+    imgUploadSizeAndTypes: IUploadConstraits[];
+    fileUploadSizeAndTypes: IUploadConstraits[];
     isImageUploadAllowed: boolean;
     isSpeechToTextEnabled: boolean;
+    isFileUploadAllowed: boolean;
 };
 type FilePreviewData = string | ArrayBuffer;
 type FilePreview = {
@@ -62,6 +65,7 @@ export type observersConfigType = Record<'observeUserInput' | 'observeLoading' |
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;
+    onRequest?: (request: RequestInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
     welcomeMessage?: string;
     errorMessage?: string;

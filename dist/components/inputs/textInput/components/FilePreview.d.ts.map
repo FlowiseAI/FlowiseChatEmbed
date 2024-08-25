@@ -1,0 +1,1 @@
+{"version":3,"file":"FilePreview.d.ts","sourceRoot":"","sources":["../../../../../src/components/inputs/textInput/components/FilePreview.tsx"],"names":[],"mappings":"AAGA,KAAK,0BAA0B,GAAG;IAChC,IAAI,EAAE;QAAE,IAAI,EAAE,MAAM,CAAA;KAAE,CAAC;IACvB,QAAQ,EAAE,CAAC,IAAI,EAAE;QAAE,IAAI,EAAE,MAAM,CAAA;KAAE,KAAK,IAAI,CAAC;CAC5C,CAAC;AAEF,eAAO,MAAM,WAAW,UAAW,0BAA0B,mCAyB5D,CAAC"}

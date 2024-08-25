@@ -86,12 +86,12 @@ export const BotBubble = (props: Props) => {
       const messages: MessageType[] = parsedDetails.chatHistory || [];
       const message = messages.find((msg) => msg.messageId === props.message.messageId);
       if (!message) return;
-      message.rating = rating
+      message.rating = rating;
       localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedDetails, chatHistory: messages }));
     } catch (e) {
       return;
     }
-  }
+  };
 
   const onThumbsUpClick = async () => {
     if (rating() === '') {
