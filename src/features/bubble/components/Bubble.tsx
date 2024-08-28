@@ -62,7 +62,7 @@ export const Bubble = (props: BubbleProps) => {
         }
         
         const maxPopups = props.maxPopups  ? props.maxPopups : 0
-        if((maxPopups < openCount) && maxPopups > 0){
+        if((maxPopups <= openCount) && maxPopups > 0){
             console.log("Max Popups",maxPopups)
             console.log("No Popup - exceeded max popups")
             return
