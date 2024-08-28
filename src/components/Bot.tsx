@@ -830,7 +830,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         return;
       }
       // Only add files
-      if (!uploadsConfig()?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',').includes(file.type)) {
+      if (
+        !uploadsConfig()
+          ?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes)
+          .join(',')
+          .includes(file.type)
+      ) {
         uploadedFiles.push(file);
       }
       const reader = new FileReader();
@@ -886,7 +891,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           return;
         }
         // Only add files
-        if (!uploadsConfig()?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',').includes(file.type)) {
+        if (
+          !uploadsConfig()
+            ?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes)
+            .join(',')
+            .includes(file.type)
+        ) {
           uploadedFiles.push(file);
         }
         const reader = new FileReader();
