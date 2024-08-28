@@ -829,7 +829,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       if (isFileAllowedForUpload(file) === false) {
         return;
       }
-      uploadedFiles.push(file);
+      // Only add files
+      if (!uploadsConfig()?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',').includes(file.type)) {
+        uploadedFiles.push(file);
+      }
       const reader = new FileReader();
       const { name } = file;
       filesList.push(
@@ -882,7 +885,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (isFileAllowedForUpload(file) === false) {
           return;
         }
-        uploadedFiles.push(file);
+        // Only add files
+        if (!uploadsConfig()?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',').includes(file.type)) {
+          uploadedFiles.push(file);
+        }
         const reader = new FileReader();
         const { name } = file;
         files.push(
