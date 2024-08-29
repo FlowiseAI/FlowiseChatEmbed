@@ -87,6 +87,7 @@ export type BotProps = {
     observersConfig?: observersConfigType;
     starterPrompts?: string[];
     starterPromptFontSize?: number;
+    clearChatOnReload?: boolean;
 };
 export type LeadsConfig = {
     status: boolean;
