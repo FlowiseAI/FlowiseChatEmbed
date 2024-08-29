@@ -610,7 +610,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   onMount(() => {
-
     if (props.ClearChatOnReload) {
       clearChat();
       window.addEventListener('beforeunload', clearChat);
