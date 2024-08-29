@@ -143,6 +143,7 @@ export const Bubble = (props: BubbleProps) => {
               apiHost={props.apiHost}
               onRequest={props.onRequest}
               observersConfig={props.observersConfig}
+              ClearChatOnReload={bubbleProps.theme?.chatWindow?.ClearChatOnReload}
             />
           </div>
         </Show>
