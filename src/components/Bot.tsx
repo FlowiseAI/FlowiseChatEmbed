@@ -125,7 +125,7 @@ export type BotProps = {
   observersConfig?: observersConfigType;
   starterPrompts?: string[];
   starterPromptFontSize?: number;
-  ClearChatOnReload?: boolean;
+  clearChatOnReload?: boolean;
 };
 
 export type LeadsConfig = {
@@ -610,7 +610,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   onMount(() => {
-    if (props.ClearChatOnReload) {
+    if (props.clearChatOnReload) {
       clearChat();
       window.addEventListener('beforeunload', clearChat);
       return () => {
