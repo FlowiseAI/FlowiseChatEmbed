@@ -429,11 +429,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // Handle form submission
   const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
     setUserInput(value);
-    console.log('handleSubmit =', value);
     if (value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
-        console.log('No message to send');
         return;
       }
     }
