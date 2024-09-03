@@ -5,6 +5,7 @@ import { SendButton } from '@/components/buttons/SendButton';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
+import { AttachmentUploadButton } from '@/components/buttons/AttachmentUploadButton';
 
 type Props = {
   placeholder?: string;
@@ -37,6 +38,7 @@ export const TextInput = (props: Props) => {
   const [warningMessage, setWarningMessage] = createSignal('');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
+  let imgUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let audioRef: HTMLAudioElement | undefined;
 
   const handleInput = (inputValue: string) => {
@@ -71,6 +73,10 @@ export const TextInput = (props: Props) => {
   };
 
   const handleImageUploadClick = () => {
+    if (imgUploadRef) imgUploadRef.click();
+  };
+
+  const handleFileUploadClick = () => {
     if (fileUploadRef) fileUploadRef.click();
   };
 
@@ -97,6 +103,15 @@ export const TextInput = (props: Props) => {
   const handleFileChange = (event: FileEvent<HTMLInputElement>) => {
     props.handleFileChange(event);
     if (event.target) event.target.value = '';
+  };
+
+  const getFileType = () => {
+    if (props.uploadsConfig?.fileUploadSizeAndTypes?.length) {
+      const allowedFileTypes = props.uploadsConfig?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',');
+      if (allowedFileTypes.includes('*')) return '*';
+      else return allowedFileTypes;
+    }
+    return '*';
   };
 
   return (
@@ -127,7 +142,39 @@ export const TextInput = (props: Props) => {
             >
               <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
             </ImageUploadButton>
-            <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} />
+            <input
+              style={{ display: 'none' }}
+              multiple
+              ref={imgUploadRef as HTMLInputElement}
+              type="file"
+              onChange={handleFileChange}
+              accept={
+                props.uploadsConfig?.imgUploadSizeAndTypes?.length
+                  ? props.uploadsConfig?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
+                  : '*'
+              }
+            />
+          </>
+        ) : null}
+        {props.uploadsConfig?.isFileUploadAllowed ? (
+          <>
+            <AttachmentUploadButton
+              buttonColor={props.sendButtonColor}
+              type="button"
+              class="m-0 h-14 flex items-center justify-center"
+              isDisabled={props.disabled || isSendButtonDisabled()}
+              on:click={handleFileUploadClick}
+            >
+              <span style={{ 'font-family': 'Poppins, sans-serif' }}>File Upload</span>
+            </AttachmentUploadButton>
+            <input
+              style={{ display: 'none' }}
+              multiple
+              ref={fileUploadRef as HTMLInputElement}
+              type="file"
+              onChange={handleFileChange}
+              accept={getFileType()}
+            />
           </>
         ) : null}
         <ShortTextInput
