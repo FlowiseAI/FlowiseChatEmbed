@@ -15,7 +15,7 @@ export const StarterPromptBubble = (props: Props) => (
       style={{
         'max-width': '100%',
         'word-wrap': 'break-word',
-         overflow: 'hidden',
+        overflow: 'hidden',
       }}
     >
       <span
