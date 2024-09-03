@@ -55,7 +55,7 @@ export const TextInput = (props: Props) => {
     setIsSendButtonDisabled(false);
   };
 
-  const checkIfInputIsValid = () => inputValue() !== '' && warningMessage() === '' && inputRef?.reportValidity();
+  const checkIfInputIsValid = () => warningMessage() === '' && inputRef?.reportValidity();
 
   const submit = () => {
     if (checkIfInputIsValid()) {
