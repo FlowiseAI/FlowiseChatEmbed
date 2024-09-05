@@ -49,7 +49,6 @@ export const Badge = (props: Props) => {
           }}
         >
           {props.footer?.text ?? 'Powered by Adriotec'}
-        
         </span>
       </Show>
       <Show when={props.footer?.showFooter === false}>
