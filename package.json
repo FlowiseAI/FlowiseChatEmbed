@@ -52,7 +52,7 @@
     "husky": "^8.0.0",
     "postcss": "8.4.21",
     "react": "18.2.0",
-    "rollup": "3.23.0",
+    "rollup": "^4.21.2",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-postcss": "4.0.2",
     "rollup-plugin-serve": "2.0.2",
