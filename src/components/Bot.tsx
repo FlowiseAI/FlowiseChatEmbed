@@ -14,7 +14,7 @@ import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
 import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
-import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
+import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, SourceLinksTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
 import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
@@ -122,6 +122,7 @@ export type BotProps = {
   fontSize?: number;
   isFullPage?: boolean;
   footer?: FooterTheme;
+  sourceLinksTitle?: SourceLinksTheme;
   observersConfig?: observersConfigType;
   starterPrompts?: string[];
   starterPromptFontSize?: number;
@@ -225,6 +226,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
+
+  // Extract sourceLinksTitle directly from props
+  const sourceLinksTitle = props.sourceLinksTitle;
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -1190,27 +1194,36 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.sourceDocuments && message.sourceDocuments.length && (
-                      <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
-                        <For each={[...removeDuplicateURL(message)]}>
-                          {(src) => {
-                            const URL = isValidURL(src.metadata.source);
-                            return (
-                              <SourceBubble
-                                pageContent={URL ? URL.pathname : src.pageContent}
-                                metadata={src.metadata}
-                                onSourceClick={() => {
-                                  if (URL) {
-                                    window.open(src.metadata.source, '_blank');
-                                  } else {
-                                    setSourcePopupSrc(src);
-                                    setSourcePopupOpen(true);
-                                  }
-                                }}
-                              />
-                            );
-                          }}
-                        </For>
-                      </div>
+                      <>
+                        <Show when={sourceLinksTitle?.showSourceLinksTitle}>
+                          {/* Dynamic message from `relevantLinks.message` */}
+                          <span style={{ 'font-weight': 'bold', 'margin-bottom': '8px', 'margin-top': '8px', 'font-size': '14px' }}>
+                            {sourceLinksTitle?.message}
+                          </span>
+                        </Show>
+
+                        <div style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
+                          <For each={[...removeDuplicateURL(message)]}>
+                            {(src) => {
+                              const URL = isValidURL(src.metadata.source);
+                              return (
+                                <SourceBubble
+                                  pageContent={URL ? URL.pathname : src.pageContent}
+                                  metadata={src.metadata}
+                                  onSourceClick={() => {
+                                    if (URL) {
+                                      window.open(src.metadata.source, '_blank');
+                                    } else {
+                                      setSourcePopupSrc(src);
+                                      setSourcePopupOpen(true);
+                                    }
+                                  }}
+                                />
+                              );
+                            }}
+                          </For>
+                        </div>
+                      </>
                     )}
                   </>
                 );
