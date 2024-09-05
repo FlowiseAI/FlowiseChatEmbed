@@ -8,6 +8,11 @@ export type BubbleTheme = {
   tooltip?: ToolTipTheme;
 };
 
+export type SourceLinksTheme = {
+  showSourceLinksTitle: boolean;
+  message: string;
+};
+
 export type TextInputTheme = {
   backgroundColor?: string;
   textColor?: string;
@@ -65,6 +70,7 @@ export type ChatWindowTheme = {
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
   footer?: FooterTheme;
+  sourceLinksTitle?: SourceLinksTheme;
   poweredByTextColor?: string;
   starterPrompts?: string[];
   starterPromptFontSize?: number;
