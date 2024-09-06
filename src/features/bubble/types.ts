@@ -95,3 +95,12 @@ export type autoWindowOpenTheme = {
   openDelay?: number; // Optional parameter for delay time in seconds
   autoOpenOnMobile?: boolean; // Optional parameter for opening on mobile
 };
+
+export type DisclaimerPopUpTheme = {
+  title?: string;
+  message?: string;
+  acceptButtonText?: string;
+  declineButtonText?: string;
+  linkUrl?: string;
+  linkText?: string;
+};
