@@ -336,10 +336,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let hasSoundPlayed = false;
   // TODO: this has the bug where first message is not showing: https://github.com/FlowiseAI/FlowiseChatEmbed/issues/158
   // The solution is to use SSE
-  const updateLastMessage = (
-    text: string,
-    resultText = '',
-  ) => {
+  const updateLastMessage = (text: string, resultText = '') => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
@@ -376,23 +373,23 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessageUsedTools = (usedTools: any[]) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)]
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
-      allMessages[allMessages.length - 1].usedTools = usedTools
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      allMessages[allMessages.length - 1].usedTools = usedTools;
       addChatMessage(allMessages);
-      return allMessages
-    })
-  }
+      return allMessages;
+    });
+  };
 
   const updateLastMessageFileAnnotations = (fileAnnotations: any) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)]
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
-      allMessages[allMessages.length - 1].fileAnnotations = fileAnnotations
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      allMessages[allMessages.length - 1].fileAnnotations = fileAnnotations;
       addChatMessage(allMessages);
-      return allMessages
-    })
-  }
+      return allMessages;
+    });
+  };
 
   const updateLastMessageAgentReasoning = (agentReasoning: string | IAgentReasoning[]) => {
     setMessages((data) => {
@@ -422,17 +419,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessageNextAgent = (nextAgent: string) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)]
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
-      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning;
       if (lastAgentReasoning && lastAgentReasoning.length > 0) {
-        lastAgentReasoning.push({ nextAgent })
+        lastAgentReasoning.push({ nextAgent });
       }
-      allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning
+      allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning;
       addChatMessage(allMessages);
-      return allMessages
-    })
-  }
+      return allMessages;
+    });
+  };
 
   const clearPreviews = () => {
     // Revoke the data uris to avoid memory leaks
@@ -461,41 +458,41 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // set message id that is needed for feedback
     if (data.chatMessageId) {
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)]
+        const allMessages = [...cloneDeep(prevMessages)];
         if (allMessages[allMessages.length - 1].type === 'apiMessage') {
-          allMessages[allMessages.length - 1].messageId = data.chatMessageId
+          allMessages[allMessages.length - 1].messageId = data.chatMessageId;
         }
-        addChatMessage(allMessages)
-        return allMessages
-      })
+        addChatMessage(allMessages);
+        return allMessages;
+      });
     }
 
     if (data.chatId) {
-      setChatId(data.chatId)
+      setChatId(data.chatId);
     }
 
     if (input === '' && data.question) {
       // the response contains the question even if it was in an audio format
       // so if input is empty but the response contains the question, update the user message to show the question
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)]
-        if (allMessages[allMessages.length - 2].type === 'apiMessage') return allMessages
-        allMessages[allMessages.length - 2].message = data.question
-        return allMessages
-      })
+        const allMessages = [...cloneDeep(prevMessages)];
+        if (allMessages[allMessages.length - 2].type === 'apiMessage') return allMessages;
+        allMessages[allMessages.length - 2].message = data.question;
+        return allMessages;
+      });
     }
-  }
+  };
 
   const fetchResponseFromEventStream = async (chatflowid: string, params: any) => {
-    const chatId = params.chatId
-    const input = params.question
-    params.streaming = true
+    const chatId = params.chatId;
+    const input = params.question;
+    params.streaming = true;
     await fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
       method: 'POST',
       body: JSON.stringify(params),
       headers: {
         'Content-Type': 'application/json',
-        'x-request-from': 'internal'
+        'x-request-from': 'internal',
       },
       async onopen(response) {
         if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
@@ -503,76 +500,76 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onmessage(ev) {
-        const payload = JSON.parse(ev.data)
+        const payload = JSON.parse(ev.data);
         switch (payload.event) {
           case 'start':
-            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }])
-            break
+            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+            break;
           case 'token':
-            updateLastMessage(payload.data)
-            break
+            updateLastMessage(payload.data);
+            break;
           case 'sourceDocuments':
-            updateLastMessageSourceDocuments(payload.data)
-            break
+            updateLastMessageSourceDocuments(payload.data);
+            break;
           case 'usedTools':
-            updateLastMessageUsedTools(payload.data)
-            break
+            updateLastMessageUsedTools(payload.data);
+            break;
           case 'fileAnnotations':
-            updateLastMessageFileAnnotations(payload.data)
-            break
+            updateLastMessageFileAnnotations(payload.data);
+            break;
           case 'agentReasoning':
-            updateLastMessageAgentReasoning(payload.data)
-            break
+            updateLastMessageAgentReasoning(payload.data);
+            break;
           case 'action':
-            updateLastMessageAction(payload.data)
-            break
+            updateLastMessageAction(payload.data);
+            break;
           case 'nextAgent':
-            updateLastMessageNextAgent(payload.data)
-            break
+            updateLastMessageNextAgent(payload.data);
+            break;
           case 'metadata':
-            updateMetadata(payload.data, input)
-            break
+            updateMetadata(payload.data, input);
+            break;
           case 'abort':
-            abortMessage()
-            closeResponse()
-            break
+            abortMessage();
+            closeResponse();
+            break;
           case 'end':
-            setLocalStorageChatflow(chatflowid, chatId)
-            closeResponse()
-            break
+            setLocalStorageChatflow(chatflowid, chatId);
+            closeResponse();
+            break;
         }
       },
       async onclose() {
-        closeResponse()
+        closeResponse();
       },
       onerror(err) {
-        console.error('EventSource Error: ', err)
-        closeResponse()
-      }
-    })
-  }
+        console.error('EventSource Error: ', err);
+        closeResponse();
+      },
+    });
+  };
 
   const closeResponse = () => {
-    setLoading(false)
-    setUserInput('')
-    setUploadedFiles([])
+    setLoading(false);
+    setUserInput('');
+    setUploadedFiles([]);
     setTimeout(() => {
-      scrollToBottom()
-    }, 100)
-  }
+      scrollToBottom();
+    }, 100);
+  };
 
   const abortMessage = () => {
-    setIsMessageStopping(false)
+    setIsMessageStopping(false);
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)]
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
-      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning;
       if (lastAgentReasoning && lastAgentReasoning.length > 0) {
-        allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent)
+        allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent);
       }
-      return allMessages
-    })
-  }
+      return allMessages;
+    });
+  };
 
   // Handle form submission
   const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
@@ -641,7 +638,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (isChatFlowAvailableToStream()) {
-      await fetchResponseFromEventStream(props.chatflowid, body)
+      await fetchResponseFromEventStream(props.chatflowid, body);
     } else {
       setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
       const result = await sendMessageQuery({
@@ -717,7 +714,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         return;
       }
     }
-
   };
 
   const handleActionClick = async (label: string, action: IAction | undefined | null) => {
