@@ -688,11 +688,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text);
-        updateLastMessageSourceDocuments(data?.sourceDocuments);
-        updateLastMessageFileAnnotations(data?.fileAnnotations);
-        updateLastMessageAgentReasoning(data?.agentReasoning);
-        updateLastMessageAction(data?.action);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            message: text,
+            id: data?.chatMessageId,
+            sourceDocuments: data?.sourceDocuments,
+            usedTools: data?.usedTools,
+            fileAnnotations: data?.fileAnnotations,
+            agentReasoning: data?.agentReasoning,
+            action: data?.action,
+            type: 'apiMessage',
+            feedback: null
+          }
+        ])
 
         setLoading(false);
         setUserInput('');
