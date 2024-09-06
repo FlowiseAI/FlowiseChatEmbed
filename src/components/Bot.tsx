@@ -699,9 +699,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             agentReasoning: data?.agentReasoning,
             action: data?.action,
             type: 'apiMessage',
-            feedback: null
-          }
-        ])
+            feedback: null,
+          },
+        ]);
 
         setLoading(false);
         setUserInput('');
