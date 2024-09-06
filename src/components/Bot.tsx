@@ -688,7 +688,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.chatMessageId);
+        updateLastMessage(text);
         updateLastMessageSourceDocuments(data?.sourceDocuments);
         updateLastMessageFileAnnotations(data?.fileAnnotations);
         updateLastMessageAgentReasoning(data?.agentReasoning);
