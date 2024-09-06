@@ -336,11 +336,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let hasSoundPlayed = false;
   // TODO: this has the bug where first message is not showing: https://github.com/FlowiseAI/FlowiseChatEmbed/issues/158
   // The solution is to use SSE
-  const updateLastMessage = (text: string, resultText = '') => {
+  const updateLastMessage = (text: string) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
-          if (resultText && !hasSoundPlayed) {
+          if (!hasSoundPlayed) {
             playReceiveSound();
             hasSoundPlayed = true;
           }
@@ -351,11 +351,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(updated);
       return [...updated];
     });
-
-    // Set hasSoundPlayed to false if resultText exists
-    if (resultText) {
-      hasSoundPlayed = false;
-    }
   };
 
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
