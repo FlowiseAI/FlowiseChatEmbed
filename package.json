@@ -21,7 +21,6 @@
     "@ts-stack/markdown": "^1.4.0",
     "device-detector-js": "^3.0.3",
     "lodash": "^4.17.21",
-    "lodash.clonedeep": "^4.5.0",
     "prettier": "^3.1.0",
     "solid-element": "1.7.0",
     "solid-js": "1.7.1",
