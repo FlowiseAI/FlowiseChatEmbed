@@ -57,6 +57,7 @@ export type MessageType = {
     fileAnnotations?: any;
     fileUploads?: Partial<FileUpload>[];
     agentReasoning?: IAgentReasoning[];
+    usedTools?: any[];
     action?: IAction | null;
     rating?: FeedbackRatingType;
 };
