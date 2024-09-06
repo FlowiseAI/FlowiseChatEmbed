@@ -16,7 +16,6 @@ import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
-import socketIOClient from 'socket.io-client';
 import { Popup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton, SendButton } from '@/components/buttons/SendButton';
@@ -26,6 +25,8 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
+import { cloneDeep } from 'lodash';
+import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -93,6 +94,7 @@ export type MessageType = {
   fileAnnotations?: any;
   fileUploads?: Partial<FileUpload>[];
   agentReasoning?: IAgentReasoning[];
+  usedTools?: any[];
   action?: IAction | null;
   rating?: FeedbackRatingType;
 };
@@ -240,11 +242,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     { equals: false },
   );
 
-  const [socketIOClientId, setSocketIOClientId] = createSignal('');
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal(
     (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
   );
+  const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
@@ -336,12 +338,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // The solution is to use SSE
   const updateLastMessage = (
     text: string,
-    messageId: string,
-    sourceDocuments: any,
-    fileAnnotations: any,
-    agentReasoning: IAgentReasoning[] = [],
-    action: IAction,
-    resultText: string,
+    resultText = '',
   ) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
@@ -350,7 +347,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             playReceiveSound();
             hasSoundPlayed = true;
           }
-          return { ...item, message: item.message + text, messageId, sourceDocuments, fileAnnotations, agentReasoning, action };
+          return { ...item, message: item.message + text };
         }
         return item;
       });
@@ -376,6 +373,26 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return [...updated];
     });
   };
+
+  const updateLastMessageUsedTools = (usedTools: any[]) => {
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)]
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
+      allMessages[allMessages.length - 1].usedTools = usedTools
+      addChatMessage(allMessages);
+      return allMessages
+    })
+  }
+
+  const updateLastMessageFileAnnotations = (fileAnnotations: any) => {
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)]
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
+      allMessages[allMessages.length - 1].fileAnnotations = fileAnnotations
+      addChatMessage(allMessages);
+      return allMessages
+    })
+  }
 
   const updateLastMessageAgentReasoning = (agentReasoning: string | IAgentReasoning[]) => {
     setMessages((data) => {
@@ -403,6 +420,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
+  const updateLastMessageNextAgent = (nextAgent: string) => {
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)]
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
+      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning
+      if (lastAgentReasoning && lastAgentReasoning.length > 0) {
+        lastAgentReasoning.push({ nextAgent })
+      }
+      allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning
+      addChatMessage(allMessages);
+      return allMessages
+    })
+  }
+
   const clearPreviews = () => {
     // Revoke the data uris to avoid memory leaks
     previews().forEach((file) => URL.revokeObjectURL(file.preview));
@@ -425,6 +456,123 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const promptClick = (prompt: string) => {
     handleSubmit(prompt);
   };
+
+  const updateMetadata = (data: any, input: string) => {
+    // set message id that is needed for feedback
+    if (data.chatMessageId) {
+      setMessages((prevMessages) => {
+        const allMessages = [...cloneDeep(prevMessages)]
+        if (allMessages[allMessages.length - 1].type === 'apiMessage') {
+          allMessages[allMessages.length - 1].messageId = data.chatMessageId
+        }
+        addChatMessage(allMessages)
+        return allMessages
+      })
+    }
+
+    if (data.chatId) {
+      setChatId(data.chatId)
+    }
+
+    if (input === '' && data.question) {
+      // the response contains the question even if it was in an audio format
+      // so if input is empty but the response contains the question, update the user message to show the question
+      setMessages((prevMessages) => {
+        const allMessages = [...cloneDeep(prevMessages)]
+        if (allMessages[allMessages.length - 2].type === 'apiMessage') return allMessages
+        allMessages[allMessages.length - 2].message = data.question
+        return allMessages
+      })
+    }
+  }
+
+  const fetchResponseFromEventStream = async (chatflowid: string, params: any) => {
+    const chatId = params.chatId
+    const input = params.question
+    params.streaming = true
+    await fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-request-from': 'internal'
+      },
+      async onopen(response) {
+        if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
+          //console.log('EventSource Open')
+        }
+      },
+      async onmessage(ev) {
+        const payload = JSON.parse(ev.data)
+        switch (payload.event) {
+          case 'start':
+            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }])
+            break
+          case 'token':
+            updateLastMessage(payload.data)
+            break
+          case 'sourceDocuments':
+            updateLastMessageSourceDocuments(payload.data)
+            break
+          case 'usedTools':
+            updateLastMessageUsedTools(payload.data)
+            break
+          case 'fileAnnotations':
+            updateLastMessageFileAnnotations(payload.data)
+            break
+          case 'agentReasoning':
+            updateLastMessageAgentReasoning(payload.data)
+            break
+          case 'action':
+            updateLastMessageAction(payload.data)
+            break
+          case 'nextAgent':
+            updateLastMessageNextAgent(payload.data)
+            break
+          case 'metadata':
+            updateMetadata(payload.data, input)
+            break
+          case 'abort':
+            abortMessage()
+            closeResponse()
+            break
+          case 'end':
+            setLocalStorageChatflow(chatflowid, chatId)
+            closeResponse()
+            break
+        }
+      },
+      async onclose() {
+        closeResponse()
+      },
+      onerror(err) {
+        console.error('EventSource Error: ', err)
+        closeResponse()
+      }
+    })
+  }
+
+  const closeResponse = () => {
+    setLoading(false)
+    setUserInput('')
+    setUploadedFiles([])
+    setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+  }
+
+  const abortMessage = () => {
+    setIsMessageStopping(false)
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)]
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
+      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning
+      if (lastAgentReasoning && lastAgentReasoning.length > 0) {
+        allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent)
+      }
+      return allMessages
+    })
+  }
 
   // Handle form submission
   const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
@@ -469,12 +617,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (action) body.action = action;
 
-    if (isChatFlowAvailableToStream()) {
-      body.socketIOClientId = socketIOClientId();
-    } else {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
-    }
-
     if (uploadedFiles().length > 0) {
       const formData = new FormData();
       for (const file of uploadedFiles()) {
@@ -498,76 +640,84 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
 
-    const result = await sendMessageQuery({
-      chatflowid: props.chatflowid,
-      apiHost: props.apiHost,
-      body,
-      onRequest: props.onRequest,
-    });
+    if (isChatFlowAvailableToStream()) {
+      await fetchResponseFromEventStream(props.chatflowid, body)
+    } else {
+      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+      const result = await sendMessageQuery({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        body,
+        onRequest: props.onRequest,
+      });
 
-    if (result.data) {
-      const data = result.data;
-      const question = data.question;
-      if (value === '' && question) {
-        setMessages((data) => {
-          const messages = data.map((item, i) => {
-            if (i === data.length - 2) {
-              return { ...item, message: question };
-            }
-            return item;
-          });
-          addChatMessage(messages);
-          return [...messages];
-        });
-      }
-      if (uploads && uploads.length > 0) {
-        setMessages((data) => {
-          const messages = data.map((item, i) => {
-            if (i === data.length - 2) {
-              if (item.fileUploads) {
-                const fileUploads = item?.fileUploads.map((file) => ({
-                  type: file.type,
-                  name: file.name,
-                  mime: file.mime,
-                }));
-                return { ...item, fileUploads };
+      if (result.data) {
+        const data = result.data;
+        const question = data.question;
+        if (value === '' && question) {
+          setMessages((data) => {
+            const messages = data.map((item, i) => {
+              if (i === data.length - 2) {
+                return { ...item, message: question };
               }
-            }
-            return item;
+              return item;
+            });
+            addChatMessage(messages);
+            return [...messages];
           });
-          addChatMessage(messages);
-          return [...messages];
-        });
-      }
-      if (!isChatFlowAvailableToStream()) {
+        }
+        if (uploads && uploads.length > 0) {
+          setMessages((data) => {
+            const messages = data.map((item, i) => {
+              if (i === data.length - 2) {
+                if (item.fileUploads) {
+                  const fileUploads = item?.fileUploads.map((file) => ({
+                    type: file.type,
+                    name: file.name,
+                    mime: file.mime,
+                  }));
+                  return { ...item, fileUploads };
+                }
+              }
+              return item;
+            });
+            addChatMessage(messages);
+            return [...messages];
+          });
+        }
+
         let text = '';
         if (data.text) text = data.text;
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
-      } else {
-        updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
+        updateLastMessage(text, data?.chatMessageId);
+        updateLastMessageSourceDocuments(data?.sourceDocuments);
+        updateLastMessageFileAnnotations(data?.fileAnnotations);
+        updateLastMessageAgentReasoning(data?.agentReasoning);
+        updateLastMessageAction(data?.action);
+
+        setLoading(false);
+        setUserInput('');
+        setUploadedFiles([]);
+        scrollToBottom();
       }
-      setLoading(false);
-      setUserInput('');
-      setUploadedFiles([]);
-      scrollToBottom();
-    }
-    if (result.error) {
-      const error = result.error;
-      console.error(error);
-      if (typeof error === 'object') {
-        handleError(`Error: ${error?.message.replaceAll('Error:', ' ')}`);
+      if (result.error) {
+        const error = result.error;
+        console.error(error);
+        if (typeof error === 'object') {
+          handleError(`Error: ${error?.message.replaceAll('Error:', ' ')}`);
+          return;
+        }
+        if (typeof error === 'string') {
+          handleError(error);
+          return;
+        }
+        handleError();
         return;
       }
-      if (typeof error === 'string') {
-        handleError(error);
-        return;
-      }
-      handleError();
-      return;
     }
+
   };
 
   const handleActionClick = async (label: string, action: IAction | undefined | null) => {
@@ -715,24 +865,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
 
-    const socket = socketIOClient(props.apiHost as string);
-
-    socket.on('connect', () => {
-      setSocketIOClientId(socket.id);
-    });
-
-    socket.on('start', () => {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
-    });
-
-    socket.on('sourceDocuments', updateLastMessageSourceDocuments);
-
-    socket.on('agentReasoning', updateLastMessageAgentReasoning);
-
-    socket.on('action', updateLastMessageAction);
-
-    socket.on('token', updateLastMessage);
-
     // eslint-disable-next-line solid/reactivity
     return () => {
       setUserInput('');
@@ -744,10 +876,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           type: 'apiMessage',
         },
       ]);
-      if (socket) {
-        socket.disconnect();
-        setSocketIOClientId('');
-      }
     };
   });
 
