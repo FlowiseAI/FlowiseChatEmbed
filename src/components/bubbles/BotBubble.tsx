@@ -7,6 +7,7 @@ import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../butt
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
+import { SourceBubble } from '../bubbles/SourceBubble';
 
 type Props = {
   message: MessageType;
@@ -25,6 +26,7 @@ type Props = {
   isLoading: boolean;
   showAgentMessages?: boolean;
   handleActionClick: (label: string, action: IAction | undefined | null) => void;
+  handleSourceDocumentsClick: (src: any) => void;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -91,6 +93,29 @@ export const BotBubble = (props: Props) => {
     } catch (e) {
       return;
     }
+  };
+
+  const isValidURL = (url: string): URL | undefined => {
+    try {
+      return new URL(url);
+    } catch (err) {
+      return undefined;
+    }
+  };
+
+  const removeDuplicateURL = (message: MessageType) => {
+    const visitedURLs: string[] = [];
+    const newSourceDocuments: any = [];
+
+    message.sourceDocuments.forEach((source: any) => {
+      if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
+        visitedURLs.push(source.metadata.source);
+        newSourceDocuments.push(source);
+      } else if (!isValidURL(source.metadata.source)) {
+        newSourceDocuments.push(source);
+      }
+    });
+    return newSourceDocuments;
   };
 
   const onThumbsUpClick = async () => {
@@ -296,6 +321,30 @@ export const BotBubble = (props: Props) => {
             </div>
           )}
         </div>
+      </div>
+      <div>
+        {props.message.sourceDocuments && props.message.sourceDocuments.length && (
+          <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
+            <For each={[...removeDuplicateURL(props.message)]}>
+              {(src) => {
+                const URL = isValidURL(src.metadata.source);
+                return (
+                  <SourceBubble
+                    pageContent={URL ? URL.pathname : src.pageContent}
+                    metadata={src.metadata}
+                    onSourceClick={() => {
+                      if (URL) {
+                        window.open(src.metadata.source, '_blank');
+                      } else {
+                        props.handleSourceDocumentsClick(src);
+                      }
+                    }}
+                  />
+                );
+              }}
+            </For>
+          </div>
+        )}
       </div>
       <div>
         {props.chatFeedbackStatus && props.message.messageId && (
