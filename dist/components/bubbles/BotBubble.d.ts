@@ -16,6 +16,7 @@ type Props = {
     isLoading: boolean;
     showAgentMessages?: boolean;
     handleActionClick: (label: string, action: IAction | undefined | null) => void;
+    handleSourceDocumentsClick: (src: any) => void;
 };
 export declare const BotBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

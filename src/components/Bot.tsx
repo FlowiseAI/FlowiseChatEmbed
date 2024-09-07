@@ -12,7 +12,6 @@ import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
-import { SourceBubble } from './bubbles/SourceBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
 import { Badge } from './Badge';
@@ -97,6 +96,7 @@ export type MessageType = {
   usedTools?: any[];
   action?: IAction | null;
   rating?: FeedbackRatingType;
+  id?: string;
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
@@ -334,22 +334,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   let hasSoundPlayed = false;
-  // TODO: this has the bug where first message is not showing: https://github.com/FlowiseAI/FlowiseChatEmbed/issues/158
-  // The solution is to use SSE
+
   const updateLastMessage = (text: string) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          if (!hasSoundPlayed) {
-            playReceiveSound();
-            hasSoundPlayed = true;
-          }
-          return { ...item, message: item.message + text };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)]
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
+      allMessages[allMessages.length - 1].message += text
+      allMessages[allMessages.length - 1].rating = undefined
+      if (!hasSoundPlayed) {
+        playReceiveSound();
+        hasSoundPlayed = true;
+      }
+      addChatMessage(allMessages);
+      return allMessages
     });
   };
 
@@ -450,6 +447,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const updateMetadata = (data: any, input: string) => {
+    
+    if (data.chatId) {
+      setChatId(data.chatId);
+    }
+
     // set message id that is needed for feedback
     if (data.chatMessageId) {
       setMessages((prevMessages) => {
@@ -462,10 +464,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       });
     }
 
-    if (data.chatId) {
-      setChatId(data.chatId);
-    }
-
     if (input === '' && data.question) {
       // the response contains the question even if it was in an audio format
       // so if input is empty but the response contains the question, update the user message to show the question
@@ -473,6 +471,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const allMessages = [...cloneDeep(prevMessages)];
         if (allMessages[allMessages.length - 2].type === 'apiMessage') return allMessages;
         allMessages[allMessages.length - 2].message = data.question;
+        addChatMessage(allMessages);
         return allMessages;
       });
     }
@@ -482,17 +481,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
-    await fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+    fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+      openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
       headers: {
-        'Content-Type': 'application/json',
-        'x-request-from': 'internal',
-      },
-      async onopen(response) {
-        if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
-          //console.log('EventSource Open')
-        }
+        'Content-Type': 'application/json'
       },
       async onmessage(ev) {
         const payload = JSON.parse(ev.data);
@@ -548,6 +542,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
+    hasSoundPlayed = false;
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -633,9 +628,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (isChatFlowAvailableToStream()) {
-      await fetchResponseFromEventStream(props.chatflowid, body);
+      fetchResponseFromEventStream(props.chatflowid, body);
     } else {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
       const result = await sendMessageQuery({
         chatflowid: props.chatflowid,
         apiHost: props.apiHost,
@@ -645,47 +639,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
       if (result.data) {
         const data = result.data;
-        const question = data.question;
-        if (value === '' && question) {
-          setMessages((data) => {
-            const messages = data.map((item, i) => {
-              if (i === data.length - 2) {
-                return { ...item, message: question };
-              }
-              return item;
-            });
-            addChatMessage(messages);
-            return [...messages];
-          });
-        }
-        if (uploads && uploads.length > 0) {
-          setMessages((data) => {
-            const messages = data.map((item, i) => {
-              if (i === data.length - 2) {
-                if (item.fileUploads) {
-                  const fileUploads = item?.fileUploads.map((file) => ({
-                    type: file.type,
-                    name: file.name,
-                    mime: file.mime,
-                  }));
-                  return { ...item, fileUploads };
-                }
-              }
-              return item;
-            });
-            addChatMessage(messages);
-            return [...messages];
-          });
-        }
 
         let text = '';
         if (data.text) text = data.text;
         else if (data.json) text = JSON.stringify(data.json, null, 2);
         else text = JSON.stringify(data, null, 2);
 
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
+        if (data?.chatId) setChatId(data.chatId);
+
+        playReceiveSound();
+        
+        setMessages((prevMessages) => {
+          const allMessages = [...cloneDeep(prevMessages)];
+          const newMessage = {
             message: text,
             id: data?.chatMessageId,
             sourceDocuments: data?.sourceDocuments,
@@ -693,10 +659,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             fileAnnotations: data?.fileAnnotations,
             agentReasoning: data?.agentReasoning,
             action: data?.action,
-            type: 'apiMessage',
+            type: 'apiMessage' as messageType,
             feedback: null,
-          },
-        ]);
+          }
+          allMessages.push(newMessage);
+          addChatMessage(allMessages);
+          return allMessages;
+        });
+
+        updateMetadata(data, value)
 
         setLoading(false);
         setUserInput('');
@@ -717,6 +688,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         handleError();
         return;
       }
+    }
+
+    // Update last question to avoid saving base64 data to localStorage
+    if (uploads && uploads.length > 0) {
+      setMessages((data) => {
+        const messages = data.map((item, i) => {
+          if (i === data.length - 2 && item.type === 'userMessage') {
+            if (item.fileUploads) {
+              const fileUploads = item?.fileUploads.map((file) => ({
+                type: file.type,
+                name: file.name,
+                mime: file.mime,
+              }));
+              return { ...item, fileUploads };
+            }
+          }
+          return item;
+        });
+        addChatMessage(messages);
+        return [...messages];
+      });
     }
   };
 
@@ -819,7 +811,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
-      const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
+      const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
       setMessages([...filteredMessages]);
     }
 
@@ -878,29 +870,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       ]);
     };
   });
-
-  const isValidURL = (url: string): URL | undefined => {
-    try {
-      return new URL(url);
-    } catch (err) {
-      return undefined;
-    }
-  };
-
-  const removeDuplicateURL = (message: MessageType) => {
-    const visitedURLs: string[] = [];
-    const newSourceDocuments: any = [];
-
-    message.sourceDocuments.forEach((source: any) => {
-      if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
-        visitedURLs.push(source.metadata.source);
-        newSourceDocuments.push(source);
-      } else if (!isValidURL(source.metadata.source)) {
-        newSourceDocuments.push(source);
-      }
-    });
-    return newSourceDocuments;
-  };
 
   const addRecordingToPreviews = (blob: Blob) => {
     let mimeType = '';
@@ -1295,6 +1264,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         isLoading={loading() && index() === messages().length - 1}
                         showAgentMessages={props.showAgentMessages}
                         handleActionClick={(label, action) => handleActionClick(label, action)}
+                        handleSourceDocumentsClick={(sourceDocuments) => {
+                          setSourcePopupSrc(sourceDocuments);
+                          setSourcePopupOpen(true);
+                        }}
                       />
                     )}
                     {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
@@ -1317,29 +1290,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                    {message.sourceDocuments && message.sourceDocuments.length && (
-                      <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
-                        <For each={[...removeDuplicateURL(message)]}>
-                          {(src) => {
-                            const URL = isValidURL(src.metadata.source);
-                            return (
-                              <SourceBubble
-                                pageContent={URL ? URL.pathname : src.pageContent}
-                                metadata={src.metadata}
-                                onSourceClick={() => {
-                                  if (URL) {
-                                    window.open(src.metadata.source, '_blank');
-                                  } else {
-                                    setSourcePopupSrc(src);
-                                    setSourcePopupOpen(true);
-                                  }
-                                }}
-                              />
-                            );
-                          }}
-                        </For>
-                      </div>
-                    )}
+                    
                   </>
                 );
               }}

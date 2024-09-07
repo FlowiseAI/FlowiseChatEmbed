@@ -60,6 +60,7 @@ export type MessageType = {
     usedTools?: any[];
     action?: IAction | null;
     rating?: FeedbackRatingType;
+    id?: string;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
