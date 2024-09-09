@@ -65,6 +65,7 @@ export type ChatWindowTheme = {
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
   footer?: FooterTheme;
+  sourceDocsTitle?: string;
   poweredByTextColor?: string;
   starterPrompts?: string[];
   starterPromptFontSize?: number;
