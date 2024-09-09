@@ -6,6 +6,7 @@ export type BubbleTheme = {
   chatWindow?: ChatWindowTheme;
   button?: ButtonTheme;
   tooltip?: ToolTipTheme;
+  disclaimer?: DisclaimerPopUpTheme;
 };
 
 export type TextInputTheme = {
@@ -100,8 +101,5 @@ export type autoWindowOpenTheme = {
 export type DisclaimerPopUpTheme = {
   title?: string;
   message?: string;
-  acceptButtonText?: string;
-  declineButtonText?: string;
-  linkUrl?: string;
-  linkText?: string;
+  buttonText?: string;
 };

@@ -1,57 +1,46 @@
-// DisclaimerPopup.tsx
 import { Show, splitProps } from 'solid-js';
-import '../../../assets/index.css';
 
 export type DisclaimerPopupProps = {
   isOpen?: boolean;
   onAccept?: () => void;
-  onDecline?: () => void;
   title?: string;
   message?: string;
-  acceptButtonText?: string;
-  declineButtonText?: string;
-  linkUrl?: string;
-  linkText?: string;
+  buttonText?: string;
 };
 
 export const DisclaimerPopup = (props: DisclaimerPopupProps) => {
   const [popupProps] = splitProps(props, [
     'onAccept',
-    'onDecline',
     'isOpen',
     'title',
     'message',
-    'acceptButtonText',
-    'declineButtonText',
-    'linkUrl',
-    'linkText',
+    'buttonText',
   ]);
 
   const handleAccept = () => {
     props.onAccept?.();
   };
 
-  const handleDecline = () => {
-    props.onDecline?.();
-  };
-
   return (
     <Show when={popupProps.isOpen}>
-      <div class="popup-overlay">
-        <div class="popup-content">
-          <h2>{popupProps.title ?? 'Disclaimer'}</h2>
-          <p>
-            {popupProps.message ?? 'Stimmen Sie unserer Datenschutzerklärung zu?'}{' '}
-            <a href={popupProps.linkUrl} target="_blank" rel="noopener noreferrer">
-              {popupProps.linkText ?? 'Learn more'}
-            </a>
-          </p>
-          <div class="popup-buttons">
-            <button class="popup-button accept" onClick={handleAccept}>
-              {popupProps.acceptButtonText ?? 'Ja'}
-            </button>
-            <button class="popup-button decline" onClick={handleDecline}>
-              {popupProps.declineButtonText ?? 'Nein'}
+      <div class="fixed inset-0 rounded-lg flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50">
+        <div class="bg-white p-10 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans">
+          <h2 class="text-2xl font-semibold mb-4 flex justify-center items-center">
+            {popupProps.title ?? 'Disclaimer'}
+          </h2>
+
+          <p
+            class="text-gray-700 text-base mb-6"
+            innerHTML={popupProps.message ??
+              'By using this chatbot, you acknowledge and accept these terms.'}
+          ></p>
+          
+          <div class="flex justify-center">
+            <button
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+              onClick={handleAccept}
+            >
+              {popupProps.buttonText ?? 'Start Chatting'}
             </button>
           </div>
         </div>
