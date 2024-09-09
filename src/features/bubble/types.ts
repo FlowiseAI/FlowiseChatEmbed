@@ -6,6 +6,7 @@ export type BubbleTheme = {
   chatWindow?: ChatWindowTheme;
   button?: ButtonTheme;
   tooltip?: ToolTipTheme;
+  disclaimer?: DisclaimerPopUpTheme;
 };
 
 export type TextInputTheme = {
@@ -95,4 +96,10 @@ export type autoWindowOpenTheme = {
   autoOpen?: boolean; //parameter to control automatic window opening
   openDelay?: number; // Optional parameter for delay time in seconds
   autoOpenOnMobile?: boolean; // Optional parameter for opening on mobile
+};
+
+export type DisclaimerPopUpTheme = {
+  title?: string;
+  message?: string;
+  buttonText?: string;
 };
