@@ -427,18 +427,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUploadedFiles([]);
     scrollToBottom();
   };
-  
+
   const handleDisclaimerAccept = () => {
     setDisclaimerPopupOpen(false); // Close the disclaimer popup
-    setCookie("chatbotDisclaimer", "true", 365); // Disclaimer accepted
+    setCookie('chatbotDisclaimer', 'true', 365); // Disclaimer accepted
   };
-  
+
   const promptClick = (prompt: string) => {
     handleSubmit(prompt);
   };
 
   // Handle form submission
-  const handleSubmit = async (value: string, action?: IAction | undefined | null) => {  
+  const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
     if (value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
@@ -653,15 +653,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
-
     if (props.disclaimer) {
-      if (getCookie("chatbotDisclaimer") == "true") {
-        setDisclaimerPopupOpen(false)
+      if (getCookie('chatbotDisclaimer') == 'true') {
+        setDisclaimerPopupOpen(false);
       } else {
-        setDisclaimerPopupOpen(true)
+        setDisclaimerPopupOpen(true);
       }
     } else {
-      setDisclaimerPopupOpen(false)
+      setDisclaimerPopupOpen(false);
     }
 
     const chatMessage = getLocalStorageChatflow(props.chatflowid);
@@ -1350,12 +1349,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         <DisclaimerPopup
           isOpen={disclaimerPopupOpen()}
           onAccept={handleDisclaimerAccept}
-          title={props.disclaimer?.title} 
+          title={props.disclaimer?.title}
           message={props.disclaimer?.message}
           buttonText={props.disclaimer?.buttonText}
         />
       )}
-      
     </>
   );
 };
