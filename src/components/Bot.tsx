@@ -1196,9 +1196,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     {message.sourceDocuments && message.sourceDocuments.length && (
                       <>
                         <Show when={sourceDocsTitle}>
-                          <span class="px-2 py-[10px] font-semibold">
-                            {sourceDocsTitle}
-                          </span>
+                          <span class="px-2 py-[10px] font-semibold">{sourceDocsTitle}</span>
                         </Show>
 
                         <div style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
