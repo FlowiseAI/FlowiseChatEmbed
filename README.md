@@ -171,6 +171,10 @@ You can also customize chatbot with different configuration
           company: 'Flowise',
           companyLink: 'https://flowiseai.com',
         },
+        disclaimer: {
+          title: 'Disclaimer',
+          message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+        }
       },
     },
   });
