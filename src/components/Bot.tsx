@@ -337,16 +337,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)]
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
-      allMessages[allMessages.length - 1].message += text
-      allMessages[allMessages.length - 1].rating = undefined
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      allMessages[allMessages.length - 1].message += text;
+      allMessages[allMessages.length - 1].rating = undefined;
       if (!hasSoundPlayed) {
         playReceiveSound();
         hasSoundPlayed = true;
       }
       addChatMessage(allMessages);
-      return allMessages
+      return allMessages;
     });
   };
 
@@ -409,20 +409,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
-  const updateLastMessageNextAgent = (nextAgent: string) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning;
-      if (lastAgentReasoning && lastAgentReasoning.length > 0) {
-        lastAgentReasoning.push({ nextAgent });
-      }
-      allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning;
-      addChatMessage(allMessages);
-      return allMessages;
-    });
-  };
-
   const clearPreviews = () => {
     // Revoke the data uris to avoid memory leaks
     previews().forEach((file) => URL.revokeObjectURL(file.preview));
@@ -447,7 +433,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const updateMetadata = (data: any, input: string) => {
-    
     if (data.chatId) {
       setChatId(data.chatId);
     }
@@ -486,7 +471,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       method: 'POST',
       body: JSON.stringify(params),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       async onmessage(ev) {
         const payload = JSON.parse(ev.data);
@@ -511,9 +496,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             break;
           case 'action':
             updateLastMessageAction(payload.data);
-            break;
-          case 'nextAgent':
-            updateLastMessageNextAgent(payload.data);
             break;
           case 'metadata':
             updateMetadata(payload.data, input);
@@ -648,7 +630,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (data?.chatId) setChatId(data.chatId);
 
         playReceiveSound();
-        
+
         setMessages((prevMessages) => {
           const allMessages = [...cloneDeep(prevMessages)];
           const newMessage = {
@@ -661,13 +643,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             action: data?.action,
             type: 'apiMessage' as messageType,
             feedback: null,
-          }
+          };
           allMessages.push(newMessage);
           addChatMessage(allMessages);
           return allMessages;
         });
 
-        updateMetadata(data, value)
+        updateMetadata(data, value);
 
         setLoading(false);
         setUserInput('');
@@ -1290,7 +1272,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                    
                   </>
                 );
               }}
