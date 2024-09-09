@@ -84,6 +84,7 @@ export type BotProps = {
     fontSize?: number;
     isFullPage?: boolean;
     footer?: FooterTheme;
+    sourceDocsTitle?: string;
     observersConfig?: observersConfigType;
     starterPrompts?: string[];
     starterPromptFontSize?: number;

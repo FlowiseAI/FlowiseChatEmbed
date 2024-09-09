@@ -123,6 +123,7 @@ export type BotProps = {
   fontSize?: number;
   isFullPage?: boolean;
   footer?: FooterTheme;
+  sourceDocsTitle?: string;
   observersConfig?: observersConfigType;
   starterPrompts?: string[];
   starterPromptFontSize?: number;
@@ -227,6 +228,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
+
+  // Extract sourceDocsTitle directly from props
+  const sourceDocsTitle = props.sourceDocsTitle;
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -1211,27 +1215,33 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.sourceDocuments && message.sourceDocuments.length && (
-                      <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
-                        <For each={[...removeDuplicateURL(message)]}>
-                          {(src) => {
-                            const URL = isValidURL(src.metadata.source);
-                            return (
-                              <SourceBubble
-                                pageContent={URL ? URL.pathname : src.pageContent}
-                                metadata={src.metadata}
-                                onSourceClick={() => {
-                                  if (URL) {
-                                    window.open(src.metadata.source, '_blank');
-                                  } else {
-                                    setSourcePopupSrc(src);
-                                    setSourcePopupOpen(true);
-                                  }
-                                }}
-                              />
-                            );
-                          }}
-                        </For>
-                      </div>
+                      <>
+                        <Show when={sourceDocsTitle}>
+                          <span class="px-2 py-[10px] font-semibold">{sourceDocsTitle}</span>
+                        </Show>
+
+                        <div style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
+                          <For each={[...removeDuplicateURL(message)]}>
+                            {(src) => {
+                              const URL = isValidURL(src.metadata.source);
+                              return (
+                                <SourceBubble
+                                  pageContent={URL ? URL.pathname : src.pageContent}
+                                  metadata={src.metadata}
+                                  onSourceClick={() => {
+                                    if (URL) {
+                                      window.open(src.metadata.source, '_blank');
+                                    } else {
+                                      setSourcePopupSrc(src);
+                                      setSourcePopupOpen(true);
+                                    }
+                                  }}
+                                />
+                              );
+                            }}
+                          </For>
+                        </div>
+                      </>
                     )}
                   </>
                 );
