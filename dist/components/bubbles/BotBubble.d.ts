@@ -15,6 +15,7 @@ type Props = {
     feedbackColor?: string;
     isLoading: boolean;
     showAgentMessages?: boolean;
+    sourceDocsTitle?: string;
     handleActionClick: (label: string, action: IAction | undefined | null) => void;
     handleSourceDocumentsClick: (src: any) => void;
 };

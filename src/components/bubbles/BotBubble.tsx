@@ -25,6 +25,7 @@ type Props = {
   feedbackColor?: string;
   isLoading: boolean;
   showAgentMessages?: boolean;
+  sourceDocsTitle?: string;
   handleActionClick: (label: string, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
 };
@@ -324,26 +325,31 @@ export const BotBubble = (props: Props) => {
       </div>
       <div>
         {props.message.sourceDocuments && props.message.sourceDocuments.length && (
-          <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
-            <For each={[...removeDuplicateURL(props.message)]}>
-              {(src) => {
-                const URL = isValidURL(src.metadata.source);
-                return (
-                  <SourceBubble
-                    pageContent={URL ? URL.pathname : src.pageContent}
-                    metadata={src.metadata}
-                    onSourceClick={() => {
-                      if (URL) {
-                        window.open(src.metadata.source, '_blank');
-                      } else {
-                        props.handleSourceDocumentsClick(src);
-                      }
-                    }}
-                  />
-                );
-              }}
-            </For>
-          </div>
+          <>
+            <Show when={props.sourceDocsTitle}>
+              <span class="px-2 py-[10px] font-semibold">{props.sourceDocsTitle}</span>
+            </Show>
+            <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
+              <For each={[...removeDuplicateURL(props.message)]}>
+                {(src) => {
+                  const URL = isValidURL(src.metadata.source);
+                  return (
+                    <SourceBubble
+                      pageContent={URL ? URL.pathname : src.pageContent}
+                      metadata={src.metadata}
+                      onSourceClick={() => {
+                        if (URL) {
+                          window.open(src.metadata.source, '_blank');
+                        } else {
+                          props.handleSourceDocumentsClick(src);
+                        }
+                      }}
+                    />
+                  );
+                }}
+              </For>
+            </div>
+          </>
         )}
       </div>
       <div>

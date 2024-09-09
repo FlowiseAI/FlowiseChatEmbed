@@ -5,6 +5,7 @@ export type BubbleTheme = {
     chatWindow?: ChatWindowTheme;
     button?: ButtonTheme;
     tooltip?: ToolTipTheme;
+    disclaimer?: DisclaimerPopUpTheme;
 };
 export type TextInputTheme = {
     backgroundColor?: string;
@@ -58,6 +59,7 @@ export type ChatWindowTheme = {
     textInput?: TextInputTheme;
     feedback?: FeedbackTheme;
     footer?: FooterTheme;
+    sourceDocsTitle?: string;
     poweredByTextColor?: string;
     starterPrompts?: string[];
     starterPromptFontSize?: number;
@@ -84,5 +86,10 @@ export type autoWindowOpenTheme = {
     autoOpen?: boolean;
     openDelay?: number;
     autoOpenOnMobile?: boolean;
+};
+export type DisclaimerPopUpTheme = {
+    title?: string;
+    message?: string;
+    buttonText?: string;
 };
 //# sourceMappingURL=types.d.ts.map

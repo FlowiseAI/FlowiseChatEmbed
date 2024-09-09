@@ -81,6 +81,8 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             isFullPage={true}
             observersConfig={props.observersConfig}
             starterPromptFontSize={props.theme?.chatWindow?.starterPromptFontSize}
+            clearChatOnReload={props.theme?.chatWindow?.clearChatOnReload}
+            disclaimer={props.theme?.disclaimer}
           />
         </div>
       </Show>

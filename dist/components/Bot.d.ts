@@ -1,5 +1,5 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
-import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme } from '@/features/bubble/types';
+import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
 export type FileEvent<T = EventTarget> = {
     target: T;
@@ -86,10 +86,12 @@ export type BotProps = {
     fontSize?: number;
     isFullPage?: boolean;
     footer?: FooterTheme;
+    sourceDocsTitle?: string;
     observersConfig?: observersConfigType;
     starterPrompts?: string[];
     starterPromptFontSize?: number;
     clearChatOnReload?: boolean;
+    disclaimer?: DisclaimerPopUpTheme;
 };
 export type LeadsConfig = {
     status: boolean;
