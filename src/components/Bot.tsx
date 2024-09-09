@@ -25,8 +25,7 @@ import { CircleDotIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
-import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
-import { setCookie, getCookie } from './Cookies';
+import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -432,28 +431,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const handleDisclaimerAccept = () => {
     setDisclaimerPopupOpen(false); // Close the disclaimer popup
     setCookie("chatbotDisclaimer", "true", 365); // Disclaimer accepted
-    handleSubmit(userInput()); // continue the user submit
   };
   
   const promptClick = (prompt: string) => {
     handleSubmit(prompt);
-        if (getCookie("chatbotDisclaimer") == "true") {
-      handleSubmit(prompt);
-    } else {
-      setDisclaimerPopupOpen(true);
-      setUserInput(prompt);
-    }
   };
 
   // Handle form submission
-  const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
-    
-    if (getCookie("chatbotDisclaimer") != "true") {
-      setDisclaimerPopupOpen(true);
-      setUserInput(value);
-      return;
-    }
-    
+  const handleSubmit = async (value: string, action?: IAction | undefined | null) => {  
     if (value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
@@ -668,6 +653,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
+
+    if (props.disclaimer) {
+      if (getCookie("chatbotDisclaimer") == "true") {
+        setDisclaimerPopupOpen(false)
+      } else {
+        setDisclaimerPopupOpen(true)
+      }
+    } else {
+      setDisclaimerPopupOpen(false)
+    }
+
     const chatMessage = getLocalStorageChatflow(props.chatflowid);
     if (chatMessage && Object.keys(chatMessage).length) {
       if (chatMessage.chatId) setChatId(chatMessage.chatId);
@@ -1354,13 +1350,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         <DisclaimerPopup
           isOpen={disclaimerPopupOpen()}
           onAccept={handleDisclaimerAccept}
-          onDecline={() => setDisclaimerPopupOpen(false)}
           title={props.disclaimer?.title} 
           message={props.disclaimer?.message}
-          acceptButtonText={props.disclaimer?.acceptButtonText}
-          declineButtonText={props.disclaimer?.declineButtonText}
-          linkUrl={props.disclaimer?.linkUrl}
-          linkText={props.disclaimer?.linkText}
+          buttonText={props.disclaimer?.buttonText}
         />
       )}
       
