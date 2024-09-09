@@ -135,7 +135,8 @@ You can also customize chatbot with different configuration
         fontSize: 16,
         starterPrompts: ['What is a bot?', 'Who are you?'], // It overrides the starter prompts set by the chat flow passed
         starterPromptFontSize: 15,
-        clearChatOnReload: false, // If set to true, the chat will be cleared when the page reloads.
+        clearChatOnReload: false, // If set to true, the chat will be cleared when the page reloads
+        sourceDocsTitle: 'Sources:'
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',
@@ -170,6 +171,10 @@ You can also customize chatbot with different configuration
           company: 'Flowise',
           companyLink: 'https://flowiseai.com',
         },
+        disclaimer: {
+          title: 'Disclaimer',
+          message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+        }
       },
     },
   });
