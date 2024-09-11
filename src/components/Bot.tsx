@@ -359,7 +359,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const updateErrorMessage = (errorMessage: string) => {
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
-      allMessages.push({ message: errorMessage, type: 'apiMessage' })
+      allMessages.push({ message: errorMessage, type: 'apiMessage' });
       addChatMessage(allMessages);
       return allMessages;
     });
