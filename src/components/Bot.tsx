@@ -356,6 +356,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
+  const updateErrorMessage = (errorMessage: string) => {
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)];
+      allMessages.push({ message: errorMessage, type: 'apiMessage' })
+      addChatMessage(allMessages);
+      return allMessages;
+    });
+  };
+
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
@@ -510,6 +519,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             break;
           case 'metadata':
             updateMetadata(payload.data, input);
+            break;
+          case 'error':
+            updateErrorMessage(payload.data);
             break;
           case 'abort':
             abortMessage();
