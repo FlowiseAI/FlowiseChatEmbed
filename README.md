@@ -1,10 +1,10 @@
 <!-- markdownlint-disable MD030 -->
 
-# Flowise Embed
+# AnswerAI Embed
 
-Javascript library to display flowise chatbot on your website
+Javascript library to display answerai chatbot on your website
 
-![Flowise](https://github.com/FlowiseAI/FlowiseChatEmbed/blob/main/images/ChatEmbed.gif?raw=true)
+![AnswerAI](https://github.com/Answers-AI/FlowiseChatEmbed/blob/main/images/ChatEmbed.gif?raw=true)
 
 Install:
 
@@ -30,7 +30,7 @@ yarn build
 
 ```html
 <script type="module">
-  import Chatbot from 'https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js';
+  import Chatbot from 'https://cdn.jsdelivr.net/npm/aai-embed/dist/web.js';
   Chatbot.init({
     chatflowid: '<chatflowid>',
     apiHost: 'http://localhost:3000',
@@ -48,7 +48,7 @@ yarn build
     apiHost: 'http://localhost:3000',
   });
 </script>
-<flowise-fullchatbot></flowise-fullchatbot>
+<aai-fullchatbot></aai-fullchatbot>
 ```
 
 To enable full screen, add `margin: 0` to <code>body</code> style, and confirm you don't set height and width
@@ -77,7 +77,7 @@ You can also customize chatbot with different configuration
 
 ```html
 <script type="module">
-  import Chatbot from 'https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js';
+  import Chatbot from 'https://cdn.jsdelivr.net/npm/aai-embed/dist/web.js';
   Chatbot.init({
     chatflowid: '91e9c803-5169-4db9-8207-3c0915d71c5f',
     apiHost: 'http://localhost:3000',
@@ -124,7 +124,7 @@ You can also customize chatbot with different configuration
       chatWindow: {
         showTitle: true,
         showAgentMessages: true,
-        title: 'Flowise Bot',
+        title: 'AnswerAI Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
         errorMessage: 'This is a custom error message',
@@ -168,12 +168,12 @@ You can also customize chatbot with different configuration
         footer: {
           textColor: '#303235',
           text: 'Powered by',
-          company: 'Flowise',
-          companyLink: 'https://flowiseai.com',
+          company: 'AnswerAI',
+          companyLink: 'https://theanswer.ai',
         },
         disclaimer: {
           title: 'Disclaimer',
-          message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+          message: 'By using this chatbot, you agree to the <a target="_blank" href="https://theanswer.ai/terms">Terms & Condition</a>',
         }
       },
     },
@@ -183,4 +183,4 @@ You can also customize chatbot with different configuration
 
 ## License
 
-Source code in this repository is made available under the [MIT License](https://github.com/FlowiseAI/Flowise/blob/master/LICENSE.md).
+Source code in this repository is made available under the [MIT License](https://github.com/Answers-AI/Flowise/blob/master/LICENSE.md).
