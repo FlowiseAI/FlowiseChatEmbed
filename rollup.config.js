@@ -49,14 +49,23 @@ const indexConfig = {
   ],
 };
 
+// NOTE: THe second output here should be removed.   I couldn't find a better way to test locally.
+
 const configs = [
   {
     ...indexConfig,
     input: './src/web.ts',
-    output: {
-      file: 'dist/web.js',
-      format: 'es',
-    },
+
+    output: [
+      {
+        file: 'dist/web.js',
+        format: 'es',
+      },
+      {
+        file: '../../apps/web/public/embed/dist/web.js',
+        format: 'es',
+      },
+    ],
   },
 ];
 

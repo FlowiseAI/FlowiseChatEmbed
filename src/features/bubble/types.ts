@@ -1,3 +1,5 @@
+import { MessageType } from "@/components/Bot";
+
 export type BubbleParams = {
   theme?: BubbleTheme;
 };
@@ -49,6 +51,12 @@ export type FeedbackTheme = {
   color?: string;
 };
 
+export type SourceBubbleTheme = {
+  hideSources?: boolean;
+  label?: string;
+  getLabel?: (accessor: string | boolean | object | MessageType[]) => void;
+  onSourceClick: (accessor: string | boolean | object | MessageType[]) => void;
+};
 export type ChatWindowTheme = {
   showTitle?: boolean;
   showAgentMessages?: boolean; // parameter to show agent reasonings when using agentflows
@@ -71,6 +79,7 @@ export type ChatWindowTheme = {
   starterPrompts?: string[];
   starterPromptFontSize?: number;
   clearChatOnReload?: boolean;
+  sourceBubble?: SourceBubbleTheme
 };
 
 export type ButtonTheme = {
