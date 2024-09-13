@@ -9,7 +9,6 @@ type Props = {
 };
 
 const defaultTextColor = '#303235';
-
 export const Badge = (props: Props) => {
   let liteBadge: HTMLAnchorElement | undefined;
   let observer: MutationObserver | undefined;
