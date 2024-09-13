@@ -1,4 +1,4 @@
-import { MessageType } from "@/components/Bot";
+import { MessageType } from '@/components/Bot';
 
 export type BubbleParams = {
   theme?: BubbleTheme;
@@ -79,7 +79,7 @@ export type ChatWindowTheme = {
   starterPrompts?: string[];
   starterPromptFontSize?: number;
   clearChatOnReload?: boolean;
-  sourceBubble?: SourceBubbleTheme
+  sourceBubble?: SourceBubbleTheme;
 };
 
 export type ButtonTheme = {
