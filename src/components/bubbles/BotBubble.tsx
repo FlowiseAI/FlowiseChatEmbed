@@ -2,7 +2,7 @@ import { createEffect, Show, createSignal, onMount, For } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
-import { IAction, MessageType } from '../Bot';
+import { FileUpload, IAction, MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
@@ -35,7 +35,7 @@ const defaultTextColor = '#303235';
 const defaultFontSize = 16;
 const defaultFeedbackColor = '#3B81F6';
 
-Marked.setOptions({ isNoP: true });
+Marked.setOptions({ isNoP: true, sanitize: true });
 
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
@@ -52,7 +52,7 @@ export const BotBubble = (props: Props) => {
     try {
       const response = await sendFileDownloadQuery({
         apiHost: props.apiHost,
-        body: { question: '', fileName: fileAnnotation.fileName },
+        body: { fileName: fileAnnotation.fileName, chatflowId: props.chatflowid, chatId: props.chatId } as any,
         onRequest: props.onRequest,
       });
       const blob = new Blob([response.data]);
@@ -242,6 +242,44 @@ export const BotBubble = (props: Props) => {
     }
   });
 
+  const renderArtifacts = (item: Partial<FileUpload>) => {
+    if (item.type === 'png' || item.type === 'jpeg') {
+      let src = item.data as string;
+      if (src.startsWith('FILE-STORAGE::')) {
+        src = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${src.replace(
+          'FILE-STORAGE::',
+          ''
+        )}`;
+      }
+      return (
+        <div class="flex items-center justify-center p-0 m-0">
+          <img class="w-full h-full bg-cover" src={src} />
+        </div>
+      );
+    } else if (item.type === 'html') {
+      const src = (item.data as string);
+      return (
+        <div class="mt-2">
+            <div innerHTML={src}></div>
+        </div>
+      );
+    } else {
+      const src = item.data as string;
+      return (
+        <span
+          innerHTML={Marked.parse(src)}
+          class="prose"
+          style={{
+            'background-color': props.backgroundColor ?? defaultBackgroundColor,
+            color: props.textColor ?? defaultTextColor,
+            'border-radius': '6px',
+            'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+          }}
+        />
+      );
+    }
+  };
+
   return (
     <div>
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -264,14 +302,27 @@ export const BotBubble = (props: Props) => {
                     <AgentReasoningBubble
                       agentName={agent.agentName ?? ''}
                       agentMessage={msgContent}
+                      agentArtifacts={agent.artifacts}
                       backgroundColor={props.backgroundColor}
                       textColor={props.textColor}
                       fontSize={props.fontSize}
+                      apiHost={props.apiHost}
+                      chatflowid={props.chatflowid}
+                      chatId={props.chatId}
                     />
                   );
                 }}
               </For>
             </details>
+          )}
+          {props.message.artifacts && props.message.artifacts.length > 0 && (
+            <div class="flex flex-row items-start flex-wrap w-full gap-2">
+              <For each={props.message.artifacts}>
+                {(item) => {
+                  return item !== null ? <>{renderArtifacts(item)}</> : null
+                }}
+              </For>
+            </div>
           )}
           {props.message.message && (
             <span

@@ -111,7 +111,7 @@ export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost
 export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body, onRequest }: MessageRequest) =>
   sendRequest<any>({
     method: 'POST',
-    url: `${apiHost}/api/v1/openai-assistants-file`,
+    url: `${apiHost}/api/v1/openai-assistants-file/download`,
     body,
     type: 'blob',
     onRequest: onRequest,

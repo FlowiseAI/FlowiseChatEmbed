@@ -32,6 +32,7 @@ export type IAgentReasoning = {
     agentName?: string;
     messages?: string[];
     usedTools?: any[];
+    artifacts?: FileUpload[];
     sourceDocuments?: any[];
     instructions?: string;
     nextAgent?: string;
@@ -56,6 +57,7 @@ export type MessageType = {
     sourceDocuments?: any;
     fileAnnotations?: any;
     fileUploads?: Partial<FileUpload>[];
+    artifacts?: Partial<FileUpload>[];
     agentReasoning?: IAgentReasoning[];
     usedTools?: any[];
     action?: IAction | null;
