@@ -417,8 +417,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       allMessages[allMessages.length - 1].artifacts = artifacts;
       addChatMessage(allMessages);
       return allMessages;
-    })
-  }
+    });
+  };
 
   const updateLastMessageAction = (action: IAction) => {
     setMessages((data) => {
@@ -834,7 +834,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
               if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
               if (message.action) chatHistory.action = message.action;
-              if (message.artifacts) chatHistory.artifacts = message.artifacts;              
+              if (message.artifacts) chatHistory.artifacts = message.artifacts;
               return chatHistory;
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];

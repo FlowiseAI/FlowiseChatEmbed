@@ -248,7 +248,7 @@ export const BotBubble = (props: Props) => {
       if (src.startsWith('FILE-STORAGE::')) {
         src = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${src.replace(
           'FILE-STORAGE::',
-          ''
+          '',
         )}`;
       }
       return (
@@ -257,10 +257,10 @@ export const BotBubble = (props: Props) => {
         </div>
       );
     } else if (item.type === 'html') {
-      const src = (item.data as string);
+      const src = item.data as string;
       return (
         <div class="mt-2">
-            <div innerHTML={src}></div>
+          <div innerHTML={src} />
         </div>
       );
     } else {
@@ -319,7 +319,7 @@ export const BotBubble = (props: Props) => {
             <div class="flex flex-row items-start flex-wrap w-full gap-2">
               <For each={props.message.artifacts}>
                 {(item) => {
-                  return item !== null ? <>{renderArtifacts(item)}</> : null
+                  return item !== null ? <>{renderArtifacts(item)}</> : null;
                 }}
               </For>
             </div>

@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 type Props = {
   apiHost?: string;
   chatflowid: string;
-  chatId: string
+  chatId: string;
   agentName: string;
   agentMessage: string;
   agentArtifacts?: FileUpload[];
@@ -34,19 +34,19 @@ export const AgentReasoningBubble = (props: Props) => {
   });
 
   const agentReasoningArtifacts = (artifacts: FileUpload[]) => {
-    const newArtifacts = cloneDeep(artifacts)
+    const newArtifacts = cloneDeep(artifacts);
     for (let i = 0; i < newArtifacts.length; i++) {
-        const artifact = newArtifacts[i]
-        if (artifact && (artifact.type === 'png' || artifact.type === 'jpeg')) {
-            const data = artifact.data as string
-            newArtifacts[i].data = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${data.replace(
-                'FILE-STORAGE::',
-                ''
-            )}`
-        }
+      const artifact = newArtifacts[i];
+      if (artifact && (artifact.type === 'png' || artifact.type === 'jpeg')) {
+        const data = artifact.data as string;
+        newArtifacts[i].data = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${data.replace(
+          'FILE-STORAGE::',
+          '',
+        )}`;
+      }
     }
-    return newArtifacts
-  }
+    return newArtifacts;
+  };
 
   const renderArtifacts = (item: Partial<FileUpload>) => {
     if (item.type === 'png' || item.type === 'jpeg') {
@@ -57,10 +57,10 @@ export const AgentReasoningBubble = (props: Props) => {
         </div>
       );
     } else if (item.type === 'html') {
-      const src = (item.data as string);
+      const src = item.data as string;
       return (
         <div class="mt-2">
-            <div innerHTML={src}></div>
+          <div innerHTML={src} />
         </div>
       );
     } else {
@@ -86,7 +86,7 @@ export const AgentReasoningBubble = (props: Props) => {
         <div class="flex flex-row items-start flex-wrap w-full gap-2">
           <For each={agentReasoningArtifacts(props.agentArtifacts)}>
             {(item) => {
-              return item !== null ? <>{renderArtifacts(item)}</> : null
+              return item !== null ? <>{renderArtifacts(item)}</> : null;
             }}
           </For>
         </div>
