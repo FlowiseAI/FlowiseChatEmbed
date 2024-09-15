@@ -25,7 +25,7 @@ import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
 import { cloneDeep } from 'lodash';
-import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -65,6 +65,7 @@ export type IAgentReasoning = {
   agentName?: string;
   messages?: string[];
   usedTools?: any[];
+  artifacts?: FileUpload[];
   sourceDocuments?: any[];
   instructions?: string;
   nextAgent?: string;
@@ -92,6 +93,7 @@ export type MessageType = {
   sourceDocuments?: any;
   fileAnnotations?: any;
   fileUploads?: Partial<FileUpload>[];
+  artifacts?: Partial<FileUpload>[];
   agentReasoning?: IAgentReasoning[];
   usedTools?: any[];
   action?: IAction | null;
@@ -229,9 +231,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
-
-  // Extract sourceDocsTitle directly from props
-  const sourceDocsTitle = props.sourceDocsTitle;
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -411,6 +410,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
+  const updateLastMessageArtifacts = (artifacts: FileUpload[]) => {
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      allMessages[allMessages.length - 1].artifacts = artifacts;
+      addChatMessage(allMessages);
+      return allMessages;
+    })
+  }
+
   const updateLastMessageAction = (action: IAction) => {
     setMessages((data) => {
       const updated = data.map((item, i) => {
@@ -516,6 +525,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             break;
           case 'action':
             updateLastMessageAction(payload.data);
+            break;
+          case 'artifacts':
+            updateLastMessageArtifacts(payload.data);
             break;
           case 'metadata':
             updateMetadata(payload.data, input);
@@ -663,6 +675,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             fileAnnotations: data?.fileAnnotations,
             agentReasoning: data?.agentReasoning,
             action: data?.action,
+            artifacts: data?.artifacts,
             type: 'apiMessage' as messageType,
             feedback: null,
           };
@@ -821,6 +834,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
               if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
               if (message.action) chatHistory.action = message.action;
+              if (message.artifacts) chatHistory.artifacts = message.artifacts;              
               return chatHistory;
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
