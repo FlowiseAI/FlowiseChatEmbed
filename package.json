@@ -17,11 +17,11 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.22.1",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@ts-stack/markdown": "^1.4.0",
     "device-detector-js": "^3.0.3",
     "lodash": "^4.17.21",
     "prettier": "^3.1.0",
-    "socket.io-client": "^4.6.2",
     "solid-element": "1.7.0",
     "solid-js": "1.7.1",
     "zod": "^3.22.4"

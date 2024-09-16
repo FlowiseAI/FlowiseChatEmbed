@@ -1,6 +1,11 @@
+import { FileUpload } from '../Bot';
 type Props = {
+    apiHost?: string;
+    chatflowid: string;
+    chatId: string;
     agentName: string;
     agentMessage: string;
+    agentArtifacts?: FileUpload[];
     backgroundColor?: string;
     textColor?: string;
     fontSize?: number;
