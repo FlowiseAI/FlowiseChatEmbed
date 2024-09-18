@@ -344,6 +344,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
       if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      if (!text) return allMessages;
       allMessages[allMessages.length - 1].message += text;
       allMessages[allMessages.length - 1].rating = undefined;
       if (!hasSoundPlayed) {
