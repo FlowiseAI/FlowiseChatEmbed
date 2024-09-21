@@ -21,7 +21,7 @@ type BotProps = {
     badgeText?:string,
 }
 
-const version = "realty-ai-bot-version:1.7"
+const version = "realty-ai-bot-version:1.8"
 export const initFull = (props: BotProps & { id?: string }) => {
     console.log(version)
     const data = sendRequest<any>({
@@ -45,7 +45,9 @@ export const initFull = (props: BotProps & { id?: string }) => {
         ? document.getElementById(props.id)
         : document.querySelector('flowise-fullchatbot-parent')
 
-        
+
+
+
         if (!fullElement) throw new Error('<flowise-fullchatbot> element not found.')
         const element = document.createElement('flowise-fullchatbot')
         Object.assign(element, props)
@@ -81,11 +83,16 @@ export const init = async (props: BotProps) => {
         props.mobileQuestionFontSize = config_data?.mobileQuestionFontSize ? config_data?.mobileQuestionFontSize : "10px"
         props.desktopQuestionFontSize = config_data?.desktopQuestionFontSize ? config_data?.desktopQuestionFontSize : "20px"
         props.badgeText = config_data?.badgeText
-        
+        const no_display = config_data?.no_display
         const isMobile = isMobileCheck()
         
         const noMobile = config_data?.noMobile
         
+        if(no_display){
+            console.log("no display true")
+            return
+        }
+
         console.log("no mobile:",noMobile,"is mobile:",isMobile)
         if(isMobile && noMobile){
             return 
