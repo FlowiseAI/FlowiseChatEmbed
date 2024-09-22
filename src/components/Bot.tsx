@@ -248,6 +248,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
         let bot_resp_time = new Date().toISOString()
+        body.page_url = window.location.href
         console.log(body)
         const result = await sendMessageQuery({
             chatflowid: props.chatflowid,
