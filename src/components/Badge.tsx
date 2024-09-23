@@ -1,6 +1,8 @@
-import { onCleanup, onMount } from 'solid-js';
+import { FooterTheme } from '@/features/bubble/types';
+import { Show, onCleanup, onMount } from 'solid-js';
 
 type Props = {
+  footer?: FooterTheme;
   botContainer: HTMLDivElement | undefined;
   poweredByTextColor?: string;
   badgeBackgroundColor?: string;

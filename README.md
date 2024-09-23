@@ -84,24 +84,59 @@ You can also customize chatbot with different configuration
     chatflowConfig: {
       // topK: 2
     },
+    observersConfig: {
+      // (optional) Allows you to execute code in parent based upon signal observations within the chatbot.
+      // The userinput field submitted to bot ("" when reset by bot)
+      observeUserInput: (userInput) => {
+        console.log({ userInput });
+      },
+      // The bot message stack has changed
+      observeMessages: (messages) => {
+        console.log({ messages });
+      },
+      // The bot loading signal changed
+      observeLoading: (loading) => {
+        console.log({ loading });
+      },
+    },
     theme: {
       button: {
         backgroundColor: '#3B81F6',
         right: 20,
         bottom: 20,
-        size: 'medium',
+        size: 48, // small | medium | large | number
+        dragAndDrop: true,
         iconColor: 'white',
         customIconSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+        autoWindowOpen: {
+          autoOpen: true, //parameter to control automatic window opening
+          openDelay: 2, // Optional parameter for delay time in seconds
+          autoOpenOnMobile: false, //parameter to control automatic window opening in mobile
+        },
+      },
+      tooltip: {
+        showTooltip: true,
+        tooltipMessage: 'Hi There 👋!',
+        tooltipBackgroundColor: 'black',
+        tooltipTextColor: 'white',
+        tooltipFontSize: 16,
       },
       chatWindow: {
+        showTitle: true,
+        showAgentMessages: true,
         title: 'Flowise Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
         welcomeMessage: 'Hello! This is custom welcome message',
+        errorMessage: 'This is a custom error message',
         backgroundColor: '#ffffff',
+        backgroundImage: 'enter image path or link', // If set, this will overlap the background color of the chat window.
         height: 700,
         width: 400,
         fontSize: 16,
-        poweredByTextColor: '#303235',
+        starterPrompts: ['What is a bot?', 'Who are you?'], // It overrides the starter prompts set by the chat flow passed
+        starterPromptFontSize: 15,
+        clearChatOnReload: false, // If set to true, the chat will be cleared when the page reloads
+        sourceDocsTitle: 'Sources:'
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',
@@ -119,7 +154,27 @@ You can also customize chatbot with different configuration
           backgroundColor: '#ffffff',
           textColor: '#303235',
           sendButtonColor: '#3B81F6',
+          maxChars: 50,
+          maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
+          autoFocus: true, // If not used, autofocus is disabled on mobile and enabled on desktop. true enables it on both, false disables it on both.
+          sendMessageSound: true,
+          // sendSoundLocation: "send_message.mp3", // If this is not used, the default sound effect will be played if sendSoundMessage is true.
+          receiveMessageSound: true,
+          // receiveSoundLocation: "receive_message.mp3", // If this is not used, the default sound effect will be played if receiveSoundMessage is true.
         },
+        feedback: {
+          color: '#303235',
+        },
+        footer: {
+          textColor: '#303235',
+          text: 'Powered by',
+          company: 'Flowise',
+          companyLink: 'https://flowiseai.com',
+        },
+        disclaimer: {
+          title: 'Disclaimer',
+          message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+        }
       },
     },
   });

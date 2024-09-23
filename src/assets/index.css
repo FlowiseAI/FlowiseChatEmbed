@@ -220,7 +220,8 @@ textarea {
   border-radius: 6px;
 }
 
-.chatbot-input {
+.chatbot-input,
+.feedback-input {
   color: #303235;
   background-color: #ffffff;
   box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1);
@@ -233,6 +234,7 @@ textarea {
 
 .chatbot-button > .send-icon {
   fill: var(--chatbot-button-color);
+  stroke: var(--chatbot-button-color);
 }
 
 .chatbot-chat-view {
@@ -427,9 +429,45 @@ textarea {
   align-items: center;
 }
 
-input {
+input,
+textarea {
   background-color: transparent;
   border: none;
   padding: 10px 10px;
   font-family: 'Poppins', sans-serif;
+}
+@media (max-width: 640px) {
+  div[part='bot'] {
+    width: 100% !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    max-width: unset !important;
+    max-height: unset !important;
+    height: 100% !important;
+    overflow: auto; 
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+  }
+
+    div[part='button'], div[class='flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10'], .chatbot-container, .rounded-lg {
+    border-radius: 0px !important;
+  }
+
+button {
+  cursor: default !important;
+}
+
+}
+.tooltip {
+  position: fixed;
+  background: var(--tooltip-background-color, black);
+  color: var(--tooltip-text-color, white);
+  padding: 5px 10px;
+  border-radius: 5px;
+  z-index: 42424242;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: calc(100vw - 20px);
+  font-size: var(--tooltip-font-size, 12px);
+  transition: opacity 0.3s ease-in-out;
 }
