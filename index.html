@@ -1,0 +1,55 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script type="module">
+        import Chatbot from './dist/web.js';
+        Chatbot.initFull({
+            chatflowid: "51be1c61-0c8b-4f14-8c8e-191a639bad57",
+            apiHost: "https://flowise.beautycoiffure.com",
+            chatflowConfig: {
+                vars: {
+                    email: "julesdix71@mail.com",
+                    fullName: "jules dixon"
+                }
+            },
+            theme: {
+                button: {
+                    backgroundColor: "#e71e62",
+                    iconColor: "white"
+                },
+                chatWindow: {
+                    title: "Besoin d'aide ?",
+                    welcomeMessage: "Bonjour! Comment puis-je vous aider?",
+                    starterPrompts: ["Où est ma dernière commande?"],
+                    userMessage: {
+                        backgroundColor: "#e71e62"
+                    },
+                    botMessage: {
+                        backgroundColor: "#fcdee7",
+                    },
+                    textInput: {
+                        sendButtonColor: "#e71e62"
+                    },
+                    footer: {
+                        textColor: '#e71e62',
+                        text: 'SAV AI - ',
+                        company: 'BeautyCoiffure',
+                        companyLink: 'https://beautycoiffure.com',
+                    },
+
+                }
+
+
+            }
+        });
+    </script>
+    <flowise-fullchatbot></flowise-fullchatbot>
+</body>
+
+</html>

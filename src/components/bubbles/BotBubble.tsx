@@ -8,6 +8,7 @@ import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
+import { log } from 'console';
 
 type Props = {
   message: MessageType;
@@ -47,6 +48,7 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+  const [scrollPosition, setScrollPosition] = createSignal(0);
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -196,6 +198,15 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  const scrollProducts = (direction: 'left' | 'right') => {
+    const container = document.querySelector('.products-container');
+    if (container) {
+      const scrollAmount = direction === 'left' ? -320 : 320; // Adjust based on card width + gap
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      setScrollPosition(container.scrollLeft + scrollAmount);
+    }
+  };
+
   onMount(() => {
     if (botMessageEl) {
       botMessageEl.innerHTML = Marked.parse(props.message.message);
@@ -279,7 +290,90 @@ export const BotBubble = (props: Props) => {
       );
     }
   };
+  let productsString = props.message.agentReasoning?.find(a => a.agentName?.includes("Shopping"))?.usedTools?.find(t => t.tool === "product_search")?.toolOutput as string | undefined
+  let products: { pageContent: string, price_pro: number, price: number, name: string, url: string, images_url: string, product_id: number }[] = []
+  if (productsString) {
+    products = JSON.parse(productsString)
+    const seenIds = new Set();
+    const uniqueData = products.filter(item => {
+      if (!seenIds.has(item.product_id)) {
+        seenIds.add(item.product_id);
+        return true;
+      }
+      return false;
+    });
+    products = uniqueData
 
+
+  }
+  const getToken = () => {
+    let token = null;
+    // @ts-ignore
+    // Check in global `prestashop` object
+    if (typeof window.prestashop !== 'undefined' && window.prestashop.static_token) {
+    // @ts-ignore
+     
+      token = window.prestashop.static_token;
+    } else {
+      // Look for token in a meta tag or hidden input (if rendered in the page)
+      const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+      if (tokenMeta) {
+    // @ts-ignore
+     
+        token = tokenMeta.content;
+      } else {
+        const tokenInput = document.querySelector('input[name="token"]');
+        if (tokenInput) {
+    // @ts-ignore
+     
+          token = tokenInput.value;
+        }
+      }
+    }
+  
+    return token;
+  };
+  const addToCart = async (productId: number, quantity: number) => {
+    const url = '/panier';
+    const formData = new URLSearchParams();
+  
+    // Set necessary parameters
+    formData.append('id_product', productId.toString());
+    formData.append('qty', quantity.toString());
+    formData.append('add', '1');
+    formData.append('action', 'update');
+    formData.append("id_customization", "0")
+    // Include product attribute if applicable
+    // Include the CSRF token if available
+    const formToken = getToken();
+    if (formToken) {
+      formData.append('token', formToken);
+    }
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Product added to cart:', data);
+      } else {
+        console.error('Failed to add product to cart:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    }
+  };
+  
+  // Example usage
+  
+  console.log(products)
+  console.log(props.message)
   return (
     <div>
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -322,6 +416,61 @@ export const BotBubble = (props: Props) => {
                   return item !== null ? <>{renderArtifacts(item)}</> : null;
                 }}
               </For>
+            </div>
+          )}
+          {products.length > 0 && (
+            <div class="px-4 py-2 ml-2 max-w-full prose relative">
+              <h4>Products:</h4>
+              <div class="relative">
+                <button
+                  onClick={() => scrollProducts('left')}
+                  class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+                  style={{ display: scrollPosition() > 0 ? 'block' : 'none' }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div class="overflow-x-auto products-container" style="scroll-behavior: smooth;">
+                  <div class="flex space-x-4 pb-4 w-max">
+                    <For each={products}>
+                      {(product) => (
+                        <div
+                          class="flex-shrink-0 w-36 sm:w-40 md:w-48 border rounded-lg p-2 hover:border-[#e71e62] cursor-pointer flex flex-col justify-between"
+                          onClick={() => window.open(product.url, '_blank')}
+                        >
+                          <div>
+                            <img
+                              src={product.images_url[0]}
+                              alt={product.name}
+                              class="w-full h-auto object-cover mb-2 rounded"
+                              onError={(e) => {
+                                const imgElement = e.target as HTMLImageElement;
+                                if (imgElement.src.endsWith('.webp')) {
+                                  imgElement.src = imgElement.src.replace(/\.webp$/, '.jpg');
+                                }
+                              }}
+                            />
+                            <h5 class="font-bold text-sm line-clamp-2">{product.name}</h5>
+                          </div>
+                          <div class="flex justify-between items-center mt-2">
+                            <p class="font-semibold text-sm">{Number(product.price).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</p>
+                            <button
+                              class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center"
+                              onClick={(e) => { e.stopPropagation(); addToCart(product.product_id, 1) }}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+
+              </div>
             </div>
           )}
           {props.message.message && (
