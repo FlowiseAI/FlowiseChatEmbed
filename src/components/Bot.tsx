@@ -505,7 +505,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       },
       async onmessage(ev) {
         const payload = JSON.parse(ev.data);
-        console.log(payload)
+        console.log(payload);
         switch (payload.event) {
           case 'start':
             setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
@@ -657,7 +657,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
       if (result.data) {
         const data = result.data;
-        console.log(data)
+        console.log(data);
         let text = '';
         if (data.text) text = data.text;
         else if (data.json) text = JSON.stringify(data.json, null, 2);
