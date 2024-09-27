@@ -292,7 +292,7 @@ export const BotBubble = (props: Props) => {
   };
   let productsString = props.message.agentReasoning
     ?.find((a) => a.agentName?.includes('Shopping'))
-    ?.usedTools?.find((t) => t.tool === 'product_search')?.toolOutput as string | undefined;
+    ?.usedTools?.find((t) => t?.tool === 'product_search')?.toolOutput as string | undefined;
   let products: { pageContent: string; price_pro: number; price: number; name: string; url: string; images_url: string; product_id: number }[] = [];
   if (productsString) {
     products = JSON.parse(productsString);
