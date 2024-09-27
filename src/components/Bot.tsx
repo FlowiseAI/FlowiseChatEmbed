@@ -567,6 +567,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       onerror(err) {
         console.error('EventSource Error: ', err);
         closeResponse();
+        throw err;
       },
     });
   };
