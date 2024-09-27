@@ -468,7 +468,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const followUpPromptClick = (prompt: string) => {
-    setFollowUpPrompts([])
+    setFollowUpPrompts([]);
     handleSubmit(prompt);
   };
 
@@ -502,8 +502,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (data.followUpPrompts) {
-      const followUpPrompts = JSON.parse(data.followUpPrompts)
-      setFollowUpPrompts(followUpPrompts)
+      const followUpPrompts = JSON.parse(data.followUpPrompts);
+      setFollowUpPrompts(followUpPrompts);
     }
   };
 
