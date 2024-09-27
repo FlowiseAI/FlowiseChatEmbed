@@ -26,6 +26,7 @@ import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -269,6 +270,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [recordingNotSupported, setRecordingNotSupported] = createSignal(false);
   const [isLoadingRecording, setIsLoadingRecording] = createSignal(false);
 
+  // follow-up prompts
+  const [followUpPromptsStatus, setFollowUpPromptsStatus] = createSignal<boolean>(false);
+  const [followUpPrompts, setFollowUpPrompts] = createSignal<string[]>([]);
+
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
   const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
@@ -462,6 +467,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     handleSubmit(prompt);
   };
 
+  const followUpPromptClick = (prompt: string) => {
+    setFollowUpPrompts([])
+    handleSubmit(prompt);
+  };
+
   const updateMetadata = (data: any, input: string) => {
     if (data.chatId) {
       setChatId(data.chatId);
@@ -489,6 +499,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         addChatMessage(allMessages);
         return allMessages;
       });
+    }
+
+    if (data.followUpPrompts) {
+      const followUpPrompts = JSON.parse(data.followUpPrompts)
+      setFollowUpPrompts(followUpPrompts)
     }
   };
 
@@ -883,6 +898,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (chatbotConfig.leads?.status && !getLocalStorageChatflow(props.chatflowid)?.lead) {
           setMessages((prevMessages) => [...prevMessages, { message: '', type: 'leadCaptureMessage' }]);
         }
+      }
+      if (chatbotConfig.followUpPrompts) {
+        setFollowUpPromptsStatus(chatbotConfig.followUpPrompts.status);
       }
     }
 
@@ -1333,6 +1351,21 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     <StarterPromptBubble
                       prompt={key}
                       onPromptClick={() => promptClick(key)}
+                      starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
+                    />
+                  )}
+                </For>
+              </div>
+            </Show>
+          </Show>
+          <Show when={messages().length > 2 && followUpPromptsStatus()}>
+            <Show when={followUpPrompts().length > 0}>
+              <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
+                <For each={[...followUpPrompts()]}>
+                  {(prompt, index) => (
+                    <FollowUpPromptBubble
+                      prompt={prompt}
+                      onPromptClick={() => followUpPromptClick(prompt)}
                       starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
                     />
                   )}
