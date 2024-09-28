@@ -8,6 +8,7 @@ import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
+import { DateTimeToggleTheme } from '@/features/bubble/types';
 
 type Props = {
   message: MessageType;
@@ -24,6 +25,7 @@ type Props = {
   fontSize?: number;
   feedbackColor?: string;
   isLoading: boolean;
+  dateTimeToggle?: DateTimeToggleTheme;
   showAgentMessages?: boolean;
   sourceDocsTitle?: string;
   handleActionClick: (label: string, action: IAction | undefined | null) => void;
@@ -243,40 +245,84 @@ export const BotBubble = (props: Props) => {
   });
 
   const renderArtifacts = (item: Partial<FileUpload>) => {
-    if (item.type === 'png' || item.type === 'jpeg') {
-      let src = item.data as string;
-      if (src.startsWith('FILE-STORAGE::')) {
-        src = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${src.replace(
-          'FILE-STORAGE::',
-          '',
-        )}`;
+    return (
+      <>
+        <Show when={item.type === 'png' || item.type === 'jpeg'}>
+          <div class="flex items-center justify-center p-0 m-0">
+            <img
+              class="w-full h-full bg-cover"
+              src={(() => {
+                const isFileStorage = typeof item.data === 'string' && item.data.startsWith('FILE-STORAGE::');
+                return isFileStorage
+                  ? `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${(
+                      item.data as string
+                    ).replace('FILE-STORAGE::', '')}`
+                  : (item.data as string);
+              })()}
+            />
+          </div>
+        </Show>
+        <Show when={item.type === 'html'}>
+          <div class="mt-2">
+            <div innerHTML={item.data as string} />
+          </div>
+        </Show>
+        <Show when={item.type !== 'png' && item.type !== 'jpeg' && item.type !== 'html'}>
+          <span
+            innerHTML={Marked.parse(item.data as string)}
+            class="prose"
+            style={{
+              'background-color': props.backgroundColor ?? defaultBackgroundColor,
+              color: props.textColor ?? defaultTextColor,
+              'border-radius': '6px',
+              'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+            }}
+          />
+        </Show>
+      </>
+    );
+  };
+
+  const formatDateTime = (dateTimeString: string | undefined, showDate: boolean | undefined, showTime: boolean | undefined) => {
+    if (!dateTimeString) return '';
+
+    try {
+      const date = new Date(dateTimeString);
+
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.error('Invalid ISO date string:', dateTimeString);
+        return '';
       }
-      return (
-        <div class="flex items-center justify-center p-0 m-0">
-          <img class="w-full h-full bg-cover" src={src} />
-        </div>
-      );
-    } else if (item.type === 'html') {
-      const src = item.data as string;
-      return (
-        <div class="mt-2">
-          <div innerHTML={src} />
-        </div>
-      );
-    } else {
-      const src = item.data as string;
-      return (
-        <span
-          innerHTML={Marked.parse(src)}
-          class="prose"
-          style={{
-            'background-color': props.backgroundColor ?? defaultBackgroundColor,
-            color: props.textColor ?? defaultTextColor,
-            'border-radius': '6px',
-            'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
-          }}
-        />
-      );
+
+      let formatted = '';
+
+      if (showDate) {
+        const dateFormatter = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+        const [{ value: month }, , { value: day }, , { value: year }] = dateFormatter.formatToParts(date);
+        formatted = `${month.charAt(0).toUpperCase() + month.slice(1)} ${day}, ${year}`;
+      }
+
+      if (showTime) {
+        const timeFormatter = new Intl.DateTimeFormat('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+        const timeString = timeFormatter.format(date).toLowerCase();
+        formatted = formatted ? `${formatted}, ${timeString}` : timeString;
+      }
+
+      return formatted;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
     }
   };
 
@@ -424,6 +470,11 @@ export const BotBubble = (props: Props) => {
                   onClick={onThumbsDownClick}
                 />
               ) : null}
+              <Show when={props.message.dateTime}>
+                <div class="text-sm text-gray-500 ml-2">
+                  {formatDateTime(props.message.dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time)}
+                </div>
+              </Show>
             </div>
             <Show when={showFeedbackContentDialog()}>
               <FeedbackContentDialog

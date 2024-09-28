@@ -13,7 +13,15 @@ import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
 import { StarterPromptBubble } from './bubbles/StarterPromptBubble';
-import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme } from '@/features/bubble/types';
+import {
+  BotMessageTheme,
+  FooterTheme,
+  TextInputTheme,
+  UserMessageTheme,
+  FeedbackTheme,
+  DisclaimerPopUpTheme,
+  DateTimeToggleTheme,
+} from '@/features/bubble/types';
 import { Badge } from './Badge';
 import { Popup, DisclaimerPopup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
@@ -99,6 +107,7 @@ export type MessageType = {
   action?: IAction | null;
   rating?: FeedbackRatingType;
   id?: string;
+  dateTime?: string;
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
@@ -132,6 +141,7 @@ export type BotProps = {
   starterPromptFontSize?: number;
   clearChatOnReload?: boolean;
   disclaimer?: DisclaimerPopUpTheme;
+  dateTimeToggle?: DateTimeToggleTheme;
 };
 
 export type LeadsConfig = {
@@ -347,6 +357,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       if (!text) return allMessages;
       allMessages[allMessages.length - 1].message += text;
       allMessages[allMessages.length - 1].rating = undefined;
+      allMessages[allMessages.length - 1].dateTime = new Date().toISOString();
       if (!hasSoundPlayed) {
         playReceiveSound();
         hasSoundPlayed = true;
@@ -680,6 +691,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             artifacts: data?.artifacts,
             type: 'apiMessage' as messageType,
             feedback: null,
+            dateTime: new Date().toISOString(),
           };
           allMessages.push(newMessage);
           addChatMessage(allMessages);
@@ -830,6 +842,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 message: message.message,
                 type: message.type,
                 rating: message.rating,
+                dateTime: message.dateTime,
               };
               if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
               if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
@@ -1299,6 +1312,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           setSourcePopupSrc(sourceDocuments);
                           setSourcePopupOpen(true);
                         }}
+                        dateTimeToggle={props.dateTimeToggle}
                       />
                     )}
                     {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (

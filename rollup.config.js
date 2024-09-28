@@ -15,6 +15,7 @@ import { uglify } from 'rollup-plugin-uglify';
 const extensions = ['.ts', '.tsx'];
 
 const indexConfig = {
+  context: 'this',
   plugins: [
     resolve({ extensions, browser: true }),
     commonjs(),
