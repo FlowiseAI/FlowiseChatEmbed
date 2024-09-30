@@ -375,7 +375,6 @@ export const BotBubble = (props: Props) => {
   console.log(props.message);
   return (
     <div>
-      qsdqs
       {products.length > 0 && (
         <div class="px-4 py-2 ml-2 max-w-full prose relative">
           <div class="relative">
