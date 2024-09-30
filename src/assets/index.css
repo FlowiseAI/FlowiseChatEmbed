@@ -472,3 +472,49 @@ button {
   transition: opacity 0.3s ease-in-out;
 }
 
+.scrollbar {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Style pour le viewport (zone de défilement) */
+.scrollbar .scroll-area-viewport {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+}
+
+/* Style de la scrollbar */
+.scrollbar .scrollbar-thumb {
+  position: relative;
+  flex: 1;
+  border-radius: 9999px; /* Bord arrondi */
+  background-color: #4A5568; /* Couleur par défaut */
+  transition: background-color 0.2s ease; /* Transition fluide */
+}
+
+/* Changement de couleur au survol */
+.scrollbar .scrollbar-thumb:hover {
+  background-color: #2D3748; /* Couleur plus foncée au survol */
+}
+
+/* Scrollbar verticale */
+.scrollbar.vertical {
+  height: 100%;
+  width: 10px;
+  border-left: 1px solid transparent;
+  padding: 2px;
+}
+
+/* Scrollbar horizontale */
+.scrollbar.horizontal {
+  width: 100%;
+  height: 10px;
+  border-top: 1px solid transparent;
+  padding: 2px;
+}
+
+/* Changement de couleur du conteneur de la scrollbar au survol */
+.scrollbar:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Arrière-plan léger */
+}

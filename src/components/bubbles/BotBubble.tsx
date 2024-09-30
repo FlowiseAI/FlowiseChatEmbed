@@ -376,7 +376,7 @@ export const BotBubble = (props: Props) => {
   return (
     <div>
       {products.length > 0 && (
-        <div class="px-4 py-2 ml-2 max-w-full prose relative">
+        <div class="px-4 py-2  ml-2 scrollbar max-w-full prose relative">
           <div class="relative">
             <button
               onClick={() => scrollProducts('left')}

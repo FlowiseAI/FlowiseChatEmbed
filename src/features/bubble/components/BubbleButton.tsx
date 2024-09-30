@@ -1,4 +1,4 @@
-import { createSignal, createEffect, Show } from 'solid-js';
+import { createSignal, createEffect, Show, onMount, onCleanup } from 'solid-js';
 import { isNotDefined, getBubbleButtonSize } from '@/utils/index';
 import { ButtonTheme } from '../types';
 
@@ -82,7 +82,18 @@ export const BubbleButton = (props: Props) => {
       }, delayInMilliseconds);
     }
   });
+  const handleProductReco = () => {
+    handleButtonClick()
+    console.log("reco")
+  }
+  onMount(() => {
+    window.addEventListener("product-reco", handleProductReco);
 
+    // Clean up the listener when the component unmounts
+    onCleanup(() => {
+      window.removeEventListener("product-reco", handleProductReco);
+    });
+  });
   return (
     <Show when={!isSmallScreen() || !props.isBotOpened} keyed>
       <button
