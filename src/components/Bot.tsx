@@ -19,7 +19,7 @@ import { Popup, DisclaimerPopup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton, SendButton } from '@/components/buttons/SendButton';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
-import { CircleDotIcon, TrashIcon } from './icons';
+import { CircleDotIcon, SparklesIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
@@ -1360,17 +1360,23 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           </Show>
           <Show when={messages().length > 2 && followUpPromptsStatus()}>
             <Show when={followUpPrompts().length > 0}>
-              <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
-                <For each={[...followUpPrompts()]}>
+              <>
+                <div class='flex items-center gap-1 px-5'>
+                  <SparklesIcon class='w-4 h-4' />
+                  <span class="text-sm text-gray-700">Try these prompts</span>
+                </div>
+                <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
+                  <For each={[...followUpPrompts()]}>
                   {(prompt, index) => (
-                    <FollowUpPromptBubble
-                      prompt={prompt}
-                      onPromptClick={() => followUpPromptClick(prompt)}
-                      starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
-                    />
-                  )}
-                </For>
-              </div>
+                      <FollowUpPromptBubble
+                        prompt={prompt}
+                        onPromptClick={() => followUpPromptClick(prompt)}
+                        starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
+                      />
+                    )}
+                  </For>
+                </div>
+              </>
             </Show>
           </Show>
           <Show when={previews().length > 0}>
