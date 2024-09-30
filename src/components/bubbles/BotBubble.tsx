@@ -8,7 +8,6 @@ import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
-import { log } from 'console';
 
 type Props = {
   message: MessageType;
@@ -376,51 +375,8 @@ export const BotBubble = (props: Props) => {
   console.log(props.message);
   return (
     <div>
-      <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
-        <Show when={props.showAvatar}>
-          <Avatar initialAvatarSrc={props.avatarSrc} />
-        </Show>
-        <div class="flex flex-col justify-start">
-          {props.showAgentMessages && props.message.agentReasoning && (
-            <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
-              <summary class="cursor-pointer">
-                <span class="italic">Agent Messages</span>
-              </summary>
-              <br />
-              <For each={props.message.agentReasoning}>
-                {(agent) => {
-                  const agentMessages = agent.messages ?? [];
-                  let msgContent = agent.instructions || (agentMessages.length > 1 ? agentMessages.join('\\n') : agentMessages[0]);
-                  if (agentMessages.length === 0 && !agent.instructions) msgContent = `<p>Finished</p>`;
-                  return (
-                    <AgentReasoningBubble
-                      agentName={agent.agentName ?? ''}
-                      agentMessage={msgContent}
-                      agentArtifacts={agent.artifacts}
-                      backgroundColor={props.backgroundColor}
-                      textColor={props.textColor}
-                      fontSize={props.fontSize}
-                      apiHost={props.apiHost}
-                      chatflowid={props.chatflowid}
-                      chatId={props.chatId}
-                    />
-                  );
-                }}
-              </For>
-            </details>
-          )}
-          {props.message.artifacts && props.message.artifacts.length > 0 && (
-            <div class="flex flex-row items-start flex-wrap w-full gap-2">
-              <For each={props.message.artifacts}>
-                {(item) => {
-                  return item !== null ? <>{renderArtifacts(item)}</> : null;
-                }}
-              </For>
-            </div>
-          )}
-          {products.length > 0 && (
+            {products.length > 0 && (
             <div class="px-4 py-2 ml-2 max-w-full prose relative">
-              <h4>Products:</h4>
               <div class="relative">
                 <button
                   onClick={() => scrollProducts('left')}
@@ -482,6 +438,49 @@ export const BotBubble = (props: Props) => {
               </div>
             </div>
           )}
+      <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
+        <Show when={props.showAvatar}>
+          <Avatar initialAvatarSrc={props.avatarSrc} />
+        </Show>
+        <div class="flex flex-col  w-full justify-start">
+          {props.showAgentMessages && props.message.agentReasoning && (
+            <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
+              <summary class="cursor-pointer">
+                <span class="italic">Agent Messages</span>
+              </summary>
+              <br />
+              <For each={props.message.agentReasoning}>
+                {(agent) => {
+                  const agentMessages = agent.messages ?? [];
+                  let msgContent = agent.instructions || (agentMessages.length > 1 ? agentMessages.join('\\n') : agentMessages[0]);
+                  if (agentMessages.length === 0 && !agent.instructions) msgContent = `<p>Finished</p>`;
+                  return (
+                    <AgentReasoningBubble
+                      agentName={agent.agentName ?? ''}
+                      agentMessage={msgContent}
+                      agentArtifacts={agent.artifacts}
+                      backgroundColor={props.backgroundColor}
+                      textColor={props.textColor}
+                      fontSize={props.fontSize}
+                      apiHost={props.apiHost}
+                      chatflowid={props.chatflowid}
+                      chatId={props.chatId}
+                    />
+                  );
+                }}
+              </For>
+            </details>
+          )}
+          {props.message.artifacts && props.message.artifacts.length > 0 && (
+            <div class="flex flex-row items-start flex-wrap w-full gap-2">
+              <For each={props.message.artifacts}>
+                {(item) => {
+                  return item !== null ? <>{renderArtifacts(item)}</> : null;
+                }}
+              </For>
+            </div>
+          )}
+    
           {props.message.message && (
             <span
               ref={botMessageEl}
