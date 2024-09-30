@@ -375,69 +375,64 @@ export const BotBubble = (props: Props) => {
   console.log(props.message);
   return (
     <div>
-            {products.length > 0 && (
-            <div class="px-4 py-2 ml-2 max-w-full prose relative">
-              <div class="relative">
-                <button
-                  onClick={() => scrollProducts('left')}
-                  class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
-                  style={{ display: scrollPosition() > 0 ? 'block' : 'none' }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <div class="overflow-x-auto products-container" style="scroll-behavior: smooth;">
-                  <div class="flex space-x-4 pb-4 w-max">
-                    <For each={products}>
-                      {(product) => (
-                        <div
-                          class="flex-shrink-0 w-36 sm:w-40 md:w-48 border rounded-lg p-2 hover:border-[#e71e62] cursor-pointer flex flex-col justify-between"
-                          onClick={() => window.open(product.url, '_blank')}
+      {products.length > 0 && (
+        <div class="px-4 py-2 ml-2 max-w-full prose relative">
+          <div class="relative">
+            <button
+              onClick={() => scrollProducts('left')}
+              class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+              style={{ display: scrollPosition() > 0 ? 'block' : 'none' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div class="overflow-x-auto products-container" style="scroll-behavior: smooth;">
+              <div class="flex space-x-4 pb-4 w-max">
+                <For each={products}>
+                  {(product) => (
+                    <div
+                      class="flex-shrink-0 w-36 sm:w-40 md:w-48 border rounded-lg p-2 hover:border-[#e71e62] cursor-pointer flex flex-col justify-between"
+                      onClick={() => window.open(product.url, '_blank')}
+                    >
+                      <div>
+                        <img
+                          src={product.images_url[0]}
+                          alt={product.name}
+                          class="w-full h-auto object-cover mb-2 rounded"
+                          onError={(e) => {
+                            const imgElement = e.target as HTMLImageElement;
+                            if (imgElement.src.endsWith('.webp')) {
+                              imgElement.src = imgElement.src.replace(/\.webp$/, '.jpg');
+                            }
+                          }}
+                        />
+                        <h5 class="font-bold text-sm line-clamp-2">{product.name}</h5>
+                      </div>
+                      <div class="flex justify-between items-center mt-2">
+                        <p class="font-semibold text-sm">
+                          {Number(product.price).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+                        </p>
+                        <button
+                          class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product.product_id, 1);
+                          }}
                         >
-                          <div>
-                            <img
-                              src={product.images_url[0]}
-                              alt={product.name}
-                              class="w-full h-auto object-cover mb-2 rounded"
-                              onError={(e) => {
-                                const imgElement = e.target as HTMLImageElement;
-                                if (imgElement.src.endsWith('.webp')) {
-                                  imgElement.src = imgElement.src.replace(/\.webp$/, '.jpg');
-                                }
-                              }}
-                            />
-                            <h5 class="font-bold text-sm line-clamp-2">{product.name}</h5>
-                          </div>
-                          <div class="flex justify-between items-center mt-2">
-                            <p class="font-semibold text-sm">
-                              {Number(product.price).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
-                            </p>
-                            <button
-                              class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                addToCart(product.product_id, 1);
-                              }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                                />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </For>
-                  </div>
-                </div>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </For>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      )}
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
         <Show when={props.showAvatar}>
           <Avatar initialAvatarSrc={props.avatarSrc} />
@@ -480,7 +475,7 @@ export const BotBubble = (props: Props) => {
               </For>
             </div>
           )}
-    
+
           {props.message.message && (
             <span
               ref={botMessageEl}
