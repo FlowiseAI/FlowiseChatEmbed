@@ -30,9 +30,11 @@ export const Bubble = (props: BubbleProps) => {
     setIsBotOpened(false);
   };
 
-  const toggleBot = () => {
-    isBotOpened() ? closeBot() : openBot();
+  const toggleBot = (reco: boolean = false) => {
+    if(!reco) return isBotOpened() ? closeBot() : openBot();
+    isBotOpened() ? null : openBot()
   };
+
   onCleanup(() => {
     setIsBotStarted(false);
   });

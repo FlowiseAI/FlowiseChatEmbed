@@ -1,7 +1,7 @@
 import { ButtonTheme } from '../types';
 type Props = ButtonTheme & {
     isBotOpened: boolean;
-    toggleBot: () => void;
+    toggleBot: (reco: boolean) => void;
     setButtonPosition: (position: {
         bottom: number;
         right: number;

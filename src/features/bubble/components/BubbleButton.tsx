@@ -4,7 +4,7 @@ import { ButtonTheme } from '../types';
 
 type Props = ButtonTheme & {
   isBotOpened: boolean;
-  toggleBot: () => void;
+  toggleBot: (reco: boolean) => void;
   setButtonPosition: (position: { bottom: number; right: number }) => void;
   dragAndDrop: boolean;
   autoOpen?: boolean; // Optional parameter to control automatic window opening
@@ -63,7 +63,7 @@ export const BubbleButton = (props: Props) => {
   };
 
   const handleButtonClick = () => {
-    props.toggleBot();
+    props.toggleBot(false);
     setUserInteracted(true); // Mark that the user has interacted
     if (window.innerWidth <= 640) {
       setIsSmallScreen(true);
@@ -77,14 +77,13 @@ export const BubbleButton = (props: Props) => {
       const delayInMilliseconds = delayInSeconds * 1000; // Convert seconds to milliseconds
       setTimeout(() => {
         if (!props.isBotOpened && !userInteracted()) {
-          props.toggleBot();
+          props.toggleBot(false);
         }
       }, delayInMilliseconds);
     }
   });
   const handleProductReco = () => {
-    handleButtonClick();
-    console.log('reco');
+    props.toggleBot(true)
   };
   onMount(() => {
     window.addEventListener('product-reco', handleProductReco);
