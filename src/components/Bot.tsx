@@ -571,7 +571,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
   // @ts-expect-error
   const handleProductRecoEvent = (event) => {
-    handleSubmit(event.detail.message);
+    if(event.detail.message) handleSubmit(event.detail.message);
   };
   onMount(() => {
     window.addEventListener('product-reco', handleProductRecoEvent);
