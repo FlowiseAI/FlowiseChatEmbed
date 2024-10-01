@@ -47,7 +47,6 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
-  const [scrollPosition, setScrollPosition] = createSignal(0);
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -197,14 +196,7 @@ export const BotBubble = (props: Props) => {
     }
   };
 
-  const scrollProducts = (direction: 'left' | 'right') => {
-    const container = document.querySelector('.products-container');
-    if (container) {
-      const scrollAmount = direction === 'left' ? -320 : 320; // Adjust based on card width + gap
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      setScrollPosition(container.scrollLeft + scrollAmount);
-    }
-  };
+
 
   onMount(() => {
     if (botMessageEl) {
@@ -379,9 +371,7 @@ export const BotBubble = (props: Props) => {
         <div class="px-4 py-2  ml-2 scrollbar max-w-full prose relative">
           <div class="relative">
             <button
-              onClick={() => scrollProducts('left')}
               class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
-              style={{ display: scrollPosition() > 0 ? 'block' : 'none' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
