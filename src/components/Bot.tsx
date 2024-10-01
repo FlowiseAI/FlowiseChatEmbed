@@ -299,11 +299,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }, 50);
   });
 
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-    }, 50);
-  };
+  
 
   /**
    * Add each chat message into localStorage
@@ -450,7 +446,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
-    scrollToBottom();
   };
 
   const handleDisclaimerAccept = () => {
@@ -562,7 +557,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
-
   };
 
   const abortMessage = () => {
@@ -599,7 +593,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setLoading(true);
-    scrollToBottom();
 
     const uploads = previews().map((item) => {
       return {
