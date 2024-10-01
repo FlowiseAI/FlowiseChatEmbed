@@ -562,9 +562,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
+
   };
 
   const abortMessage = () => {
