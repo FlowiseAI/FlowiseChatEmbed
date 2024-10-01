@@ -368,11 +368,7 @@ export const BotBubble = (props: Props) => {
       {products.length > 0 && (
         <div class="px-4 py-2  ml-2 scrollbar max-w-full prose relative">
           <div class="relative">
-            <button class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+           
             <div class="overflow-x-auto products-container" style="scroll-behavior: smooth;">
               <div class="flex space-x-4 pb-4 w-max">
                 <For each={products}>
