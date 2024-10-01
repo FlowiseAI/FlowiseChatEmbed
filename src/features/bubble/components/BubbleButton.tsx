@@ -83,7 +83,7 @@ export const BubbleButton = (props: Props) => {
     }
   });
   const handleProductReco = () => {
-    props.toggleBot(true)
+    props.toggleBot(true);
   };
   onMount(() => {
     window.addEventListener('product-reco', handleProductReco);

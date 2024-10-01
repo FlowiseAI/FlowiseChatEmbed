@@ -31,8 +31,8 @@ export const Bubble = (props: BubbleProps) => {
   };
 
   const toggleBot = (reco: boolean = false) => {
-    if(!reco) return isBotOpened() ? closeBot() : openBot();
-    isBotOpened() ? null : openBot()
+    if (!reco) return isBotOpened() ? closeBot() : openBot();
+    isBotOpened() ? null : openBot();
   };
 
   onCleanup(() => {
