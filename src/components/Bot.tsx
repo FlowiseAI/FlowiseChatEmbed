@@ -581,14 +581,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
   // @ts-expect-error
   const handleProductRecoEvent = (event) => {
-    handleSubmit(event.detail.message)
-  }
+    handleSubmit(event.detail.message);
+  };
   onMount(() => {
-    window.addEventListener("product-reco", handleProductRecoEvent);
+    window.addEventListener('product-reco', handleProductRecoEvent);
 
     // Clean up the listener when the component unmounts
     onCleanup(() => {
-      window.removeEventListener("product-reco", handleProductRecoEvent);
+      window.removeEventListener('product-reco', handleProductRecoEvent);
     });
   });
   // Handle form submission
@@ -702,7 +702,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         setLoading(false);
         setUserInput('');
         setUploadedFiles([]);
-        scrollToBottom();
+        // scrollToBottom();
       }
       if (result.error) {
         const error = result.error;
@@ -836,20 +836,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-            const chatHistory: MessageType = {
-              messageId: message?.messageId,
-              message: message.message,
-              type: message.type,
-              rating: message.rating,
-            };
-            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-            if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-            if (message.action) chatHistory.action = message.action;
-            if (message.artifacts) chatHistory.artifacts = message.artifacts;
-            return chatHistory;
-          })
+              const chatHistory: MessageType = {
+                messageId: message?.messageId,
+                message: message.message,
+                type: message.type,
+                rating: message.rating,
+              };
+              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+              if (message.action) chatHistory.action = message.action;
+              if (message.artifacts) chatHistory.artifacts = message.artifacts;
+              return chatHistory;
+            })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');

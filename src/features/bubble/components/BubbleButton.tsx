@@ -83,15 +83,15 @@ export const BubbleButton = (props: Props) => {
     }
   });
   const handleProductReco = () => {
-    handleButtonClick()
-    console.log("reco")
-  }
+    handleButtonClick();
+    console.log('reco');
+  };
   onMount(() => {
-    window.addEventListener("product-reco", handleProductReco);
+    window.addEventListener('product-reco', handleProductReco);
 
     // Clean up the listener when the component unmounts
     onCleanup(() => {
-      window.removeEventListener("product-reco", handleProductReco);
+      window.removeEventListener('product-reco', handleProductReco);
     });
   });
   return (
