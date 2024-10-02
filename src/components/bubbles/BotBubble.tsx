@@ -156,7 +156,7 @@ export const BotBubble = (props: Props) => {
       botMessageEl.querySelectorAll('img').forEach((img) => {
         setResponsiveImageSize(img);
       });
-      
+
       if (props.fileAnnotations && props.fileAnnotations.length) {
         for (const annotations of props.fileAnnotations) {
           const button = document.createElement('button');
@@ -189,29 +189,27 @@ export const BotBubble = (props: Props) => {
     }
   });
 
-
-  const setResponsiveImageSize = (img:any) => {
+  const setResponsiveImageSize = (img: any) => {
     const screenWidth = window.innerWidth;
     let maxWidth;
     let aspectRatio = 1.5;
-  
+
     if (img.naturalWidth && img.naturalHeight) {
       aspectRatio = img.naturalWidth / img.naturalHeight;
     }
-  
+
     if (screenWidth <= 480) {
-      maxWidth = 150; 
+      maxWidth = 150;
     } else if (screenWidth <= 768) {
-      maxWidth = 200; 
+      maxWidth = 200;
     } else {
-      maxWidth = 300; 
+      maxWidth = 300;
     }
-  
-    img.style.width = `${maxWidth}px`; 
-    img.style.height = `${maxWidth / aspectRatio}px`; 
-    img.style.objectFit = 'cover'; 
-  }
-  
+
+    img.style.width = `${maxWidth}px`;
+    img.style.height = `${maxWidth / aspectRatio}px`;
+    img.style.objectFit = 'cover';
+  };
 
   window.addEventListener('resize', () => {
     if (botMessageEl) {
@@ -220,7 +218,6 @@ export const BotBubble = (props: Props) => {
       });
     }
   });
-  
 
   return (
     <div>
