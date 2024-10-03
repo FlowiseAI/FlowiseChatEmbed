@@ -100,6 +100,7 @@ export type MessageType = {
   action?: IAction | null;
   rating?: FeedbackRatingType;
   id?: string;
+  followUpPrompts?: string;
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
@@ -502,8 +503,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (data.followUpPrompts) {
-      const followUpPrompts = JSON.parse(data.followUpPrompts);
-      setFollowUpPrompts(followUpPrompts);
+      setMessages((prevMessages) => {
+        const allMessages = [...cloneDeep(prevMessages)];
+        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+        allMessages[allMessages.length - 1].followUpPrompts = data.followUpPrompts;
+        addChatMessage(allMessages);
+        return allMessages;
+      })
+      setFollowUpPrompts(JSON.parse(data.followUpPrompts));
     }
   };
 
@@ -852,6 +859,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
               if (message.action) chatHistory.action = message.action;
               if (message.artifacts) chatHistory.artifacts = message.artifacts;
+              if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
               return chatHistory;
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
@@ -918,6 +926,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       ]);
     };
   });
+
+  createEffect(() => {
+    if (followUpPromptsStatus() && messages().length > 0) {
+      const lastMessage = messages()[messages().length - 1]
+      if (lastMessage.type === 'apiMessage' && lastMessage.followUpPrompts) {
+        setFollowUpPrompts(JSON.parse(lastMessage.followUpPrompts))
+      } else if (lastMessage.type === 'userMessage') {
+        setFollowUpPrompts([])
+      }
+    }
+  })
 
   const addRecordingToPreviews = (blob: Blob) => {
     let mimeType = '';
