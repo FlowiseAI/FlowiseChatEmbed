@@ -509,7 +509,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         allMessages[allMessages.length - 1].followUpPrompts = data.followUpPrompts;
         addChatMessage(allMessages);
         return allMessages;
-      })
+      });
       setFollowUpPrompts(JSON.parse(data.followUpPrompts));
     }
   };
@@ -929,14 +929,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   createEffect(() => {
     if (followUpPromptsStatus() && messages().length > 0) {
-      const lastMessage = messages()[messages().length - 1]
+      const lastMessage = messages()[messages().length - 1];
       if (lastMessage.type === 'apiMessage' && lastMessage.followUpPrompts) {
-        setFollowUpPrompts(JSON.parse(lastMessage.followUpPrompts))
+        setFollowUpPrompts(JSON.parse(lastMessage.followUpPrompts));
       } else if (lastMessage.type === 'userMessage') {
-        setFollowUpPrompts([])
+        setFollowUpPrompts([]);
       }
     }
-  })
+  });
 
   const addRecordingToPreviews = (blob: Blob) => {
     let mimeType = '';
