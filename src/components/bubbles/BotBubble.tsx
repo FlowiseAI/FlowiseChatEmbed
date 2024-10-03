@@ -368,7 +368,6 @@ export const BotBubble = (props: Props) => {
       {products.length > 0 && (
         <div class="px-4 py-2  ml-2 scrollbar max-w-full prose relative">
           <div class="relative">
-           
             <div class="overflow-x-auto products-container" style="scroll-behavior: smooth;">
               <div class="flex space-x-4 pb-4 w-max">
                 <For each={products}>

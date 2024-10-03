@@ -610,7 +610,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(messages);
       return messages;
     });
-
+    chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     const body: IncomingInput = {
       question: value,
       chatId: chatId(),
