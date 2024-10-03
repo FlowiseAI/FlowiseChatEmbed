@@ -1,5 +1,5 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
-import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme } from '@/features/bubble/types';
+import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
 export type FileEvent<T = EventTarget> = {
     target: T;
@@ -64,6 +64,7 @@ export type MessageType = {
     rating?: FeedbackRatingType;
     id?: string;
     followUpPrompts?: string;
+    dateTime?: string;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
@@ -95,6 +96,7 @@ export type BotProps = {
     starterPromptFontSize?: number;
     clearChatOnReload?: boolean;
     disclaimer?: DisclaimerPopUpTheme;
+    dateTimeToggle?: DateTimeToggleTheme;
 };
 export type LeadsConfig = {
     status: boolean;
