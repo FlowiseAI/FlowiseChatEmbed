@@ -165,6 +165,10 @@ You can also customize chatbot with different configuration
         feedback: {
           color: '#303235',
         },
+         dateTimeToggle: {
+          date: true,
+          time: true,
+        },
         footer: {
           textColor: '#303235',
           text: 'Powered by',
