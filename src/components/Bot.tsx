@@ -33,8 +33,8 @@ import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
 import { cloneDeep } from 'lodash';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
+import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -535,6 +535,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       body: JSON.stringify(params),
       headers: {
         'Content-Type': 'application/json',
+      },
+      async onopen(response) {
+        if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
+          return; // everything's good
+        } else if (response.status === 429) {
+          const errMessage = await response.text() ?? 'Too many requests. Please try again later.';
+          handleError(errMessage);
+          throw new Error(errMessage);
+        } else {
+          throw new Error();
+        }
       },
       async onmessage(ev) {
         const payload = JSON.parse(ev.data);
