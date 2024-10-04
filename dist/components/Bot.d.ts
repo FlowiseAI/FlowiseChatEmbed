@@ -63,6 +63,7 @@ export type MessageType = {
     action?: IAction | null;
     rating?: FeedbackRatingType;
     id?: string;
+    followUpPrompts?: string;
     dateTime?: string;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;

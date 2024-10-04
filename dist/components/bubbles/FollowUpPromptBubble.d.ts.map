@@ -1,0 +1,1 @@
+{"version":3,"file":"FollowUpPromptBubble.d.ts","sourceRoot":"","sources":["../../../src/components/bubbles/FollowUpPromptBubble.tsx"],"names":[],"mappings":"AAAA,KAAK,KAAK,GAAG;IACX,MAAM,EAAE,MAAM,CAAC;IACf,aAAa,CAAC,EAAE,MAAM,IAAI,CAAC;IAC3B,qBAAqB,CAAC,EAAE,MAAM,CAAC;CAChC,CAAC;AACF,eAAO,MAAM,oBAAoB,UAAW,KAAK,mCAsBhD,CAAC"}
