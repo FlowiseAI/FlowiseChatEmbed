@@ -518,7 +518,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
           return; // everything's good
         } else if (response.status === 429) {
-          const errMessage = await response.text() ?? 'Too many requests. Please try again later.';
+          const errMessage = (await response.text()) ?? 'Too many requests. Please try again later.';
           handleError(errMessage);
           throw new Error(errMessage);
         } else {
