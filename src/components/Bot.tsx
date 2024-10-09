@@ -540,7 +540,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
           return; // everything's good
         } else if (response.status === 429) {
-          const errMessage = await response.text() ?? 'Too many requests. Please try again later.';
+          const errMessage = (await response.text()) ?? 'Too many requests. Please try again later.';
           handleError(errMessage);
           throw new Error(errMessage);
         } else {
@@ -827,7 +827,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   createEffect(() => {
     if (props.starterPrompts) {
       let prompts: string[];
-  
+
       if (Array.isArray(props.starterPrompts)) {
         // If starterPrompts is an array
         prompts = props.starterPrompts;
@@ -835,12 +835,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         // If starterPrompts is a JSON object
         prompts = Object.values(props.starterPrompts).map((promptObj: { prompt: string }) => promptObj.prompt);
       }
-  
+
       // Filter out any empty prompts
       return setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
     }
   });
-  
 
   // Auto scroll chat to bottom
   createEffect(() => {
