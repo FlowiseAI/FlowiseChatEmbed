@@ -139,7 +139,7 @@ export type BotProps = {
   footer?: FooterTheme;
   sourceDocsTitle?: string;
   observersConfig?: observersConfigType;
-  starterPrompts?: string[];
+  starterPrompts?: string[] | Record<string, { prompt: string }>;
   starterPromptFontSize?: number;
   clearChatOnReload?: boolean;
   disclaimer?: DisclaimerPopUpTheme;
@@ -825,12 +825,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   createEffect(() => {
-    if (props.starterPrompts && props.starterPrompts.length > 0) {
-      const prompts = Object.values(props.starterPrompts).map((prompt) => prompt);
-
+    if (props.starterPrompts) {
+      let prompts: string[];
+  
+      if (Array.isArray(props.starterPrompts)) {
+        // If starterPrompts is an array
+        prompts = props.starterPrompts;
+      } else {
+        // If starterPrompts is a JSON object
+        prompts = Object.values(props.starterPrompts).map((promptObj: { prompt: string }) => promptObj.prompt);
+      }
+  
+      // Filter out any empty prompts
       return setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
     }
   });
+  
 
   // Auto scroll chat to bottom
   createEffect(() => {
