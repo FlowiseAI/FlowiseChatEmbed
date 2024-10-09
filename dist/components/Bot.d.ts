@@ -92,7 +92,9 @@ export type BotProps = {
     footer?: FooterTheme;
     sourceDocsTitle?: string;
     observersConfig?: observersConfigType;
-    starterPrompts?: string[];
+    starterPrompts?: string[] | Record<string, {
+        prompt: string;
+    }>;
     starterPromptFontSize?: number;
     clearChatOnReload?: boolean;
     disclaimer?: DisclaimerPopUpTheme;
