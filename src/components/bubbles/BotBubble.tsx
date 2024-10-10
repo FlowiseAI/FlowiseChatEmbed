@@ -47,6 +47,7 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+  const [loadingStates, setLoadingStates] = createSignal<{ [key: number]: 'idle' | 'loading' | 'success' }>({});
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -323,6 +324,8 @@ export const BotBubble = (props: Props) => {
     return token;
   };
   const addToCart = async (productId: number, quantity: number) => {
+    setLoadingStates((prev) => ({ ...prev, [productId]: 'loading' }));
+
     const url = '/panier';
     const formData = new URLSearchParams();
 
@@ -351,12 +354,38 @@ export const BotBubble = (props: Props) => {
       if (response.ok) {
         const data = await response.json();
         console.log('Product added to cart:', data);
+        setLoadingStates((prev) => ({ ...prev, [productId]: 'success' }));
+        setTimeout(() => {
+          setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
+        }, 3000);
       } else {
         console.error('Failed to add product to cart:', response.statusText);
+        setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
       }
     } catch (error) {
       console.error('Error adding product to cart:', error);
+      setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
     }
+  };
+
+  const formatPrice = (price: number, isPro: boolean = false) => {
+    const currency = (window as any).prestashop?.currency;
+    if (!currency) {
+      // Fallback to default formatting if prestashop currency is not available
+      return `${price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`;
+    }
+
+    const formattedPrice = new Intl.NumberFormat(currency.iso_code === 'EUR' ? 'de-DE' : 'en-US', {
+      style: 'currency',
+      currency: currency.iso_code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(price);
+
+    // Replace the currency symbol with the one from prestashop
+    const priceWithCorrectSymbol = formattedPrice.replace(/[€$£¥]/g, currency.sign);
+
+    return isPro ? `${priceWithCorrectSymbol} HT` : priceWithCorrectSymbol;
   };
 
   // Example usage
@@ -392,18 +421,32 @@ export const BotBubble = (props: Props) => {
                       </div>
                       <div class="flex justify-between items-center mt-2">
                         <p class="font-semibold text-sm">
-                          {Number(product.price).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+                          {(window as any).prestashop?.customer?.is_pro
+                            ? formatPrice(product.price_pro, true)
+                            : formatPrice(product.price)
+                          }
                         </p>
                         <button
-                          class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center"
+                          class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center justify-center"
+                          style={{ width: '32px', height: '32px' }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            addToCart(product.product_id, 1);
+                            if (loadingStates()[product.product_id] !== 'loading') {
+                              addToCart(product.product_id, 1);
+                            }
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                          </svg>
+                          {loadingStates()[product.product_id] === 'loading' ? (
+                            <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                          ) : loadingStates()[product.product_id] === 'success' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </div>
