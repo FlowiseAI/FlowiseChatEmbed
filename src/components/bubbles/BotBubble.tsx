@@ -343,36 +343,35 @@ export const BotBubble = (props: Props) => {
     }
 
     try {
-      $.post(url, formData, null, 'json')
-      .then((resp) => {
-        // @ts-ignore
+      $.post(url, formData.toString(), null, 'json')
+        .then((resp) => {
+          // @ts-ignore
 
-        prestashop.emit('updateCart', {
-          reason: {
-            idProduct: resp.id_product,
-            idProductAttribute: resp.id_product_attribute,
-            idCustomization: resp.id_customization,
-            linkAction: 'add-to-cart',
-            cart: resp.cart,
-          },
-          resp,
+          prestashop.emit('updateCart', {
+            reason: {
+              idProduct: resp.id_product,
+              idProductAttribute: resp.id_product_attribute,
+              idCustomization: resp.id_customization,
+              linkAction: 'add-to-cart',
+              cart: resp.cart,
+            },
+            resp,
+          });
+        })
+        .fail((resp) => {
+          // @ts-ignore
+
+          prestashop.emit('handleError', {
+            eventType: 'addProductToCart',
+            resp,
+          });
+        })
+        .always(() => {
+          setTimeout(() => {
+            setLoadingStates((prev) => ({ ...prev, [productId]: 'success' }));
+            setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
+          }, 1000);
         });
-      })
-      .fail((resp) => {
-        // @ts-ignore
-
-        prestashop.emit('handleError', {
-          eventType: 'addProductToCart',
-          resp,
-        });
-      })
-      .always(() => {
-        setTimeout(() => {
-        setLoadingStates((prev) => ({ ...prev, [productId]: 'success' }));
-          setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
-
-        }, 1000);
-      });
     } catch (error) {
       console.error('Error adding product to cart:', error);
       setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
