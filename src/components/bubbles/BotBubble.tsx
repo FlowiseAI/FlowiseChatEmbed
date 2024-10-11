@@ -379,7 +379,7 @@ export const BotBubble = (props: Props) => {
       style: 'currency',
       currency: currency.iso_code,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(price);
 
     // Replace the currency symbol with the one from prestashop
@@ -421,10 +421,7 @@ export const BotBubble = (props: Props) => {
                       </div>
                       <div class="flex justify-between items-center mt-2">
                         <p class="font-semibold text-sm">
-                          {(window as any).prestashop?.customer?.is_pro
-                            ? formatPrice(product.price_pro, true)
-                            : formatPrice(product.price)
-                          }
+                          {(window as any).prestashop?.customer?.is_pro ? formatPrice(product.price_pro, true) : formatPrice(product.price)}
                         </p>
                         <button
                           class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center justify-center"
@@ -440,7 +437,11 @@ export const BotBubble = (props: Props) => {
                             <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
                           ) : loadingStates()[product.product_id] === 'success' ? (
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                              <path
+                                fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd"
+                              />
                             </svg>
                           ) : (
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
