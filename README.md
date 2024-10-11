@@ -137,6 +137,7 @@ You can also customize chatbot with different configuration
         starterPromptFontSize: 15,
         clearChatOnReload: false, // If set to true, the chat will be cleared when the page reloads
         sourceDocsTitle: 'Sources:'
+        renderHTML: true,
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',

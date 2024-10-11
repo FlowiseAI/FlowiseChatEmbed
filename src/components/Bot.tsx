@@ -144,6 +144,7 @@ export type BotProps = {
   clearChatOnReload?: boolean;
   disclaimer?: DisclaimerPopUpTheme;
   dateTimeToggle?: DateTimeToggleTheme;
+  renderHTML?: boolean;
 };
 
 export type LeadsConfig = {
@@ -155,7 +156,7 @@ export type LeadsConfig = {
   successMessage?: string;
 };
 
-const defaultWelcomeMessage = 'Hi there! How can I help?';
+const defaultWelcomeMessage = 'Hi there!! How can I help? Refer to <a target="_blank" href="https://support.atlassian.com/confluence-cloud/docs/manage-oauth-access-tokens/">official guide</a> on how to get Access Token or <a target="_blank" href="https://id.atlassian.com/manage-profile/security/api-tokens">API Token</a> on Confluence! ```json\n{\n  "name": "John Doe",\n  "email": "ass@gg.com",\n  "phone": "1234567890"\n}```';
 
 /*const sourceDocuments = [
     {
@@ -1353,6 +1354,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         showAvatar={props.userMessage?.showAvatar}
                         avatarSrc={props.userMessage?.avatarSrc}
                         fontSize={props.fontSize}
+                        renderHTML={props.renderHTML}
                       />
                     )}
                     {message.type === 'apiMessage' && (
@@ -1378,6 +1380,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           setSourcePopupOpen(true);
                         }}
                         dateTimeToggle={props.dateTimeToggle}
+                        renderHTML={props.renderHTML}
                       />
                     )}
                     {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (

@@ -13,16 +13,16 @@ type Props = {
   backgroundColor?: string;
   textColor?: string;
   fontSize?: number;
+  renderHTML?: boolean;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
 
-Marked.setOptions({ isNoP: true, sanitize: true });
-
 export const AgentReasoningBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
+  Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
   onMount(() => {
     if (botMessageEl) {
