@@ -368,7 +368,7 @@ export const BotBubble = (props: Props) => {
             linkAction: 'add-to-cart',
             cart: data.cart,
           },
-          data,
+          resp:data,
         });
       } else {
         const data = await response.json();
