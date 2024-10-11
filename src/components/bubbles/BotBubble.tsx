@@ -358,7 +358,25 @@ export const BotBubble = (props: Props) => {
         setTimeout(() => {
           setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
         }, 3000);
+        // @ts-ignore
+        window.prestashop.emit('updateCart', {
+          reason: {
+            idProduct: data.id_product,
+            idProductAttribute: data.id_product_attribute,
+            idCustomization: data.id_customization,
+            linkAction: 'add-to-cart',
+            cart: data.cart,
+          },
+          data,
+        });
       } else {
+        const data = await response.json();
+        // @ts-ignore
+
+        prestashop.emit('handleError', {
+          eventType: 'addProductToCart',
+          data,
+        });
         console.error('Failed to add product to cart:', response.statusText);
         setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
       }
