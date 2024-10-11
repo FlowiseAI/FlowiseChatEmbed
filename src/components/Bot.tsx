@@ -543,6 +543,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           const errMessage = (await response.text()) ?? 'Too many requests. Please try again later.';
           handleError(errMessage);
           throw new Error(errMessage);
+        } else if (response.status === 403) {
+          const errMessage = (await response.text()) ?? 'Unauthorized';
+          handleError(errMessage);
+          throw new Error(errMessage);
+        } else if (response.status === 401) {
+          const errMessage = (await response.text()) ?? 'Unauthenticated';
+          handleError(errMessage);
+          throw new Error(errMessage);
         } else {
           throw new Error();
         }
