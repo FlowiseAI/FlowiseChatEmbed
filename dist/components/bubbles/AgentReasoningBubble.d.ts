@@ -9,6 +9,7 @@ type Props = {
     backgroundColor?: string;
     textColor?: string;
     fontSize?: number;
+    renderHTML?: boolean;
 };
 export declare const AgentReasoningBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

@@ -84,6 +84,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             clearChatOnReload={props.theme?.chatWindow?.clearChatOnReload}
             disclaimer={props.theme?.disclaimer}
             dateTimeToggle={props.theme?.chatWindow?.dateTimeToggle}
+            renderHTML={props.theme?.chatWindow?.renderHTML}
           />
         </div>
       </Show>
