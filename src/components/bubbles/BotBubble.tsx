@@ -343,35 +343,44 @@ export const BotBubble = (props: Props) => {
     }
 
     try {
-      $.post(url, formData.toString(), null, 'json')
-        .then((resp) => {
-          // @ts-ignore
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json, text/javascript, */*; q=0.01',
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        },
+        body: formData.toString(),
+      });
 
-          prestashop.emit('updateCart', {
-            reason: {
-              idProduct: resp.id_product,
-              idProductAttribute: resp.id_product_attribute,
-              idCustomization: resp.id_customization,
-              linkAction: 'add-to-cart',
-              cart: resp.cart,
-            },
-            resp,
-          });
-        })
-        .fail((resp) => {
-          // @ts-ignore
-
-          prestashop.emit('handleError', {
-            eventType: 'addProductToCart',
-            resp,
-          });
-        })
-        .always(() => {
-          setTimeout(() => {
-            setLoadingStates((prev) => ({ ...prev, [productId]: 'success' }));
-            setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
-          }, 1000);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Product added to cart:', data);
+        setLoadingStates((prev) => ({ ...prev, [productId]: 'success' }));
+        setTimeout(() => {
+          setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
+        }, 3000);
+        // @ts-ignore
+        window.prestashop.emit('updateCart', {
+          reason: {
+            idProduct: data.id_product,
+            idProductAttribute: data.id_product_attribute,
+            idCustomization: data.id_customization,
+            linkAction: 'add-to-cart',
+            cart: data.cart,
+          },
+          data,
         });
+      } else {
+        const data = await response.json();
+        // @ts-ignore
+
+        prestashop.emit('handleError', {
+          eventType: 'addProductToCart',
+          data,
+        });
+        console.error('Failed to add product to cart:', response.statusText);
+        setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
+      }
     } catch (error) {
       console.error('Error adding product to cart:', error);
       setLoadingStates((prev) => ({ ...prev, [productId]: 'idle' }));
