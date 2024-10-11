@@ -72,6 +72,7 @@ export type ChatWindowTheme = {
   starterPromptFontSize?: number;
   clearChatOnReload?: boolean;
   dateTimeToggle?: DateTimeToggleTheme;
+  renderHTML?: boolean;
 };
 
 export type ButtonTheme = {

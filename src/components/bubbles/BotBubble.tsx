@@ -28,6 +28,7 @@ type Props = {
   dateTimeToggle?: DateTimeToggleTheme;
   showAgentMessages?: boolean;
   sourceDocsTitle?: string;
+  renderHTML?: boolean;
   handleActionClick: (label: string, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
 };
@@ -37,11 +38,11 @@ const defaultTextColor = '#303235';
 const defaultFontSize = 16;
 const defaultFeedbackColor = '#3B81F6';
 
-Marked.setOptions({ isNoP: true, sanitize: true });
-
 export const BotBubble = (props: Props) => {
   let botMessageEl: HTMLDivElement | undefined;
   let botDetailsEl: HTMLDetailsElement | undefined;
+
+  Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
   const [rating, setRating] = createSignal('');
   const [feedbackId, setFeedbackId] = createSignal('');
@@ -355,6 +356,7 @@ export const BotBubble = (props: Props) => {
                       apiHost={props.apiHost}
                       chatflowid={props.chatflowid}
                       chatId={props.chatId}
+                      renderHTML={props.renderHTML}
                     />
                   );
                 }}
