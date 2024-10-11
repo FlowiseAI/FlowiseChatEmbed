@@ -147,6 +147,7 @@ export const Bubble = (props: BubbleProps) => {
               clearChatOnReload={bubbleProps.theme?.chatWindow?.clearChatOnReload}
               disclaimer={bubbleProps.theme?.disclaimer}
               dateTimeToggle={bubbleProps.theme?.chatWindow?.dateTimeToggle}
+              renderHTML={props.theme?.chatWindow?.renderHTML}
             />
           </div>
         </Show>

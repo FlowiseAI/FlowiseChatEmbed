@@ -144,6 +144,7 @@ export type BotProps = {
   clearChatOnReload?: boolean;
   disclaimer?: DisclaimerPopUpTheme;
   dateTimeToggle?: DateTimeToggleTheme;
+  renderHTML?: boolean;
 };
 
 export type LeadsConfig = {
@@ -1353,6 +1354,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         showAvatar={props.userMessage?.showAvatar}
                         avatarSrc={props.userMessage?.avatarSrc}
                         fontSize={props.fontSize}
+                        renderHTML={props.renderHTML}
                       />
                     )}
                     {message.type === 'apiMessage' && (
@@ -1378,6 +1380,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           setSourcePopupOpen(true);
                         }}
                         dateTimeToggle={props.dateTimeToggle}
+                        renderHTML={props.renderHTML}
                       />
                     )}
                     {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (

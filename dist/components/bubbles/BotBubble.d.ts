@@ -18,6 +18,7 @@ type Props = {
     dateTimeToggle?: DateTimeToggleTheme;
     showAgentMessages?: boolean;
     sourceDocsTitle?: string;
+    renderHTML?: boolean;
     handleActionClick: (label: string, action: IAction | undefined | null) => void;
     handleSourceDocumentsClick: (src: any) => void;
 };

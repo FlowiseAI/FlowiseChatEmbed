@@ -14,16 +14,17 @@ type Props = {
   backgroundColor?: string;
   textColor?: string;
   fontSize?: number;
+  renderHTML?: boolean;
 };
 
 const defaultBackgroundColor = '#3B81F6';
 const defaultTextColor = '#ffffff';
 const defaultFontSize = 16;
 
-Marked.setOptions({ isNoP: true, sanitize: true });
-
 export const GuestBubble = (props: Props) => {
   let userMessageEl: HTMLDivElement | undefined;
+
+  Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
   onMount(() => {
     if (userMessageEl) {
