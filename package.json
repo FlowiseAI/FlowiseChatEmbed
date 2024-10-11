@@ -41,6 +41,7 @@
     "@rollup/plugin-terser": "0.4.0",
     "@rollup/plugin-typescript": "11.0.0",
     "@tailwindcss/typography": "^0.5.10",
+    "@types/jquery": "^3.5.31",
     "@types/lodash": "^4.14.195",
     "@types/node": "18.15.11",
     "@types/uuid": "^8.3.4",
