@@ -368,7 +368,7 @@ export const BotBubble = (props: Props) => {
             linkAction: 'add-to-cart',
             cart: data.cart,
           },
-          resp:data,
+          resp: data,
         });
       } else {
         const data = await response.json();
@@ -409,8 +409,6 @@ export const BotBubble = (props: Props) => {
 
   // Example usage
 
-  console.log(products);
-  console.log(props.message);
   return (
     <div>
       {products.length > 0 && (
@@ -440,7 +438,7 @@ export const BotBubble = (props: Props) => {
                       </div>
                       <div class="flex justify-between items-center mt-2">
                         <p class="font-semibold text-sm">
-                          {(window as any).prestashop?.customer?.is_pro ? formatPrice(product.price_pro, true) : formatPrice(product.price)}
+                          {(window as any).prestashop?.customer?.is_pro ? formatPrice(product.price, true) : formatPrice(product.price)}
                         </p>
                         <button
                           class="p-2 bg-black hover:bg-[#e71e62] hover:transition-colors hover:duration-150 text-white rounded-md flex items-center justify-center"
