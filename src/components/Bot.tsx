@@ -118,7 +118,7 @@ type IUploads = {
   type: string;
   name: string;
   mime: string;
-}[]
+}[];
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
@@ -297,7 +297,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
-  const [uploadedFiles, setUploadedFiles] = createSignal<{ file: File, type: string }[]>([]);
+  const [uploadedFiles, setUploadedFiles] = createSignal<{ file: File; type: string }[]>([]);
 
   onMount(() => {
     if (botProps?.observersConfig) {
@@ -643,54 +643,54 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleFileUploads = async (uploads: IUploads) => {
-    if (!uploadedFiles().length) return uploads
+    if (!uploadedFiles().length) return uploads;
 
     if (fullFileUpload()) {
-        const filesWithFullUploadType = uploadedFiles().filter((file) => file.type === 'file:full')
+      const filesWithFullUploadType = uploadedFiles().filter((file) => file.type === 'file:full');
 
-        if (filesWithFullUploadType.length > 0) {
-          const formData = new FormData()
-          for (const file of filesWithFullUploadType) {
-              formData.append('files', file.file)
-          }
-          formData.append('chatId', chatId())
+      if (filesWithFullUploadType.length > 0) {
+        const formData = new FormData();
+        for (const file of filesWithFullUploadType) {
+          formData.append('files', file.file);
+        }
+        formData.append('chatId', chatId());
 
-          const response = await createAttachmentWithFormData({
-            chatflowid: props.chatflowid,
-            apiHost: props.apiHost,
-            formData: formData,
-          });
+        const response = await createAttachmentWithFormData({
+          chatflowid: props.chatflowid,
+          apiHost: props.apiHost,
+          formData: formData,
+        });
 
-          if (!response.data) {
-            throw new Error('Unable to upload documents');
-          } else {
-            const data = response.data as any
-            for (const extractedFileData of data) {
-              const content = extractedFileData.content
-              const fileName = extractedFileData.name
+        if (!response.data) {
+          throw new Error('Unable to upload documents');
+        } else {
+          const data = response.data as any;
+          for (const extractedFileData of data) {
+            const content = extractedFileData.content;
+            const fileName = extractedFileData.name;
 
-              // find matching name in previews and replace data with content
-              const uploadIndex = uploads.findIndex((upload) => upload.name === fileName)
-              if (uploadIndex !== -1) {
-                uploads[uploadIndex] = {
-                    ...uploads[uploadIndex],
-                    data: content,
-                    name: fileName,
-                    type: 'file:full'
-                }
-              }
+            // find matching name in previews and replace data with content
+            const uploadIndex = uploads.findIndex((upload) => upload.name === fileName);
+            if (uploadIndex !== -1) {
+              uploads[uploadIndex] = {
+                ...uploads[uploadIndex],
+                data: content,
+                name: fileName,
+                type: 'file:full',
+              };
             }
           }
         }
+      }
     } else if (uploadsConfig()?.isRAGFileUploadAllowed) {
-      const filesWithRAGUploadType = uploadedFiles().filter((file) => file.type === 'file:rag')
+      const filesWithRAGUploadType = uploadedFiles().filter((file) => file.type === 'file:rag');
 
       if (filesWithRAGUploadType.length > 0) {
-        const formData = new FormData()
+        const formData = new FormData();
         for (const file of filesWithRAGUploadType) {
-          formData.append('files', file.file)
+          formData.append('files', file.file);
         }
-        formData.append('chatId', chatId())
+        formData.append('chatId', chatId());
 
         const response = await upsertVectorStoreWithFormData({
           chatflowid: props.chatflowid,
@@ -710,14 +710,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           uploads = uploads.map((upload) => {
             return {
               ...upload,
-              type: 'file:rag'
-            }
-          })
+              type: 'file:rag',
+            };
+          });
         }
       }
     }
-    return uploads
-  }
+    return uploads;
+  };
 
   // Handle form submission
   const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
@@ -741,10 +741,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
 
     try {
-      uploads = await handleFileUploads(uploads)
+      uploads = await handleFileUploads(uploads);
     } catch (error) {
-      handleError('Unable to upload documents')
-      return
+      handleError('Unable to upload documents');
+      return;
     }
 
     clearPreviews();
@@ -1024,8 +1024,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         setFollowUpPromptsStatus(chatbotConfig.followUpPrompts.status);
       }
       if (chatbotConfig.fullFileUpload) {
-        setFullFileUpload(chatbotConfig.fullFileUpload.status)
-    }
+        setFullFileUpload(chatbotConfig.fullFileUpload.status);
+      }
     }
 
     // eslint-disable-next-line solid/reactivity
@@ -1090,7 +1090,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       });
     }
     if (fullFileUpload()) {
-      return true
+      return true;
     }
     if (uploadsConfig() && uploadsConfig()?.isRAGFileUploadAllowed && uploadsConfig()?.fileUploadSizeAndTypes) {
       const fileExt = file.name.split('.').pop();
@@ -1164,7 +1164,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return true;
     }
     return false;
-  }
+  };
 
   const handleDrag = (e: DragEvent) => {
     if (uploadsConfig()?.isImageUploadAllowed || isFileUploadAllowed()) {

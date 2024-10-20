@@ -158,7 +158,7 @@ export const TextInput = (props: Props) => {
             />
           </>
         ) : null}
-        {(props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload) ? (
+        {props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload ? (
           <>
             <AttachmentUploadButton
               buttonColor={props.sendButtonColor}
