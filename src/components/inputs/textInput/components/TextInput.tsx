@@ -64,7 +64,6 @@ export const TextInput = (props: Props) => {
       if (props.sendMessageSound && audioRef) {
         audioRef.play();
       }
-      //setInputValue('');
     }
   };
 
