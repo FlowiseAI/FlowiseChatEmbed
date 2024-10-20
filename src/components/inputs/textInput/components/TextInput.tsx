@@ -12,11 +12,13 @@ type Props = {
   backgroundColor?: string;
   textColor?: string;
   sendButtonColor?: string;
-  defaultValue?: string;
+  inputValue: string;
   fontSize?: number;
   disabled?: boolean;
   onSubmit: (value: string) => void;
+  onInputChange: (value: string) => void;
   uploadsConfig?: Partial<UploadsConfig>;
+  isFullFileUpload?: boolean;
   setPreviews: Setter<unknown[]>;
   onMicrophoneClicked: () => void;
   handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
@@ -33,7 +35,6 @@ const defaultTextColor = '#303235';
 const defaultSendSound = 'https://cdn.jsdelivr.net/gh/FlowiseAI/FlowiseChatEmbed@latest/src/assets/send_message.mp3';
 
 export const TextInput = (props: Props) => {
-  const [inputValue, setInputValue] = createSignal(props.defaultValue ?? '');
   const [isSendButtonDisabled, setIsSendButtonDisabled] = createSignal(false);
   const [warningMessage, setWarningMessage] = createSignal('');
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
@@ -50,7 +51,7 @@ export const TextInput = (props: Props) => {
       return;
     }
 
-    setInputValue(inputValue);
+    props.onInputChange(inputValue);
     setWarningMessage('');
     setIsSendButtonDisabled(false);
   };
@@ -59,11 +60,11 @@ export const TextInput = (props: Props) => {
 
   const submit = () => {
     if (checkIfInputIsValid()) {
-      props.onSubmit(inputValue());
+      props.onSubmit(props.inputValue);
       if (props.sendMessageSound && audioRef) {
         audioRef.play();
       }
-      setInputValue('');
+      //setInputValue('');
     }
   };
 
@@ -106,6 +107,7 @@ export const TextInput = (props: Props) => {
   };
 
   const getFileType = () => {
+    if (props.isFullFileUpload) return '*';
     if (props.uploadsConfig?.fileUploadSizeAndTypes?.length) {
       const allowedFileTypes = props.uploadsConfig?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',');
       if (allowedFileTypes.includes('*')) return '*';
@@ -156,7 +158,7 @@ export const TextInput = (props: Props) => {
             />
           </>
         ) : null}
-        {props.uploadsConfig?.isFileUploadAllowed ? (
+        {(props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload) ? (
           <>
             <AttachmentUploadButton
               buttonColor={props.sendButtonColor}
@@ -180,7 +182,7 @@ export const TextInput = (props: Props) => {
         <ShortTextInput
           ref={inputRef as HTMLTextAreaElement}
           onInput={handleInput}
-          value={inputValue()}
+          value={props.inputValue}
           fontSize={props.fontSize}
           disabled={props.disabled}
           placeholder={props.placeholder ?? 'Type your question'}
