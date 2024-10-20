@@ -2,6 +2,7 @@ type CardWithDeleteOverlayProps = {
     item: {
         name: string;
     };
+    disabled?: boolean;
     onDelete: (item: {
         name: string;
     }) => void;
