@@ -5,11 +5,13 @@ type Props = {
     backgroundColor?: string;
     textColor?: string;
     sendButtonColor?: string;
-    defaultValue?: string;
+    inputValue: string;
     fontSize?: number;
     disabled?: boolean;
     onSubmit: (value: string) => void;
+    onInputChange: (value: string) => void;
     uploadsConfig?: Partial<UploadsConfig>;
+    isFullFileUpload?: boolean;
     setPreviews: Setter<unknown[]>;
     onMicrophoneClicked: () => void;
     handleFileChange: (event: FileEvent<HTMLInputElement>) => void;

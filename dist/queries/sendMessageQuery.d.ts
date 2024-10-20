@@ -59,6 +59,10 @@ export declare const sendMessageQuery: ({ chatflowid, apiHost, body, onRequest }
     data?: any;
     error?: Error | undefined;
 }>;
+export declare const createAttachmentWithFormData: ({ chatflowid, apiHost, formData, onRequest }: UpsertRequest) => Promise<{
+    data?: unknown;
+    error?: Error | undefined;
+}>;
 export declare const upsertVectorStoreWithFormData: ({ chatflowid, apiHost, formData, onRequest }: UpsertRequest) => Promise<{
     data?: unknown;
     error?: Error | undefined;
