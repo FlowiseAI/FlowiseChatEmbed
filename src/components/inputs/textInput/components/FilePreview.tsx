@@ -14,12 +14,12 @@ export const FilePreview = (props: CardWithDeleteOverlayProps) => {
   const onMouseEnter = () => {
     if (props.disabled) return;
     setIsHovered(true);
-  }
+  };
 
   const onMouseLeave = () => {
     if (props.disabled) return;
     setIsHovered(false);
-  }
+  };
 
   return (
     <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} class="relative inline-block">
@@ -43,7 +43,7 @@ export const FilePreview = (props: CardWithDeleteOverlayProps) => {
       )}
       {props.disabled && (
         <div class="absolute inset-0 bg-[rgba(0,0,0,0.4)] flex items-center justify-center z-10 rounded-md">
-          <div class="spinner border-4 border-gray-200 border-t-4 border-t-white rounded-full w-6 h-6 animate-spin"></div>
+          <div class="spinner border-4 border-gray-200 border-t-4 border-t-white rounded-full w-6 h-6 animate-spin" />
         </div>
       )}
     </div>
