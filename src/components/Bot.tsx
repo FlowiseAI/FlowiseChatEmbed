@@ -572,7 +572,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // @ts-expect-error
   const handleProductRecoEvent = (event) => {
     setTimeout(() => {
-      console.log(event)
+      console.log(event);
       if (event.detail.message) handleSubmit(event.detail.message);
     }, 600);
   };

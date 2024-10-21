@@ -82,15 +82,15 @@ export const BubbleButton = (props: Props) => {
       }, delayInMilliseconds);
     }
   });
-  const handleProductReco = () => {
+  const handleOpenChat = () => {
     props.toggleBot(true);
   };
   onMount(() => {
-    window.addEventListener('product-reco', handleProductReco);
+    window.addEventListener('open-chat', handleOpenChat);
 
     // Clean up the listener when the component unmounts
     onCleanup(() => {
-      window.removeEventListener('product-reco', handleProductReco);
+      window.removeEventListener('open-chat', handleOpenChat);
     });
   });
   return (
