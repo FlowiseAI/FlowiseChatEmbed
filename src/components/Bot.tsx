@@ -573,7 +573,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const handleProductRecoEvent = (event) => {
     setTimeout(() => {
       if (event.detail.message) handleSubmit(event.detail.message);
-    }, 100);
+    }, 300);
   };
   onMount(() => {
     window.addEventListener('product-reco', handleProductRecoEvent);
