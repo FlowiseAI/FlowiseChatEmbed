@@ -361,31 +361,33 @@ export const BotBubble = (props: Props) => {
         }, 3000);
 
         // Send GTM event with chatbot information
-        const product = products.find(p => p.product_id === productId);
+        const product = products.find((p) => p.product_id === productId);
         if (product) {
           //@ts-ignore
           window.dataLayer = window.dataLayer || [];
           //@ts-ignore
-        
+
           window.dataLayer.push({
-            'event': 'addToCart',
-            'ecommerce': {
-              'currencyCode': (window as any).prestashop?.currency?.iso_code || 'EUR',
-              'add': {
-                'products': [{
-                  'name': product.name,
-                  'id': product.product_id.toString(),
-                  'price': (window as any).prestashop?.customer?.is_pro ? product.price_pro : product.price,
-                  'quantity': quantity
-                }]
-              }
+            event: 'add_to_cart',
+            ecommerce: {
+              currencyCode: (window as any).prestashop?.currency?.iso_code || 'EUR',
+              add: {
+                products: [
+                  {
+                    name: product.name,
+                    id: product.product_id.toString(),
+                    price: (window as any).prestashop?.customer?.is_pro ? product.price_pro : product.price,
+                    quantity: quantity,
+                  },
+                ],
+              },
             },
-            'chatbotInfo': {
-              'source': 'chatbot',
-              'chatflowId': props.chatflowid,
-              'chatId': props.chatId,
-              'messageId': props.message.messageId
-            }
+            chatbotInfo: {
+              source: 'chatbot',
+              chatflowId: props.chatflowid,
+              chatId: props.chatId,
+              messageId: props.message.messageId,
+            },
           });
         }
 
