@@ -472,3 +472,6 @@ button {
   transition: opacity 0.3s ease-in-out;
 }
 
+#dydu-root {
+  visibility: hidden !important;
+}
