@@ -121,6 +121,10 @@ You can also customize chatbot with different configuration
         tooltipTextColor: 'white',
         tooltipFontSize: 16,
       },
+      disclaimer: {
+        title: 'Disclaimer',
+        message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+      },
       chatWindow: {
         showTitle: true,
         showAgentMessages: true,
@@ -166,7 +170,7 @@ You can also customize chatbot with different configuration
         feedback: {
           color: '#303235',
         },
-         dateTimeToggle: {
+        dateTimeToggle: {
           date: true,
           time: true,
         },
@@ -176,10 +180,6 @@ You can also customize chatbot with different configuration
           company: 'Flowise',
           companyLink: 'https://flowiseai.com',
         },
-        disclaimer: {
-          title: 'Disclaimer',
-          message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
-        }
       },
     },
   });
