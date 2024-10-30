@@ -183,4 +183,4 @@ You can also customize chatbot with different configuration
 
 ## License
 
-Source code in this repository is made available under the [MIT License](https://github.com/Answers-AI/Flowise/blob/master/LICENSE.md).
+Source code in this repository is made available under the [MIT License](https://github.com/Answers-AI/TheAnswer/blob/master/LICENSE.md).
