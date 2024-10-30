@@ -1224,7 +1224,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           <span class="px-2 py-[10px] font-semibold">{sourceDocsTitle}</span>
                         </Show>
 
-                        <div style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
+                        <div id="source-bubbles-container" style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
                           <For each={[...removeDuplicateURL(message)]}>
                             {(src) => {
                               const URL = isValidURL(src.metadata.source);
