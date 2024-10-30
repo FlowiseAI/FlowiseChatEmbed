@@ -83,6 +83,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             starterPromptFontSize={props.theme?.chatWindow?.starterPromptFontSize}
             clearChatOnReload={props.theme?.chatWindow?.clearChatOnReload}
             disclaimer={props.theme?.disclaimer}
+            sourceBubble={props.theme?.chatWindow?.sourceBubble}
           />
         </div>
       </Show>

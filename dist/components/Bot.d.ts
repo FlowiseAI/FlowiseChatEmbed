@@ -61,12 +61,18 @@ export type MessageType = {
     rating?: FeedbackRatingType;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
-export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages' | 'observeStreamEnd', observerConfigType>;
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;
     onRequest?: (request: RequestInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
+    sourceBubble?: {
+        hideSources?: boolean;
+        label?: string;
+        getLabel?: (accessor: string | boolean | object | MessageType[]) => void;
+        onSourceClick: (accessor: string | boolean | object | MessageType[]) => void;
+    };
     welcomeMessage?: string;
     errorMessage?: string;
     botMessage?: BotMessageTheme;

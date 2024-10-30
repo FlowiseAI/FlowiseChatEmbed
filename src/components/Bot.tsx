@@ -98,13 +98,19 @@ export type MessageType = {
 };
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
-export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages' | 'observeStreamEnd', observerConfigType>;
 
 export type BotProps = {
   chatflowid: string;
   apiHost?: string;
   onRequest?: (request: RequestInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
+  sourceBubble?: {
+    hideSources?: boolean;
+    label?: string;
+    getLabel?: (accessor: string | boolean | object | MessageType[]) => void;
+    onSourceClick: (accessor: string | boolean | object | MessageType[]) => void;
+  };
   welcomeMessage?: string;
   errorMessage?: string;
   botMessage?: BotMessageTheme;
@@ -274,7 +280,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   onMount(() => {
     if (botProps?.observersConfig) {
-      const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
+      const { observeUserInput, observeLoading, observeMessages, observeStreamEnd } = botProps.observersConfig;
       typeof observeUserInput === 'function' &&
         // eslint-disable-next-line solid/reactivity
         createMemo(() => {
@@ -558,6 +564,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         updateLastMessage(text, data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
       } else {
         updateLastMessage('', data?.chatMessageId, data?.sourceDocuments, data?.fileAnnotations, data?.agentReasoning, data?.action, data.text);
+      }
+      if (typeof props?.observersConfig?.observeStreamEnd === 'function') {
+        props?.observersConfig?.observeStreamEnd(messages());
       }
       setLoading(false);
       setUserInput('');
@@ -1209,22 +1218,32 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     )}
                     {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                    {message.sourceDocuments && message.sourceDocuments.length && (
+                    {!props?.sourceBubble?.hideSources && message.sourceDocuments && message.sourceDocuments.length && (
                       <>
                         <Show when={sourceDocsTitle}>
                           <span class="px-2 py-[10px] font-semibold">{sourceDocsTitle}</span>
                         </Show>
 
-                        <div style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
+                        <div id="source-bubbles-container" style={{ display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'wrap', width: '100%' }}>
                           <For each={[...removeDuplicateURL(message)]}>
                             {(src) => {
                               const URL = isValidURL(src.metadata.source);
                               return (
                                 <SourceBubble
-                                  pageContent={URL ? URL.pathname : src.pageContent}
+                                  pageContent={
+                                    (typeof props?.sourceBubble?.getLabel === 'function' && props?.sourceBubble?.getLabel(src)) ??
+                                    src?.[props?.sourceBubble?.label ?? ''] ??
+                                    src?.metadata?.[props?.sourceBubble?.label ?? ''] ??
+                                    src.title ??
+                                    src.url ??
+                                    src.metadata?.title ??
+                                    src.metadata?.source
+                                  }
                                   metadata={src.metadata}
                                   onSourceClick={() => {
-                                    if (URL) {
+                                    if (typeof props?.sourceBubble?.onSourceClick === 'function') {
+                                      props?.sourceBubble?.onSourceClick(src);
+                                    } else if (URL) {
                                       window.open(src.metadata.source, '_blank');
                                     } else {
                                       setSourcePopupSrc(src);
