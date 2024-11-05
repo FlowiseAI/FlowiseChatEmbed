@@ -9,17 +9,16 @@ import typescript from '@rollup/plugin-typescript';
 import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 import commonjs from '@rollup/plugin-commonjs';
 import { uglify } from 'rollup-plugin-uglify';
-//import serve from "rollup-plugin-serve";
-//import livereload from "rollup-plugin-livereload";
 
 const extensions = ['.ts', '.tsx'];
+
+const production = !process.env.ROLLUP_WATCH;
 
 const indexConfig = {
   context: 'this',
   plugins: [
     resolve({ extensions, browser: true }),
     commonjs(),
-    uglify(),
     json(),
     babel({
       babelHelpers: 'bundled',
@@ -32,21 +31,14 @@ const indexConfig = {
       extract: false,
       modules: false,
       autoModules: false,
-      minimize: true,
+      minimize: production,
       inject: false,
     }),
     typescript(),
     typescriptPaths({ preserveExtensions: true }),
-    terser({ output: { comments: false } }),
-    /* If you want to see the live app
-    serve({
-      open: true,
-      verbose: true,
-      contentBase: ["dist"],
-      host: "localhost",
-      port: 5678,
-    }),
-    livereload({ watch: "dist" }),*/
+    
+    uglify(),
+    terser({ output: { comments: false } })
   ],
 };
 
