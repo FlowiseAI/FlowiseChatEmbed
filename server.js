@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,18 +19,40 @@ const app = express();
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'], // Include Authorization header
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    exposedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     optionsSuccessStatus: 200
 }));
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Embedder-Policy', 'credentialless');
+    if (req.path.endsWith('.js')) {
+        res.header('Content-Type', 'application/javascript');
+    }
+    next();
+});
 
 app.options('*', cors());
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, 'dist')));
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(express.static(path.join(__dirname, 'dist'), {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.set('Content-Type', 'application/javascript');
+        }
+    }
+}));
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.set('Content-Type', 'application/javascript');
+        }
+    }
+}));
 
 const proxyEndpoints = {
     'POST:/api/v1/prediction/proxy': `/api/v1/prediction/${CHATFLOW_ID}`,
@@ -38,16 +60,14 @@ const proxyEndpoints = {
     'GET:/api/v1/chatflows-streaming/proxy': `/api/v1/chatflows-streaming/${CHATFLOW_ID}`
 };
 
-
 const handleProxy = async (req, res, targetPath) => {
     try {
         const url = `${API_HOST}${targetPath}`;
-
         const headers = {
             'Content-Type': 'application/json',
         };
 
-        if (FLOWISE_API_KEY) {  // Add API key to headers if defined
+        if (FLOWISE_API_KEY) {
             headers['Authorization'] = `Bearer ${FLOWISE_API_KEY}`;
         }
 
@@ -73,12 +93,35 @@ const handleProxy = async (req, res, targetPath) => {
     }
 };
 
+const validateApiKey = (req, res, next) => {
+    if (req.path.startsWith('/web.js') || 
+        req.path.startsWith('/dist/') || 
+        req.path.startsWith('/public/') ||
+        req.method === 'OPTIONS') {
+        return next();
+    }
+
+    const origin = req.headers.origin;
+    const referer = req.headers.referer;
+    
+    if (origin || referer) {
+        return next();
+    }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== FLOWISE_API_KEY) {
+        return res.status(401).json({ error: 'Unauthorized - Invalid API Key' });
+    }
+
+    next();
+};
+
+app.use(validateApiKey);
 
 Object.entries(proxyEndpoints).forEach(([route, targetPath]) => {
     const [method, path] = route.split(':');
     app[method.toLowerCase()](path, (req, res) => handleProxy(req, res, targetPath));
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
