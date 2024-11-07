@@ -2,7 +2,7 @@
 type ChatHistoryStorage = {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
-}
+};
 
 export class ChatInputHistory {
   private history: string[] = [];
@@ -12,7 +12,7 @@ export class ChatInputHistory {
 
   constructor(
     private getMaxHistory: () => number = () => 10,
-    private storage: ChatHistoryStorage = localStorage
+    private storage: ChatHistoryStorage = localStorage,
   ) {
     this.maxHistory = this.getMaxHistory() ?? 10;
     this.loadHistory();
