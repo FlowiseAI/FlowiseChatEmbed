@@ -41,7 +41,6 @@ export const TextInput = (props: TextInputProps) => {
   const [isSendButtonDisabled, setIsSendButtonDisabled] = createSignal(false);
   const [warningMessage, setWarningMessage] = createSignal('');
   const [inputHistory] = createSignal(new ChatInputHistory(() => props.maxHistorySize || 10));
-  const [historyIndex, setHistoryIndex] = createSignal(-1);
   let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
   let imgUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
