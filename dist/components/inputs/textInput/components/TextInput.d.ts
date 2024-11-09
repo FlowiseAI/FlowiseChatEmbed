@@ -1,6 +1,6 @@
 import { Setter } from 'solid-js';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
-type Props = {
+type TextInputProps = {
     placeholder?: string;
     backgroundColor?: string;
     textColor?: string;
@@ -20,7 +20,9 @@ type Props = {
     autoFocus?: boolean;
     sendMessageSound?: boolean;
     sendSoundLocation?: string;
+    enableInputHistory?: boolean;
+    maxHistorySize?: number;
 };
-export declare const TextInput: (props: Props) => import("solid-js").JSX.Element;
+export declare const TextInput: (props: TextInputProps) => import("solid-js").JSX.Element;
 export {};
 //# sourceMappingURL=TextInput.d.ts.map

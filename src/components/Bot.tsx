@@ -268,9 +268,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   );
 
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal(
-    (props.chatflowConfig?.vars as any)?.customerId ? `${(props.chatflowConfig?.vars as any).customerId.toString()}+${uuidv4()}` : uuidv4(),
-  );
+  const [chatId, setChatId] = createSignal('');
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
@@ -298,6 +296,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
   const [uploadedFiles, setUploadedFiles] = createSignal<{ file: File; type: string }[]>([]);
+
+  createMemo(() => {
+    const customerId = (props.chatflowConfig?.vars as any)?.customerId;
+    setChatId(customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4());
+  });
 
   onMount(() => {
     if (botProps?.observersConfig) {
@@ -1605,6 +1608,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 handleFileChange={handleFileChange}
                 sendMessageSound={props.textInput?.sendMessageSound}
                 sendSoundLocation={props.textInput?.sendSoundLocation}
+                enableInputHistory={true}
+                maxHistorySize={10}
               />
             )}
           </div>
