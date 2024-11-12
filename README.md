@@ -186,6 +186,111 @@ You can also customize chatbot with different configuration
 </script>
 ```
 
+## Proxy Server Setup
+
+The Flowise Embed Proxy Server enhances the security of your chatbot implementation by acting as a protective intermediary layer. This server eliminates the need to expose sensitive Flowise instance details in your frontend code and provides several key security benefits:
+
+- **Enhanced Security**: Conceals your Flowise API host and chatflow IDs from client-side exposure
+- **Access Control**: Implements strict domain-based restrictions for chatbot embedding
+- **Secure Communication**: Acts as a secure gateway for all interactions between your website and Flowise instance
+- **Authentication Management**: Handles API key authentication securely on the server side, away from client exposure
+- **Request Validation**: Validates all incoming requests before forwarding them to your Flowise instance
+
+This proxy server can be deployed to any Node.js hosting platform.
+
+### Quick Start
+
+1. Configure environment:
+```bash
+# Copy .env.example to .env and configure:
+API_HOST=https://your-flowise-instance.com
+FLOWISE_API_KEY=your-api-key
+CHATFLOW_1=agent1:50db97c6-64c9-4333-bab4-7d6202171602,https://example1.com
+CHATFLOW_2=agent2:3c28f529-a70f-4459-9bc5-4f4c5d03d8c8,https://example2.com,https://another-example2.com
+```
+
+(Optional) For local testing, you can use the public/index.html file to test the chatbot.
+```html
+<script type="module">
+    import Chatbot from './web.js'
+    Chatbot.init({
+        chatflowid: 'your-identifier-here/proxy',  // 1st part of the CHATFLOW_X configuration from your .env file
+        apiHost: window.location.origin,
+        }
+    })
+</script>
+```
+
+2. Start server:
+```bash
+yarn install
+yarn start
+```
+
+3. Once server is running, you will be able to use the native Flowise Embed snippet on any website without exposing your Flowise instance details. Instead of using your Flowise instance details, use the proxy server details:
+```html
+<script type="module">
+    import Chatbot from 'https://your-server-url/web.js'
+    Chatbot.init({
+        chatflowid: 'agent1/proxy', // 1st part of the CHATFLOW_X configuration from your .env file
+        apiHost: 'https://your-server-url',
+        chatflowConfig: {
+            // ...
+        },
+        theme: {
+            // ...
+        }
+    })
+</script>
+```
+
+and for full page:
+
+```html
+<flowise-fullchatbot></flowise-fullchatbot>
+<script type="module">
+    import Chatbot from 'https://your-server-url/web.js'
+    Chatbot.initFull({
+        chatflowid: 'agent1/proxy', // 1st part of the CHATFLOW_X configuration from your .env file
+        apiHost: 'https://your-server-url',
+        chatflowConfig: {
+            // ...
+        },
+        theme: {
+            // ...
+        }
+    })
+</script>
+```
+
+### CHATFLOWS Configuration
+
+Configure which websites can embed your chatbots using numbered CHATFLOW entries:
+```env
+# Format: CHATFLOW_[NUMBER]=[identifier]:[chatflowId],[allowedDomain]
+# Examples:
+CHATFLOW_1=agent1:20db97c6-64c9-4411-bab4-7d6202171600,https://example1.com
+CHATFLOW_2=agent2:1c28f529-a70f-5001-9bc5-4f4c5d03d8c0,https://example2.com,https://anotherexample2.com
+```
+
+Each configuration follows this format:
+- `identifier`: Your chosen name for the chatbot (used in the embed code as identifier/proxy)
+- `chatflowId`: Your real Flowise chatflow ID
+- `allowedDomain`: Domain(s) where this chat can be embedded
+
+**Important Notes:**
+- You must specify which websites can embed each chatbot
+- Wildcard domains (*) are not supported for security reasons
+
+## Cloud Deployment Requirements
+
+When deploying to cloud platforms, you must configure the following environment variables. The server will not start without these variables being properly set:
+
+```env
+API_HOST=https://your-flowise-instance.com
+FLOWISE_API_KEY=your-api-key
+CHATFLOW_1=agent1:your-chatflow-id,https://your-allowed-domain.com
+```
 ## License
 
 Source code in this repository is made available under the [MIT License](https://github.com/FlowiseAI/Flowise/blob/master/LICENSE.md).

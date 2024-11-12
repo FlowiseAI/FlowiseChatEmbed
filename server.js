@@ -1,3 +1,5 @@
+Error.stackTraceLimit = 0;
+
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
@@ -15,17 +17,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const API_HOST = process.env.API_HOST;
-const CHATFLOW_ID = process.env.CHATFLOW_ID;
 const FLOWISE_API_KEY = process.env.FLOWISE_API_KEY;
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
 
 if (!API_HOST) {
   console.error('API_HOST is not set in environment variables');
-  process.exit(1);
-}
-
-if (!CHATFLOW_ID) {
-  console.error('CHATFLOW_ID is not set in environment variables');
   process.exit(1);
 }
 
@@ -34,126 +29,253 @@ if (!FLOWISE_API_KEY) {
   process.exit(1);
 }
 
-if (ALLOWED_ORIGINS.includes('*')) {
-  console.warn('\x1b[33m%s\x1b[0m', 'Warning: ALLOWED_ORIGINS is set to "*" which allows all origins. Consider restricting this in production.');
-} else {
-  console.info('\x1b[36m%s\x1b[0m', `CORS enabled for origins: ${ALLOWED_ORIGINS.join(', ')}`);
-}
+const parseChatflows = () => {
+  try {
+    const chatflows = new Map();
+    const chatflowVars = Object.entries(process.env).filter(([key]) => key.startsWith('CHATFLOW_'));
+
+    if (chatflowVars.length === 0) {
+      console.error('No CHATFLOW_* configurations found in environment variables');
+      process.exit(1);
+    }
+
+    for (const [key, value] of chatflowVars) {
+      const [identifier, ...rest] = value.split(':');
+      const restJoined = rest.join(':');
+      if (!identifier || !restJoined) {
+        console.error(`Invalid format for ${key}. Expected format: agent:id,domain1,domain2`);
+        continue;
+      }
+
+      const parts = restJoined.split(',').map((s) => s.trim());
+      const chatflowId = parts[0];
+      const domains = parts.length > 1 ? parts.slice(1) : [];
+
+      if (!chatflowId) {
+        console.error(`Missing chatflow ID for ${key}`);
+        continue;
+      }
+
+      if (domains.includes('*')) {
+        console.error(`\x1b[31mError: Wildcard (*) domains are not allowed in ${key}. This flow (${identifier}) will not be accessible.\x1b[0m`);
+        continue;
+      }
+
+      chatflows.set(identifier.trim(), { chatflowId, domains });
+    }
+
+    if (chatflows.size === 0) {
+      console.error('No valid chatflow configurations found');
+      process.exit(1);
+    }
+
+    return chatflows;
+  } catch (error) {
+    console.error('Failed to parse CHATFLOW_* configurations:', error);
+    process.exit(1);
+  }
+};
+
+const chatflows = parseChatflows();
+
+const getChatflowDetails = (identifier) => {
+  const chatflow = chatflows.get(identifier);
+  if (!chatflow) {
+    throw new Error(`Chatflow not found: ${identifier}`);
+  }
+  return chatflow;
+};
+
+console.info('\x1b[36m%s\x1b[0m', 'Configured chatflows:');
+chatflows.forEach((config, identifier) => {
+  console.info('\x1b[36m%s\x1b[0m', `  ${identifier}: ${config.chatflowId} (${config.domains.join(', ')})`);
+});
+
+const isValidDomain = (origin, domains) => {
+  if (!origin) return true;
+  return domains.includes(origin);
+};
 
 const app = express();
-
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      if (ALLOWED_ORIGINS.includes('*')) {
-        return callback(null, true);
-      }
-
-      if (ALLOWED_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      }
-
-      callback(new Error('Not allowed by CORS'));
-    },
-    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-    exposedHeaders: ['Content-Type', 'Authorization'],
+    origin: true,
     credentials: true,
-    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+    allowedHeaders: ['*'],
   }),
 );
 
-const setJSHeaders = (res, path) => {
-  if (path.endsWith('.js')) {
-    res.set('Content-Type', 'application/javascript');
-  }
-};
-
-app.use(express.static(path.join(__dirname, 'dist'), { setHeaders: setJSHeaders }));
-app.use(express.static(path.join(__dirname, 'public'), { setHeaders: setJSHeaders }));
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-app.post('/api/v1/attachments/proxy/:chatId', upload.array('files'), async (req, res) => {
-  try {
-    const chatId = req.params.chatId;
-    if (!chatId) {
-      return res.status(400).json({ error: 'chatId is required' });
-    }
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: 'No files uploaded' });
-    }
-
-    const form = new FormData();
-    req.files.forEach((file) => {
-      form.append('files', file.buffer, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
-    });
-
-    const chatflowId = CHATFLOW_ID;
-
-    const targetUrl = `${API_HOST}/api/v1/attachments/${chatflowId}/${chatId}`;
-
-    const response = await axios.post(targetUrl, form, {
-      headers: {
-        ...form.getHeaders(),
-        Authorization: `Bearer ${FLOWISE_API_KEY}`,
-      },
-    });
-
-    res.json(response.data);
-  } catch (error) {
-    console.error('Attachment upload error:', error);
-    res.status(500).json({ error: 'Upload failed' });
-  }
+app.get('/', (_, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/web.js', (req, res) => {
+  const origin = req.headers.origin;
+  
+  const allAllowedDomains = Array.from(chatflows.values())
+    .flatMap(config => config.domains);
+
+  if (!isValidDomain(origin, allAllowedDomains)) {
+    return res.status(403).send('Access Denied');
+  }
+
+  res.set({
+    'Content-Type': 'application/javascript',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  res.sendFile(path.join(__dirname, 'dist', 'web.js'));
+});
+
+const validateApiKey = (req, res, next) => {
+  if (req.path === '/web.js' || req.path === '/' || req.method === 'OPTIONS') {
+    return next();
+  }
+
+  if (req.path.includes('/get-upload-file')) {
+    return next();
+  }
+
+  let identifier =
+    req.query.chatflowId?.split('/')[0] || (req.path.includes('/proxy') ? req.path.split('/')[req.path.split('/').indexOf('proxy') - 1] : null);
+
+  if (!identifier) {
+    return res.status(400).json({ error: 'Bad Request' });
+  }
+
+  let chatflow;
+  try {
+    chatflow = getChatflowDetails(identifier);
+    req.chatflow = chatflow;
+  } catch (error) {
+    return res.status(404).json({ error: 'Not Found' });
+  }
+
+  const origin = req.headers.origin;
+  const userAgent = req.headers['user-agent'];
+  const acceptLanguage = req.headers['accept-language'];
+  const accept = req.headers['accept'];
+  const secChUa = req.headers['sec-ch-ua'];
+  const secChUaPlatform = req.headers['sec-ch-ua-platform'];
+  const connection = req.headers['connection'];
+  const secChUaMobile = req.headers['sec-ch-ua-mobile'];
+  const secFetchMode = req.headers['sec-fetch-mode'];
+  const secFetchSite = req.headers['sec-fetch-site'];
+
+  if (
+    userAgent &&
+    acceptLanguage &&
+    accept &&
+    secChUa && 
+    secChUaPlatform &&
+    connection === 'keep-alive' &&
+    secChUaMobile && ['?0', '?1'].includes(secChUaMobile) &&
+    secFetchMode === 'cors' &&
+    secFetchSite && ['same-origin', 'same-site', 'cross-site'].includes(secFetchSite)
+  ) {
+    if (isValidDomain(origin, chatflow.domains)) {
+      return next();
+    }
+  }
+
+  const authHeader = req.headers.authorization;
+  if (
+    authHeader && 
+    authHeader.startsWith('Bearer ') && 
+    authHeader.split(' ')[1] === FLOWISE_API_KEY
+  ) {
+    return next();
+  }
+
+  return res.status(401).json({ error: 'Unauthorized' });
+};
+
+app.use(validateApiKey);
+
 const proxyEndpoints = {
-  'POST:/api/v1/prediction/proxy': `/api/v1/prediction/${CHATFLOW_ID}`,
-  'GET:/api/v1/public-chatbotConfig/proxy': `/api/v1/public-chatbotConfig/${CHATFLOW_ID}`,
-  'GET:/api/v1/chatflows-streaming/proxy': `/api/v1/chatflows-streaming/${CHATFLOW_ID}`,
-  'GET:/api/v1/get-upload-file/:chatId/:fileName/proxy': `/api/v1/get-upload-file`,
+  prediction: {
+    method: 'POST',
+    path: '/api/v1/prediction/:identifier/proxy',
+    target: '/api/v1/prediction',
+  },
+  config: {
+    method: 'GET',
+    path: '/api/v1/public-chatbotConfig/:identifier/proxy',
+    target: '/api/v1/public-chatbotConfig',
+  },
+  streaming: {
+    method: 'GET',
+    path: '/api/v1/chatflows-streaming/:identifier/proxy',
+    target: '/api/v1/chatflows-streaming',
+  },
+  files: {
+    method: 'GET',
+    path: '/api/v1/get-upload-file',
+    target: '/api/v1/get-upload-file',
+  },
 };
 
 const handleProxy = async (req, res, targetPath) => {
   try {
-    let finalPath = targetPath;
+    const identifierWithProxy = req.query.chatflowId || (req.path.includes('/proxy') ? `${req.params.identifier}/proxy` : null);
 
-    const queryParams = new URLSearchParams(req.query);
-    if (queryParams.get('chatflowId') === 'proxy') {
-      queryParams.set('chatflowId', CHATFLOW_ID);
+    const identifier = identifierWithProxy?.split('/')[0];
+    if (!identifier) {
+      return res.status(400).json({ error: 'Bad Request' });
     }
 
-    if (req.params.chatId) queryParams.append('chatId', req.params.chatId);
-    if (req.params.fileName) queryParams.append('fileName', req.params.fileName);
+    const chatflow = getChatflowDetails(identifier);
+    if (!chatflow) {
+      return res.status(404).json({ error: 'Not Found' });
+    }
 
-    finalPath = `${targetPath}?${queryParams.toString()}`;
+    if (req.query.chatId && req.query.fileName) {
+      const url = `${API_HOST}${targetPath}?chatflowId=${chatflow.chatflowId}&chatId=${req.query.chatId}&fileName=${req.query.fileName}`;
 
+      const response = await fetch(url, {
+        method: req.method,
+        headers: {
+          Authorization: `Bearer ${FLOWISE_API_KEY}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`File proxy error: ${response.status} ${response.statusText}`);
+        return res.status(response.status).json({ error: `File proxy error: ${response.statusText}` });
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType) {
+        res.setHeader('Content-Type', contentType);
+      }
+
+      return response.body.pipe(res);
+    }
+
+    let finalPath = `${targetPath}/${chatflow.chatflowId}`;
     const url = `${API_HOST}${finalPath}`;
-    const headers = {
-      ...(req.method !== 'GET' && { 'Content-Type': 'application/json' }),
-    };
-
-    if (FLOWISE_API_KEY) {
-      headers['Authorization'] = `Bearer ${FLOWISE_API_KEY}`;
-    }
 
     const response = await fetch(url, {
       method: req.method,
-      headers: headers,
+      headers: {
+        ...(req.method !== 'GET' && { 'Content-Type': 'application/json' }),
+        Authorization: `Bearer ${FLOWISE_API_KEY}`,
+      },
       body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
     });
 
+    if (!response.ok) {
+      console.error(`Proxy error: ${response.status} ${response.statusText}`);
+      return res.status(response.status).json({ error: `Proxy error: ${response.statusText}` });
+    }
+
     const contentType = response.headers.get('content-type');
+
     if (contentType?.includes('image/') || contentType?.includes('audio/') || contentType?.includes('application/octet-stream')) {
       res.setHeader('Content-Type', contentType);
       return response.body.pipe(res);
@@ -174,35 +296,53 @@ const handleProxy = async (req, res, targetPath) => {
     return response.body.pipe(res);
   } catch (error) {
     console.error('Proxy error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-const validateApiKey = (req, res, next) => {
-  if (req.path.startsWith('/web.js') || req.path.startsWith('/dist/') || req.path.startsWith('/public/') || req.method === 'OPTIONS') {
-    return next();
+Object.values(proxyEndpoints).forEach(({ method, path, target }) => {
+  app[method.toLowerCase()](path, (req, res) => {
+    return handleProxy(req, res, target);
+  });
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+app.post('/api/v1/attachments/:identifier/proxy/:chatId', upload.array('files'), async (req, res) => {
+  try {
+    const chatId = req.params.chatId;
+    if (!chatId) {
+      return res.status(400).json({ error: 'Bad Request' });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'Bad Request' });
+    }
+
+    const form = new FormData();
+    req.files.forEach((file) => {
+      form.append('files', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+    });
+
+    const chatflow = req.chatflow;
+    const targetUrl = `${API_HOST}/api/v1/attachments/${chatflow.chatflowId}/${chatId}`;
+
+    const response = await axios.post(targetUrl, form, {
+      headers: {
+        ...form.getHeaders(),
+        Authorization: `Bearer ${FLOWISE_API_KEY}`,
+      },
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Attachment upload error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-
-  const origin = req.headers.origin;
-  const referer = req.headers.referer;
-
-  if (origin || referer) {
-    return next();
-  }
-
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== FLOWISE_API_KEY) {
-    return res.status(401).json({ error: 'Unauthorized - Invalid API Key' });
-  }
-
-  next();
-};
-
-app.use(validateApiKey);
-
-Object.entries(proxyEndpoints).forEach(([route, targetPath]) => {
-  const [method, path] = route.split(':');
-  app[method.toLowerCase()](path, (req, res) => handleProxy(req, res, targetPath));
 });
 
 app.use((req, res) => {
@@ -210,16 +350,15 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0';
+
+const server = app.listen(PORT, HOST, () => {
   const addr = server.address();
   if (!addr || typeof addr === 'string') return;
 
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.PRODUCTION === 'true' || process.env.VERCEL_ENV === 'production';
-
-  const protocol = isProduction ? 'https' : 'http';
-  const host = process.env.HOST || process.env.VERCEL_URL || `localhost:${addr.port}`;
-  const baseUrl = `${protocol}://${host}`;
-
-  console.log(`Server running on ${baseUrl}`);
+  const baseUrl = process.env.BASE_URL || `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${addr.port}`;
   generateEmbedScript(baseUrl);
 });
+
+process.on('SIGTERM', () => server.close(() => process.exit(0)));
+process.on('SIGINT', () => server.close(() => process.exit(0)));

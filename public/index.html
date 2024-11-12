@@ -1,18 +1,33 @@
+<!--
+  NOTE: This .html file (and public folder) is optional and can be safely deleted.
+  It serves only as a demo/test page and is not required for the proxy server to function.
+  
+  The chatbot can be embedded directly on any allowed domain using the embed script that
+  is generated when starting the server. Example embed code:
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Demo</title>
+    <title>Flowise Chatbot Widget</title>
 </head>
+
 <body>
     <div id="root"></div>
     <script type="module">
         import Chatbot from './web.js'
         Chatbot.init({
-            chatflowid: 'proxy',
-            apiHost: window.location.origin
+            chatflowid: 'flow-name/proxy', // replace "flow-name" with your flow name set in .env
+            apiHost: window.location.origin,
+            overrideConfig: {
+            },
+            theme: {
+            }
         })
     </script>
 </body>
+
 </html>
