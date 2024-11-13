@@ -141,8 +141,8 @@ const validateApiKey = (req, res, next) => {
     return next();
   }
 
-  let identifier =
-    req.query.chatflowId?.split('/')[0] || (req.path.includes('/proxy') ? req.path.split('/')[req.path.split('/').indexOf('proxy') - 1] : null);
+  let identifier = req.query.chatflowId?.split('/')[0] || 
+                  (req.path.split('/').pop() || null);
 
   if (!identifier) {
     return res.status(400).json({ error: 'Bad Request' });
@@ -200,17 +200,17 @@ app.use(validateApiKey);
 const proxyEndpoints = {
   prediction: {
     method: 'POST',
-    path: '/api/v1/prediction/:identifier/proxy',
+    path: '/api/v1/prediction/:identifier',
     target: '/api/v1/prediction',
   },
   config: {
     method: 'GET',
-    path: '/api/v1/public-chatbotConfig/:identifier/proxy',
+    path: '/api/v1/public-chatbotConfig/:identifier',
     target: '/api/v1/public-chatbotConfig',
   },
   streaming: {
     method: 'GET',
-    path: '/api/v1/chatflows-streaming/:identifier/proxy',
+    path: '/api/v1/chatflows-streaming/:identifier',
     target: '/api/v1/chatflows-streaming',
   },
   files: {
@@ -222,9 +222,9 @@ const proxyEndpoints = {
 
 const handleProxy = async (req, res, targetPath) => {
   try {
-    const identifierWithProxy = req.query.chatflowId || (req.path.includes('/proxy') ? `${req.params.identifier}/proxy` : null);
+    let identifier = req.query.chatflowId?.split('/')[0] || 
+                    (req.path.split('/').pop() || null);
 
-    const identifier = identifierWithProxy?.split('/')[0];
     if (!identifier) {
       return res.status(400).json({ error: 'Bad Request' });
     }
@@ -309,7 +309,7 @@ Object.values(proxyEndpoints).forEach(({ method, path, target }) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.post('/api/v1/attachments/:identifier/proxy/:chatId', upload.array('files'), async (req, res) => {
+app.post('/api/v1/attachments/:identifier/:chatId', upload.array('files'), async (req, res) => {
   try {
     const chatId = req.params.chatId;
     if (!chatId) {

@@ -205,16 +205,16 @@ This proxy server can be deployed to any Node.js hosting platform.
 # Copy .env.example to .env and configure:
 API_HOST=https://your-flowise-instance.com
 FLOWISE_API_KEY=your-api-key
-CHATFLOW_1=agent1:50db97c6-64c9-4333-bab4-7d6202171602,https://example1.com
-CHATFLOW_2=agent2:3c28f529-a70f-4459-9bc5-4f4c5d03d8c8,https://example2.com,https://another-example2.com
+CHATFLOW_1=agent1:50db97c6-64c9-4333-bab4-7d6202171602,https://example1.com # Format: CHATFLOW_[NUMBER]=[identifier]:[chatflowId],[allowedDomain]
+CHATFLOW_2=agent2:3c28f529-a70f-4459-9bc5-4f4c5d03d8c8,https://example2.com,https://another-example2.com # Format: CHATFLOW_[NUMBER]=[identifier]:[chatflowId],[allowedDomain,...]
 ```
 
-(Optional) For local testing, you can use the public/index.html file to test the chatbot.
+(Optional) For local testing, you can use the public/index.html file to test the chatbot:
 ```html
 <script type="module">
     import Chatbot from './web.js'
     Chatbot.init({
-        chatflowid: 'your-identifier-here/proxy',  // 1st part of the CHATFLOW_X configuration from your .env file
+        chatflowid: 'your-identifier-here',  // The identifier from your CHATFLOW_X configuration
         apiHost: window.location.origin,
         }
     })
@@ -232,7 +232,7 @@ yarn start
 <script type="module">
     import Chatbot from 'https://your-server-url/web.js'
     Chatbot.init({
-        chatflowid: 'agent1/proxy', // 1st part of the CHATFLOW_X configuration from your .env file
+        chatflowid: 'your-identifier-here', // The identifier from your CHATFLOW_X configuration
         apiHost: 'https://your-server-url',
         chatflowConfig: {
             // ...
@@ -251,7 +251,7 @@ and for full page:
 <script type="module">
     import Chatbot from 'https://your-server-url/web.js'
     Chatbot.initFull({
-        chatflowid: 'agent1/proxy', // 1st part of the CHATFLOW_X configuration from your .env file
+        chatflowid: 'your-identifier-here', // The identifier from your CHATFLOW_X configuration
         apiHost: 'https://your-server-url',
         chatflowConfig: {
             // ...
