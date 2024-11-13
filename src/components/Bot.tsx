@@ -550,7 +550,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         'Content-Type': 'application/json',
       },
       async onopen(response) {
-        if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
+        if (response.ok && response.headers.get('content-type').startsWith(EventStreamContentType)) {
           return; // everything's good
         } else if (response.status === 429) {
           const errMessage = (await response.text()) ?? 'Too many requests. Please try again later.';
