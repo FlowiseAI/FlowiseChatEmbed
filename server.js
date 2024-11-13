@@ -162,7 +162,6 @@ const validateApiKey = (req, res, next) => {
   const accept = req.headers['accept'];
   const secChUa = req.headers['sec-ch-ua'];
   const secChUaPlatform = req.headers['sec-ch-ua-platform'];
-  const connection = req.headers['connection'];
   const secChUaMobile = req.headers['sec-ch-ua-mobile'];
   const secFetchMode = req.headers['sec-fetch-mode'];
   const secFetchSite = req.headers['sec-fetch-site'];
@@ -173,7 +172,6 @@ const validateApiKey = (req, res, next) => {
     accept &&
     secChUa && 
     secChUaPlatform &&
-    connection === 'keep-alive' &&
     secChUaMobile && ['?0', '?1'].includes(secChUaMobile) &&
     secFetchMode === 'cors' &&
     secFetchSite && ['same-origin', 'same-site', 'cross-site'].includes(secFetchSite)
