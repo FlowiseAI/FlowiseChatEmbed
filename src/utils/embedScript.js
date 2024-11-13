@@ -2,7 +2,7 @@ export function generateEmbedScript(serverUrl) {
   const scriptPopup = `<script type="module">
   import Chatbot from '${serverUrl}/web.js'
   Chatbot.init({
-      chatflowid: 'flow-name/proxy', // Replace with your flow name from .env
+      chatflowid: 'your-identifier-here',
       apiHost: '${serverUrl}',
       chatflowConfig: {},
       theme: {}
@@ -13,7 +13,7 @@ export function generateEmbedScript(serverUrl) {
 <script type="module">
   import Chatbot from '${serverUrl}/web.js'
   Chatbot.initFull({
-      chatflowid: 'flow-name/proxy', // Replace with your flow name from .env
+      chatflowid: 'your-identifier-here',
       apiHost: '${serverUrl}',
       chatflowConfig: {},
       theme: {}
