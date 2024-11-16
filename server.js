@@ -115,7 +115,7 @@ app.get('/', (_, res) => {
 
 app.get('/web.js', (req, res) => {
   const origin = req.headers.origin;
-  
+
   const allAllowedDomains = Array.from(chatflows.values())
     .flatMap(config => config.domains);
 
@@ -141,8 +141,14 @@ const validateApiKey = (req, res, next) => {
     return next();
   }
 
-  let identifier = req.query.chatflowId?.split('/')[0] || 
-                  (req.path.split('/').pop() || null);
+  let identifier;
+  const pathParts = req.path.split('/').filter(Boolean);
+
+  if (pathParts.length >= 3) {
+    identifier = pathParts[3];
+  } else {
+    identifier = req.query.chatflowId?.split('/')[0];
+  }
 
   if (!identifier) {
     return res.status(400).json({ error: 'Bad Request' });
@@ -170,7 +176,7 @@ const validateApiKey = (req, res, next) => {
     userAgent &&
     acceptLanguage &&
     accept &&
-    secChUa && 
+    secChUa &&
     secChUaPlatform &&
     secChUaMobile && ['?0', '?1'].includes(secChUaMobile) &&
     secFetchMode === 'cors' &&
@@ -343,7 +349,7 @@ app.post('/api/v1/attachments/:identifier/:chatId', upload.array('files'), async
   }
 });
 
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
@@ -357,6 +363,3 @@ const server = app.listen(PORT, HOST, () => {
   const baseUrl = process.env.BASE_URL || `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${addr.port}`;
   generateEmbedScript(baseUrl);
 });
-
-process.on('SIGTERM', () => server.close(() => process.exit(0)));
-process.on('SIGINT', () => server.close(() => process.exit(0)));
