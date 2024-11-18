@@ -116,8 +116,7 @@ app.get('/', (_, res) => {
 app.get('/web.js', (req, res) => {
   const origin = req.headers.origin;
 
-  const allAllowedDomains = Array.from(chatflows.values())
-    .flatMap(config => config.domains);
+  const allAllowedDomains = Array.from(chatflows.values()).flatMap((config) => config.domains);
 
   if (!isValidDomain(origin, allAllowedDomains)) {
     return res.status(403).send('Access Denied');
@@ -126,8 +125,8 @@ app.get('/web.js', (req, res) => {
   res.set({
     'Content-Type': 'application/javascript',
     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
+    Pragma: 'no-cache',
+    Expires: '0',
   });
   res.sendFile(path.join(__dirname, 'dist', 'web.js'));
 });
@@ -178,9 +177,11 @@ const validateApiKey = (req, res, next) => {
     accept &&
     secChUa &&
     secChUaPlatform &&
-    secChUaMobile && ['?0', '?1'].includes(secChUaMobile) &&
+    secChUaMobile &&
+    ['?0', '?1'].includes(secChUaMobile) &&
     secFetchMode === 'cors' &&
-    secFetchSite && ['same-origin', 'same-site', 'cross-site'].includes(secFetchSite)
+    secFetchSite &&
+    ['same-origin', 'same-site', 'cross-site'].includes(secFetchSite)
   ) {
     if (isValidDomain(origin, chatflow.domains)) {
       return next();
@@ -188,11 +189,7 @@ const validateApiKey = (req, res, next) => {
   }
 
   const authHeader = req.headers.authorization;
-  if (
-    authHeader && 
-    authHeader.startsWith('Bearer ') && 
-    authHeader.split(' ')[1] === FLOWISE_API_KEY
-  ) {
+  if (authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1] === FLOWISE_API_KEY) {
     return next();
   }
 
@@ -226,8 +223,7 @@ const proxyEndpoints = {
 
 const handleProxy = async (req, res, targetPath) => {
   try {
-    let identifier = req.query.chatflowId?.split('/')[0] || 
-                    (req.path.split('/').pop() || null);
+    let identifier = req.query.chatflowId?.split('/')[0] || req.path.split('/').pop() || null;
 
     if (!identifier) {
       return res.status(400).json({ error: 'Bad Request' });
