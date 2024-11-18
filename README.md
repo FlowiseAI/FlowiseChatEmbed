@@ -203,6 +203,7 @@ This proxy server can be deployed to any Node.js hosting platform.
 ### Quick Start
 
 1. Configure environment:
+
 ```bash
 # Copy .env.example to .env and configure:
 API_HOST=https://your-flowise-instance.com
@@ -212,33 +213,38 @@ CHATFLOW_2=agent2:3c28f529-a70f-4459-9bc5-4f4c5d03d8c8,https://example2.com,http
 ```
 
 2. Start proxy server:
+
 ```bash
 yarn run proxy
 ```
+
 By default, it will be available on http://localhost:3001
 
 3. Open another terminal and start dev mode to test the Embed snippet:
+
 ```bash
 yarn run dev
 ```
+
 This will serve the `index.html` from `public` folder and open up http://localhost:5678.
 Modify the `chatflowid` and `apiHost` in the `index.html`:
+
 - chatflowid: The identifier from your CHATFLOW_X configuration
 - apiHost: Proxy server URL
 
 ```html
 <script type="module">
-    import Chatbot from 'http://localhost:5678/web.js'
-    Chatbot.init({
-        chatflowid: 'agent1',
-        apiHost: 'http://localhost:3001',
-        chatflowConfig: {
-            // ...
-        },
-        theme: {
-            // ...
-        }
-    })
+  import Chatbot from 'http://localhost:5678/web.js';
+  Chatbot.init({
+    chatflowid: 'agent1',
+    apiHost: 'http://localhost:3001',
+    chatflowConfig: {
+      // ...
+    },
+    theme: {
+      // ...
+    },
+  });
 </script>
 ```
 
@@ -247,23 +253,24 @@ and for full page:
 ```html
 <flowise-fullchatbot></flowise-fullchatbot>
 <script type="module">
-    import Chatbot from 'http://localhost:5678/web.js'
-    Chatbot.initFull({
-        chatflowid: 'agent1',
-        apiHost: 'http://localhost:3001',
-        chatflowConfig: {
-            // ...
-        },
-        theme: {
-            // ...
-        }
-    })
+  import Chatbot from 'http://localhost:5678/web.js';
+  Chatbot.initFull({
+    chatflowid: 'agent1',
+    apiHost: 'http://localhost:3001',
+    chatflowConfig: {
+      // ...
+    },
+    theme: {
+      // ...
+    },
+  });
 </script>
 ```
 
 ### CHATFLOWS Configuration
 
 Configure which websites can embed your chatbots using numbered CHATFLOW entries:
+
 ```env
 # Format: CHATFLOW_[NUMBER]=[identifier]:[chatflowId],[allowedDomain]
 # Examples:
@@ -272,13 +279,15 @@ CHATFLOW_2=agent2:1c28f529-a70f-5001-9bc5-4f4c5d03d8c0,https://example2.com,http
 ```
 
 Each configuration follows this format:
+
 - `identifier`: Your chosen name for the chatbot (used in the embed code as identifier/proxy)
 - `chatflowId`: Your real Flowise chatflow ID
 - `allowedDomain`: Domain(s) where this chat can be embedded
 
 **Important Notes:**
+
 - You must specify which websites can embed each chatbot
-- Wildcard domains (*) are not supported for security reasons
+- Wildcard domains (\*) are not supported for security reasons
 
 ### Cloud Deployment Requirements
 
@@ -289,6 +298,7 @@ API_HOST=https://your-flowise-instance.com
 FLOWISE_API_KEY=your-api-key
 CHATFLOW_1=agent1:your-chatflow-id,https://your-allowed-domain.com
 ```
+
 ## License
 
 Source code in this repository is made available under the [MIT License](https://github.com/FlowiseAI/Flowise/blob/master/LICENSE.md).
