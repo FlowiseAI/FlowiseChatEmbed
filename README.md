@@ -42,7 +42,7 @@ yarn build
 
 ```html
 <script type="module">
-  import Chatbot from './web.js';
+  import Chatbot from 'https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js';
   Chatbot.initFull({
     chatflowid: '<chatflowid>',
     apiHost: 'http://localhost:3000',
@@ -56,7 +56,7 @@ To enable full screen, add `margin: 0` to <code>body</code> style, and confirm y
 ```html
 <body style="margin: 0">
   <script type="module">
-    import Chatbot from './web.js';
+    import Chatbot from 'https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js';
     Chatbot.initFull({
       chatflowid: '<chatflowid>',
       apiHost: 'http://localhost:3000',
@@ -186,9 +186,11 @@ You can also customize chatbot with different configuration
 </script>
 ```
 
-## Proxy Server Setup
+## (Experimental) Proxy Server Setup
 
 The Flowise Embed Proxy Server enhances the security of your chatbot implementation by acting as a protective intermediary layer. This server eliminates the need to expose sensitive Flowise instance details in your frontend code and provides several key security benefits:
+
+![Proxy Server](https://github.com/FlowiseAI/FlowiseChatEmbed/blob/main/images/proxyserver.png?raw=true)
 
 - **Enhanced Security**: Conceals your Flowise API host and chatflow IDs from client-side exposure
 - **Access Control**: Implements strict domain-based restrictions for chatbot embedding
@@ -209,31 +211,27 @@ CHATFLOW_1=agent1:50db97c6-64c9-4333-bab4-7d6202171602,https://example1.com # Fo
 CHATFLOW_2=agent2:3c28f529-a70f-4459-9bc5-4f4c5d03d8c8,https://example2.com,https://another-example2.com # Format: CHATFLOW_[NUMBER]=[identifier]:[chatflowId],[allowedDomain,...]
 ```
 
-(Optional) For local testing, you can use the public/index.html file to test the chatbot:
-```html
-<script type="module">
-    import Chatbot from './web.js'
-    Chatbot.init({
-        chatflowid: 'your-identifier-here',  // The identifier from your CHATFLOW_X configuration
-        apiHost: window.location.origin,
-        }
-    })
-</script>
-```
-
-2. Start server:
+2. Start proxy server:
 ```bash
-yarn install
-yarn start
+yarn run proxy
 ```
+By default, it will be available on http://localhost:3001
 
-3. Once server is running, you will be able to use the native Flowise Embed snippet on any website without exposing your Flowise instance details. Instead of using your Flowise instance details, use the proxy server details:
+3. Open another terminal and start dev mode to test the Embed snippet:
+```bash
+yarn run dev
+```
+This will serve the `index.html` from `public` folder and open up http://localhost:5678.
+Modify the `chatflowid` and `apiHost` in the `index.html`:
+- chatflowid: The identifier from your CHATFLOW_X configuration
+- apiHost: Proxy server URL
+
 ```html
 <script type="module">
-    import Chatbot from 'https://your-server-url/web.js'
+    import Chatbot from 'http://localhost:5678/web.js'
     Chatbot.init({
-        chatflowid: 'your-identifier-here', // The identifier from your CHATFLOW_X configuration
-        apiHost: 'https://your-server-url',
+        chatflowid: 'agent1',
+        apiHost: 'http://localhost:3001',
         chatflowConfig: {
             // ...
         },
@@ -249,10 +247,10 @@ and for full page:
 ```html
 <flowise-fullchatbot></flowise-fullchatbot>
 <script type="module">
-    import Chatbot from 'https://your-server-url/web.js'
+    import Chatbot from 'http://localhost:5678/web.js'
     Chatbot.initFull({
-        chatflowid: 'your-identifier-here', // The identifier from your CHATFLOW_X configuration
-        apiHost: 'https://your-server-url',
+        chatflowid: 'agent1',
+        apiHost: 'http://localhost:3001',
         chatflowConfig: {
             // ...
         },
@@ -282,9 +280,9 @@ Each configuration follows this format:
 - You must specify which websites can embed each chatbot
 - Wildcard domains (*) are not supported for security reasons
 
-## Cloud Deployment Requirements
+### Cloud Deployment Requirements
 
-When deploying to cloud platforms, you must configure the following environment variables. The server will not start without these variables being properly set:
+When deploying to cloud platforms, you must configure the following environment variables. The proxy server will not start without these variables being properly set:
 
 ```env
 API_HOST=https://your-flowise-instance.com

@@ -23,7 +23,7 @@ export function generateEmbedScript(serverUrl) {
   const envContext = serverUrl.includes('localhost') ? 'Development' : 'Production';
   
   console.log('\n\x1b[35m%s\x1b[0m', `=== ${envContext} Environment ===`);
-  console.log('\x1b[90m%s\x1b[0m', `Server URL: ${serverUrl}`);
+  console.log('\x1b[90m%s\x1b[0m', `Proxy Server URL: ${serverUrl}`);
 
   console.log('\n\x1b[36m%s\x1b[0m', '=== Popup Chat Embed Script ===');
   console.log('\x1b[33m%s\x1b[0m', scriptPopup);
