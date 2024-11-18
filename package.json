@@ -6,15 +6,14 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "rollup --watch --config rollup.config.js",
-    "build": "rollup --config rollup.config.js",
+    "dev": "cross-env NODE_ENV=development rollup --watch --config rollup.config.js",
+    "build": "cross-env NODE_ENV=production rollup --config rollup.config.js",
     "lint": "eslint \"src/**/*.ts*\"",
     "lint-fix": "eslint --fix \"src/**/*.ts*\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,mdx}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md,mdx}\"",
     "prepare": "husky install",
-    "serve": "node server.js",
-    "start": "rollup -c && node server.js"
+    "proxy": "node server.js"
   },
   "license": "MIT",
   "dependencies": {
@@ -23,6 +22,7 @@
     "@ts-stack/markdown": "^1.4.0",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "device-detector-js": "^3.0.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",

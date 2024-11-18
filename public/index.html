@@ -1,6 +1,6 @@
 <!--
   NOTE: This .html file (and public folder) is optional and can be safely deleted.
-  It serves only as a demo/test page and is not required for the proxy server to function.
+  It serves only as a demo/test page.
   
   The chatbot can be embedded directly on any allowed domain using the embed script that
   is generated when starting the server. Example embed code:
@@ -18,14 +18,12 @@
 <body>
     <div id="root"></div>
     <script type="module">
-        import Chatbot from './web.js'
+        import Chatbot from 'http://localhost:5678/web.js'
         Chatbot.init({
-            chatflowid: 'your-identifier-here', // replace "your-identifier-here" with your flow name set in .env
-            apiHost: window.location.origin,
-            overrideConfig: {
-            },
-            theme: {
-            }
+            chatflowid: 'fe1145fa-1b2b-45b7-b2ba-bcc5aaeb5ffa', // replace with chatflowid. If proxy server is running, replace with your identifier name set in .env
+            apiHost: 'http://localhost:3000', // replace with your Flowise server URL (i.e: http://localhost:3000). If proxy server is running, replace with your proxy URL (i.e: http://localhost:3001)
+            overrideConfig: {},
+            theme: {}
         })
     </script>
 </body>
