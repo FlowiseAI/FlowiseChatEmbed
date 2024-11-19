@@ -234,17 +234,10 @@ agent1=xyz789-uvw456,https://sales.example.com
 helpdesk=ghi123-jkl456,https://help.example.com,https://support.example.com
 ```
 
-2. Update `public/index.html` configuration:
+2. Install dependencies: (assuming you did not run `yarn install` yet)
 
-```html
-<!-- public/index.html -->
-<script type="module">
-  import Chatbot from './web.js';
-  Chatbot.init({
-    chatflowid: 'support', // Must match an identifier from your .env (e.g., 'support', 'agent1')
-    apiHost: window.location.origin,
-  });
-</script>
+```bash
+yarn install
 ```
 
 3. Start proxy server:
@@ -256,10 +249,31 @@ yarn start
 # - Cloud:  [Your Platform URL] (e.g., https://your-app.herokuapp.com)
 ```
 
+4. Once the proxy server is running in production, you will be able to embed your chatbots safely without exposing your Flowise API host and chatflow IDs as below:
+
+```html
+<script type="module">
+  import Chatbot from 'your-proxy-server-url/web.js'; // Must be 'your-proxy-server-url/web.js'
+  Chatbot.init({
+    chatflowid: 'your-identifier-here', // Must match an identifier from your .env
+    apiHost: 'your-proxy-server-url', // Must match the URL of your proxy server
+    chatflowConfig: {
+      // ...
+    },
+  });
+</script>
+```
+
+5. (optional) If you want to test any identifier in public/index.html, you can update it as below:
+
+```html
+<!-- public/index.html -->
+  chatflowid: 'your-identifier-here' // Must match an identifier from your .env
+```
+
 **Important Notes:**
 
 - You must specify which websites can embed each chatbot
-- Development URL (http://localhost:5678) is automatically allowed in non-production environments
 - Wildcard domains (\*) are not supported for security reasons
 - Identifiers are case-insensitive (e.g., 'Support' and 'support' are treated the same)
 
