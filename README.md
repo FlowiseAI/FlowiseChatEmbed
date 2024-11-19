@@ -6,7 +6,7 @@ Javascript library to display flowise chatbot on your website
 
 ![Flowise](https://github.com/FlowiseAI/FlowiseChatEmbed/blob/main/images/ChatEmbed.gif?raw=true)
 
-1. Install:
+Install:
 
 ```bash
 yarn install
@@ -23,15 +23,15 @@ A development server will be running on http://localhost:5678 automatically. Upd
 ```html
 <!-- public/index.html -->
 <script type="module">
-  import Chatbot from 'https://localhost:5678/web.js'
+  import Chatbot from 'https://localhost:5678/web.js'; // Change to from './web.js' to 'https://localhost:5678/web.js'
   Chatbot.init({
-    chatflowid: '91e9c803-5169-4db9-8207-3c0915d71c5f',  // Your actual Flowise chatflow UUID
-    apiHost: 'https://your-flowise-instance.com'          // Your actual Flowise instance URL
-  })
+    chatflowid: '91e9c803-5169-4db9-8207-3c0915d71c5f', // Add your Flowise chatflowid
+    apiHost: 'https://your-flowise-instance.com', // Add your Flowise apiHost
+  });
 </script>
 ```
 
-3. Build:
+Build:
 
 ```bash
 yarn build
@@ -215,6 +215,7 @@ This proxy server can be deployed to any Node.js hosting platform.
 ## Quick Start
 
 1. Configure environment:
+
 ```bash
 # Copy .env.example to .env and configure required settings:
 API_HOST=https://your-flowise-instance.com
@@ -234,18 +235,20 @@ helpdesk=ghi123-jkl456,https://help.example.com,https://support.example.com
 ```
 
 2. Update `public/index.html` configuration:
+
 ```html
 <!-- public/index.html -->
 <script type="module">
-  import Chatbot from './web.js'
+  import Chatbot from './web.js';
   Chatbot.init({
-    chatflowid: 'support',    // Must match an identifier from your .env (e.g., 'support', 'agent1')
-    apiHost: window.location.origin
-  })
+    chatflowid: 'support', // Must match an identifier from your .env (e.g., 'support', 'agent1')
+    apiHost: window.location.origin,
+  });
 </script>
 ```
 
 3. Start proxy server:
+
 ```bash
 yarn start
 # Server will be available at:
@@ -254,30 +257,22 @@ yarn start
 ```
 
 **Important Notes:**
+
 - You must specify which websites can embed each chatbot
 - Development URL (http://localhost:5678) is automatically allowed in non-production environments
-- Wildcard domains (*) are not supported for security reasons
+- Wildcard domains (\*) are not supported for security reasons
 - Identifiers are case-insensitive (e.g., 'Support' and 'support' are treated the same)
-
 
 ## Cloud Deployment Requirements
 
 When deploying to cloud platforms, you must configure the environment variables directly in your platform. The proxy server will not start without these variables being properly set. Compatible with Nixpacks for automatic deployment configuration.
 
-## Development Mode Testing
+## Development Mode (For Local Testing)
 
-1. Configure your environment variables:
-```bash
-# Copy .env.example to .env and configure:
-API_HOST=https://your-flowise-instance.com
-FLOWISE_API_KEY=your-api-key
-
-# Add your chatflow configurations
-support=abc123-def456,https://example.com
-agent1=xyz789-uvw456,https://sales.example.com
-```
+1. Configure your environment variables (see above)
 
 2. Start the proxy server:
+
 ```bash
 yarn start
 # Server will be available at:
@@ -285,45 +280,48 @@ yarn start
 ```
 
 3. Update the test page configuration:
+
 - Open `public/index.html` in your code editor
 - Modify the `chatflowid` and `apiHost` to match your `.env` settings:
 
 ```html
 <!-- public/index.html -->
 <script type="module">
-  import Chatbot from './web.js'
+  import Chatbot from './web.js';
   Chatbot.init({
-    chatflowid: 'agent1',    // Must match an identifier from your .env
-    apiHost: 'http://localhost:3001'  // Change this to http://localhost:3001
-  })
-</script>
-```
-
-For full page testing, use this configuration instead:
-```html
-<!-- public/index.html -->
-<flowise-fullchatbot></flowise-fullchatbot>
-<script type="module">
-  import Chatbot from './web.js'
-  Chatbot.initFull({
-    chatflowid: 'agent1',    // Must match an identifier from your .env
-    apiHost: 'http://localhost:3001'  // Change this to http://localhost:3001
+    chatflowid: 'agent1', // Must match an identifier from your .env
+    apiHost: 'http://localhost:3001', // Change this from window.location.origin to 'http://localhost:3001'
   });
 </script>
 ```
 
-4. Start the development server:
+For full page testing, use this configuration instead:
+
+```html
+<!-- public/index.html -->
+<flowise-fullchatbot></flowise-fullchatbot>
+<script type="module">
+  import Chatbot from './web.js';
+  Chatbot.initFull({
+    chatflowid: 'agent1', // Must match an identifier from your .env
+    apiHost: 'http://localhost:3001', // Change this from window.location.origin to 'http://localhost:3001'
+  });
+</script>
+```
+
+4. While the proxy server is running, open a new terminal and start the development server:
+
 ```bash
 yarn dev
 # This will serve the test page on http://localhost:5678 automatically
 ```
 
 5. Test the chatbot:
+
 - Navigate to http://localhost:5678
 - The chatbot should now be visible and functional
-- Test both popup and full page versions by modifying `index.html` as needed
 
-**Note:** The development URL (http://localhost:5678) is automatically added to allowed domains in development mode.
+**Note:** The development URL (http://localhost:5678) is automatically added to allowed domains in development mode. You don't need to add it manually.
 
 ## License
 
