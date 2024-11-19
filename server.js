@@ -32,36 +32,48 @@ if (!FLOWISE_API_KEY) {
 const parseChatflows = () => {
   try {
     const chatflows = new Map();
-    const chatflowVars = Object.entries(process.env).filter(([key]) => key.startsWith('CHATFLOW_'));
+    
+    // Get all environment variables that don't start with special prefixes
+    const chatflowVars = Object.entries(process.env).filter(([key]) => {
+      return !key.startsWith('_') && 
+             !key.startsWith('npm_') && 
+             !key.startsWith('yarn_') && 
+             !key.startsWith('VSCODE_') && 
+             key !== 'API_HOST' && 
+             key !== 'FLOWISE_API_KEY' &&
+             key !== 'PORT' &&
+             key !== 'HOST' &&
+             key !== 'BASE_URL' &&
+             key !== 'NODE_ENV';
+    });
 
     if (chatflowVars.length === 0) {
-      console.error('No CHATFLOW_* configurations found in environment variables');
+      console.error('No chatflow configurations found in environment variables');
       process.exit(1);
     }
 
-    for (const [key, value] of chatflowVars) {
-      const [identifier, ...rest] = value.split(':');
-      const restJoined = rest.join(':');
-      if (!identifier || !restJoined) {
-        console.error(`Invalid format for ${key}. Expected format: agent:id,domain1,domain2`);
-        continue;
-      }
+    const defaultDomains = process.env.NODE_ENV === 'production' 
+      ? [] 
+      : ['http://localhost:5678'];
 
-      const parts = restJoined.split(',').map((s) => s.trim());
+    for (const [identifier, value] of chatflowVars) {
+      const parts = value.split(',').map(s => s.trim());
       const chatflowId = parts[0];
-      const domains = parts.length > 1 ? parts.slice(1) : [];
+      const configuredDomains = parts.length > 1 ? parts.slice(1) : [];
+      
+      const domains = [...new Set([...defaultDomains, ...configuredDomains])];
 
       if (!chatflowId) {
-        console.error(`Missing chatflow ID for ${key}`);
+        console.error(`Missing chatflow ID for ${identifier}`);
         continue;
       }
 
       if (domains.includes('*')) {
-        console.error(`\x1b[31mError: Wildcard (*) domains are not allowed in ${key}. This flow (${identifier}) will not be accessible.\x1b[0m`);
+        console.error(`\x1b[31mError: Wildcard (*) domains are not allowed in ${identifier}. This flow will not be accessible.\x1b[0m`);
         continue;
       }
 
-      chatflows.set(identifier.trim(), { chatflowId, domains });
+      chatflows.set(identifier, { chatflowId, domains });
     }
 
     if (chatflows.size === 0) {
@@ -71,7 +83,7 @@ const parseChatflows = () => {
 
     return chatflows;
   } catch (error) {
-    console.error('Failed to parse CHATFLOW_* configurations:', error);
+    console.error('Failed to parse chatflow configurations:', error);
     process.exit(1);
   }
 };
@@ -79,16 +91,41 @@ const parseChatflows = () => {
 const chatflows = parseChatflows();
 
 const getChatflowDetails = (identifier) => {
-  const chatflow = chatflows.get(identifier);
+
+  let chatflow = chatflows.get(identifier);
+  
+  if (!chatflow) {
+    const lowerIdentifier = identifier.toLowerCase();
+    for (const [key, value] of chatflows.entries()) {
+      if (key.toLowerCase() === lowerIdentifier) {
+        chatflow = value;
+        break;
+      }
+    }
+  }
+  
   if (!chatflow) {
     throw new Error(`Chatflow not found: ${identifier}`);
   }
   return chatflow;
 };
 
+const isValidUUID = (str) => {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidPattern.test(str);
+};
+
+const isValidChatflowConfig = (value) => {
+  if (!value) return false;
+  const parts = value.split(',').map(s => s.trim());
+  return isValidUUID(parts[0]); 
+};
+
 console.info('\x1b[36m%s\x1b[0m', 'Configured chatflows:');
 chatflows.forEach((config, identifier) => {
-  console.info('\x1b[36m%s\x1b[0m', `  ${identifier}: ${config.chatflowId} (${config.domains.join(', ')})`);
+  if (isValidChatflowConfig(config.chatflowId)) {
+    console.info('\x1b[36m%s\x1b[0m', `  ${identifier}: ${config.chatflowId} (${config.domains.join(', ')})`);
+  }
 });
 
 const isValidDomain = (origin, domains) => {
@@ -356,6 +393,10 @@ const server = app.listen(PORT, HOST, () => {
   const addr = server.address();
   if (!addr || typeof addr === 'string') return;
 
-  const baseUrl = process.env.BASE_URL || `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${addr.port}`;
+  const baseUrl = process.env.BASE_URL || 
+                 process.env.NODE_ENV === 'production' 
+                   ? `https://${process.env.HOST || 'localhost'}`
+                   : `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${addr.port}`;
+  
   generateEmbedScript(baseUrl);
 });
