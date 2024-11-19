@@ -3,7 +3,7 @@
   It serves only as a demo/test page.
   
   The chatbot can be embedded directly on any allowed domain using the embed script that
-  is generated when starting the server. Example embed code:
+  is generated when starting the server.
 -->
 
 <!DOCTYPE html>
@@ -18,12 +18,18 @@
 <body>
     <div id="root"></div>
     <script type="module">
-        import Chatbot from 'http://localhost:5678/web.js'
+        import Chatbot from './web.js'
+        
+        // Example initialization:
+        // If your .env contains:
+        // agent1=xyz789-uvw456,https://example.com
+        // support=abc123-def456,https://example.com
+        // salesbot=ghi123-jkl456,https://example.com
+        //
+        // Then use the environment variable name as chatflowid:
         Chatbot.init({
-            chatflowid: 'fe1145fa-1b2b-45b7-b2ba-bcc5aaeb5ffa', // replace with chatflowid. If proxy server is running, replace with your identifier name set in .env
-            apiHost: 'http://localhost:3000', // replace with your Flowise server URL (i.e: http://localhost:3000). If proxy server is running, replace with your proxy URL (i.e: http://localhost:3001)
-            overrideConfig: {},
-            theme: {}
+            chatflowid: 'agent1',    // or 'support', 'salesbot', etc.
+            apiHost: window.location.origin
         })
     </script>
 </body>

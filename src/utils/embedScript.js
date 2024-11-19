@@ -3,9 +3,7 @@ export function generateEmbedScript(serverUrl) {
   import Chatbot from '${serverUrl}/web.js'
   Chatbot.init({
       chatflowid: 'your-identifier-here',
-      apiHost: '${serverUrl}',
-      chatflowConfig: {},
-      theme: {}
+      apiHost: '${serverUrl}'
   })
 </script>`;
 
@@ -14,9 +12,7 @@ export function generateEmbedScript(serverUrl) {
   import Chatbot from '${serverUrl}/web.js'
   Chatbot.initFull({
       chatflowid: 'your-identifier-here',
-      apiHost: '${serverUrl}',
-      chatflowConfig: {},
-      theme: {}
+      apiHost: '${serverUrl}'
   })
 </script>`;
 
