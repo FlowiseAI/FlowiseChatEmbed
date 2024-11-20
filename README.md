@@ -137,6 +137,7 @@ You can also customize chatbot with different configuration
       disclaimer: {
         title: 'Disclaimer',
         message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+        buttonText: 'Start Chatting',
       },
       chatWindow: {
         showTitle: true,
