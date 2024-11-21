@@ -138,6 +138,7 @@ You can also customize chatbot with different configuration
         title: 'Disclaimer',
         message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
       },
+      customCSS: '', // Add custom CSS styles. Use !important to override default styles
       chatWindow: {
         showTitle: true,
         showAgentMessages: true,
