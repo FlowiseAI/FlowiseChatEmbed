@@ -45,6 +45,9 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
 
   return (
     <>
+      <Show when={props.theme?.customCSS}>
+        <style>{props.theme?.customCSS}</style>
+      </Show>
       <style>{styles}</style>
       <Show when={isBotDisplayed()}>
         <div
