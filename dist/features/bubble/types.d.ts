@@ -92,7 +92,12 @@ export type autoWindowOpenTheme = {
 export type DisclaimerPopUpTheme = {
     title?: string;
     message?: string;
+    textColor?: string;
+    buttonColor?: string;
+    buttonTextColor?: string;
     buttonText?: string;
+    blurredBackgroundColor?: string;
+    backgroundColor?: string;
 };
 export type DateTimeToggleTheme = {
     date?: boolean;
