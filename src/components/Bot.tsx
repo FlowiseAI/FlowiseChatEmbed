@@ -1629,7 +1629,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           onAccept={handleDisclaimerAccept}
           title={props.disclaimer?.title}
           message={props.disclaimer?.message}
+          textColor={props.disclaimer?.textColor}
+          buttonColor={props.disclaimer?.buttonColor}
           buttonText={props.disclaimer?.buttonText}
+          buttonTextColor={props.disclaimer?.buttonTextColor}
+          blurredBackgroundColor={props.disclaimer?.blurredBackgroundColor}
+          backgroundColor={props.disclaimer?.backgroundColor}
         />
       )}
     </>
