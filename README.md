@@ -144,6 +144,7 @@ You can also customize chatbot with different configuration
         blurredBackgroundColor: 'rgba(0, 0, 0, 0.4)', //The color of the blurred background that overlays the chat interface
         backgroundColor: 'white',
       },
+      customCSS: '', // Add custom CSS styles. Use !important to override default styles
       chatWindow: {
         showTitle: true,
         showAgentMessages: true,

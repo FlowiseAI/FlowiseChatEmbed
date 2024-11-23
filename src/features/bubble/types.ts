@@ -7,6 +7,7 @@ export type BubbleTheme = {
   button?: ButtonTheme;
   tooltip?: ToolTipTheme;
   disclaimer?: DisclaimerPopUpTheme;
+  customCSS?: string;
 };
 
 export type TextInputTheme = {
