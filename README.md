@@ -144,7 +144,7 @@ You can also customize chatbot with different configuration
         blurredBackgroundColor: 'rgba(0, 0, 0, 0.4)', //The color of the blurred background that overlays the chat interface
         backgroundColor: 'white',
       },
-      customCSS: '', // Add custom CSS styles. Use !important to override default styles
+      customCSS: ``, // Add custom CSS styles. Use !important to override default styles
       chatWindow: {
         showTitle: true,
         showAgentMessages: true,
@@ -280,7 +280,7 @@ yarn start
 
 **Important Notes:**
 
-- You must specify which websites can embed each chatbot
+- To ensure secure embedding, you must explicitly whitelist the websites authorized to embed each chatbot. This configuration is done within the .env file. Note that this also applies to your server's URL when deployed to a cloud environment, or http://localhost:3001 for local development, if needed you must whitelist it as well.
 - Wildcard domains (\*) are not supported for security reasons
 - Identifiers are case-insensitive (e.g., 'Support' and 'support' are treated the same)
 
