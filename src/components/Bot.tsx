@@ -1126,6 +1126,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       // Only add files
       if (
+        !file.type ||
         !uploadsConfig()
           ?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes)
           .join(',')
@@ -1196,6 +1197,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         // Only add files
         if (
+          !file.type ||
           !uploadsConfig()
             ?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes)
             .join(',')
