@@ -1,5 +1,5 @@
 import { JSX } from 'solid-js/jsx-runtime';
-const defaultButtonColor = '#3B81F6';
+const defaultButtonColor = '#3D61FF';
 export const ClipboardIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

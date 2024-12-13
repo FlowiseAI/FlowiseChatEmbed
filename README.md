@@ -114,7 +114,7 @@ You can also customize chatbot with different configuration
     },
     theme: {
       button: {
-        backgroundColor: '#3B81F6',
+        backgroundColor: '#3D61FF',
         right: 20,
         bottom: 20,
         size: 48, // small | medium | large | number
@@ -169,7 +169,7 @@ You can also customize chatbot with different configuration
           avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/parroticon.png',
         },
         userMessage: {
-          backgroundColor: '#3B81F6',
+          backgroundColor: '#3D61FF',
           textColor: '#ffffff',
           showAvatar: true,
           avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png',
@@ -178,7 +178,7 @@ You can also customize chatbot with different configuration
           placeholder: 'Type your question',
           backgroundColor: '#ffffff',
           textColor: '#303235',
-          sendButtonColor: '#3B81F6',
+          sendButtonColor: '#3D61FF',
           maxChars: 50,
           maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
           autoFocus: true, // If not used, autofocus is disabled on mobile and enabled on desktop. true enables it on both, false disables it on both.

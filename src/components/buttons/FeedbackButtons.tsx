@@ -10,7 +10,7 @@ type RatingButtonProps = {
   rating?: string;
 } & JSX.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const defaultFeedbackColor = '#3B81F6';
+const defaultFeedbackColor = '#3D61FF';
 
 export const CopyToClipboardButton = (props: RatingButtonProps) => {
   return (
@@ -25,7 +25,7 @@ export const CopyToClipboardButton = (props: RatingButtonProps) => {
       title="Copy to clipboard"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <ClipboardIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <ClipboardIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon rotate-180 flex ' + (props.disableIcon ? 'hidden' : '')} />
       </Show>
     </button>
   );
@@ -45,7 +45,7 @@ export const ThumbsUpButton = (props: RatingButtonProps) => {
       title="Thumbs Up"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <ThumbsUpIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <ThumbsUpIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon rotate-180 flex ' + (props.disableIcon ? 'hidden' : '')} />
       </Show>
     </button>
   );
@@ -65,7 +65,7 @@ export const ThumbsDownButton = (props: RatingButtonProps) => {
       title="Thumbs Down"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <ThumbsDownIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <ThumbsDownIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon rotate-180 flex ' + (props.disableIcon ? 'hidden' : '')} />
       </Show>
     </button>
   );

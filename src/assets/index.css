@@ -13,7 +13,7 @@
   --chatbot-host-bubble-bg-color: #f7f8ff;
   --chatbot-host-bubble-color: #303235;
 
-  --chatbot-guest-bubble-bg-color: #3b81f6;
+  --chatbot-guest-bubble-bg-color: #3D61FF;
   --chatbot-guest-bubble-color: #ffffff;
 
   --chatbot-input-bg-color: #ffffff;
@@ -163,18 +163,6 @@ textarea {
 .chatbot-container {
   background-image: var(--chatbot-container-bg-image);
   background-color: var(--chatbot-container-bg-color);
-  font-family:
-    'Open Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol';
 }
 
 .file-annotation-button {
@@ -216,7 +204,7 @@ textarea {
 
 .chatbot-guest-bubble {
   color: var(--chatbot-guest-bubble-color);
-  background-color: #3b81f6;
+  background-color: #3D61FF;
   border-radius: 6px;
 }
 
@@ -238,6 +226,7 @@ textarea {
 }
 
 .chatbot-chat-view {
+  direction: ltr;
   max-width: 800px;
 }
 
