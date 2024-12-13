@@ -275,7 +275,7 @@ yarn start
 
 ```html
 <!-- public/index.html -->
-  chatflowid: 'your-identifier-here' // Must match an identifier from your .env
+chatflowid: 'your-identifier-here' // Must match an identifier from your .env
 ```
 
 **Important Notes:**
