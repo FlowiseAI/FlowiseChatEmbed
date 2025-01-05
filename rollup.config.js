@@ -72,7 +72,7 @@ const configs = [
       format: 'umd',
       name: 'FlowiseEmbed',
     },
-  }
+  },
 ];
 
 export default configs;
