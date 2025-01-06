@@ -142,6 +142,8 @@ export type BotProps = {
   showAgentMessages?: boolean;
   title?: string;
   titleAvatarSrc?: string;
+  titleTextColor?: string;
+  titleBackgroundColor?: string;
   fontSize?: number;
   isFullPage?: boolean;
   footer?: FooterTheme;
@@ -245,6 +247,7 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
 
 const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
+const defaultTitleBackgroundColor = '#3B81F6';
 
 export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
@@ -1397,8 +1400,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           <div
             class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
             style={{
-              background: props.bubbleBackgroundColor,
-              color: props.bubbleTextColor,
+              background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
+              color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
               'border-top-left-radius': props.isFullPage ? '0px' : '6px',
               'border-top-right-radius': props.isFullPage ? '0px' : '6px',
             }}
