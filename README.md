@@ -150,6 +150,8 @@ You can also customize chatbot with different configuration
         showAgentMessages: true,
         title: 'Flowise Bot',
         titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+        titleBackgroundColor: '#3B81F6',
+        titleTextColor: '#ffffff',
         welcomeMessage: 'Hello! This is custom welcome message',
         errorMessage: 'This is a custom error message',
         backgroundColor: '#ffffff',
@@ -275,7 +277,7 @@ yarn start
 
 ```html
 <!-- public/index.html -->
-  chatflowid: 'your-identifier-here' // Must match an identifier from your .env
+chatflowid: 'your-identifier-here' // Must match an identifier from your .env
 ```
 
 **Important Notes:**
