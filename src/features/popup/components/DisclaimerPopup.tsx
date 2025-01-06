@@ -22,8 +22,8 @@ export const DisclaimerPopup = (props: DisclaimerPopupProps) => {
     'textColor',
     'buttonColor',
     'buttonText',
-    'buttonTextColor',    
-    'blurredBackgroundColor',    
+    'buttonTextColor',
+    'blurredBackgroundColor',
     'backgroundColor',
   ]);
 
@@ -35,18 +35,21 @@ export const DisclaimerPopup = (props: DisclaimerPopupProps) => {
     <Show when={popupProps.isOpen}>
       <div
         class="fixed inset-0 rounded-lg flex items-center justify-center backdrop-blur-sm z-50"
-        style={{ background: popupProps.blurredBackgroundColor || 'rgba(0, 0, 0, 0.4)' }} 
+        style={{ background: popupProps.blurredBackgroundColor || 'rgba(0, 0, 0, 0.4)' }}
       >
-        <div class="p-10 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans" 
-          style={{ background: popupProps.backgroundColor || 'white', color: popupProps.textColor || 'black' }}>
-          <h2 class="text-2xl font-semibold mb-4 flex justify-center items-center">
-            {popupProps.title ?? 'Disclaimer'}
-          </h2>
+        <div
+          class="p-10 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans"
+          style={{ background: popupProps.backgroundColor || 'white', color: popupProps.textColor || 'black' }}
+        >
+          <h2 class="text-2xl font-semibold mb-4 flex justify-center items-center">{popupProps.title ?? 'Disclaimer'}</h2>
 
           <p
             class="text-gray-700 text-base mb-6"
             style={{ color: popupProps.textColor || 'black' }}
-            innerHTML={popupProps.message ?? 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>.'}
+            innerHTML={
+              popupProps.message ??
+              'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>.'
+            }
           />
 
           <div class="flex justify-center">
