@@ -87,6 +87,8 @@ export type BotProps = {
     showAgentMessages?: boolean;
     title?: string;
     titleAvatarSrc?: string;
+    titleTextColor?: string;
+    titleBackgroundColor?: string;
     fontSize?: number;
     isFullPage?: boolean;
     footer?: FooterTheme;
