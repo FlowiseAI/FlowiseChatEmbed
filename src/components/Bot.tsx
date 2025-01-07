@@ -155,6 +155,7 @@ export type BotProps = {
   disclaimer?: DisclaimerPopUpTheme;
   dateTimeToggle?: DateTimeToggleTheme;
   renderHTML?: boolean;
+  closeBot?: () => void;
 };
 
 export type LeadsConfig = {
@@ -1640,6 +1641,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           buttonTextColor={props.disclaimer?.buttonTextColor}
           blurredBackgroundColor={props.disclaimer?.blurredBackgroundColor}
           backgroundColor={props.disclaimer?.backgroundColor}
+          denyButtonBgColor={props.disclaimer?.denyButtonBgColor}
+          denyButtonText={props.disclaimer?.denyButtonText}
+          onDeny={props.closeBot}
+          isFullPage={props.isFullPage}
         />
       )}
     </>

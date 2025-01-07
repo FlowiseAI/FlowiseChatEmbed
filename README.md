@@ -143,6 +143,8 @@ You can also customize chatbot with different configuration
         buttonTextColor: 'white',
         blurredBackgroundColor: 'rgba(0, 0, 0, 0.4)', //The color of the blurred background that overlays the chat interface
         backgroundColor: 'white',
+        denyButtonText: 'Cancel',
+        denyButtonBgColor: '#ef4444',
       },
       customCSS: ``, // Add custom CSS styles. Use !important to override default styles
       chatWindow: {

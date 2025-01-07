@@ -97,7 +97,7 @@ export const Bubble = (props: BubbleProps) => {
           'background-repeat': 'no-repeat',
           'z-index': 42424242,
           bottom: `${Math.min(buttonPosition().bottom + buttonSize + 10, window.innerHeight - chatWindowBottom)}px`,
-          right: `${Math.min(buttonPosition().right, window.innerWidth - 410)}px`,
+          right: `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
         }}
         class={
           `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
@@ -153,6 +153,7 @@ export const Bubble = (props: BubbleProps) => {
               disclaimer={bubbleProps.theme?.disclaimer}
               dateTimeToggle={bubbleProps.theme?.chatWindow?.dateTimeToggle}
               renderHTML={props.theme?.chatWindow?.renderHTML}
+              closeBot={closeBot}
             />
           </div>
         </Show>
