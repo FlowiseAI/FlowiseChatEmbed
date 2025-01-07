@@ -201,9 +201,6 @@ const validateApiKey = (req, res, next) => {
   const userAgent = req.headers['user-agent'];
   const acceptLanguage = req.headers['accept-language'];
   const accept = req.headers['accept'];
-  const secChUa = req.headers['sec-ch-ua'];
-  const secChUaPlatform = req.headers['sec-ch-ua-platform'];
-  const secChUaMobile = req.headers['sec-ch-ua-mobile'];
   const secFetchMode = req.headers['sec-fetch-mode'];
   const secFetchSite = req.headers['sec-fetch-site'];
 
@@ -211,10 +208,6 @@ const validateApiKey = (req, res, next) => {
     userAgent &&
     acceptLanguage &&
     accept &&
-    secChUa &&
-    secChUaPlatform &&
-    secChUaMobile &&
-    ['?0', '?1'].includes(secChUaMobile) &&
     secFetchMode === 'cors' &&
     secFetchSite &&
     ['same-origin', 'same-site', 'cross-site'].includes(secFetchSite)
