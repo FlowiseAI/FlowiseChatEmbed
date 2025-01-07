@@ -2,33 +2,45 @@ import { Show, splitProps } from 'solid-js';
 
 export type DisclaimerPopupProps = {
   isOpen?: boolean;
+  isFullPage?: boolean; // New prop to indicate full-page mode
   onAccept?: () => void;
+  onDeny?: () => void;
   title?: string;
   message?: string;
   buttonText?: string;
+  denyButtonText?: string;
   blurredBackgroundColor?: string;
   backgroundColor?: string;
   buttonColor?: string;
   textColor?: string;
   buttonTextColor?: string;
+  denyButtonBgColor?: string;
 };
 
 export const DisclaimerPopup = (props: DisclaimerPopupProps) => {
   const [popupProps] = splitProps(props, [
     'onAccept',
+    'onDeny',
     'isOpen',
+    'isFullPage', // New prop
     'title',
     'message',
     'textColor',
     'buttonColor',
     'buttonText',
+    'denyButtonText',
     'buttonTextColor',
+    'denyButtonBgColor',
     'blurredBackgroundColor',
     'backgroundColor',
   ]);
 
   const handleAccept = () => {
     popupProps.onAccept?.();
+  };
+
+  const handleDeny = () => {
+    popupProps.onDeny?.();
   };
 
   return (
@@ -52,7 +64,7 @@ export const DisclaimerPopup = (props: DisclaimerPopupProps) => {
             }
           />
 
-          <div class="flex justify-center">
+          <div class="flex justify-center space-x-4">
             <button
               class="font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
               style={{ background: popupProps.buttonColor || '#3b82f6', color: popupProps.buttonTextColor || 'white' }}
@@ -60,6 +72,17 @@ export const DisclaimerPopup = (props: DisclaimerPopupProps) => {
             >
               {popupProps.buttonText ?? 'Start Chatting'}
             </button>
+
+            {/* Only show the Cancel button if not in full-page mode */}
+            <Show when={!popupProps.isFullPage}>
+              <button
+                class="font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+                style={{ background: popupProps.denyButtonBgColor || '#ef4444', color: popupProps.buttonTextColor || 'white' }}
+                onClick={handleDeny}
+              >
+                {popupProps.denyButtonText ?? 'Cancel'}
+              </button>
+            </Show>
           </div>
         </div>
       </div>
