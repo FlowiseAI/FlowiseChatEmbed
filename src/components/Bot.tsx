@@ -155,7 +155,7 @@ export type BotProps = {
   disclaimer?: DisclaimerPopUpTheme;
   dateTimeToggle?: DateTimeToggleTheme;
   renderHTML?: boolean;
-  closeBot?: () => void
+  closeBot?: () => void;
 };
 
 export type LeadsConfig = {
