@@ -1,6 +1,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 import { babel } from '@rollup/plugin-babel';
+import json from '@rollup/plugin-json';
 import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
 import tailwindcss from 'tailwindcss';
@@ -8,16 +9,20 @@ import typescript from '@rollup/plugin-typescript';
 import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 import commonjs from '@rollup/plugin-commonjs';
 import { uglify } from 'rollup-plugin-uglify';
-//import serve from "rollup-plugin-serve";
-//import livereload from "rollup-plugin-livereload";
+import serve from 'rollup-plugin-serve';
+import livereload from 'rollup-plugin-livereload';
+
+const isDev = process.env.NODE_ENV === 'development';
 
 const extensions = ['.ts', '.tsx'];
 
 const indexConfig = {
+  context: 'this',
   plugins: [
     resolve({ extensions, browser: true }),
     commonjs(),
     uglify(),
+    json(),
     babel({
       babelHelpers: 'bundled',
       exclude: 'node_modules/**',
@@ -35,15 +40,18 @@ const indexConfig = {
     typescript(),
     typescriptPaths({ preserveExtensions: true }),
     terser({ output: { comments: false } }),
-    /* If you want to see the live app
-    serve({
-      open: true,
-      verbose: true,
-      contentBase: ["dist"],
-      host: "localhost",
-      port: 5678,
-    }),
-    livereload({ watch: "dist" }),*/
+    ...(isDev
+      ? [
+          serve({
+            open: true,
+            verbose: true,
+            contentBase: ['dist', 'public'],
+            host: 'localhost',
+            port: 5678,
+          }),
+          livereload({ watch: 'dist' }),
+        ]
+      : []), // Add serve/livereload only in development
   ],
 };
 
