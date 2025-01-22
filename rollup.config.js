@@ -64,6 +64,15 @@ const configs = [
       format: 'es',
     },
   },
+  {
+    ...indexConfig,
+    input: './src/web.ts',
+    output: {
+      file: 'dist/web.umd.js',
+      format: 'umd',
+      name: 'FlowiseEmbed',
+    },
+  },
 ];
 
 export default configs;
