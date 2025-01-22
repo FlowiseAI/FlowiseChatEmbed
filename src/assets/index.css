@@ -200,6 +200,12 @@ textarea {
 .chatbot-host-bubble {
   color: var(--chatbot-host-bubble-color);
   background-color: #f7f8ff;
+  /* force wrapping of long text or links */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  /* ensure it actually wraps instead of running off the screen */
+  white-space: normal;
 }
 
 .chatbot-host-bubble > .bubble-typing {
@@ -218,6 +224,12 @@ textarea {
   color: var(--chatbot-guest-bubble-color);
   background-color: #3b81f6;
   border-radius: 6px;
+  /* force wrapping of long text or links */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  /* ensure it actually wraps instead of running off the screen */
+  white-space: normal;
 }
 
 .chatbot-input,
