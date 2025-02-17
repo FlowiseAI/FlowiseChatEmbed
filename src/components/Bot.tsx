@@ -475,9 +475,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   // Handle errors
-  const handleError = (message = 'Oops! There seems to be an error. Please try again.') => {
+  const handleError = (message = 'Oops! There seems to be an error. Please try again.', preventOverride?: boolean) => {
+    let errMessage = message;
+    if (!preventOverride && props.errorMessage) {
+      errMessage = props.errorMessage;
+    }
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: props.errorMessage || message, type: 'apiMessage' }];
+      const messages: MessageType[] = [...prevMessages, { message: errMessage, type: 'apiMessage' }];
       addChatMessage(messages);
       return messages;
     });
@@ -558,7 +562,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           return; // everything's good
         } else if (response.status === 429) {
           const errMessage = (await response.text()) ?? 'Too many requests. Please try again later.';
-          handleError(errMessage);
+          handleError(errMessage, true);
           throw new Error(errMessage);
         } else if (response.status === 403) {
           const errMessage = (await response.text()) ?? 'Unauthorized';
@@ -750,7 +754,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     try {
       uploads = await handleFileUploads(uploads);
     } catch (error) {
-      handleError('Unable to upload documents');
+      handleError('Unable to upload documents', true);
       return;
     }
 
