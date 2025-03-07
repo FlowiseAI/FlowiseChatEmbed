@@ -76,7 +76,6 @@ export const sendRequest = async <ResponseData>(
   }
 };
 
-
 export const setLocalStorageChatflow = (chatflowid: string, chatId: string, saveObj: Record<string, any> = {}) => {
   const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
   const obj = { ...saveObj };

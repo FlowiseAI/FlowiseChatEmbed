@@ -83,6 +83,17 @@ export const sendMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000'
     onRequest: onRequest,
   });
 
+export const createAttachmentWithFormData = ({ chatflowid, apiHost = 'http://localhost:3000', formData, onRequest }: UpsertRequest) =>
+  sendRequest({
+    method: 'POST',
+    url: `${apiHost}/api/v1/attachments/${chatflowid}/${formData.get('chatId')}`,
+    formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onRequest: onRequest,
+  });
+
 export const upsertVectorStoreWithFormData = ({ chatflowid, apiHost = 'http://localhost:3000', formData, onRequest }: UpsertRequest) =>
   sendRequest({
     method: 'POST',
@@ -111,7 +122,7 @@ export const isStreamAvailableQuery = ({ chatflowid, apiHost = 'http://localhost
 export const sendFileDownloadQuery = ({ apiHost = 'http://localhost:3000', body, onRequest }: MessageRequest) =>
   sendRequest<any>({
     method: 'POST',
-    url: `${apiHost}/api/v1/openai-assistants-file`,
+    url: `${apiHost}/api/v1/openai-assistants-file/download`,
     body,
     type: 'blob',
     onRequest: onRequest,

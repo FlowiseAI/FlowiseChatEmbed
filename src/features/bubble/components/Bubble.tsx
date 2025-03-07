@@ -58,6 +58,9 @@ export const Bubble = (props: BubbleProps) => {
 
   return (
     <>
+      <Show when={props.theme?.customCSS}>
+        <style>{props.theme?.customCSS}</style>
+      </Show>
       <style>{styles}</style>
       <Tooltip
         showTooltip={showTooltip && !isBotOpened()}
@@ -94,7 +97,7 @@ export const Bubble = (props: BubbleProps) => {
           'background-repeat': 'no-repeat',
           'z-index': 42424242,
           bottom: `${Math.min(buttonPosition().bottom + buttonSize + 10, window.innerHeight - chatWindowBottom)}px`,
-          right: `${Math.min(buttonPosition().right, window.innerWidth - 410)}px`,
+          right: `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
         }}
         class={
           `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
@@ -127,6 +130,8 @@ export const Bubble = (props: BubbleProps) => {
               showAgentMessages={bubbleProps.theme?.chatWindow?.showAgentMessages}
               title={bubbleProps.theme?.chatWindow?.title}
               titleAvatarSrc={bubbleProps.theme?.chatWindow?.titleAvatarSrc}
+              titleTextColor={bubbleProps.theme?.chatWindow?.titleTextColor}
+              titleBackgroundColor={bubbleProps.theme?.chatWindow?.titleBackgroundColor}
               welcomeMessage={bubbleProps.theme?.chatWindow?.welcomeMessage}
               errorMessage={bubbleProps.theme?.chatWindow?.errorMessage}
               poweredByTextColor={bubbleProps.theme?.chatWindow?.poweredByTextColor}
@@ -146,6 +151,9 @@ export const Bubble = (props: BubbleProps) => {
               observersConfig={props.observersConfig}
               clearChatOnReload={bubbleProps.theme?.chatWindow?.clearChatOnReload}
               disclaimer={bubbleProps.theme?.disclaimer}
+              dateTimeToggle={bubbleProps.theme?.chatWindow?.dateTimeToggle}
+              renderHTML={props.theme?.chatWindow?.renderHTML}
+              closeBot={closeBot}
             />
           </div>
         </Show>
