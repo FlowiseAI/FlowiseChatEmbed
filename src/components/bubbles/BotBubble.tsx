@@ -335,14 +335,13 @@ export const BotBubble = (props: Props) => {
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
         <div class="flex flex-col justify-start">
-          {props.message.agentFlowExecutedData && Array.isArray(props.message.agentFlowExecutedData) && props.message.agentFlowExecutedData.length > 0 && (
-            <div>
-              <WorkflowTreeView 
-                workflowData={props.message.agentFlowExecutedData}
-                indentationLevel={24}
-              />
-            </div>
-          )}
+          {props.message.agentFlowExecutedData &&
+            Array.isArray(props.message.agentFlowExecutedData) &&
+            props.message.agentFlowExecutedData.length > 0 && (
+              <div>
+                <WorkflowTreeView workflowData={props.message.agentFlowExecutedData} indentationLevel={24} />
+              </div>
+            )}
           {props.showAgentMessages && props.message.agentReasoning && (
             <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
               <summary class="cursor-pointer">

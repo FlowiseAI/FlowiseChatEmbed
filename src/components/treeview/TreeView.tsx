@@ -14,20 +14,20 @@ const TreeViewContext = createContext<TreeViewContextType>({
   expandedItems: [],
   // eslint-disable-next-line
   toggleItem: () => {},
-  isExpanded: () => false
+  isExpanded: () => false,
 });
 
 // Icons for expanded and collapsed states
 const ChevronRight = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
     class="transition-transform duration-200"
   >
@@ -36,15 +36,15 @@ const ChevronRight = () => (
 );
 
 const ChevronDown = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
     class="transition-transform duration-200"
   >
@@ -62,32 +62,30 @@ type TreeViewProps = {
 // TreeView component
 export const TreeView = (props: TreeViewProps) => {
   const [expandedItems, setExpandedItems] = createSignal<string[]>(props.defaultExpanded || []);
-  
+
   const toggleItem = (itemId: string) => {
     setExpandedItems((prev) => {
       if (prev.includes(itemId)) {
-        return prev.filter(id => id !== itemId);
+        return prev.filter((id) => id !== itemId);
       } else {
         return [...prev, itemId];
       }
     });
   };
-  
+
   const isExpanded = (itemId: string) => {
     return expandedItems().includes(itemId);
   };
-  
+
   const contextValue = {
     expandedItems: expandedItems(),
     toggleItem,
-    isExpanded
+    isExpanded,
   };
-  
+
   return (
     <TreeViewContext.Provider value={contextValue}>
-      <div class={`tree-view ${props.class || ''}`}>
-        {props.children}
-      </div>
+      <div class={`tree-view ${props.class || ''}`}>{props.children}</div>
     </TreeViewContext.Provider>
   );
 };
@@ -105,32 +103,30 @@ type TreeItemProps = {
 export const TreeItem = (props: TreeItemProps) => {
   const context = useContext(TreeViewContext);
   const hasChildren = !!props.children;
-  
+
   return (
     <div class="tree-item-root">
-      <div 
-        class="tree-item-content flex items-center py-2 px-1 rounded hover:bg-gray-100 cursor-pointer" 
+      <div
+        class="tree-item-content flex items-center py-2 px-1 rounded hover:bg-gray-100 cursor-pointer"
         onClick={() => hasChildren && context.toggleItem(props.itemId)}
       >
         <div class="tree-item-icon-container mr-1" style={{ visibility: hasChildren ? 'visible' : 'hidden' }}>
           <Dynamic component={context.isExpanded(props.itemId) ? ChevronDown : ChevronRight} />
         </div>
-        
+
         <Show when={props.icon}>
           <div class="tree-item-icon mr-2">{props.icon}</div>
         </Show>
-        
+
         <div class="tree-item-label flex-grow">{props.label}</div>
-        
+
         <Show when={props.endIcon}>
           <div class="tree-item-end-icon">{props.endIcon}</div>
         </Show>
       </div>
-      
+
       <Show when={hasChildren && context.isExpanded(props.itemId)}>
-        <div class="tree-item-children">
-          {props.children}
-        </div>
+        <div class="tree-item-children">{props.children}</div>
       </Show>
     </div>
   );
@@ -144,31 +140,31 @@ type RichTreeViewProps = TreeViewProps & {
 
 export const RichTreeView = (props: RichTreeViewProps) => {
   const [store, setStore] = createStore({
-    selectedItem: "",
-    highlightedItems: props.highlightItems || []
+    selectedItem: '',
+    highlightedItems: props.highlightItems || [],
   });
-  
+
   createEffect(() => {
     if (props.highlightItems) {
       setStore('highlightedItems', props.highlightItems);
     }
   });
-  
+
   const handleNodeSelect = (itemId: string) => {
     setStore('selectedItem', itemId);
     props.onNodeSelect && props.onNodeSelect(itemId);
   };
-  
+
   // Enhanced context with selection functionality
   const enhancedContext = {
     selectedItem: () => store.selectedItem,
     highlightedItems: () => store.highlightedItems,
-    handleNodeSelect
+    handleNodeSelect,
   };
-  
+
   return (
     <TreeView defaultExpanded={props.defaultExpanded} class={props.class}>
       {props.children}
     </TreeView>
   );
-}; 
+};
