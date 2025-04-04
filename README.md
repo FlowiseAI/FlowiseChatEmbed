@@ -146,6 +146,10 @@ You can also customize chatbot with different configuration
         denyButtonText: 'Cancel',
         denyButtonBgColor: '#ef4444',
       },
+      form: {
+        backgroundColor: 'white',
+        textColor: 'black',
+      }
       customCSS: ``, // Add custom CSS styles. Use !important to override default styles
       chatWindow: {
         showTitle: true,
