@@ -26,20 +26,20 @@ const TreeViewContext = createContext<TreeViewContextType>({
   selectItem: () => {},
   isExpanded: () => false,
   isSelected: () => false,
-  isHighlighted: () => false
+  isHighlighted: () => false,
 });
 
 // Icons for expanded and collapsed states
 const ChevronRightIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
     class="transition-transform duration-200"
   >
@@ -48,15 +48,15 @@ const ChevronRightIcon = () => (
 );
 
 const ChevronDownIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
     class="transition-transform duration-200"
   >
@@ -66,15 +66,15 @@ const ChevronDownIcon = () => (
 
 // Default folder icons
 const FolderIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
@@ -82,15 +82,15 @@ const FolderIcon = () => (
 );
 
 const FolderOpenIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2" />
@@ -98,15 +98,15 @@ const FolderOpenIcon = () => (
 );
 
 const FileIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
@@ -134,50 +134,53 @@ type TreeViewState = {
 
 // RichTreeView component
 export const RichTreeView = (props: RichTreeViewProps) => {
-  const mergedProps = mergeProps({ 
-    defaultExpanded: [] as string[],
-    indentationLevel: 16 // Default indentation of 16px
-  }, props);
-  
+  const mergedProps = mergeProps(
+    {
+      defaultExpanded: [] as string[],
+      indentationLevel: 16, // Default indentation of 16px
+    },
+    props,
+  );
+
   const [state, setState] = createStore<TreeViewState>({
     expandedItems: mergedProps.defaultExpanded,
     selectedItem: null,
-    highlightedItems: props.highlightItems || []
+    highlightedItems: props.highlightItems || [],
   });
-  
+
   createEffect(() => {
     if (props.highlightItems) {
       setState('highlightedItems', [...props.highlightItems]);
     }
   });
-  
+
   const toggleItem = (itemId: string) => {
     setState('expandedItems', (prev) => {
       if (prev.includes(itemId)) {
-        return prev.filter(id => id !== itemId);
+        return prev.filter((id) => id !== itemId);
       } else {
         return [...prev, itemId];
       }
     });
   };
-  
+
   const selectItem = (itemId: string) => {
     setState('selectedItem', itemId);
     props.onNodeSelect && props.onNodeSelect(itemId);
   };
-  
+
   const isExpanded = (itemId: string) => {
     return state.expandedItems.includes(itemId);
   };
-  
+
   const isSelected = (itemId: string) => {
     return state.selectedItem === itemId;
   };
-  
+
   const isHighlighted = (itemId: string) => {
     return state.highlightedItems.includes(itemId);
   };
-  
+
   const contextValue = {
     expandedItems: state.expandedItems,
     selectedItem: state.selectedItem,
@@ -186,22 +189,20 @@ export const RichTreeView = (props: RichTreeViewProps) => {
     selectItem,
     isExpanded,
     isSelected,
-    isHighlighted
+    isHighlighted,
   };
-  
+
   // Add a style block for dynamic indentation
   const treeViewStyle = `
     .tree-item-children {
       padding-left: ${mergedProps.indentationLevel}px !important;
     }
   `;
-  
+
   return (
     <TreeViewContext.Provider value={contextValue}>
       <style>{treeViewStyle}</style>
-      <div class={`tree-view ${props.class || ''}`}>
-        {props.children}
-      </div>
+      <div class={`tree-view ${props.class || ''}`}>{props.children}</div>
     </TreeViewContext.Provider>
   );
 };
@@ -222,63 +223,49 @@ export const TreeItem = (props: TreeItemProps) => {
   const context = useContext(TreeViewContext);
   const hasChildren = !!props.children;
   const isLeaf = props.isLeaf !== undefined ? props.isLeaf : !hasChildren;
-  
+
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation();
     context.selectItem(props.itemId);
-    
+
     if (hasChildren) {
       context.toggleItem(props.itemId);
     }
   };
-  
+
   const getDefaultIcon = () => {
     if (isLeaf) {
       return <FileIcon />;
     }
     return <>{context.isExpanded(props.itemId) ? <FolderOpenIcon /> : <FolderIcon />}</>;
   };
-  
+
   return (
     <div class="tree-item-root">
-      <div 
-        class={`tree-item-content flex items-center py-2 px-1 rounded cursor-pointer ${
-          context.isSelected(props.itemId) ? 'selected' : ''
-        } ${
+      <div
+        class={`tree-item-content flex items-center py-2 px-1 rounded cursor-pointer ${context.isSelected(props.itemId) ? 'selected' : ''} ${
           context.isHighlighted(props.itemId) ? 'highlighted' : ''
-        }`} 
+        }`}
         onClick={handleClick}
       >
         <div class="tree-item-icon-container mr-1">
-          {!isLeaf && (
-            <Dynamic component={context.isExpanded(props.itemId) ? ChevronDownIcon : ChevronRightIcon} />
-          )}
+          {!isLeaf && <Dynamic component={context.isExpanded(props.itemId) ? ChevronDownIcon : ChevronRightIcon} />}
         </div>
-        
+
         <div class="tree-item-icon mr-2">
-          {props.icon ? (
-            props.icon
-          ) : (
-            props.expandedIcon && context.isExpanded(props.itemId) ? (
-              props.expandedIcon
-            ) : (
-              getDefaultIcon()
-            )
-          )}
+          {props.icon ? props.icon : props.expandedIcon && context.isExpanded(props.itemId) ? props.expandedIcon : getDefaultIcon()}
         </div>
-        
+
         <div class="tree-item-label flex-grow">{props.label}</div>
-        
+
         <Show when={props.endIcon}>
           <div class="tree-item-end-icon">{props.endIcon}</div>
         </Show>
       </div>
-      
+
       <Show when={hasChildren && context.isExpanded(props.itemId)}>
-        <div class="tree-item-children">
-          {props.children}
-        </div>
+        <div class="tree-item-children">{props.children}</div>
       </Show>
     </div>
   );
-}; 
+};

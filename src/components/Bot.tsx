@@ -7,7 +7,7 @@ import {
   IncomingInput,
   getChatbotConfig,
   FeedbackRatingType,
-  createAttachmentWithFormData
+  createAttachmentWithFormData,
 } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
@@ -70,7 +70,7 @@ type FilePreview = {
 };
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
-type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT' | 'STOPPED'
+type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT' | 'STOPPED';
 
 export type IAgentReasoning = {
   agentName?: string;
@@ -99,12 +99,12 @@ export type IAction = {
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
 export type AgentFlowExecutedData = {
-  nodeLabel: string
-  nodeId: string
-  data: any
-  previousNodeIds: string[]
-  status?: ExecutionState
-}
+  nodeLabel: string;
+  nodeId: string;
+  data: any;
+  previousNodeIds: string[];
+  status?: ExecutionState;
+};
 
 export type MessageType = {
   messageId?: string;
@@ -276,16 +276,10 @@ const FeedbackDialog = (props: {
 }) => {
   return (
     <Show when={props.isOpen}>
-      <div
-        class="fixed inset-0 rounded-lg flex items-center justify-center backdrop-blur-sm z-50"
-        style={{ background: 'rgba(0, 0, 0, 0.4)' }}
-      >
-        <div
-          class="p-6 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans"
-          style={{ background: 'white', color: 'black' }}
-        >
+      <div class="fixed inset-0 rounded-lg flex items-center justify-center backdrop-blur-sm z-50" style={{ background: 'rgba(0, 0, 0, 0.4)' }}>
+        <div class="p-6 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans" style={{ background: 'white', color: 'black' }}>
           <h2 class="text-xl font-semibold mb-4 flex justify-center items-center">Your Feedback</h2>
-          
+
           <textarea
             class="w-full p-2 border border-gray-300 rounded-md mb-4"
             rows={4}
@@ -340,70 +334,77 @@ const FormInputView = (props: {
   };
 
   return (
-    <div 
+    <div
       class="w-full h-full flex flex-col items-center justify-center px-4 py-8 rounded-lg"
       style={{
         'font-family': 'Poppins, sans-serif',
-        "font-size": props.fontSize ? `${props.fontSize}px` : '16px',
+        'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
         background: props.parentBackgroundColor || defaultBackgroundColor,
-        color: props.textColor || defaultTextColor
+        color: props.textColor || defaultTextColor,
       }}
     >
-      <div class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden" style={{
-        'font-family': 'Poppins, sans-serif',
-        "font-size": props.fontSize ? `${props.fontSize}px` : '16px',
-        background: props.backgroundColor || defaultBackgroundColor,
-        color: props.textColor || defaultTextColor
-      }}>
+      <div
+        class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden"
+        style={{
+          'font-family': 'Poppins, sans-serif',
+          'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
+          background: props.backgroundColor || defaultBackgroundColor,
+          color: props.textColor || defaultTextColor,
+        }}
+      >
         <div class="p-6">
           <h2 class="text-xl font-bold mb-2">{props.title}</h2>
-          {props.description && <p class="text-gray-600 mb-6" style={{color: props.textColor || defaultTextColor}}>{props.description}</p>}
-          
+          {props.description && (
+            <p class="text-gray-600 mb-6" style={{ color: props.textColor || defaultTextColor }}>
+              {props.description}
+            </p>
+          )}
+
           <form onSubmit={handleSubmit} class="space-y-4">
             <For each={props.inputParams}>
               {(param) => (
                 <div class="space-y-2">
                   <label class="block text-sm font-medium">{param.label}</label>
-                  
+
                   {param.type === 'string' && (
                     <input
                       type="text"
                       class="w-full px-3 py-2 rounded-md focus:outline-none"
-                      style={{ 
-                        "border": "1px solid #9ca3af",
-                        "border-radius": "0.375rem"
+                      style={{
+                        border: '1px solid #9ca3af',
+                        'border-radius': '0.375rem',
                       }}
-                      onFocus={(e) => e.target.style.border = "1px solid #3b82f6"}
-                      onBlur={(e) => e.target.style.border = "1px solid #9ca3af"}
+                      onFocus={(e) => (e.target.style.border = '1px solid #3b82f6')}
+                      onBlur={(e) => (e.target.style.border = '1px solid #9ca3af')}
                       name={param.name}
                       onInput={(e) => handleInputChange(param.name, e.target.value)}
                       required
                     />
                   )}
-                  
+
                   {param.type === 'number' && (
                     <input
                       type="number"
                       class="w-full px-3 py-2 rounded-md focus:outline-none"
-                      style={{ 
-                        "border": "1px solid #9ca3af",
-                        "border-radius": "0.375rem"
+                      style={{
+                        border: '1px solid #9ca3af',
+                        'border-radius': '0.375rem',
                       }}
-                      onFocus={(e) => e.target.style.border = "1px solid #3b82f6"}
-                      onBlur={(e) => e.target.style.border = "1px solid #9ca3af"}
+                      onFocus={(e) => (e.target.style.border = '1px solid #3b82f6')}
+                      onBlur={(e) => (e.target.style.border = '1px solid #9ca3af')}
                       name={param.name}
                       onInput={(e) => handleInputChange(param.name, parseFloat(e.target.value))}
                       required
                     />
                   )}
-                  
+
                   {param.type === 'boolean' && (
                     <div class="flex items-center">
                       <input
                         type="checkbox"
                         class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
-                        style={{ 
-                          "border": "1px solid #9ca3af",
+                        style={{
+                          border: '1px solid #9ca3af',
                         }}
                         name={param.name}
                         onChange={(e) => handleInputChange(param.name, e.target.checked)}
@@ -411,38 +412,34 @@ const FormInputView = (props: {
                       <span class="ml-2">Yes</span>
                     </div>
                   )}
-                  
+
                   {param.type === 'options' && (
                     <select
                       class="w-full px-3 py-2 rounded-md focus:outline-none"
-                      style={{ 
-                        "border": "1px solid #9ca3af",
-                        "border-radius": "0.375rem"
+                      style={{
+                        border: '1px solid #9ca3af',
+                        'border-radius': '0.375rem',
                       }}
-                      onFocus={(e) => e.target.style.border = "1px solid #3b82f6"}
-                      onBlur={(e) => e.target.style.border = "1px solid #9ca3af"}
+                      onFocus={(e) => (e.target.style.border = '1px solid #3b82f6')}
+                      onBlur={(e) => (e.target.style.border = '1px solid #9ca3af')}
                       name={param.name}
                       onChange={(e) => handleInputChange(param.name, e.target.value)}
                       required
                     >
                       <option value="">Select an option</option>
-                      <For each={param.options}>
-                        {(option) => (
-                          <option value={option.name}>{option.label}</option>
-                        )}
-                      </For>
+                      <For each={param.options}>{(option) => <option value={option.name}>{option.label}</option>}</For>
                     </select>
                   )}
                 </div>
               )}
             </For>
-            
+
             <div class="pt-4">
               <button
                 type="submit"
                 class="w-full py-2 px-4 text-white font-semibold rounded-md focus:outline-none transition duration-300 ease-in-out"
                 style={{
-                  "background-color": props.sendButtonColor || '#3B81F6'
+                  'background-color': props.sendButtonColor || '#3B81F6',
                 }}
               >
                 Submit
@@ -488,17 +485,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [leadEmail, setLeadEmail] = createSignal('');
   const [disclaimerPopupOpen, setDisclaimerPopupOpen] = createSignal(false);
 
-  const [openFeedbackDialog, setOpenFeedbackDialog] = createSignal(false)
-  const [feedback, setFeedback] = createSignal('')
-  const [pendingActionData, setPendingActionData] = createSignal(null)
-  const [feedbackType, setFeedbackType] = createSignal('')
+  const [openFeedbackDialog, setOpenFeedbackDialog] = createSignal(false);
+  const [feedback, setFeedback] = createSignal('');
+  const [pendingActionData, setPendingActionData] = createSignal(null);
+  const [feedbackType, setFeedbackType] = createSignal('');
 
   // start input type
-  const [startInputType, setStartInputType] = createSignal('')
-  const [formTitle, setFormTitle] = createSignal('')
-  const [formDescription, setFormDescription] = createSignal('')
-  const [formInputsData, setFormInputsData] = createSignal({})
-  const [formInputParams, setFormInputParams] = createSignal([])
+  const [startInputType, setStartInputType] = createSignal('');
+  const [formTitle, setFormTitle] = createSignal('');
+  const [formDescription, setFormDescription] = createSignal('');
+  const [formInputsData, setFormInputsData] = createSignal({});
+  const [formInputParams, setFormInputParams] = createSignal([]);
 
   // drag & drop file input
   // TODO: fix this type
@@ -664,16 +661,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateAgentFlowEvent = (event: string) => {
     if (event === 'INPROGRESS') {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }])
+      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
     } else {
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)]
-        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages
-        allMessages[allMessages.length - 1].agentFlowEventStatus = event
-        return allMessages
-      })
+        const allMessages = [...cloneDeep(prevMessages)];
+        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+        allMessages[allMessages.length - 1].agentFlowEventStatus = event;
+        return allMessages;
+      });
     }
-  }
+  };
 
   const updateAgentFlowExecutedData = (agentFlowExecutedData: any) => {
     setMessages((prevMessages) => {
@@ -682,8 +679,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       allMessages[allMessages.length - 1].agentFlowExecutedData = agentFlowExecutedData;
       addChatMessage(allMessages);
       return allMessages;
-    })
-  }
+    });
+  };
 
   const updateLastMessageArtifacts = (artifacts: FileUpload[]) => {
     setMessages((prevMessages) => {
@@ -838,8 +835,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             updateLastMessageAgentReasoning(payload.data);
             break;
           case 'agentFlowEvent':
-            updateAgentFlowEvent(payload.data)
-            break
+            updateAgentFlowEvent(payload.data);
+            break;
           case 'agentFlowExecutedData':
             updateAgentFlowExecutedData(payload.data);
             break;
@@ -989,8 +986,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (typeof value === 'object') {
       formData = value;
       value = Object.entries(value)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join('\n')
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
     }
 
     setLoading(true);
@@ -1026,8 +1023,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     };
 
     if (startInputType() === 'formInput') {
-      body.form = formData
-      delete body.question
+      body.form = formData;
+      delete body.question;
     }
 
     if (uploads && uploads.length > 0) body.uploads = uploads;
@@ -1129,27 +1126,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const onSubmitResponse = (actionData: any, feedback = '', type = '') => {
-    let fbType = feedbackType()
+    let fbType = feedbackType();
     if (type) {
-        fbType = type
+      fbType = type;
     }
-    const question = feedback ? feedback : fbType.charAt(0).toUpperCase() + fbType.slice(1)
+    const question = feedback ? feedback : fbType.charAt(0).toUpperCase() + fbType.slice(1);
     handleSubmit(question, undefined, {
       type: fbType,
       startNodeId: actionData?.nodeId,
-      feedback
-    })
-  }
+      feedback,
+    });
+  };
 
   const handleSubmitFeedback = () => {
-      if (pendingActionData()) {
-          onSubmitResponse(pendingActionData(), feedback())
-          setOpenFeedbackDialog(false)
-          setFeedback('')
-          setPendingActionData(null)
-          setFeedbackType('')
-      }
-  }
+    if (pendingActionData()) {
+      onSubmitResponse(pendingActionData(), feedback());
+      setOpenFeedbackDialog(false);
+      setFeedback('');
+      setPendingActionData(null);
+      setFeedbackType('');
+    }
+  };
 
   const handleActionClick = async (elem: any, action: IAction | undefined | null) => {
     setUserInput(elem.label);
@@ -1164,14 +1161,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return [...updated];
     });
     if (elem.type.includes('agentflowv2')) {
-      const type = elem.type.includes('approve') ? 'proceed' : 'reject'
-      setFeedbackType(type)
+      const type = elem.type.includes('approve') ? 'proceed' : 'reject';
+      setFeedbackType(type);
 
       if (action && action.data && action.data.input && action.data.input.humanInputEnableFeedback) {
-          setPendingActionData(action.data)
-          setOpenFeedbackDialog(true)
+        setPendingActionData(action.data);
+        setOpenFeedbackDialog(true);
       } else if (action) {
-          onSubmitResponse(action.data, '', type)
+        onSubmitResponse(action.data, '', type);
       }
     } else {
       handleSubmit(elem.label, action);
@@ -1280,8 +1277,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.action) chatHistory.action = message.action;
               if (message.artifacts) chatHistory.artifacts = message.artifacts;
               if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
-              if (message.execution && message.execution.executionData) chatHistory.agentFlowExecutedData = typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData
-              if (message.agentFlowExecutedData) chatHistory.agentFlowExecutedData = typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData
+              if (message.execution && message.execution.executionData)
+                chatHistory.agentFlowExecutedData =
+                  typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
+              if (message.agentFlowExecutedData)
+                chatHistory.agentFlowExecutedData =
+                  typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
               return chatHistory;
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
@@ -1312,13 +1313,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const chatbotConfig = result.data;
 
       if (chatbotConfig.flowData) {
-        const nodes = JSON.parse(chatbotConfig.flowData).nodes ?? []
-        const startNode = nodes.find((node: any) => node.data.name === 'startAgentflow')
+        const nodes = JSON.parse(chatbotConfig.flowData).nodes ?? [];
+        const startNode = nodes.find((node: any) => node.data.name === 'startAgentflow');
         if (startNode) {
-          const startInputType = startNode.data.inputs?.startInputType
-          setStartInputType(startInputType)
-  
-          const formInputTypes = startNode.data.inputs?.formInputTypes
+          const startInputType = startNode.data.inputs?.startInputType;
+          setStartInputType(startInputType);
+
+          const formInputTypes = startNode.data.inputs?.formInputTypes;
           /* example:
           "formInputTypes": [
               {
@@ -1356,16 +1357,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           */
           if (startInputType === 'formInput' && formInputTypes && formInputTypes.length > 0) {
             for (const formInputType of formInputTypes) {
-                if (formInputType.type === 'options') {
-                    formInputType.options = formInputType.addOptions.map((option: any) => ({
-                        label: option.option,
-                        name: option.option
-                    }))
-                }
+              if (formInputType.type === 'options') {
+                formInputType.options = formInputType.addOptions.map((option: any) => ({
+                  label: option.option,
+                  name: option.option,
+                }));
+              }
             }
-            setFormInputParams(formInputTypes)
-            setFormTitle(startNode.data.inputs?.formTitle)
-            setFormDescription(startNode.data.inputs?.formDescription)
+            setFormInputParams(formInputTypes);
+            setFormTitle(startNode.data.inputs?.formTitle);
+            setFormDescription(startNode.data.inputs?.formDescription);
           }
         }
       }
@@ -2029,8 +2030,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         <FeedbackDialog
           isOpen={openFeedbackDialog()}
           onClose={() => {
-            setOpenFeedbackDialog(false)
-            handleSubmitFeedback()
+            setOpenFeedbackDialog(false);
+            handleSubmitFeedback();
           }}
           onSubmit={handleSubmitFeedback}
           feedbackValue={feedback()}

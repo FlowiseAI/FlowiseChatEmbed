@@ -31,15 +31,15 @@ const FLOWISE_CREDENTIAL_ID = 'FLOWISE_CREDENTIAL_ID';
 // Recursive function to remove credential IDs from data
 const removeFlowiseCredentialId = (data: any): any => {
   if (!data || typeof data !== 'object') return data;
-  
+
   // Handle arrays
   if (Array.isArray(data)) {
-    return data.map(item => removeFlowiseCredentialId(item));
+    return data.map((item) => removeFlowiseCredentialId(item));
   }
-  
+
   // Clone the object to avoid modifying the original
-  const cleanedData = {...data};
-  
+  const cleanedData = { ...data };
+
   for (const key in cleanedData) {
     if (key === FLOWISE_CREDENTIAL_ID) {
       delete cleanedData[key];
@@ -74,21 +74,21 @@ function syntaxHighlight(json: string) {
         cls = 'null';
       }
       return '<span class="' + cls + '">' + match + '</span>';
-    }
+    },
   );
 }
 
 // Copy icon component
 const CopyIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="16" 
-    height="16" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -98,15 +98,15 @@ const CopyIcon = () => (
 
 // Check icon component
 const CheckIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="16" 
-    height="16" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <polyline points="20 6 9 17 4 12" />
@@ -115,15 +115,15 @@ const CheckIcon = () => (
 
 // Status icon components
 const FinishedIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="#4CAF50" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#4CAF50"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -132,15 +132,15 @@ const FinishedIcon = () => (
 );
 
 const PendingIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="#FFC107" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#FFC107"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <circle cx="12" cy="12" r="10" />
@@ -149,15 +149,15 @@ const PendingIcon = () => (
 );
 
 const RunningIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="#2196F3" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#2196F3"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <circle cx="12" cy="12" r="10" />
@@ -167,15 +167,15 @@ const RunningIcon = () => (
 );
 
 const ErrorIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="#F44336" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#F44336"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <circle cx="12" cy="12" r="10" />
@@ -186,15 +186,15 @@ const ErrorIcon = () => (
 
 // Chevron icons for the collapsible panel
 const ChevronDownIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
     class="transition-transform duration-200"
   >
@@ -203,15 +203,15 @@ const ChevronDownIcon = () => (
 );
 
 const ChevronRightIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
     class="transition-transform duration-200"
   >
@@ -240,15 +240,15 @@ const getStatusIcon = (status: string) => {
 
 // Add a new icon for the STOPPED status
 const StoppedIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="#FF9800" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#FF9800"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
   >
     <circle cx="12" cy="12" r="10" />
@@ -337,15 +337,15 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
       name: node.data?.name,
       status: node.status,
       data: node.data,
-      children: node.children.map(transformNode)
+      children: node.children.map(transformNode),
     });
 
     const transformedNodes = rootNodes.map(transformNode);
-    
+
     // Determine the overall execution status
     const status = getExecutionStatus(transformedNodes);
     setExecutionStatus(status);
-    
+
     return transformedNodes;
   };
 
@@ -353,10 +353,10 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
   onMount(() => {
     const treeNodes = buildTreeData(props.workflowData);
     setTreeData(treeNodes);
-    
+
     // Expand root nodes by default
     if (treeNodes.length > 0) {
-      setExpandedNodes(treeNodes.map(node => node.id));
+      setExpandedNodes(treeNodes.map((node) => node.id));
     }
   });
 
@@ -374,7 +374,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
   const copyToClipboard = async () => {
     const nodeDetails = getSelectedNodeDetails();
     if (!nodeDetails) return;
-    
+
     try {
       await navigator.clipboard.writeText(JSON.stringify(nodeDetails.data || {}, null, 2));
       setCopied(true);
@@ -387,14 +387,8 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
   // Recursive function to render a node and its children
   const renderNode = (node: any) => {
     return (
-      <TreeItem 
-        itemId={node.id}
-        label={node.label}
-        icon={getStatusIcon(node.status)}
-      >
-        {node.children && node.children.length > 0 && 
-          node.children.map((childNode: any) => renderNode(childNode))
-        }
+      <TreeItem itemId={node.id} label={node.label} icon={getStatusIcon(node.status)}>
+        {node.children && node.children.length > 0 && node.children.map((childNode: any) => renderNode(childNode))}
       </TreeItem>
     );
   };
@@ -402,7 +396,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
   // Get selected node details
   const getSelectedNodeDetails = () => {
     if (!selectedNode()) return null;
-    
+
     // Find the node in the tree data
     const findNodeById = (nodes: any[], id: string): any => {
       for (const node of nodes) {
@@ -414,16 +408,16 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
       }
       return null;
     };
-    
+
     const selectedNodeId = selectedNode();
     if (!selectedNodeId) return null;
-    
+
     const node = findNodeById(treeData(), selectedNodeId);
     if (node) {
       return {
         nodeLabel: node.label,
         data: removeFlowiseCredentialId(node.data),
-        status: node.status
+        status: node.status,
       };
     }
     return null;
@@ -437,7 +431,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
   };
 
   return (
-    <div 
+    <div
       class={`mb-2 ml-2 border rounded-lg shadow-sm overflow-hidden ${props.class || ''}`}
       style={{
         'background-color': props.backgroundColor ?? defaultBackgroundColor,
@@ -446,7 +440,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
       }}
     >
       {/* Collapsible header */}
-      <div 
+      <div
         class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors duration-150"
         onClick={togglePanel}
         style={{
@@ -454,9 +448,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
         }}
       >
         <div class="flex items-center space-x-2">
-          <div class="flex-shrink-0">
-            {isPanelExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}
-          </div>
+          <div class="flex-shrink-0">{isPanelExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}</div>
           <h2 class="font-semibold flex items-center">
             {props.title || 'Process Flow'}
             {executionStatus() && (
@@ -467,7 +459,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
           </h2>
         </div>
       </div>
-      
+
       {/* JSON Syntax Highlighting Styles */}
       <style>{`
         .json-viewer .string { color: #7ac35c; }
@@ -476,22 +468,19 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
         .json-viewer .null { color: #a951ad; }
         .json-viewer .key { color: #d73e3e; font-weight: bold; }
       `}</style>
-      
+
       {/* Collapsible content */}
       <Show when={isPanelExpanded()}>
         <div class="border-t">
           <div class="p-4 mb-2">
-            <RichTreeView
-              defaultExpanded={expandedNodes()}
-              onNodeSelect={handleNodeSelect}
-              indentationLevel={props.indentationLevel || 24}
-            >
-              <For each={treeData()}>{rootNode => renderNode(rootNode)}</For>
+            <RichTreeView defaultExpanded={expandedNodes()} onNodeSelect={handleNodeSelect} indentationLevel={props.indentationLevel || 24}>
+              <For each={treeData()}>{(rootNode) => renderNode(rootNode)}</For>
             </RichTreeView>
           </div>
-  
+
           {selectedNode() && (
-            <div class="mx-4 mb-4 p-4 rounded border"
+            <div
+              class="mx-4 mb-4 p-4 rounded border"
               style={{
                 'background-color': 'rgba(0,0,0,0.03)',
               }}
@@ -503,7 +492,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
                     <span class="font-bold">{getSelectedNodeDetails()?.nodeLabel}</span>
                   </h3>
                 </div>
-                <button 
+                <button
                   onClick={copyToClipboard}
                   class="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded hover:bg-gray-100"
                   title="Copy to clipboard"
@@ -511,12 +500,13 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
                   {copied() ? <CheckIcon /> : <CopyIcon />}
                 </button>
               </div>
-              
-              <div class="json-viewer text-xs overflow-auto max-h-60 p-2 rounded font-mono"
+
+              <div
+                class="json-viewer text-xs overflow-auto max-h-60 p-2 rounded font-mono"
                 style={{
                   'background-color': 'rgba(0,0,0,0.05)',
                   'white-space': 'pre-wrap',
-                  'word-break': 'break-word'
+                  'word-break': 'break-word',
                 }}
                 innerHTML={getHighlightedJson()}
               />
@@ -526,4 +516,4 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
       </Show>
     </div>
   );
-}; 
+};
