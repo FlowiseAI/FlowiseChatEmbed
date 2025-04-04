@@ -1,6 +1,7 @@
 import { FileUpload, IAction } from '@/components/Bot';
 export type IncomingInput = {
-    question: string;
+    question?: string;
+    form?: Record<string, unknown>;
     uploads?: FileUpload[];
     overrideConfig?: Record<string, unknown>;
     socketIOClientId?: string;
@@ -8,6 +9,7 @@ export type IncomingInput = {
     fileName?: string;
     leadEmail?: string;
     action?: IAction;
+    humanInput?: Record<string, unknown>;
 };
 type BaseRequest = {
     apiHost?: string;

@@ -28,6 +28,7 @@ type FilePreview = {
     type: string;
 };
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
+type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT' | 'STOPPED';
 export type IAgentReasoning = {
     agentName?: string;
     messages?: string[];
@@ -39,6 +40,7 @@ export type IAgentReasoning = {
 };
 export type IAction = {
     id?: string;
+    data?: any;
     elements?: Array<{
         type: string;
         label: string;
@@ -50,6 +52,13 @@ export type IAction = {
     };
 };
 export type FileUpload = Omit<FilePreview, 'preview'>;
+export type AgentFlowExecutedData = {
+    nodeLabel: string;
+    nodeId: string;
+    data: any;
+    previousNodeIds: string[];
+    status?: ExecutionState;
+};
 export type MessageType = {
     messageId?: string;
     message: string;
@@ -59,6 +68,9 @@ export type MessageType = {
     fileUploads?: Partial<FileUpload>[];
     artifacts?: Partial<FileUpload>[];
     agentReasoning?: IAgentReasoning[];
+    execution?: any;
+    agentFlowEventStatus?: string;
+    agentFlowExecutedData?: any;
     usedTools?: any[];
     action?: IAction | null;
     rating?: FeedbackRatingType;
@@ -73,6 +85,7 @@ export type BotProps = {
     apiHost?: string;
     onRequest?: (request: RequestInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
+    backgroundColor?: string;
     welcomeMessage?: string;
     errorMessage?: string;
     botMessage?: BotMessageTheme;
@@ -89,6 +102,8 @@ export type BotProps = {
     titleAvatarSrc?: string;
     titleTextColor?: string;
     titleBackgroundColor?: string;
+    formBackgroundColor?: string;
+    formTextColor?: string;
     fontSize?: number;
     isFullPage?: boolean;
     footer?: FooterTheme;
