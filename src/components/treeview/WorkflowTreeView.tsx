@@ -368,10 +368,10 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
         const iterationStatus = childNodes.some((n: any) => n.status === 'ERROR')
           ? 'ERROR'
           : childNodes.some((n: any) => n.status === 'INPROGRESS' || n.status === 'RUNNING')
-          ? 'INPROGRESS'
-          : childNodes.every((n: any) => n.status === 'FINISHED')
-          ? 'FINISHED'
-          : 'PENDING';
+            ? 'INPROGRESS'
+            : childNodes.every((n: any) => n.status === 'FINISHED')
+              ? 'FINISHED'
+              : 'PENDING';
 
         // Create the virtual node and add to nodeMap
         const virtualNode = {
@@ -599,7 +599,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
   const renderNode = (node: any) => {
     // Check if this is an iteration node
     const isIterationNode = node.name === 'iterationAgentflow' || node.data?.isVirtualNode;
-    
+
     // Add a special class or icon for iteration nodes
     const nodeLabel = (
       <div class="flex items-center">
@@ -626,20 +626,12 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
         <span class={isIterationNode ? 'iteration-node-label' : ''}>{node.label}</span>
       </div>
     );
-    
+
     // Create a wrapper for the status icon to apply the status-icon class
-    const statusIcon = (
-      <div class="status-icon">
-        {getStatusIcon(node.status)}
-      </div>
-    );
-    
+    const statusIcon = <div class="status-icon">{getStatusIcon(node.status)}</div>;
+
     return (
-      <TreeItem 
-        itemId={node.id} 
-        label={nodeLabel} 
-        icon={statusIcon}
-      >
+      <TreeItem itemId={node.id} label={nodeLabel} icon={statusIcon}>
         {node.children && node.children.length > 0 && node.children.map((childNode: any) => renderNode(childNode))}
       </TreeItem>
     );
@@ -755,11 +747,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
       <Show when={isPanelExpanded()}>
         <div class="border-t">
           <div class="p-4 mb-2">
-            <RichTreeView 
-              defaultExpanded={expandedNodes()} 
-              onNodeSelect={handleNodeSelect} 
-              indentationLevel={props.indentationLevel || 24}
-            >
+            <RichTreeView defaultExpanded={expandedNodes()} onNodeSelect={handleNodeSelect} indentationLevel={props.indentationLevel || 24}>
               <For each={treeData()}>{(rootNode) => renderNode(rootNode)}</For>
             </RichTreeView>
           </div>
