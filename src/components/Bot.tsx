@@ -300,7 +300,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
   const [uploadedFiles, setUploadedFiles] = createSignal<{ file: File; type: string }[]>([]);
-  const [fullFileUploadAllowedTypes, setFullFileUploadAllowedTypes] = createSignal('*')
+  const [fullFileUploadAllowedTypes, setFullFileUploadAllowedTypes] = createSignal('*');
 
   createMemo(() => {
     const customerId = (props.chatflowConfig?.vars as any)?.customerId;
@@ -536,9 +536,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (data.followUpPrompts) {
-      let followUpPrompts = data.followUpPrompts
+      let followUpPrompts = data.followUpPrompts;
       if (typeof followUpPrompts === 'string') {
-        followUpPrompts = JSON.parse(followUpPrompts)
+        followUpPrompts = JSON.parse(followUpPrompts);
       }
       setMessages((prevMessages) => {
         const allMessages = [...cloneDeep(prevMessages)];
@@ -1042,7 +1042,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       if (chatbotConfig.fullFileUpload) {
         setFullFileUpload(chatbotConfig.fullFileUpload.status);
         if (chatbotConfig.fullFileUpload?.allowedUploadFileTypes) {
-          setFullFileUploadAllowedTypes(chatbotConfig.fullFileUpload?.allowedUploadFileTypes)
+          setFullFileUploadAllowedTypes(chatbotConfig.fullFileUpload?.allowedUploadFileTypes);
         }
       }
     }
