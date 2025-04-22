@@ -28,6 +28,7 @@ type TextInputProps = {
   autoFocus?: boolean;
   sendMessageSound?: boolean;
   sendSoundLocation?: string;
+  fullFileUploadAllowedTypes?: string;
   enableInputHistory?: boolean;
   maxHistorySize?: number;
 };
@@ -128,7 +129,7 @@ export const TextInput = (props: TextInputProps) => {
   };
 
   const getFileType = () => {
-    if (props.isFullFileUpload) return '*';
+    if (props.isFullFileUpload) return props.fullFileUploadAllowedTypes === '' ? '*' : props.fullFileUploadAllowedTypes;
     if (props.uploadsConfig?.fileUploadSizeAndTypes?.length) {
       const allowedFileTypes = props.uploadsConfig?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',');
       if (allowedFileTypes.includes('*')) return '*';

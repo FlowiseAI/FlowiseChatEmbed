@@ -300,6 +300,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // drag & drop
   const [isDragActive, setIsDragActive] = createSignal(false);
   const [uploadedFiles, setUploadedFiles] = createSignal<{ file: File; type: string }[]>([]);
+  const [fullFileUploadAllowedTypes, setFullFileUploadAllowedTypes] = createSignal('*');
 
   createMemo(() => {
     const customerId = (props.chatflowConfig?.vars as any)?.customerId;
@@ -535,14 +536,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (data.followUpPrompts) {
+      let followUpPrompts = data.followUpPrompts;
+      if (typeof followUpPrompts === 'string') {
+        followUpPrompts = JSON.parse(followUpPrompts);
+      }
       setMessages((prevMessages) => {
         const allMessages = [...cloneDeep(prevMessages)];
         if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-        allMessages[allMessages.length - 1].followUpPrompts = data.followUpPrompts;
+        allMessages[allMessages.length - 1].followUpPrompts = followUpPrompts;
         addChatMessage(allMessages);
         return allMessages;
       });
-      setFollowUpPrompts(JSON.parse(data.followUpPrompts));
+      setFollowUpPrompts(followUpPrompts);
     }
   };
 
@@ -1036,6 +1041,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       if (chatbotConfig.fullFileUpload) {
         setFullFileUpload(chatbotConfig.fullFileUpload.status);
+        if (chatbotConfig.fullFileUpload?.allowedUploadFileTypes) {
+          setFullFileUploadAllowedTypes(chatbotConfig.fullFileUpload?.allowedUploadFileTypes);
+        }
       }
     }
 
@@ -1613,6 +1621,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 onSubmit={handleSubmit}
                 uploadsConfig={uploadsConfig()}
                 isFullFileUpload={fullFileUpload()}
+                fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
                 setPreviews={setPreviews}
                 onMicrophoneClicked={onMicrophoneClicked}
                 handleFileChange={handleFileChange}
