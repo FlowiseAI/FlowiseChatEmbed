@@ -335,7 +335,7 @@ export const BotBubble = (props: Props) => {
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
         <div class="flex flex-col justify-start">
-          {props.message.agentFlowExecutedData &&
+          {props.showAgentMessages && props.message.agentFlowExecutedData &&
             Array.isArray(props.message.agentFlowExecutedData) &&
             props.message.agentFlowExecutedData.length > 0 && (
               <div>
