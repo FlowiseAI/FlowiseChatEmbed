@@ -123,6 +123,9 @@ export const Bubble = (props: BubbleProps) => {
               </button>
             </Show>
             <Bot
+              backgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
+              formBackgroundColor={bubbleProps.theme?.form?.backgroundColor}
+              formTextColor={bubbleProps.theme?.form?.textColor}
               badgeBackgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
               bubbleBackgroundColor={bubbleProps.theme?.button?.backgroundColor ?? defaultButtonColor}
               bubbleTextColor={bubbleProps.theme?.button?.iconColor ?? defaultIconColor}

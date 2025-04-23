@@ -60,6 +60,9 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
           }}
         >
           <Bot
+            backgroundColor={props.theme?.chatWindow?.backgroundColor}
+            formBackgroundColor={props.theme?.form?.backgroundColor}
+            formTextColor={props.theme?.form?.textColor}
             badgeBackgroundColor={props.theme?.chatWindow?.backgroundColor}
             bubbleBackgroundColor={props.theme?.button?.backgroundColor ?? defaultButtonColor}
             bubbleTextColor={props.theme?.button?.iconColor ?? defaultIconColor}
