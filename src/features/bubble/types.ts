@@ -8,6 +8,12 @@ export type BubbleTheme = {
   tooltip?: ToolTipTheme;
   disclaimer?: DisclaimerPopUpTheme;
   customCSS?: string;
+  form?: FormTheme;
+};
+
+export type FormTheme = {
+  backgroundColor?: string;
+  textColor?: string;
 };
 
 export type TextInputTheme = {

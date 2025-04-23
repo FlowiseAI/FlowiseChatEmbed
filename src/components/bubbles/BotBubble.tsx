@@ -9,6 +9,7 @@ import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
+import { WorkflowTreeView } from '../treeview/WorkflowTreeView';
 
 type Props = {
   message: MessageType;
@@ -29,7 +30,7 @@ type Props = {
   showAgentMessages?: boolean;
   sourceDocsTitle?: string;
   renderHTML?: boolean;
-  handleActionClick: (label: string, action: IAction | undefined | null) => void;
+  handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
 };
 
@@ -334,6 +335,14 @@ export const BotBubble = (props: Props) => {
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
         <div class="flex flex-col justify-start">
+          {props.showAgentMessages &&
+            props.message.agentFlowExecutedData &&
+            Array.isArray(props.message.agentFlowExecutedData) &&
+            props.message.agentFlowExecutedData.length > 0 && (
+              <div>
+                <WorkflowTreeView workflowData={props.message.agentFlowExecutedData} indentationLevel={24} />
+              </div>
+            )}
           {props.showAgentMessages && props.message.agentReasoning && (
             <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
               <summary class="cursor-pointer">
@@ -391,21 +400,21 @@ export const BotBubble = (props: Props) => {
                 {(action) => {
                   return (
                     <>
-                      {action.type === 'approve-button' ? (
+                      {(action.type === 'approve-button' && action.label === 'Yes') || action.type === 'agentflowv2-approve-button' ? (
                         <button
                           type="button"
                           class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-                          onClick={() => props.handleActionClick(action.label, props.message.action)}
+                          onClick={() => props.handleActionClick(action, props.message.action)}
                         >
                           <TickIcon />
                           &nbsp;
                           {action.label}
                         </button>
-                      ) : action.type === 'reject-button' ? (
+                      ) : (action.type === 'reject-button' && action.label === 'No') || action.type === 'agentflowv2-reject-button' ? (
                         <button
                           type="button"
                           class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-                          onClick={() => props.handleActionClick(action.label, props.message.action)}
+                          onClick={() => props.handleActionClick(action, props.message.action)}
                         >
                           <XIcon isCurrentColor={true} />
                           &nbsp;

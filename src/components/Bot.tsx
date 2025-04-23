@@ -70,6 +70,7 @@ type FilePreview = {
 };
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting' | 'leadCaptureMessage';
+type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT' | 'STOPPED';
 
 export type IAgentReasoning = {
   agentName?: string;
@@ -83,6 +84,7 @@ export type IAgentReasoning = {
 
 export type IAction = {
   id?: string;
+  data?: any;
   elements?: Array<{
     type: string;
     label: string;
@@ -96,6 +98,14 @@ export type IAction = {
 
 export type FileUpload = Omit<FilePreview, 'preview'>;
 
+export type AgentFlowExecutedData = {
+  nodeLabel: string;
+  nodeId: string;
+  data: any;
+  previousNodeIds: string[];
+  status?: ExecutionState;
+};
+
 export type MessageType = {
   messageId?: string;
   message: string;
@@ -105,6 +115,9 @@ export type MessageType = {
   fileUploads?: Partial<FileUpload>[];
   artifacts?: Partial<FileUpload>[];
   agentReasoning?: IAgentReasoning[];
+  execution?: any;
+  agentFlowEventStatus?: string;
+  agentFlowExecutedData?: any;
   usedTools?: any[];
   action?: IAction | null;
   rating?: FeedbackRatingType;
@@ -128,6 +141,7 @@ export type BotProps = {
   apiHost?: string;
   onRequest?: (request: RequestInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
+  backgroundColor?: string;
   welcomeMessage?: string;
   errorMessage?: string;
   botMessage?: BotMessageTheme;
@@ -144,6 +158,8 @@ export type BotProps = {
   titleAvatarSrc?: string;
   titleTextColor?: string;
   titleBackgroundColor?: string;
+  formBackgroundColor?: string;
+  formTextColor?: string;
   fontSize?: number;
   isFullPage?: boolean;
   footer?: FooterTheme;
@@ -171,7 +187,7 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
 
 /*const sourceDocuments = [
     {
-        "pageContent": "I know some are talking about “living with COVID-19”. Tonight – I say that we will never just accept living with COVID-19. \r\n\r\nWe will continue to combat the virus as we do other diseases. And because this is a virus that mutates and spreads, we will stay on guard. \r\n\r\nHere are four common sense steps as we move forward safely.  \r\n\r\nFirst, stay protected with vaccines and treatments. We know how incredibly effective vaccines are. If you’re vaccinated and boosted you have the highest degree of protection. \r\n\r\nWe will never give up on vaccinating more Americans. Now, I know parents with kids under 5 are eager to see a vaccine authorized for their children. \r\n\r\nThe scientists are working hard to get that done and we’ll be ready with plenty of vaccines when they do. \r\n\r\nWe’re also ready with anti-viral treatments. If you get COVID-19, the Pfizer pill reduces your chances of ending up in the hospital by 90%.",
+        "pageContent": "I know some are talking about "living with COVID-19". Tonight – I say that we will never just accept living with COVID-19. \r\n\r\nWe will continue to combat the virus as we do other diseases. And because this is a virus that mutates and spreads, we will stay on guard. \r\n\r\nHere are four common sense steps as we move forward safely.  \r\n\r\nFirst, stay protected with vaccines and treatments. We know how incredibly effective vaccines are. If you're vaccinated and boosted you have the highest degree of protection. \r\n\r\nWe will never give up on vaccinating more Americans. Now, I know parents with kids under 5 are eager to see a vaccine authorized for their children. \r\n\r\nThe scientists are working hard to get that done and we'll be ready with plenty of vaccines when they do. \r\n\r\nWe're also ready with anti-viral treatments. If you get COVID-19, the Pfizer pill reduces your chances of ending up in the hospital by 90%.",
         "metadata": {
           "source": "blob",
           "blobType": "",
@@ -184,7 +200,7 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
         }
     },
     {
-        "pageContent": "sistance,  and  polishing  [65].  For  instance,  AI  tools  generate\nsuggestions based on inputting keywords or topics. The tools\nanalyze  search  data,  trending  topics,  and  popular  queries  to\ncreate  fresh  content.  What’s  more,  AIGC  assists  in  writing\narticles and posting blogs on specific topics. While these tools\nmay not be able to produce high-quality content by themselves,\nthey can provide a starting point for a writer struggling with\nwriter’s block.\nH.  Cons of AIGC\nOne of the main concerns among the public is the potential\nlack  of  creativity  and  human  touch  in  AIGC.  In  addition,\nAIGC sometimes lacks a nuanced understanding of language\nand context, which may lead to inaccuracies and misinterpre-\ntations. There are also concerns about the ethics and legality\nof using AIGC, particularly when it results in issues such as\ncopyright  infringement  and  data  privacy.  In  this  section,  we\nwill discuss some of the disadvantages of AIGC (Table IV).",
+        "pageContent": "sistance,  and  polishing  [65].  For  instance,  AI  tools  generate\nsuggestions based on inputting keywords or topics. The tools\nanalyze  search  data,  trending  topics,  and  popular  queries  to\ncreate  fresh  content.  What's  more,  AIGC  assists  in  writing\narticles and posting blogs on specific topics. While these tools\nmay not be able to produce high-quality content by themselves,\nthey can provide a starting point for a writer struggling with\nwriter's block.\nH.  Cons of AIGC\nOne of the main concerns among the public is the potential\nlack  of  creativity  and  human  touch  in  AIGC.  In  addition,\nAIGC sometimes lacks a nuanced understanding of language\nand context, which may lead to inaccuracies and misinterpre-\ntations. There are also concerns about the ethics and legality\nof using AIGC, particularly when it results in issues such as\ncopyright  infringement  and  data  privacy.  In  this  section,  we\nwill discuss some of the disadvantages of AIGC (Table IV).",
         "metadata": {
           "source": "blob",
           "blobType": "",
@@ -250,6 +266,192 @@ const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 const defaultTitleBackgroundColor = '#3B81F6';
 
+/* FeedbackDialog component - for collecting user feedback */
+const FeedbackDialog = (props: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+  feedbackValue: string;
+  setFeedbackValue: (value: string) => void;
+}) => {
+  return (
+    <Show when={props.isOpen}>
+      <div class="fixed inset-0 rounded-lg flex items-center justify-center backdrop-blur-sm z-50" style={{ background: 'rgba(0, 0, 0, 0.4)' }}>
+        <div class="p-6 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans" style={{ background: 'white', color: 'black' }}>
+          <h2 class="text-xl font-semibold mb-4 flex justify-center items-center">Your Feedback</h2>
+
+          <textarea
+            class="w-full p-2 border border-gray-300 rounded-md mb-4"
+            rows={4}
+            placeholder="Please provide your feedback..."
+            value={props.feedbackValue}
+            onInput={(e) => props.setFeedbackValue(e.target.value)}
+          />
+
+          <div class="flex justify-center space-x-4">
+            <button
+              class="font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+              style={{ background: '#ef4444', color: 'white' }}
+              onClick={props.onClose}
+            >
+              Cancel
+            </button>
+            <button
+              class="font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+              style={{ background: '#3b82f6', color: 'white' }}
+              onClick={props.onSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </Show>
+  );
+};
+
+/* FormInputView component - for displaying the form input */
+const FormInputView = (props: {
+  title: string;
+  description: string;
+  inputParams: any[];
+  onSubmit: (formData: object) => void;
+  parentBackgroundColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  sendButtonColor?: string;
+  fontSize?: number;
+}) => {
+  const [formData, setFormData] = createSignal<Record<string, any>>({});
+
+  const handleInputChange = (name: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    props.onSubmit(formData());
+  };
+
+  return (
+    <div
+      class="w-full h-full flex flex-col items-center justify-center px-4 py-8 rounded-lg"
+      style={{
+        'font-family': 'Poppins, sans-serif',
+        'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
+        background: props.parentBackgroundColor || defaultBackgroundColor,
+        color: props.textColor || defaultTextColor,
+      }}
+    >
+      <div
+        class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden"
+        style={{
+          'font-family': 'Poppins, sans-serif',
+          'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
+          background: props.backgroundColor || defaultBackgroundColor,
+          color: props.textColor || defaultTextColor,
+        }}
+      >
+        <div class="p-6">
+          <h2 class="text-xl font-bold mb-2">{props.title}</h2>
+          {props.description && (
+            <p class="text-gray-600 mb-6" style={{ color: props.textColor || defaultTextColor }}>
+              {props.description}
+            </p>
+          )}
+
+          <form onSubmit={handleSubmit} class="space-y-4">
+            <For each={props.inputParams}>
+              {(param) => (
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium">{param.label}</label>
+
+                  {param.type === 'string' && (
+                    <input
+                      type="text"
+                      class="w-full px-3 py-2 rounded-md focus:outline-none"
+                      style={{
+                        border: '1px solid #9ca3af',
+                        'border-radius': '0.375rem',
+                      }}
+                      onFocus={(e) => (e.target.style.border = '1px solid #3b82f6')}
+                      onBlur={(e) => (e.target.style.border = '1px solid #9ca3af')}
+                      name={param.name}
+                      onInput={(e) => handleInputChange(param.name, e.target.value)}
+                      required
+                    />
+                  )}
+
+                  {param.type === 'number' && (
+                    <input
+                      type="number"
+                      class="w-full px-3 py-2 rounded-md focus:outline-none"
+                      style={{
+                        border: '1px solid #9ca3af',
+                        'border-radius': '0.375rem',
+                      }}
+                      onFocus={(e) => (e.target.style.border = '1px solid #3b82f6')}
+                      onBlur={(e) => (e.target.style.border = '1px solid #9ca3af')}
+                      name={param.name}
+                      onInput={(e) => handleInputChange(param.name, parseFloat(e.target.value))}
+                      required
+                    />
+                  )}
+
+                  {param.type === 'boolean' && (
+                    <div class="flex items-center">
+                      <input
+                        type="checkbox"
+                        class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                        style={{
+                          border: '1px solid #9ca3af',
+                        }}
+                        name={param.name}
+                        onChange={(e) => handleInputChange(param.name, e.target.checked)}
+                      />
+                      <span class="ml-2">Yes</span>
+                    </div>
+                  )}
+
+                  {param.type === 'options' && (
+                    <select
+                      class="w-full px-3 py-2 rounded-md focus:outline-none"
+                      style={{
+                        border: '1px solid #9ca3af',
+                        'border-radius': '0.375rem',
+                      }}
+                      onFocus={(e) => (e.target.style.border = '1px solid #3b82f6')}
+                      onBlur={(e) => (e.target.style.border = '1px solid #9ca3af')}
+                      name={param.name}
+                      onChange={(e) => handleInputChange(param.name, e.target.value)}
+                      required
+                    >
+                      <option value="">Select an option</option>
+                      <For each={param.options}>{(option) => <option value={option.name}>{option.label}</option>}</For>
+                    </select>
+                  )}
+                </div>
+              )}
+            </For>
+
+            <div class="pt-4">
+              <button
+                type="submit"
+                class="w-full py-2 px-4 text-white font-semibold rounded-md focus:outline-none transition duration-300 ease-in-out"
+                style={{
+                  'background-color': props.sendButtonColor || '#3B81F6',
+                }}
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
   const props = mergeProps({ showTitle: true }, botProps);
@@ -282,6 +484,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isLeadSaved, setIsLeadSaved] = createSignal(false);
   const [leadEmail, setLeadEmail] = createSignal('');
   const [disclaimerPopupOpen, setDisclaimerPopupOpen] = createSignal(false);
+
+  const [openFeedbackDialog, setOpenFeedbackDialog] = createSignal(false);
+  const [feedback, setFeedback] = createSignal('');
+  const [pendingActionData, setPendingActionData] = createSignal(null);
+  const [feedbackType, setFeedbackType] = createSignal('');
+
+  // start input type
+  const [startInputType, setStartInputType] = createSignal('');
+  const [formTitle, setFormTitle] = createSignal('');
+  const [formDescription, setFormDescription] = createSignal('');
+  const [formInputsData, setFormInputsData] = createSignal({});
+  const [formInputParams, setFormInputParams] = createSignal([]);
 
   // drag & drop file input
   // TODO: fix this type
@@ -446,6 +660,29 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
+  const updateAgentFlowEvent = (event: string) => {
+    if (event === 'INPROGRESS') {
+      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
+    } else {
+      setMessages((prevMessages) => {
+        const allMessages = [...cloneDeep(prevMessages)];
+        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+        allMessages[allMessages.length - 1].agentFlowEventStatus = event;
+        return allMessages;
+      });
+    }
+  };
+
+  const updateAgentFlowExecutedData = (agentFlowExecutedData: any) => {
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
+      allMessages[allMessages.length - 1].agentFlowExecutedData = agentFlowExecutedData;
+      addChatMessage(allMessages);
+      return allMessages;
+    });
+  };
+
   const updateLastMessageArtifacts = (artifacts: FileUpload[]) => {
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
@@ -602,6 +839,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           case 'agentReasoning':
             updateLastMessageAgentReasoning(payload.data);
             break;
+          case 'agentFlowEvent':
+            updateAgentFlowEvent(payload.data);
+            break;
+          case 'agentFlowExecutedData':
+            updateAgentFlowExecutedData(payload.data);
+            break;
           case 'action':
             updateLastMessageAction(payload.data);
             break;
@@ -736,12 +979,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (value: string, action?: IAction | undefined | null) => {
-    if (value.trim() === '') {
+  const handleSubmit = async (value: string | object, action?: IAction | undefined | null, humanInput?: any) => {
+    if (typeof value === 'string' && value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
         return;
       }
+    }
+
+    let formData = {};
+    if (typeof value === 'object') {
+      formData = value;
+      value = Object.entries(value)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
     }
 
     setLoading(true);
@@ -766,7 +1017,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     clearPreviews();
 
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage', fileUploads: uploads }];
+      const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
       addChatMessage(messages);
       return messages;
     });
@@ -776,6 +1027,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       chatId: chatId(),
     };
 
+    if (startInputType() === 'formInput') {
+      body.form = formData;
+      delete body.question;
+    }
+
     if (uploads && uploads.length > 0) body.uploads = uploads;
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
@@ -783,6 +1039,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (leadEmail()) body.leadEmail = leadEmail();
 
     if (action) body.action = action;
+
+    if (humanInput) body.humanInput = humanInput;
 
     if (isChatFlowAvailableToStream()) {
       fetchResponseFromEventStream(props.chatflowid, body);
@@ -815,6 +1073,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             usedTools: data?.usedTools,
             fileAnnotations: data?.fileAnnotations,
             agentReasoning: data?.agentReasoning,
+            agentFlowExecutedData: data?.agentFlowExecutedData,
             action: data?.action,
             artifacts: data?.artifacts,
             type: 'apiMessage' as messageType,
@@ -871,8 +1130,31 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
-  const handleActionClick = async (label: string, action: IAction | undefined | null) => {
-    setUserInput(label);
+  const onSubmitResponse = (actionData: any, feedback = '', type = '') => {
+    let fbType = feedbackType();
+    if (type) {
+      fbType = type;
+    }
+    const question = feedback ? feedback : fbType.charAt(0).toUpperCase() + fbType.slice(1);
+    handleSubmit(question, undefined, {
+      type: fbType,
+      startNodeId: actionData?.nodeId,
+      feedback,
+    });
+  };
+
+  const handleSubmitFeedback = () => {
+    if (pendingActionData()) {
+      onSubmitResponse(pendingActionData(), feedback());
+      setOpenFeedbackDialog(false);
+      setFeedback('');
+      setPendingActionData(null);
+      setFeedbackType('');
+    }
+  };
+
+  const handleActionClick = async (elem: any, action: IAction | undefined | null) => {
+    setUserInput(elem.label);
     setMessages((data) => {
       const updated = data.map((item, i) => {
         if (i === data.length - 1) {
@@ -883,7 +1165,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(updated);
       return [...updated];
     });
-    handleSubmit(label, action);
+    if (elem.type.includes('agentflowv2')) {
+      const type = elem.type.includes('approve') ? 'proceed' : 'reject';
+      setFeedbackType(type);
+
+      if (action && action.data && action.data.input && action.data.input.humanInputEnableFeedback) {
+        setPendingActionData(action.data);
+        setOpenFeedbackDialog(true);
+      } else if (action) {
+        onSubmitResponse(action.data, '', type);
+      }
+    } else {
+      handleSubmit(elem.label, action);
+    }
   };
 
   const clearChat = () => {
@@ -988,6 +1282,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.action) chatHistory.action = message.action;
               if (message.artifacts) chatHistory.artifacts = message.artifacts;
               if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
+              if (message.execution && message.execution.executionData)
+                chatHistory.agentFlowExecutedData =
+                  typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
+              if (message.agentFlowExecutedData)
+                chatHistory.agentFlowExecutedData =
+                  typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
               return chatHistory;
             })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
@@ -1016,6 +1316,66 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (result.data) {
       const chatbotConfig = result.data;
+
+      if (chatbotConfig.flowData) {
+        const nodes = JSON.parse(chatbotConfig.flowData).nodes ?? [];
+        const startNode = nodes.find((node: any) => node.data.name === 'startAgentflow');
+        if (startNode) {
+          const startInputType = startNode.data.inputs?.startInputType;
+          setStartInputType(startInputType);
+
+          const formInputTypes = startNode.data.inputs?.formInputTypes;
+          /* example:
+          "formInputTypes": [
+              {
+                "type": "string",
+                "label": "From",
+                "name": "from",
+                "addOptions": ""
+              },
+              {
+                "type": "number",
+                "label": "Subject",
+                "name": "subject",
+                "addOptions": ""
+              },
+              {
+                "type": "boolean",
+                "label": "Body",
+                "name": "body",
+                "addOptions": ""
+              },
+              {
+                "type": "options",
+                "label": "Choices",
+                "name": "choices",
+                "addOptions": [
+                  {
+                    "option": "choice 1"
+                  },
+                  {
+                    "option": "choice 2"
+                  }
+                ]
+              }
+            ]
+          */
+          if (startInputType === 'formInput' && formInputTypes && formInputTypes.length > 0) {
+            for (const formInputType of formInputTypes) {
+              if (formInputType.type === 'options') {
+                formInputType.options = formInputType.addOptions.map((option: any) => ({
+                  label: option.option,
+                  name: option.option,
+                }));
+              }
+            }
+            setFormInputParams(formInputTypes);
+            setFormTitle(startNode.data.inputs?.formTitle);
+            setFormDescription(startNode.data.inputs?.formDescription);
+          }
+        }
+      }
+
       if ((!props.starterPrompts || props.starterPrompts?.length === 0) && chatbotConfig.starterPrompts) {
         const prompts: string[] = [];
         Object.getOwnPropertyNames(chatbotConfig.starterPrompts).forEach((key) => {
@@ -1375,271 +1735,285 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   return (
     <>
-      <div
-        ref={botContainer}
-        class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}
-        onDragEnter={handleDrag}
-      >
-        {isDragActive() && (
-          <div
-            class="absolute top-0 left-0 bottom-0 right-0 w-full h-full z-50"
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragEnd={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          />
-        )}
-        {isDragActive() && (uploadsConfig()?.isImageUploadAllowed || isFileUploadAllowed()) && (
-          <div
-            class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white z-40 gap-2 border-2 border-dashed"
-            style={{ 'border-color': props.bubbleBackgroundColor }}
-          >
-            <h2 class="text-xl font-semibold">Drop here to upload</h2>
-            <For each={[...(uploadsConfig()?.imgUploadSizeAndTypes || []), ...(uploadsConfig()?.fileUploadSizeAndTypes || [])]}>
-              {(allowed) => {
-                return (
-                  <>
-                    <span>{allowed.fileTypes?.join(', ')}</span>
-                    {allowed.maxUploadSize && <span>Max Allowed Size: {allowed.maxUploadSize} MB</span>}
-                  </>
-                );
-              }}
-            </For>
-          </div>
-        )}
-
-        {props.showTitle ? (
-          <div
-            class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
-            style={{
-              background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
-              color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
-              'border-top-left-radius': props.isFullPage ? '0px' : '6px',
-              'border-top-right-radius': props.isFullPage ? '0px' : '6px',
-            }}
-          >
-            <Show when={props.titleAvatarSrc}>
-              <>
-                <div style={{ width: '15px' }} />
-                <Avatar initialAvatarSrc={props.titleAvatarSrc} />
-              </>
-            </Show>
-            <Show when={props.title}>
-              <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
-            </Show>
-            <div style={{ flex: 1 }} />
-            <DeleteButton
-              sendButtonColor={props.bubbleTextColor}
-              type="button"
-              isDisabled={messages().length === 1}
-              class="my-2 ml-2"
-              on:click={clearChat}
+      {startInputType() === 'formInput' && messages().length === 1 ? (
+        <FormInputView
+          title={formTitle()}
+          description={formDescription()}
+          inputParams={formInputParams()}
+          onSubmit={(formData) => handleSubmit(formData)}
+          parentBackgroundColor={props?.backgroundColor}
+          backgroundColor={props?.formBackgroundColor}
+          textColor={props?.formTextColor || props.botMessage?.textColor}
+          sendButtonColor={props.textInput?.sendButtonColor}
+          fontSize={props.fontSize}
+        />
+      ) : (
+        <div
+          ref={botContainer}
+          class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}
+          onDragEnter={handleDrag}
+        >
+          {isDragActive() && (
+            <div
+              class="absolute top-0 left-0 bottom-0 right-0 w-full h-full z-50"
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragEnd={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            />
+          )}
+          {isDragActive() && (uploadsConfig()?.isImageUploadAllowed || isFileUploadAllowed()) && (
+            <div
+              class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white z-40 gap-2 border-2 border-dashed"
+              style={{ 'border-color': props.bubbleBackgroundColor }}
             >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
-            </DeleteButton>
-          </div>
-        ) : null}
-        <div class="flex flex-col w-full h-full justify-start z-0">
-          <div
-            ref={chatContainer}
-            class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
-          >
-            <For each={[...messages()]}>
-              {(message, index) => {
-                return (
-                  <>
-                    {message.type === 'userMessage' && (
-                      <GuestBubble
-                        message={message}
-                        apiHost={props.apiHost}
-                        chatflowid={props.chatflowid}
-                        chatId={chatId()}
-                        backgroundColor={props.userMessage?.backgroundColor}
-                        textColor={props.userMessage?.textColor}
-                        showAvatar={props.userMessage?.showAvatar}
-                        avatarSrc={props.userMessage?.avatarSrc}
-                        fontSize={props.fontSize}
-                        renderHTML={props.renderHTML}
-                      />
-                    )}
-                    {message.type === 'apiMessage' && (
-                      <BotBubble
-                        message={message}
-                        fileAnnotations={message.fileAnnotations}
-                        chatflowid={props.chatflowid}
-                        chatId={chatId()}
-                        apiHost={props.apiHost}
-                        backgroundColor={props.botMessage?.backgroundColor}
-                        textColor={props.botMessage?.textColor}
-                        feedbackColor={props.feedback?.color}
-                        showAvatar={props.botMessage?.showAvatar}
-                        avatarSrc={props.botMessage?.avatarSrc}
-                        chatFeedbackStatus={chatFeedbackStatus()}
-                        fontSize={props.fontSize}
-                        isLoading={loading() && index() === messages().length - 1}
-                        showAgentMessages={props.showAgentMessages}
-                        handleActionClick={(label, action) => handleActionClick(label, action)}
-                        sourceDocsTitle={props.sourceDocsTitle}
-                        handleSourceDocumentsClick={(sourceDocuments) => {
-                          setSourcePopupSrc(sourceDocuments);
-                          setSourcePopupOpen(true);
-                        }}
-                        dateTimeToggle={props.dateTimeToggle}
-                        renderHTML={props.renderHTML}
-                      />
-                    )}
-                    {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
-                      <LeadCaptureBubble
-                        message={message}
-                        chatflowid={props.chatflowid}
-                        chatId={chatId()}
-                        apiHost={props.apiHost}
-                        backgroundColor={props.botMessage?.backgroundColor}
-                        textColor={props.botMessage?.textColor}
-                        fontSize={props.fontSize}
-                        showAvatar={props.botMessage?.showAvatar}
-                        avatarSrc={props.botMessage?.avatarSrc}
-                        leadsConfig={leadsConfig()}
-                        sendButtonColor={props.textInput?.sendButtonColor}
-                        isLeadSaved={isLeadSaved()}
-                        setIsLeadSaved={setIsLeadSaved}
-                        setLeadEmail={setLeadEmail}
-                      />
-                    )}
-                    {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                    {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                  </>
-                );
+              <h2 class="text-xl font-semibold">Drop here to upload</h2>
+              <For each={[...(uploadsConfig()?.imgUploadSizeAndTypes || []), ...(uploadsConfig()?.fileUploadSizeAndTypes || [])]}>
+                {(allowed) => {
+                  return (
+                    <>
+                      <span>{allowed.fileTypes?.join(', ')}</span>
+                      {allowed.maxUploadSize && <span>Max Allowed Size: {allowed.maxUploadSize} MB</span>}
+                    </>
+                  );
+                }}
+              </For>
+            </div>
+          )}
+
+          {props.showTitle ? (
+            <div
+              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              style={{
+                background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
+                color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
+                'border-top-left-radius': props.isFullPage ? '0px' : '6px',
+                'border-top-right-radius': props.isFullPage ? '0px' : '6px',
               }}
-            </For>
-          </div>
-          <Show when={messages().length === 1}>
-            <Show when={starterPrompts().length > 0}>
-              <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
-                <For each={[...starterPrompts()]}>
-                  {(key) => (
-                    <StarterPromptBubble
-                      prompt={key}
-                      onPromptClick={() => promptClick(key)}
-                      starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
-                    />
-                  )}
-                </For>
-              </div>
-            </Show>
-          </Show>
-          <Show when={messages().length > 2 && followUpPromptsStatus()}>
-            <Show when={followUpPrompts().length > 0}>
-              <>
-                <div class="flex items-center gap-1 px-5">
-                  <SparklesIcon class="w-4 h-4" />
-                  <span class="text-sm text-gray-700">Try these prompts</span>
-                </div>
+            >
+              <Show when={props.titleAvatarSrc}>
+                <>
+                  <div style={{ width: '15px' }} />
+                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
+                </>
+              </Show>
+              <Show when={props.title}>
+                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+              </Show>
+              <div style={{ flex: 1 }} />
+              <DeleteButton
+                sendButtonColor={props.bubbleTextColor}
+                type="button"
+                isDisabled={messages().length === 1}
+                class="my-2 ml-2"
+                on:click={clearChat}
+              >
+                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+              </DeleteButton>
+            </div>
+          ) : null}
+          <div class="flex flex-col w-full h-full justify-start z-0">
+            <div
+              ref={chatContainer}
+              class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
+            >
+              <For each={[...messages()]}>
+                {(message, index) => {
+                  return (
+                    <>
+                      {message.type === 'userMessage' && (
+                        <GuestBubble
+                          message={message}
+                          apiHost={props.apiHost}
+                          chatflowid={props.chatflowid}
+                          chatId={chatId()}
+                          backgroundColor={props.userMessage?.backgroundColor}
+                          textColor={props.userMessage?.textColor}
+                          showAvatar={props.userMessage?.showAvatar}
+                          avatarSrc={props.userMessage?.avatarSrc}
+                          fontSize={props.fontSize}
+                          renderHTML={props.renderHTML}
+                        />
+                      )}
+                      {message.type === 'apiMessage' && (
+                        <BotBubble
+                          message={message}
+                          fileAnnotations={message.fileAnnotations}
+                          chatflowid={props.chatflowid}
+                          chatId={chatId()}
+                          apiHost={props.apiHost}
+                          backgroundColor={props.botMessage?.backgroundColor}
+                          textColor={props.botMessage?.textColor}
+                          feedbackColor={props.feedback?.color}
+                          showAvatar={props.botMessage?.showAvatar}
+                          avatarSrc={props.botMessage?.avatarSrc}
+                          chatFeedbackStatus={chatFeedbackStatus()}
+                          fontSize={props.fontSize}
+                          isLoading={loading() && index() === messages().length - 1}
+                          showAgentMessages={props.showAgentMessages}
+                          handleActionClick={(elem, action) => handleActionClick(elem, action)}
+                          sourceDocsTitle={props.sourceDocsTitle}
+                          handleSourceDocumentsClick={(sourceDocuments) => {
+                            setSourcePopupSrc(sourceDocuments);
+                            setSourcePopupOpen(true);
+                          }}
+                          dateTimeToggle={props.dateTimeToggle}
+                          renderHTML={props.renderHTML}
+                        />
+                      )}
+                      {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
+                        <LeadCaptureBubble
+                          message={message}
+                          chatflowid={props.chatflowid}
+                          chatId={chatId()}
+                          apiHost={props.apiHost}
+                          backgroundColor={props.botMessage?.backgroundColor}
+                          textColor={props.botMessage?.textColor}
+                          fontSize={props.fontSize}
+                          showAvatar={props.botMessage?.showAvatar}
+                          avatarSrc={props.botMessage?.avatarSrc}
+                          leadsConfig={leadsConfig()}
+                          sendButtonColor={props.textInput?.sendButtonColor}
+                          isLeadSaved={isLeadSaved()}
+                          setIsLeadSaved={setIsLeadSaved}
+                          setLeadEmail={setLeadEmail}
+                        />
+                      )}
+                      {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
+                      {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
+                    </>
+                  );
+                }}
+              </For>
+            </div>
+            <Show when={messages().length === 1}>
+              <Show when={starterPrompts().length > 0}>
                 <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
-                  <For each={[...followUpPrompts()]}>
-                    {(prompt, index) => (
-                      <FollowUpPromptBubble
-                        prompt={prompt}
-                        onPromptClick={() => followUpPromptClick(prompt)}
+                  <For each={[...starterPrompts()]}>
+                    {(key) => (
+                      <StarterPromptBubble
+                        prompt={key}
+                        onPromptClick={() => promptClick(key)}
                         starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
                       />
                     )}
                   </For>
                 </div>
-              </>
+              </Show>
             </Show>
-          </Show>
-          <Show when={previews().length > 0}>
-            <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
-              <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
+            <Show when={messages().length > 2 && followUpPromptsStatus()}>
+              <Show when={followUpPrompts().length > 0}>
+                <>
+                  <div class="flex items-center gap-1 px-5">
+                    <SparklesIcon class="w-4 h-4" />
+                    <span class="text-sm text-gray-700">Try these prompts</span>
+                  </div>
+                  <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
+                    <For each={[...followUpPrompts()]}>
+                      {(prompt, index) => (
+                        <FollowUpPromptBubble
+                          prompt={prompt}
+                          onPromptClick={() => followUpPromptClick(prompt)}
+                          starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
+                        />
+                      )}
+                    </For>
+                  </div>
+                </>
+              </Show>
+            </Show>
+            <Show when={previews().length > 0}>
+              <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
+                <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
+              </div>
+            </Show>
+            <div class="w-full px-5 pt-2 pb-1">
+              {isRecording() ? (
+                <>
+                  {recordingNotSupported() ? (
+                    <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee]">
+                      <div class="w-full flex items-center justify-between gap-3">
+                        <span class="text-base">To record audio, use modern browsers like Chrome or Firefox that support audio recording.</span>
+                        <button
+                          class="py-2 px-4 justify-center flex items-center bg-red-500 text-white rounded-md"
+                          type="button"
+                          onClick={() => onRecordingCancelled()}
+                        >
+                          Okay
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
+                      data-testid="input"
+                      style={{
+                        margin: 'auto',
+                        'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
+                        color: props.textInput?.textColor ?? defaultTextColor,
+                      }}
+                    >
+                      <div class="flex items-center gap-3 px-4 py-2">
+                        <span>
+                          <CircleDotIcon color="red" />
+                        </span>
+                        <span>{elapsedTime() || '00:00'}</span>
+                        {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
+                      </div>
+                      <div class="flex items-center">
+                        <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0" on:click={onRecordingCancelled}>
+                          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+                        </CancelButton>
+                        <SendButton
+                          sendButtonColor={props.textInput?.sendButtonColor}
+                          type="button"
+                          isDisabled={loading()}
+                          class="m-0"
+                          on:click={onRecordingStopped}
+                        >
+                          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+                        </SendButton>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <TextInput
+                  backgroundColor={props.textInput?.backgroundColor}
+                  textColor={props.textInput?.textColor}
+                  placeholder={props.textInput?.placeholder}
+                  sendButtonColor={props.textInput?.sendButtonColor}
+                  maxChars={props.textInput?.maxChars}
+                  maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
+                  autoFocus={props.textInput?.autoFocus}
+                  fontSize={props.fontSize}
+                  disabled={getInputDisabled()}
+                  inputValue={userInput()}
+                  onInputChange={(value) => setUserInput(value)}
+                  onSubmit={handleSubmit}
+                  uploadsConfig={uploadsConfig()}
+                  isFullFileUpload={fullFileUpload()}
+                  fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
+                  setPreviews={setPreviews}
+                  onMicrophoneClicked={onMicrophoneClicked}
+                  handleFileChange={handleFileChange}
+                  sendMessageSound={props.textInput?.sendMessageSound}
+                  sendSoundLocation={props.textInput?.sendSoundLocation}
+                  enableInputHistory={true}
+                  maxHistorySize={10}
+                />
+              )}
             </div>
-          </Show>
-          <div class="w-full px-5 pt-2 pb-1">
-            {isRecording() ? (
-              <>
-                {recordingNotSupported() ? (
-                  <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee]">
-                    <div class="w-full flex items-center justify-between gap-3">
-                      <span class="text-base">To record audio, use modern browsers like Chrome or Firefox that support audio recording.</span>
-                      <button
-                        class="py-2 px-4 justify-center flex items-center bg-red-500 text-white rounded-md"
-                        type="button"
-                        onClick={() => onRecordingCancelled()}
-                      >
-                        Okay
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
-                    data-testid="input"
-                    style={{
-                      margin: 'auto',
-                      'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
-                      color: props.textInput?.textColor ?? defaultTextColor,
-                    }}
-                  >
-                    <div class="flex items-center gap-3 px-4 py-2">
-                      <span>
-                        <CircleDotIcon color="red" />
-                      </span>
-                      <span>{elapsedTime() || '00:00'}</span>
-                      {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
-                    </div>
-                    <div class="flex items-center">
-                      <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0" on:click={onRecordingCancelled}>
-                        <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-                      </CancelButton>
-                      <SendButton
-                        sendButtonColor={props.textInput?.sendButtonColor}
-                        type="button"
-                        isDisabled={loading()}
-                        class="m-0"
-                        on:click={onRecordingStopped}
-                      >
-                        <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-                      </SendButton>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <TextInput
-                backgroundColor={props.textInput?.backgroundColor}
-                textColor={props.textInput?.textColor}
-                placeholder={props.textInput?.placeholder}
-                sendButtonColor={props.textInput?.sendButtonColor}
-                maxChars={props.textInput?.maxChars}
-                maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
-                autoFocus={props.textInput?.autoFocus}
-                fontSize={props.fontSize}
-                disabled={getInputDisabled()}
-                inputValue={userInput()}
-                onInputChange={(value) => setUserInput(value)}
-                onSubmit={handleSubmit}
-                uploadsConfig={uploadsConfig()}
-                isFullFileUpload={fullFileUpload()}
-                fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
-                setPreviews={setPreviews}
-                onMicrophoneClicked={onMicrophoneClicked}
-                handleFileChange={handleFileChange}
-                sendMessageSound={props.textInput?.sendMessageSound}
-                sendSoundLocation={props.textInput?.sendSoundLocation}
-                enableInputHistory={true}
-                maxHistorySize={10}
-              />
-            )}
+            <Badge
+              footer={props.footer}
+              badgeBackgroundColor={props.badgeBackgroundColor}
+              poweredByTextColor={props.poweredByTextColor}
+              botContainer={botContainer}
+            />
           </div>
-          <Badge
-            footer={props.footer}
-            badgeBackgroundColor={props.badgeBackgroundColor}
-            poweredByTextColor={props.poweredByTextColor}
-            botContainer={botContainer}
-          />
         </div>
-      </div>
+      )}
       {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
 
       {disclaimerPopupOpen() && (
@@ -1658,6 +2032,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           denyButtonText={props.disclaimer?.denyButtonText}
           onDeny={props.closeBot}
           isFullPage={props.isFullPage}
+        />
+      )}
+
+      {openFeedbackDialog() && (
+        <FeedbackDialog
+          isOpen={openFeedbackDialog()}
+          onClose={() => {
+            setOpenFeedbackDialog(false);
+            handleSubmitFeedback();
+          }}
+          onSubmit={handleSubmitFeedback}
+          feedbackValue={feedback()}
+          setFeedbackValue={(value) => setFeedback(value)}
         />
       )}
     </>
