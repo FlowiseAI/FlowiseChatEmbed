@@ -773,18 +773,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (data.followUpPrompts) {
-      let followUpPrompts = data.followUpPrompts;
-      if (typeof followUpPrompts === 'string') {
-        followUpPrompts = JSON.parse(followUpPrompts);
-      }
       setMessages((prevMessages) => {
         const allMessages = [...cloneDeep(prevMessages)];
         if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-        allMessages[allMessages.length - 1].followUpPrompts = followUpPrompts;
+        allMessages[allMessages.length - 1].followUpPrompts = data.followUpPrompts;
         addChatMessage(allMessages);
         return allMessages;
       });
-      setFollowUpPrompts(followUpPrompts);
+      setFollowUpPrompts(JSON.parse(data.followUpPrompts));
     }
   };
 
