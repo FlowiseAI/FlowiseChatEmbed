@@ -40,7 +40,6 @@ const defaultFontSize = 16;
 const defaultFeedbackColor = '#3B81F6';
 
 export const BotBubble = (props: Props) => {
-  let botMessageEl: HTMLDivElement | undefined;
   let botDetailsEl: HTMLDetailsElement | undefined;
 
   Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
@@ -51,6 +50,55 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+
+  // Store a reference to the bot message element for the copyMessageToClipboard function
+  const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
+
+  const setBotMessageRef = (el: HTMLSpanElement) => {
+    if (el) {
+      el.innerHTML = Marked.parse(props.message.message);
+
+      // Apply textColor to all links, headings, and other markdown elements
+      const textColor = props.textColor ?? defaultTextColor;
+      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
+        (element as HTMLElement).style.color = textColor;
+      });
+
+      // Set target="_blank" for links
+      el.querySelectorAll('a').forEach((link) => {
+        link.target = '_blank';
+      });
+
+      // Store the element ref for the copy function
+      setBotMessageElement(el);
+
+      if (props.message.rating) {
+        setRating(props.message.rating);
+        if (props.message.rating === 'THUMBS_UP') {
+          setThumbsUpColor('#006400');
+        } else if (props.message.rating === 'THUMBS_DOWN') {
+          setThumbsDownColor('#8B0000');
+        }
+      }
+      if (props.fileAnnotations && props.fileAnnotations.length) {
+        for (const annotations of props.fileAnnotations) {
+          const button = document.createElement('button');
+          button.textContent = annotations.fileName;
+          button.className =
+            'py-2 px-4 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
+          button.addEventListener('click', function () {
+            downloadFile(annotations);
+          });
+          const svgContainer = document.createElement('div');
+          svgContainer.className = 'ml-2';
+          svgContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>`;
+
+          button.appendChild(svgContainer);
+          el.appendChild(button);
+        }
+      }
+    }
+  };
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -74,7 +122,7 @@ export const BotBubble = (props: Props) => {
 
   const copyMessageToClipboard = async () => {
     try {
-      const text = botMessageEl ? botMessageEl?.textContent : '';
+      const text = botMessageElement() ? botMessageElement()?.textContent : '';
       await navigator.clipboard.writeText(text || '');
       setCopiedMessage(true);
       setTimeout(() => {
@@ -201,38 +249,6 @@ export const BotBubble = (props: Props) => {
   };
 
   onMount(() => {
-    if (botMessageEl) {
-      botMessageEl.innerHTML = Marked.parse(props.message.message);
-      botMessageEl.querySelectorAll('a').forEach((link) => {
-        link.target = '_blank';
-      });
-      if (props.message.rating) {
-        setRating(props.message.rating);
-        if (props.message.rating === 'THUMBS_UP') {
-          setThumbsUpColor('#006400');
-        } else if (props.message.rating === 'THUMBS_DOWN') {
-          setThumbsDownColor('#8B0000');
-        }
-      }
-      if (props.fileAnnotations && props.fileAnnotations.length) {
-        for (const annotations of props.fileAnnotations) {
-          const button = document.createElement('button');
-          button.textContent = annotations.fileName;
-          button.className =
-            'py-2 px-4 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
-          button.addEventListener('click', function () {
-            downloadFile(annotations);
-          });
-          const svgContainer = document.createElement('div');
-          svgContainer.className = 'ml-2';
-          svgContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>`;
-
-          button.appendChild(svgContainer);
-          botMessageEl.appendChild(button);
-        }
-      }
-    }
-
     if (botDetailsEl && props.isLoading) {
       botDetailsEl.open = true;
     }
@@ -247,6 +263,20 @@ export const BotBubble = (props: Props) => {
   });
 
   const renderArtifacts = (item: Partial<FileUpload>) => {
+    // Instead of onMount, we'll use a callback ref to apply styles
+    const setArtifactRef = (el: HTMLSpanElement) => {
+      if (el) {
+        const textColor = props.textColor ?? defaultTextColor;
+        el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
+          (element as HTMLElement).style.color = textColor;
+        });
+
+        el.querySelectorAll('a').forEach((link) => {
+          link.target = '_blank';
+        });
+      }
+    };
+
     return (
       <>
         <Show when={item.type === 'png' || item.type === 'jpeg'}>
@@ -271,6 +301,7 @@ export const BotBubble = (props: Props) => {
         </Show>
         <Show when={item.type !== 'png' && item.type !== 'jpeg' && item.type !== 'html'}>
           <span
+            ref={setArtifactRef}
             innerHTML={Marked.parse(item.data as string)}
             class="prose"
             style={{
@@ -383,7 +414,7 @@ export const BotBubble = (props: Props) => {
           )}
           {props.message.message && (
             <span
-              ref={botMessageEl}
+              ref={setBotMessageRef}
               class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
               data-testid="host-bubble"
               style={{
