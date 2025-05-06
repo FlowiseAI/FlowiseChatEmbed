@@ -1,4 +1,4 @@
-import { For, Show, onMount } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { FileUpload, MessageType } from '../Bot';
@@ -22,15 +22,25 @@ const defaultTextColor = '#ffffff';
 const defaultFontSize = 16;
 
 export const GuestBubble = (props: Props) => {
-  let userMessageEl: HTMLDivElement | undefined;
-
   Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
-  onMount(() => {
-    if (userMessageEl) {
-      userMessageEl.innerHTML = Marked.parse(props.message.message);
+  // Callback ref to set innerHTML and apply text color to all Markdown elements
+  const setUserMessageRef = (el: HTMLSpanElement) => {
+    if (el) {
+      el.innerHTML = Marked.parse(props.message.message);
+
+      // Apply textColor to all links, headings, and other markdown elements
+      const textColor = props.textColor ?? defaultTextColor;
+      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
+        (element as HTMLElement).style.color = textColor;
+      });
+
+      // Set target="_blank" for links
+      el.querySelectorAll('a').forEach((link) => {
+        link.target = '_blank';
+      });
     }
-  });
+  };
 
   const renderFileUploads = (item: Partial<FileUpload>) => {
     if (item?.mime?.startsWith('image/')) {
@@ -82,7 +92,7 @@ export const GuestBubble = (props: Props) => {
         )}
         {props.message.message && (
           <span
-            ref={userMessageEl}
+            ref={setUserMessageRef}
             class="mr-2 whitespace-pre-wrap"
             style={{ 'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px` }}
           />
