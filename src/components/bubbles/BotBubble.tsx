@@ -50,20 +50,20 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
-  
+
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
 
   const setBotMessageRef = (el: HTMLSpanElement) => {
     if (el) {
       el.innerHTML = Marked.parse(props.message.message);
-      
+
       // Apply textColor to all links, headings, and other markdown elements
       const textColor = props.textColor ?? defaultTextColor;
       el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
         (element as HTMLElement).style.color = textColor;
       });
-      
+
       // Set target="_blank" for links
       el.querySelectorAll('a').forEach((link) => {
         link.target = '_blank';
@@ -270,13 +270,13 @@ export const BotBubble = (props: Props) => {
         el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
           (element as HTMLElement).style.color = textColor;
         });
-        
+
         el.querySelectorAll('a').forEach((link) => {
           link.target = '_blank';
         });
       }
     };
-    
+
     return (
       <>
         <Show when={item.type === 'png' || item.type === 'jpeg'}>
