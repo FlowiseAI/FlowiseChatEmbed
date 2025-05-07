@@ -1,0 +1,31 @@
+name: Sync Branches
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Git
+      run: |
+        git config --global user.name 'Your Name'
+        git config --global user.email 'your-email@example.com'
+
+    - name: Sync branches
+      run: |
+        BRANCHES=("branch1" "branch2" "branch3" "branch4")
+        for BRANCH in "${BRANCHES[@]}"
+        do
+          git checkout $BRANCH
+          git merge master --no-edit
+          git push origin $BRANCH
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
