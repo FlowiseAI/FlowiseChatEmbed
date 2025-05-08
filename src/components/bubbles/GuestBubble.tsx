@@ -31,8 +31,22 @@ export const GuestBubble = (props: Props) => {
 
       // Apply textColor to all links, headings, and other markdown elements
       const textColor = props.textColor ?? defaultTextColor;
-      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
+      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
         (element as HTMLElement).style.color = textColor;
+      });
+
+      // Code blocks (with pre) get white text
+      el.querySelectorAll('pre').forEach((element) => {
+        (element as HTMLElement).style.color = '#FFFFFF';
+        // Also ensure any code elements inside pre have white text
+        element.querySelectorAll('code').forEach((codeElement) => {
+          (codeElement as HTMLElement).style.color = '#FFFFFF';
+        });
+      });
+
+      // Inline code (not in pre) gets green text
+      el.querySelectorAll('code:not(pre code)').forEach((element) => {
+        (element as HTMLElement).style.color = '#4CAF50'; // Green color
       });
 
       // Set target="_blank" for links
