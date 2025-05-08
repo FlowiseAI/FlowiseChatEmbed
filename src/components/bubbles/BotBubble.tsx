@@ -58,15 +58,24 @@ export const BotBubble = (props: Props) => {
     if (el) {
       el.innerHTML = Marked.parse(props.message.message);
 
-      // Apply textColor to all links, headings, and other markdown elements except code blocks
+      // Apply textColor to all links, headings, and other markdown elements except code
       const textColor = props.textColor ?? defaultTextColor;
       el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
         (element as HTMLElement).style.color = textColor;
       });
 
-      // Always set code blocks text to white
-      el.querySelectorAll('pre, code').forEach((element) => {
+      // Code blocks (with pre) get white text
+      el.querySelectorAll('pre').forEach((element) => {
         (element as HTMLElement).style.color = '#FFFFFF';
+        // Also ensure any code elements inside pre have white text
+        element.querySelectorAll('code').forEach((codeElement) => {
+          (codeElement as HTMLElement).style.color = '#FFFFFF';
+        });
+      });
+
+      // Inline code (not in pre) gets green text
+      el.querySelectorAll('code:not(pre code)').forEach((element) => {
+        (element as HTMLElement).style.color = '#4CAF50'; // Green color
       });
 
       // Set target="_blank" for links
@@ -277,9 +286,18 @@ export const BotBubble = (props: Props) => {
           (element as HTMLElement).style.color = textColor;
         });
 
-        // Always set code blocks text to white
-        el.querySelectorAll('pre, code').forEach((element) => {
+        // Code blocks (with pre) get white text
+        el.querySelectorAll('pre').forEach((element) => {
           (element as HTMLElement).style.color = '#FFFFFF';
+          // Also ensure any code elements inside pre have white text
+          element.querySelectorAll('code').forEach((codeElement) => {
+            (codeElement as HTMLElement).style.color = '#FFFFFF';
+          });
+        });
+
+        // Inline code (not in pre) gets green text
+        el.querySelectorAll('code:not(pre code)').forEach((element) => {
+          (element as HTMLElement).style.color = '#4CAF50'; // Green color
         });
 
         el.querySelectorAll('a').forEach((link) => {

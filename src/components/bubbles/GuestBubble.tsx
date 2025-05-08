@@ -35,9 +35,18 @@ export const GuestBubble = (props: Props) => {
         (element as HTMLElement).style.color = textColor;
       });
 
-      // Always set code blocks text to white
-      el.querySelectorAll('pre, code').forEach((element) => {
+      // Code blocks (with pre) get white text
+      el.querySelectorAll('pre').forEach((element) => {
         (element as HTMLElement).style.color = '#FFFFFF';
+        // Also ensure any code elements inside pre have white text
+        element.querySelectorAll('code').forEach((codeElement) => {
+          (codeElement as HTMLElement).style.color = '#FFFFFF';
+        });
+      });
+
+      // Inline code (not in pre) gets green text
+      el.querySelectorAll('code:not(pre code)').forEach((element) => {
+        (element as HTMLElement).style.color = '#4CAF50'; // Green color
       });
 
       // Set target="_blank" for links
