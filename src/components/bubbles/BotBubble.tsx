@@ -58,10 +58,15 @@ export const BotBubble = (props: Props) => {
     if (el) {
       el.innerHTML = Marked.parse(props.message.message);
 
-      // Apply textColor to all links, headings, and other markdown elements
+      // Apply textColor to all links, headings, and other markdown elements except code blocks
       const textColor = props.textColor ?? defaultTextColor;
-      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
+      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
         (element as HTMLElement).style.color = textColor;
+      });
+
+      // Always set code blocks text to white
+      el.querySelectorAll('pre, code').forEach((element) => {
+        (element as HTMLElement).style.color = '#FFFFFF';
       });
 
       // Set target="_blank" for links
@@ -267,8 +272,14 @@ export const BotBubble = (props: Props) => {
     const setArtifactRef = (el: HTMLSpanElement) => {
       if (el) {
         const textColor = props.textColor ?? defaultTextColor;
-        el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li, code, pre').forEach((element) => {
+        // Apply textColor to all elements except code blocks
+        el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
           (element as HTMLElement).style.color = textColor;
+        });
+
+        // Always set code blocks text to white
+        el.querySelectorAll('pre, code').forEach((element) => {
+          (element as HTMLElement).style.color = '#FFFFFF';
         });
 
         el.querySelectorAll('a').forEach((link) => {
