@@ -194,7 +194,17 @@ const validateApiKey = (req, res, next) => {
     chatflow = getChatflowDetails(identifier);
     req.chatflow = chatflow;
   } catch (error) {
-    return res.status(404).json({ error: 'Not Found' });
+  
+    if (req.method === 'PUT' && req.path.startsWith('/api/v1/feedback/')) {
+      const origin = req.headers.origin;
+      const allAllowedDomains = Array.from(chatflows.values()).flatMap((config) => config.domains);
+      if (isValidDomain(origin, allAllowedDomains)) {
+        return next();
+      }
+
+    } else {
+      return res.status(404).json({ error: 'Not Found' });
+    }
   }
 
   const origin = req.headers.origin;
@@ -371,6 +381,49 @@ app.post('/api/v1/attachments/:identifier/:chatId', upload.array('files'), async
   } catch (error) {
     console.error('Attachment upload error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/v1/feedback/:identifier', async (req, res) => {
+  try {
+    const chatflow = req.chatflow;
+    const { chatflowid, ...restOfBody } = req.body;
+    const feedbackBody = {
+      ...restOfBody,
+      chatflowId: chatflow.chatflowId,
+    };
+
+    const targetUrl = `${API_HOST}/api/v1/feedback`;
+    const response = await axios.post(targetUrl, feedbackBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${FLOWISE_API_KEY}`,
+      },
+    });
+
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Feedback proxy error:', error.response ? error.response.data : error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Internal Server Error' });
+  }
+});
+
+app.put('/api/v1/feedback/:feedbackId', async (req, res) => {
+  try {
+    const { feedbackId } = req.params;
+    const targetUrl = `${API_HOST}/api/v1/feedback/${feedbackId}`;
+
+    const response = await axios.put(targetUrl, req.body, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${FLOWISE_API_KEY}`,
+      },
+    });
+
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Update Feedback proxy error:', error.response ? error.response.data : error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Internal Server Error' });
   }
 });
 
