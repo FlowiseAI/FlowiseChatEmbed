@@ -1,9 +1,10 @@
+import type { FetchEventSourceInit } from '@microsoft/fetch-event-source';
 import { observersConfigType } from './components/Bot';
 import { BubbleTheme } from './features/bubble/types';
 type BotProps = {
     chatflowid: string;
     apiHost?: string;
-    onRequest?: (request: RequestInit) => Promise<void>;
+    onRequest?: (request: RequestInit | FetchEventSourceInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
     observersConfig?: observersConfigType;
     theme?: BubbleTheme;

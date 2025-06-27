@@ -35,7 +35,7 @@ import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
-import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { fetchEventSource, EventStreamContentType, type FetchEventSourceInit } from '@microsoft/fetch-event-source';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -139,7 +139,7 @@ export type observersConfigType = Record<'observeUserInput' | 'observeLoading' |
 export type BotProps = {
   chatflowid: string;
   apiHost?: string;
-  onRequest?: (request: RequestInit) => Promise<void>;
+  onRequest?: (request: RequestInit | FetchEventSourceInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
   backgroundColor?: string;
   welcomeMessage?: string;
@@ -788,7 +788,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
-    fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+    const request: FetchEventSourceInit = {
       openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
@@ -871,7 +871,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         closeResponse();
         throw err;
       },
-    });
+    };
+
+    if (props.onRequest) {
+      await props.onRequest(request);
+    }
+
+    fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, request);
   };
 
   const closeResponse = () => {
