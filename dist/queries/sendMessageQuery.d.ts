@@ -1,4 +1,5 @@
 import { FileUpload, IAction } from '@/components/Bot';
+import { BaseRequest } from './types';
 export type IncomingInput = {
     question?: string;
     form?: Record<string, unknown>;
@@ -10,10 +11,6 @@ export type IncomingInput = {
     leadEmail?: string;
     action?: IAction;
     humanInput?: Record<string, unknown>;
-};
-type BaseRequest = {
-    apiHost?: string;
-    onRequest?: (request: RequestInit) => Promise<void>;
 };
 export type MessageRequest = BaseRequest & {
     chatflowid?: string;
@@ -85,5 +82,4 @@ export declare const addLeadQuery: ({ apiHost, body, onRequest }: LeadCaptureReq
     data?: any;
     error?: Error | undefined;
 }>;
-export {};
 //# sourceMappingURL=sendMessageQuery.d.ts.map

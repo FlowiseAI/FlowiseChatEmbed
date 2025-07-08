@@ -10,13 +10,12 @@ import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
 import { WorkflowTreeView } from '../treeview/WorkflowTreeView';
+import { BaseRequest } from '@/queries/types';
 
 type Props = {
   message: MessageType;
   chatflowid: string;
   chatId: string;
-  apiHost?: string;
-  onRequest?: (request: RequestInit) => Promise<void>;
   fileAnnotations?: any;
   showAvatar?: boolean;
   avatarSrc?: string;
@@ -32,7 +31,7 @@ type Props = {
   renderHTML?: boolean;
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
-};
+} & BaseRequest;
 
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';

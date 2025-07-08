@@ -36,6 +36,7 @@ import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorage
 import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType, type FetchEventSourceInit } from '@microsoft/fetch-event-source';
+import { BaseRequest } from '@/queries/types';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -138,8 +139,6 @@ export type observersConfigType = Record<'observeUserInput' | 'observeLoading' |
 
 export type BotProps = {
   chatflowid: string;
-  apiHost?: string;
-  onRequest?: (request: RequestInit | FetchEventSourceInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
   backgroundColor?: string;
   welcomeMessage?: string;
@@ -172,7 +171,7 @@ export type BotProps = {
   dateTimeToggle?: DateTimeToggleTheme;
   renderHTML?: boolean;
   closeBot?: () => void;
-};
+} & BaseRequest;
 
 export type LeadsConfig = {
   status: boolean;
@@ -920,6 +919,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           chatflowid: props.chatflowid,
           apiHost: props.apiHost,
           formData: formData,
+          onRequest: props.onRequest,
         });
 
         if (!response.data) {
@@ -957,6 +957,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           chatflowid: props.chatflowid,
           apiHost: props.apiHost,
           formData: formData,
+          onRequest: props.onRequest,
         });
 
         if (!response.data) {
@@ -1862,6 +1863,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           }}
                           dateTimeToggle={props.dateTimeToggle}
                           renderHTML={props.renderHTML}
+                          onRequest={props.onRequest}
                         />
                       )}
                       {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
@@ -1880,6 +1882,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           isLeadSaved={isLeadSaved()}
                           setIsLeadSaved={setIsLeadSaved}
                           setLeadEmail={setLeadEmail}
+                          onRequest={props.onRequest}
                         />
                       )}
                       {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}

@@ -5,13 +5,13 @@ import { addLeadQuery, LeadCaptureInput } from '@/queries/sendMessageQuery';
 import { SaveLeadButton } from '@/components/buttons/LeadCaptureButtons';
 import { Avatar } from '@/components/avatars/Avatar';
 import { getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
+import { BaseRequest } from '@/queries/types';
 
 type Props = {
   message: MessageType;
   chatflowid: string;
   chatId: string;
   leadsConfig?: LeadsConfig;
-  apiHost?: string;
   showAvatar?: boolean;
   avatarSrc?: string;
   backgroundColor?: string;
@@ -21,7 +21,7 @@ type Props = {
   isLeadSaved: boolean;
   setIsLeadSaved: (value: boolean) => void;
   setLeadEmail: (value: string) => void;
-};
+} & BaseRequest;
 
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
@@ -60,6 +60,7 @@ export const LeadCaptureBubble = (props: Props) => {
       const result = await addLeadQuery({
         apiHost: props.apiHost,
         body,
+        onRequest: props.onRequest,
       });
 
       if (result.data) {

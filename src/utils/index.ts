@@ -1,3 +1,5 @@
+import { OnRequest } from '@/queries/types';
+
 export const isNotDefined = <T>(value: T | undefined | null): value is undefined | null => value === undefined || value === null;
 
 export const isDefined = <T>(value: T | undefined | null): value is NonNullable<T> => value !== undefined && value !== null;
@@ -15,7 +17,7 @@ export const sendRequest = async <ResponseData>(
         type?: string;
         headers?: Record<string, any>;
         formData?: FormData;
-        onRequest?: (request: RequestInit) => Promise<void>;
+        onRequest: OnRequest;
       }
     | string,
 ): Promise<{ data?: ResponseData; error?: Error }> => {

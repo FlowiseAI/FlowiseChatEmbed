@@ -1,7 +1,7 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
-import { FetchEventSourceInit } from '@microsoft/fetch-event-source';
+import { BaseRequest } from '@/queries/types';
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
@@ -83,8 +83,6 @@ type observerConfigType = (accessor: string | boolean | object | MessageType[]) 
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
 export type BotProps = {
     chatflowid: string;
-    apiHost?: string;
-    onRequest?: (request: RequestInit | FetchEventSourceInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
     backgroundColor?: string;
     welcomeMessage?: string;
@@ -119,7 +117,7 @@ export type BotProps = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     closeBot?: () => void;
-};
+} & BaseRequest;
 export type LeadsConfig = {
     status: boolean;
     title?: string;
