@@ -1,11 +1,12 @@
 import { observersConfigType } from './components/Bot';
 import { BubbleTheme } from './features/bubble/types';
+import { OnRequest } from './queries/types';
 
 /* eslint-disable solid/reactivity */
 type BotProps = {
   chatflowid: string;
   apiHost?: string;
-  onRequest?: (request: RequestInit) => Promise<void>;
+  onRequest?: OnRequest;
   chatflowConfig?: Record<string, unknown>;
   observersConfig?: observersConfigType;
   theme?: BubbleTheme;

@@ -2,7 +2,7 @@ declare const chatbot: {
     initFull: (props: {
         chatflowid: string;
         apiHost?: string | undefined;
-        onRequest?: ((request: RequestInit) => Promise<void>) | undefined;
+        onRequest?: import("./queries/types").OnRequest;
         chatflowConfig?: Record<string, unknown> | undefined;
         observersConfig?: import("./components/Bot").observersConfigType | undefined;
         theme?: import("./features/bubble/types").BubbleTheme | undefined;
@@ -12,7 +12,7 @@ declare const chatbot: {
     init: (props: {
         chatflowid: string;
         apiHost?: string | undefined;
-        onRequest?: ((request: RequestInit) => Promise<void>) | undefined;
+        onRequest?: import("./queries/types").OnRequest;
         chatflowConfig?: Record<string, unknown> | undefined;
         observersConfig?: import("./components/Bot").observersConfigType | undefined;
         theme?: import("./features/bubble/types").BubbleTheme | undefined;

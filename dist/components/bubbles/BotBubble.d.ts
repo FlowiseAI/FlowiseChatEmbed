@@ -1,11 +1,10 @@
 import { IAction, MessageType } from '../Bot';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
+import { BaseRequest } from '@/queries/types';
 type Props = {
     message: MessageType;
     chatflowid: string;
     chatId: string;
-    apiHost?: string;
-    onRequest?: (request: RequestInit) => Promise<void>;
     fileAnnotations?: any;
     showAvatar?: boolean;
     avatarSrc?: string;
@@ -21,7 +20,7 @@ type Props = {
     renderHTML?: boolean;
     handleActionClick: (elem: any, action: IAction | undefined | null) => void;
     handleSourceDocumentsClick: (src: any) => void;
-};
+} & BaseRequest;
 export declare const BotBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};
 //# sourceMappingURL=BotBubble.d.ts.map

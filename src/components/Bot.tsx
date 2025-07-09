@@ -35,7 +35,8 @@ import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
-import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { fetchEventSource, EventStreamContentType, type FetchEventSourceInit } from '@microsoft/fetch-event-source';
+import { BaseRequest } from '@/queries/types';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -138,8 +139,6 @@ export type observersConfigType = Record<'observeUserInput' | 'observeLoading' |
 
 export type BotProps = {
   chatflowid: string;
-  apiHost?: string;
-  onRequest?: (request: RequestInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
   backgroundColor?: string;
   welcomeMessage?: string;
@@ -172,7 +171,7 @@ export type BotProps = {
   dateTimeToggle?: DateTimeToggleTheme;
   renderHTML?: boolean;
   closeBot?: () => void;
-};
+} & BaseRequest;
 
 export type LeadsConfig = {
   status: boolean;
@@ -788,7 +787,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
-    fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+    const request: FetchEventSourceInit = {
       openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
@@ -871,7 +870,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         closeResponse();
         throw err;
       },
-    });
+    };
+
+    if (props.onRequest) {
+      await props.onRequest(request);
+    }
+
+    fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, request);
   };
 
   const closeResponse = () => {
@@ -914,6 +919,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           chatflowid: props.chatflowid,
           apiHost: props.apiHost,
           formData: formData,
+          onRequest: props.onRequest,
         });
 
         if (!response.data) {
@@ -951,6 +957,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           chatflowid: props.chatflowid,
           apiHost: props.apiHost,
           formData: formData,
+          onRequest: props.onRequest,
         });
 
         if (!response.data) {
@@ -1856,6 +1863,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           }}
                           dateTimeToggle={props.dateTimeToggle}
                           renderHTML={props.renderHTML}
+                          onRequest={props.onRequest}
                         />
                       )}
                       {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
@@ -1874,6 +1882,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           isLeadSaved={isLeadSaved()}
                           setIsLeadSaved={setIsLeadSaved}
                           setLeadEmail={setLeadEmail}
+                          onRequest={props.onRequest}
                         />
                       )}
                       {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
