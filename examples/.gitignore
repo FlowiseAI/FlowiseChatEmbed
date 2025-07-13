@@ -1,0 +1,8 @@
+# OAuth/OIDC Configuration
+# This file contains sensitive credentials and should not be committed
+config.js
+
+# Optional: Exclude any other sensitive files
+*.env
+*.key
+*.pem

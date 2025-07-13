@@ -1,6 +1,7 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
+import { AuthenticationConfig } from '@/types/auth';
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
@@ -118,6 +119,7 @@ export type BotProps = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     closeBot?: () => void;
+    authentication?: AuthenticationConfig;
 };
 export type LeadsConfig = {
     status: boolean;

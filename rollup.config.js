@@ -8,7 +8,6 @@ import tailwindcss from 'tailwindcss';
 import typescript from '@rollup/plugin-typescript';
 import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 import commonjs from '@rollup/plugin-commonjs';
-import { uglify } from 'rollup-plugin-uglify';
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 
@@ -21,7 +20,6 @@ const indexConfig = {
   plugins: [
     resolve({ extensions, browser: true }),
     commonjs(),
-    uglify(),
     json(),
     babel({
       babelHelpers: 'bundled',
@@ -45,9 +43,9 @@ const indexConfig = {
           serve({
             open: true,
             verbose: true,
-            contentBase: ['dist', 'public'],
+            contentBase: ['.', 'dist', 'public'],
             host: 'localhost',
-            port: 5678,
+            port: 51914,
           }),
           livereload({ watch: 'dist' }),
         ]
