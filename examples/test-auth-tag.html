@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Status Tag Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chat-container {
+            height: 500px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            position: relative;
+            background: #f8f9fa;
+            margin: 20px 0;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authentication Status Tag Test</h1>
+        <p>This page tests the authentication status tag functionality with a local chatbot instance.</p>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="simulateValidTokens()">
+                ✅ Simulate Valid Tokens
+            </button>
+            <button class="btn btn-secondary" onclick="simulateExpiredTokens()">
+                ⏰ Simulate Expired Tokens
+            </button>
+            <button class="btn btn-danger" onclick="clearAllTokens()">
+                🗑️ Clear All Tokens
+            </button>
+        </div>
+        
+        <div class="chat-container">
+            <flowise-chatbot></flowise-chatbot>
+        </div>
+    </div>
+
+    <script type="module">
+        // Simple test configuration that doesn't require external APIs
+        const testAuthConfig = {
+            mode: 'optional',
+            oauth: {
+                clientId: 'test-client-id',
+                authority: 'https://test-provider.com',
+                redirectUri: window.location.origin + '/callback',
+                scope: 'openid profile email'
+            },
+            promptConfig: {
+                title: 'Test Authentication',
+                message: 'This is a test authentication prompt.',
+                loginButtonText: 'Test Login',
+                skipButtonText: 'Skip Test'
+            },
+            tokenStorageKey: 'test_auth_tokens',
+            autoRefresh: true,
+            refreshThreshold: 300
+        };
+
+        const testChatbotConfig = {
+            chatflowid: "test-chatflow-id",
+            apiHost: "http://localhost:51914", // Use local server
+            authentication: testAuthConfig,
+            theme: {
+                chatWindow: {
+                    welcomeMessage: "Test chatbot with authentication status tag",
+                    backgroundColor: "#ffffff",
+                    height: 450,
+                    width: "100%",
+                    fontSize: 16,
+                    showTitle: true,
+                    title: "Test Chat with Auth Status",
+                    titleBackgroundColor: "#3B81F6",
+                    titleTextColor: "#ffffff",
+                    botMessage: {
+                        backgroundColor: "#f7f8ff",
+                        textColor: "#303235",
+                        showAvatar: true
+                    },
+                    userMessage: {
+                        backgroundColor: "#3B81F6",
+                        textColor: "#ffffff",
+                        showAvatar: true
+                    },
+                    textInput: {
+                        placeholder: "Type your test message...",
+                        backgroundColor: "#ffffff",
+                        textColor: "#303235",
+                        sendButtonColor: "#3B81F6"
+                    }
+                }
+            }
+        };
+
+        // Test functions
+        window.simulateValidTokens = function() {
+            const tokens = {
+                access_token: 'test_access_token_' + Date.now(),
+                token_type: 'Bearer',
+                expires_in: 3600,
+                expires_at: Date.now() + 3600 * 1000, // 1 hour from now
+                refresh_token: 'test_refresh_token_' + Date.now(),
+                id_token: 'test_id_token_' + Date.now(),
+                scope: 'openid profile email'
+            };
+            
+            localStorage.setItem(testAuthConfig.tokenStorageKey, JSON.stringify(tokens));
+            console.log('✅ Valid tokens simulated');
+            
+            // Reload the chatbot to see the status change
+            location.reload();
+        };
+
+        window.simulateExpiredTokens = function() {
+            const tokens = {
+                access_token: 'expired_access_token',
+                token_type: 'Bearer',
+                expires_in: 3600,
+                expires_at: Date.now() - 1000, // 1 second ago (expired)
+                refresh_token: 'expired_refresh_token',
+                scope: 'openid profile email'
+            };
+            
+            localStorage.setItem(testAuthConfig.tokenStorageKey, JSON.stringify(tokens));
+            console.log('⏰ Expired tokens simulated');
+            
+            // Reload the chatbot to see the status change
+            location.reload();
+        };
+
+        window.clearAllTokens = function() {
+            localStorage.removeItem(testAuthConfig.tokenStorageKey);
+            sessionStorage.removeItem(testAuthConfig.tokenStorageKey);
+            document.cookie = `${testAuthConfig.tokenStorageKey}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            console.log('🗑️ All tokens cleared');
+            
+            // Reload the chatbot to see the status change
+            location.reload();
+        };
+
+        // Initialize the chat widget
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                console.log('Loading chatbot...');
+                const { default: Chatbot } = await import('http://localhost:51914/web.js');
+                
+                console.log('Initializing chatbot with test config...');
+                Chatbot.init(testChatbotConfig);
+                
+                console.log('Chatbot initialized successfully');
+            } catch (error) {
+                console.error('Failed to load chatbot:', error);
+                document.querySelector('.chat-container').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: #dc3545;">' +
+                    '<h3>⚠️ Chatbot Loading Error</h3>' +
+                    '<p>Failed to load the chatbot. Check the console for details.</p>' +
+                    '<p>Error: ' + error.message + '</p>' +
+                    '</div>';
+            }
+        });
+    </script>
+</body>
+</html>

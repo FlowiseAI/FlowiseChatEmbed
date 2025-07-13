@@ -39,6 +39,7 @@ import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event
 import { AuthenticationConfig } from '@/types/auth';
 import { AuthService, createAuthService } from '@/services/authService';
 import { AuthenticationPrompt, AuthenticationLoading, AuthenticationError } from './auth/AuthenticationPrompt';
+import { AuthenticationStatusTag } from './auth/AuthenticationStatusTag';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -1909,6 +1910,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               <Show when={props.title}>
                 <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
               </Show>
+              <AuthenticationStatusTag authService={authService()} />
               <div style={{ flex: 1 }} />
               <DeleteButton
                 sendButtonColor={props.bubbleTextColor}
