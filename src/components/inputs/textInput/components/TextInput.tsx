@@ -2,6 +2,8 @@ import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { Show, createSignal, createEffect, onMount, Setter } from 'solid-js';
 import { SendButton } from '@/components/buttons/SendButton';
+import { CancelButton } from '@/components/buttons/CancelButton';
+
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
@@ -31,25 +33,26 @@ type TextInputProps = {
   fullFileUploadAllowedTypes?: string;
   enableInputHistory?: boolean;
   maxHistorySize?: number;
+  showStopButton?: boolean;
+  onStopButtonClick?: () => void;
 };
 
 const defaultBackgroundColor = '#ffffff';
-const defaultTextColor = '#303235';
-// CDN link for default send sound
+const defaultTextColor = '#000000';
 const defaultSendSound = 'https://cdn.jsdelivr.net/gh/FlowiseAI/FlowiseChatEmbed@latest/src/assets/send_message.mp3';
 
 export const TextInput = (props: TextInputProps) => {
   const [isSendButtonDisabled, setIsSendButtonDisabled] = createSignal(false);
   const [warningMessage, setWarningMessage] = createSignal('');
   const [inputHistory] = createSignal(new ChatInputHistory(() => props.maxHistorySize || 10));
-  let inputRef: HTMLInputElement | HTMLTextAreaElement | undefined;
-  let fileUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
-  let imgUploadRef: HTMLInputElement | HTMLTextAreaElement | undefined;
+
+  let inputRef: HTMLTextAreaElement | undefined;
   let audioRef: HTMLAudioElement | undefined;
+  let fileUploadRef: HTMLInputElement | undefined;
+  let imgUploadRef: HTMLInputElement | undefined;
 
   const handleInput = (inputValue: string) => {
     const wordCount = inputValue.length;
-
     if (props.maxChars && wordCount > props.maxChars) {
       setWarningMessage(props.maxCharsWarningMessage ?? `You exceeded the characters limit. Please input less than ${props.maxChars} characters.`);
       setIsSendButtonDisabled(true);
@@ -75,14 +78,6 @@ export const TextInput = (props: TextInputProps) => {
     }
   };
 
-  const handleImageUploadClick = () => {
-    if (imgUploadRef) imgUploadRef.click();
-  };
-
-  const handleFileUploadClick = () => {
-    if (fileUploadRef) fileUploadRef.click();
-  };
-
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       const isIMEComposition = e.isComposing || e.keyCode === 229;
@@ -105,21 +100,14 @@ export const TextInput = (props: TextInputProps) => {
 
   createEffect(() => {
     const shouldAutoFocus = props.autoFocus !== undefined ? props.autoFocus : !isMobile() && window.innerWidth > 640;
-
     if (!props.disabled && shouldAutoFocus && inputRef) inputRef.focus();
   });
 
   onMount(() => {
     const shouldAutoFocus = props.autoFocus !== undefined ? props.autoFocus : !isMobile() && window.innerWidth > 640;
-
     if (!props.disabled && shouldAutoFocus && inputRef) inputRef.focus();
-
     if (props.sendMessageSound) {
-      if (props.sendSoundLocation) {
-        audioRef = new Audio(props.sendSoundLocation);
-      } else {
-        audioRef = new Audio(defaultSendSound);
-      }
+      audioRef = new Audio(props.sendSoundLocation || defaultSendSound);
     }
   });
 
@@ -131,104 +119,112 @@ export const TextInput = (props: TextInputProps) => {
   const getFileType = () => {
     if (props.isFullFileUpload) return props.fullFileUploadAllowedTypes === '' ? '*' : props.fullFileUploadAllowedTypes;
     if (props.uploadsConfig?.fileUploadSizeAndTypes?.length) {
-      const allowedFileTypes = props.uploadsConfig?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',');
-      if (allowedFileTypes.includes('*')) return '*';
-      else return allowedFileTypes;
+      const allowedFileTypes = props.uploadsConfig.fileUploadSizeAndTypes.map(f => f.fileTypes).join(',');
+      return allowedFileTypes.includes('*') ? '*' : allowedFileTypes;
     }
     return '*';
   };
 
   return (
-    <div
-      class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee]"
-      data-testid="input"
-      style={{
-        margin: 'auto',
-        'background-color': props.backgroundColor ?? defaultBackgroundColor,
-        color: props.textColor ?? defaultTextColor,
-      }}
-      onKeyDown={handleKeyDown}
-    >
-      <Show when={warningMessage() !== ''}>
-        <div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">
-          {warningMessage()}
+    <div class="w-full flex justify-center px-2 mt-3 z-0">
+      <div
+        class="
+          max-w-2xl w-full flex flex-col p-3 border border-black
+          bg-white text-black rounded-xl shadow
+          chatbot-input
+        "
+        style={{
+          color: props.textColor ?? defaultTextColor,
+          'background-color': props.backgroundColor ?? defaultBackgroundColor,
+        }}
+        onKeyDown={handleKeyDown}
+        data-testid="input"
+      >
+        <Show when={warningMessage() !== ''}>
+          <div class="text-red-500 text-sm px-1 pb-1" data-testid="warning-message">
+            {warningMessage()}
+          </div>
+        </Show>
+
+        <div class="w-full flex flex-col gap-2">
+          {/* Text Input */}
+          <ShortTextInput
+            ref={(el) => (inputRef = el)}
+            onInput={handleInput}
+            value={props.inputValue}
+            fontSize={props.fontSize}
+            disabled={props.disabled}
+            placeholder={props.placeholder ?? 'Type your message...'}
+          />
+
+          {/* Buttons Row BELOW input */}
+          <div class="flex justify-between items-center w-full">
+            <div class="flex items-center gap-2">
+              {props.uploadsConfig?.isRAGFileUploadAllowed && (
+                <>
+                  <AttachmentUploadButton
+                    buttonColor={props.sendButtonColor}
+                    class="h-9"
+                    isDisabled={props.disabled || isSendButtonDisabled()}
+                    on:click={() => fileUploadRef?.click()}
+                  />
+                  <input
+                    style={{ display: 'none' }}
+                    multiple
+                    ref={el => (fileUploadRef = el)}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept={getFileType()}
+                  />
+                </>
+              )}
+
+              {props.uploadsConfig?.isImageUploadAllowed && (
+                <>
+                  <ImageUploadButton
+                    buttonColor={props.sendButtonColor}
+                    class="h-9"
+                    isDisabled={props.disabled || isSendButtonDisabled()}
+                    on:click={() => imgUploadRef?.click()}
+                  >
+                    Image
+                  </ImageUploadButton>
+                  <input
+                    style={{ display: 'none' }}
+                    multiple
+                    ref={el => (imgUploadRef = el)}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept={props.uploadsConfig.imgUploadSizeAndTypes?.map(a => a.fileTypes).join(',') || '*'}
+                  />
+                </>
+              )}
+            </div>
+
+            <SendButton
+              sendButtonColor={props.sendButtonColor}
+              isDisabled={props.disabled || isSendButtonDisabled()}
+              class="h-9"
+              onClick={submit}
+            >
+              Send
+            </SendButton>
+          </div>
         </div>
-      </Show>
-      <div class="w-full flex items-end justify-between">
-        {props.uploadsConfig?.isImageUploadAllowed ? (
-          <>
-            <ImageUploadButton
+
+        {/* Optional: Stop button row */}
+        <div class="mt-3 w-full flex justify-end gap-2">
+          <Show when={props.showStopButton}>
+            <CancelButton
               buttonColor={props.sendButtonColor}
-              type="button"
-              class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled || isSendButtonDisabled()}
-              on:click={handleImageUploadClick}
+              class="h-10"
+              isDisabled={false}
+              onClick={props.onStopButtonClick}
             >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
-            </ImageUploadButton>
-            <input
-              style={{ display: 'none' }}
-              multiple
-              ref={imgUploadRef as HTMLInputElement}
-              type="file"
-              onChange={handleFileChange}
-              accept={
-                props.uploadsConfig?.imgUploadSizeAndTypes?.length
-                  ? props.uploadsConfig?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
-                  : '*'
-              }
-            />
-          </>
-        ) : null}
-        {props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload ? (
-          <>
-            <AttachmentUploadButton
-              buttonColor={props.sendButtonColor}
-              type="button"
-              class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled || isSendButtonDisabled()}
-              on:click={handleFileUploadClick}
-            >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>File Upload</span>
-            </AttachmentUploadButton>
-            <input
-              style={{ display: 'none' }}
-              multiple
-              ref={fileUploadRef as HTMLInputElement}
-              type="file"
-              onChange={handleFileChange}
-              accept={getFileType()}
-            />
-          </>
-        ) : null}
-        <ShortTextInput
-          ref={inputRef as HTMLTextAreaElement}
-          onInput={handleInput}
-          value={props.inputValue}
-          fontSize={props.fontSize}
-          disabled={props.disabled}
-          placeholder={props.placeholder ?? 'Type your question'}
-        />
-        {props.uploadsConfig?.isSpeechToTextEnabled ? (
-          <RecordAudioButton
-            buttonColor={props.sendButtonColor}
-            type="button"
-            class="m-0 start-recording-button h-14 flex items-center justify-center"
-            isDisabled={props.disabled || isSendButtonDisabled()}
-            on:click={props.onMicrophoneClicked}
-          >
-            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
-          </RecordAudioButton>
-        ) : null}
-        <SendButton
-          sendButtonColor={props.sendButtonColor}
-          type="button"
-          isDisabled={props.disabled || isSendButtonDisabled()}
-          class="m-0 h-14 flex items-center justify-center"
-          on:click={submit}
-        >
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-        </SendButton>
+              Stop
+            </CancelButton>
+          </Show>
+        </div>
       </div>
     </div>
   );

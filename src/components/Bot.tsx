@@ -37,6 +37,9 @@ import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
+const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
+
+
 export type FileEvent<T = EventTarget> = {
   target: T;
 };
@@ -262,9 +265,10 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
     },
 ]*/
 
-const defaultBackgroundColor = '#ffffff';
-const defaultTextColor = '#303235';
-const defaultTitleBackgroundColor = '#3B81F6';
+const defaultBackgroundColor = '#000000';
+const defaultTextColor       = '#EEEEEE';
+const defaultTitleBackgroundColor = '#000000';
+
 
 /* FeedbackDialog component - for collecting user feedback */
 const FeedbackDialog = (props: {
@@ -476,6 +480,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal('');
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
+  const [abortController, setAbortController] = createSignal<AbortController | null>(null);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [fullFileUpload, setFullFileUpload] = createSignal<boolean>(false);
@@ -788,7 +793,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
+    const controller = new AbortController();
+    setAbortController(controller);
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+      signal: controller.signal,
       openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
@@ -898,6 +906,25 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleFileUploads = async (uploads: IUploads) => {
+
+    //============================================================================= upload files update
+    // ── NEW: send every raw File to your own API endpoint first ──
+    if (uploadedFiles().length) {
+      for (const { file } of uploadedFiles()) {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          await fetch('https://0f5f-43-251-96-32.ngrok-free.app/upload', {
+            method: 'POST',
+            body: formData
+          });
+        } catch (err) {
+          console.error('🚨 failed to POST file to my API', file.name, err);
+        }
+      }
+    }
+    if (!uploadedFiles().length) return uploads;
+
     if (!uploadedFiles().length) return uploads;
 
     if (fullFileUpload()) {
@@ -1941,6 +1968,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       </div>
                     </div>
                   ) : (
+
                     <div
                       class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
                       data-testid="input"
@@ -1975,8 +2003,55 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   )}
                 </>
               ) : (
+                <>
+                
+                
+                {/* <Show when={loading() && isChatFlowAvailableToStream()}>
+                <CancelButton
+                  buttonColor={props.textInput?.sendButtonColor}
+                  type="button"
+                  class="mr-2"
+                  onClick={() => {
+                    abortController()?.abort();
+                    setIsMessageStopping(true);
+                  }}
+                >
+                  Stop
+                </CancelButton>
+                </Show> */}
+
+                        <div class="flex items-center space-x-2">
+              {/* ← NEW: your multi-model selector */}
+                {/* <select
+                class="px-3 py-2 border rounded focus:outline-none bg-white"
+                value={selectedModels()}
+                onChange={e => {
+                  const opts = Array.from(e.currentTarget.selectedOptions).map(o => o.value)
+                  setSelectedModels(opts)
+                }}
+                style={{ 'min-width': '150px', 'max-width': '200px' }}
+              >
+                <option value="auto">Auto</option>
+                <option value="gpt-4.1">ChatGPT 4.1</option>
+                <option value="gemini-2.5">Gemini 2.5</option>
+                <option value="llama-4">Llama 4</option>
+                <option disabled value="qwen-2.5">Qwen 2.5 (β)</option>
+                <option value="deepseek-v3">Deepseek V3</option>
+              </select> */}
+            </div>
+
                 <TextInput
                   backgroundColor={props.textInput?.backgroundColor}
+                  showStopButton={loading() && isChatFlowAvailableToStream()}
+                  onStopButtonClick={() => {
+                    // stop the stream…
+                    abortController()?.abort();
+                    // then clean up exactly like end-of-stream:
+                    closeResponse();
+                    // ensure the old prompt is cleared:
+                    setUserInput('');
+                  }}
+
                   textColor={props.textInput?.textColor}
                   placeholder={props.textInput?.placeholder}
                   sendButtonColor={props.textInput?.sendButtonColor}
@@ -1999,14 +2074,23 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   enableInputHistory={true}
                   maxHistorySize={10}
                 />
+                </>
               )}
             </div>
-            <Badge
+
+
+{/* Model Selection ======================================================================================== */}
+
+    
+
+
+            {/* <Badge
               footer={props.footer}
               badgeBackgroundColor={props.badgeBackgroundColor}
               poweredByTextColor={props.poweredByTextColor}
               botContainer={botContainer}
-            />
+            /> */}
+
           </div>
         </div>
       )}

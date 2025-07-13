@@ -1,19 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Flowise Custom Widget Test</title>
+  <meta charset="UTF-8" />
+  <title>Flowise: Seeded First Message + Model</title>
 </head>
 <body>
-  <flowise-fullchatbot></flowise-fullchatbot>
 
-  <script type="module">
-    import Chatbot from 'http://localhost:3001/web.js';
+  <!-- Model Selector -->
+  <div id="model-select-wrapper">
+    <label>
+      🛠️ Select model:
+      <select id="modelSelect">
+        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+        <option value="gpt-4">GPT-4</option>
+        <option value="gpt-4o">GPT-4o</option>
+        <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+      </select>
+    </label>
+  </div>
 
-    Chatbot.initFull({
-      chatflowid: 'support',
-      apiHost: 'http://localhost:3001'
-    });
+  <!-- Flowise Embed -->
+  <div id="chatbot-container">
+    <flowise-fullchatbot></flowise-fullchatbot>
+  </div>
+
+  <!-- MODEL‐INJECTION (into every /prediction) -->
+  <script>
+    window.__selectedModel = document.getElementById('modelSelect').value;
+    document.getElementById('modelSelect')
+      .addEventListener('change', e => window.__selectedModel = e.target.value);
+
+    const _orig = fetch.bind(window);
+    window.fetch = (url, init = {}) => {
+      if (typeof url === 'string' && url.includes('/api/v1/prediction/')) {
+        try {
+          const body = JSON.parse(init.body || '{}');
+          body.question = `[MODEL:${window.__selectedModel}]`
+                        + ' ' + (body.question || '');
+          init = { ...init, body: JSON.stringify(body) };
+        } catch (e) {
+          console.warn('model injection failed', e);
+        }
+      }
+      return _orig(url, init);
+    };
   </script>
+
+ <script type="module">
+  import Chatbot from 'http://localhost:3001/web.js';
+
+  const msg = "Hello! Let's start our chat."; // Fix: define this!
+
+  Chatbot.initFull({
+    chatflowid: 'support',
+    apiHost: 'http://localhost:3001',
+    chatflowConfig: {
+      vars: {
+        initialMessage: msg,
+        selectedModel: window.__selectedModel
+      }
+    },
+    theme: {
+      chatWindow: { welcomeMessage: '' },
+      chatInput: {
+        placeholder: 'Ask anything…',
+        borderRadius: '24px',
+        padding: '12px 16px',
+        fontSize: '16px',
+        backgroundColor: '#f9f9f9',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        border: '1px solid #ccc',
+        color: '#000'
+      },
+      layout: { container: { backgroundColor: 'white' } }
+    },
+    observersConfig: {
+      observeMessages: messages => {}
+    }
+  });
+</script>
+
 </body>
 </html>
