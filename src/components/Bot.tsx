@@ -37,7 +37,16 @@ import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
-const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
+const modelOptions = [
+  'gpt-3.5-turbo',
+  'gpt-4',
+  'claude-3.5'
+];
+
+
+const [selectedModel, setSelectedModel] = createSignal(modelOptions[0]);
+// const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
+
 
 
 export type FileEvent<T = EventTarget> = {
@@ -266,9 +275,8 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
 ]*/
 
 const defaultBackgroundColor = '#000000';
-const defaultTextColor       = '#EEEEEE';
+const defaultTextColor = '#EEEEEE';
 const defaultTitleBackgroundColor = '#000000';
-
 
 /* FeedbackDialog component - for collecting user feedback */
 const FeedbackDialog = (props: {
@@ -906,7 +914,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleFileUploads = async (uploads: IUploads) => {
-
     //============================================================================= upload files update
     // ── NEW: send every raw File to your own API endpoint first ──
     if (uploadedFiles().length) {
@@ -916,7 +923,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         try {
           await fetch('https://0f5f-43-251-96-32.ngrok-free.app/upload', {
             method: 'POST',
-            body: formData
+            body: formData,
           });
         } catch (err) {
           console.error('🚨 failed to POST file to my API', file.name, err);
@@ -1815,12 +1822,29 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 'border-top-right-radius': props.isFullPage ? '0px' : '6px',
               }}
             >
-              <Show when={props.titleAvatarSrc}>
+
+
+              {/* <Show when={props.titleAvatarSrc}>
                 <>
                   <div style={{ width: '15px' }} />
                   <Avatar initialAvatarSrc={props.titleAvatarSrc} />
                 </>
-              </Show>
+              </Show> */}
+
+              {/* your dropdown */}
+              <select
+                class="ml-3 px-2 py-1 rounded bg-white text-black"
+                value={selectedModel()}
+                onInput={e => setSelectedModel(e.currentTarget.value)}
+              >
+                <For each={modelOptions}>
+                  {m => <option value={m}>{m}</option>}
+                </For>
+              </select>
+
+
+
+
               <Show when={props.title}>
                 <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
               </Show>
@@ -1968,7 +1992,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       </div>
                     </div>
                   ) : (
-
                     <div
                       class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
                       data-testid="input"
@@ -2004,9 +2027,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 </>
               ) : (
                 <>
-                
-                
-                {/* <Show when={loading() && isChatFlowAvailableToStream()}>
+                  {/* <Show when={loading() && isChatFlowAvailableToStream()}>
                 <CancelButton
                   buttonColor={props.textInput?.sendButtonColor}
                   type="button"
@@ -2020,9 +2041,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 </CancelButton>
                 </Show> */}
 
-                        <div class="flex items-center space-x-2">
-              {/* ← NEW: your multi-model selector */}
-                {/* <select
+                  <div class="flex items-center space-x-2">
+                    {/* ← NEW: your multi-model selector */}
+                    {/* <select
                 class="px-3 py-2 border rounded focus:outline-none bg-white"
                 value={selectedModels()}
                 onChange={e => {
@@ -2038,51 +2059,46 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 <option disabled value="qwen-2.5">Qwen 2.5 (β)</option>
                 <option value="deepseek-v3">Deepseek V3</option>
               </select> */}
-            </div>
+                  </div>
 
-                <TextInput
-                  backgroundColor={props.textInput?.backgroundColor}
-                  showStopButton={loading() && isChatFlowAvailableToStream()}
-                  onStopButtonClick={() => {
-                    // stop the stream…
-                    abortController()?.abort();
-                    // then clean up exactly like end-of-stream:
-                    closeResponse();
-                    // ensure the old prompt is cleared:
-                    setUserInput('');
-                  }}
-
-                  textColor={props.textInput?.textColor}
-                  placeholder={props.textInput?.placeholder}
-                  sendButtonColor={props.textInput?.sendButtonColor}
-                  maxChars={props.textInput?.maxChars}
-                  maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
-                  autoFocus={props.textInput?.autoFocus}
-                  fontSize={props.fontSize}
-                  disabled={getInputDisabled()}
-                  inputValue={userInput()}
-                  onInputChange={(value) => setUserInput(value)}
-                  onSubmit={handleSubmit}
-                  uploadsConfig={uploadsConfig()}
-                  isFullFileUpload={fullFileUpload()}
-                  fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
-                  setPreviews={setPreviews}
-                  onMicrophoneClicked={onMicrophoneClicked}
-                  handleFileChange={handleFileChange}
-                  sendMessageSound={props.textInput?.sendMessageSound}
-                  sendSoundLocation={props.textInput?.sendSoundLocation}
-                  enableInputHistory={true}
-                  maxHistorySize={10}
-                />
+                  <TextInput
+                    backgroundColor={props.textInput?.backgroundColor}
+                    showStopButton={loading() && isChatFlowAvailableToStream()}
+                    onStopButtonClick={() => {
+                      // stop the stream…
+                      abortController()?.abort();
+                      // then clean up exactly like end-of-stream:
+                      closeResponse();
+                      // ensure the old prompt is cleared:
+                      setUserInput('');
+                    }}
+                    textColor={props.textInput?.textColor}
+                    placeholder={props.textInput?.placeholder}
+                    sendButtonColor={props.textInput?.sendButtonColor}
+                    maxChars={props.textInput?.maxChars}
+                    maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
+                    autoFocus={props.textInput?.autoFocus}
+                    fontSize={props.fontSize}
+                    disabled={getInputDisabled()}
+                    inputValue={userInput()}
+                    onInputChange={(value) => setUserInput(value)}
+                    onSubmit={handleSubmit}
+                    uploadsConfig={uploadsConfig()}
+                    isFullFileUpload={fullFileUpload()}
+                    fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
+                    setPreviews={setPreviews}
+                    onMicrophoneClicked={onMicrophoneClicked}
+                    handleFileChange={handleFileChange}
+                    sendMessageSound={props.textInput?.sendMessageSound}
+                    sendSoundLocation={props.textInput?.sendSoundLocation}
+                    enableInputHistory={true}
+                    maxHistorySize={10}
+                  />
                 </>
               )}
             </div>
 
-
-{/* Model Selection ======================================================================================== */}
-
-    
-
+            {/* Model Selection ======================================================================================== */}
 
             {/* <Badge
               footer={props.footer}
@@ -2090,7 +2106,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               poweredByTextColor={props.poweredByTextColor}
               botContainer={botContainer}
             /> */}
-
           </div>
         </div>
       )}

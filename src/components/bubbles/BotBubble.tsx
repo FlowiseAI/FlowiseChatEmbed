@@ -34,10 +34,11 @@ type Props = {
   handleSourceDocumentsClick: (src: any) => void;
 };
 
-const defaultBackgroundColor = '#f7f8ff';
+// const defaultBackgroundColor = '#f7f8ff';
+const defaultBackgroundColor = '#ffffff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
-const defaultFeedbackColor = '#3B81F6';
+const defaultFeedbackColor = '#ffffff';
 
 export const BotBubble = (props: Props) => {
   let botDetailsEl: HTMLDetailsElement | undefined;
