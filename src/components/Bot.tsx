@@ -36,6 +36,9 @@ import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorage
 import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { AuthenticationConfig } from '@/types/auth';
+import { AuthService, createAuthService } from '@/services/authService';
+import { AuthenticationPrompt, AuthenticationLoading, AuthenticationError } from './auth/AuthenticationPrompt';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -172,6 +175,7 @@ export type BotProps = {
   dateTimeToggle?: DateTimeToggleTheme;
   renderHTML?: boolean;
   closeBot?: () => void;
+  authentication?: AuthenticationConfig;
 };
 
 export type LeadsConfig = {
@@ -494,6 +498,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [startInputType, setStartInputType] = createSignal('');
   const [formTitle, setFormTitle] = createSignal('');
   const [formDescription, setFormDescription] = createSignal('');
+
+  // Authentication state
+  const [authService, setAuthService] = createSignal<AuthService | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = createSignal(false);
+  const [authError, setAuthError] = createSignal<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = createSignal(false);
   const [formInputsData, setFormInputsData] = createSignal({});
   const [formInputParams, setFormInputParams] = createSignal([]);
 
@@ -522,6 +532,30 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   onMount(() => {
+    // Initialize authentication if configured
+    if (props.authentication && props.authentication.mode !== 'disabled') {
+      try {
+        const service = createAuthService(props.authentication);
+        setAuthService(service);
+        
+        // Check authentication state
+        const authState = service.getAuthState();
+        setIsAuthenticating(authState.isLoading);
+        
+        if (authState.error) {
+          setAuthError(authState.error);
+        }
+        
+        // Show auth prompt if required and not authenticated
+        if (service.isAuthRequired() && !service.isAuthenticated()) {
+          setShowAuthPrompt(true);
+        }
+      } catch (error) {
+        console.error('Failed to initialize authentication:', error);
+        setAuthError(error instanceof Error ? error.message : 'Authentication initialization failed');
+      }
+    }
+
     if (botProps?.observersConfig) {
       const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
       typeof observeUserInput === 'function' &&
@@ -551,6 +585,43 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
+  };
+
+  // Authentication handlers
+  const handleLogin = async () => {
+    const service = authService();
+    if (!service) return;
+
+    try {
+      setIsAuthenticating(true);
+      setAuthError(null);
+      await service.login();
+    } catch (error) {
+      console.error('Login failed:', error);
+      setAuthError(error instanceof Error ? error.message : 'Login failed');
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleSkipAuth = () => {
+    setShowAuthPrompt(false);
+    setAuthError(null);
+  };
+
+  const handleAuthRetry = () => {
+    setAuthError(null);
+    const service = authService();
+    if (service && service.isAuthRequired()) {
+      setShowAuthPrompt(true);
+    }
+  };
+
+  // Check if chat should be blocked by authentication
+  const isChatBlocked = () => {
+    const service = authService();
+    if (!service || service.isAuthDisabled()) return false;
+    
+    return service.isAuthRequired() && !service.isAuthenticated();
   };
 
   /**
@@ -1731,7 +1802,48 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   return (
     <>
-      {startInputType() === 'formInput' && messages().length === 1 ? (
+      {/* Authentication Loading */}
+      {isAuthenticating() && (
+        <AuthenticationLoading
+          backgroundColor={props.backgroundColor}
+          textColor={props.botMessage?.textColor}
+          message="Checking authentication..."
+        />
+      )}
+      
+      {/* Authentication Error */}
+      {authError() && !isAuthenticating() && (
+        <AuthenticationError
+          error={authError()!}
+          onRetry={handleAuthRetry}
+          onSkip={authService()?.isAuthOptional() ? handleSkipAuth : undefined}
+          backgroundColor={props.backgroundColor}
+          textColor={props.botMessage?.textColor}
+          buttonColor={props.textInput?.sendButtonColor}
+          buttonTextColor={props.bubbleTextColor}
+        />
+      )}
+      
+      {/* Authentication Prompt */}
+      {showAuthPrompt() && !isAuthenticating() && !authError() && (
+        <AuthenticationPrompt
+          onLogin={handleLogin}
+          onSkip={handleSkipAuth}
+          title={props.authentication?.promptConfig?.title}
+          message={props.authentication?.promptConfig?.message}
+          loginButtonText={props.authentication?.promptConfig?.loginButtonText}
+          skipButtonText={props.authentication?.promptConfig?.skipButtonText}
+          backgroundColor={props.authentication?.promptConfig?.backgroundColor || props.backgroundColor}
+          textColor={props.authentication?.promptConfig?.textColor || props.botMessage?.textColor}
+          buttonColor={props.authentication?.promptConfig?.buttonColor || props.textInput?.sendButtonColor}
+          buttonTextColor={props.authentication?.promptConfig?.buttonTextColor || props.bubbleTextColor}
+        />
+      )}
+      
+      {/* Main Chat Interface - only show if not blocked by auth */}
+      {!isAuthenticating() && !authError() && !showAuthPrompt() && !isChatBlocked() && (
+        <>
+          {startInputType() === 'formInput' && messages().length === 1 ? (
         <FormInputView
           title={formTitle()}
           description={formDescription()}
@@ -2042,6 +2154,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           feedbackValue={feedback()}
           setFeedbackValue={(value) => setFeedback(value)}
         />
+      )}
+        </>
       )}
     </>
   );
