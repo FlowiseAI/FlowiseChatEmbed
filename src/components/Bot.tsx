@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo, onCleanup } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import {
   sendMessageQuery,
@@ -506,6 +506,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [authError, setAuthError] = createSignal<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = createSignal(false);
   const [isGuestMode, setIsGuestMode] = createSignal(false);
+  
+  // Reactive auth state that updates when auth service state changes
+  const [authState, setAuthState] = createSignal<any>(null);
   const [formInputsData, setFormInputsData] = createSignal({});
   const [formInputParams, setFormInputParams] = createSignal([]);
 
@@ -547,6 +550,36 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (authState.error) {
           setAuthError(authState.error);
         }
+        
+        // Set up reactive effect to watch auth state changes
+        // Poll the auth service state periodically to ensure UI updates
+        const pollAuthState = () => {
+          const currentService = authService();
+          if (currentService) {
+            const state = currentService.getAuthState();
+            setAuthState(state);
+            setIsAuthenticating(state.isLoading);
+            setAuthError(state.error || null);
+            
+            // Removed debug logging - authentication is working properly
+            
+            // Update auth prompt visibility
+            if (currentService.isAuthRequired() && !currentService.isAuthenticated() && !isGuestMode()) {
+              setShowAuthPrompt(true);
+            } else {
+              setShowAuthPrompt(false);
+            }
+          }
+        };
+        
+        // Poll immediately and then every 500ms
+        pollAuthState();
+        const pollInterval = setInterval(pollAuthState, 500);
+        
+        // Cleanup interval on unmount
+        onCleanup(() => {
+          clearInterval(pollInterval);
+        });
         
         // Show auth prompt if required and not authenticated
         if (service.isAuthRequired() && !service.isAuthenticated()) {

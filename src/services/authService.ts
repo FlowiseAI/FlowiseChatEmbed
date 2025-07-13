@@ -176,10 +176,104 @@ export class AuthService {
     try {
       this.setAuthState(prev => ({ ...prev, isLoading: true, error: undefined }));
       
-      const authUrl = await buildAuthorizationUrl(this.config.oauth);
+      // Create a modified OAuth config with popup callback URL
+      const popupConfig = {
+        ...this.config.oauth,
+        redirectUri: `${window.location.origin}/oauth-callback.html`
+      };
       
-      // Redirect to authorization server
-      window.location.href = authUrl;
+      const authUrl = await buildAuthorizationUrl(popupConfig);
+      
+      // Open OAuth in popup window instead of full page redirect
+      const popup = window.open(
+        authUrl,
+        'oauth-popup',
+        'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site and try again.');
+      }
+
+      // Listen for messages from popup
+      const messageListener = async (event: MessageEvent) => {
+        // Verify origin for security
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+
+        if (event.data.type === 'oauth-callback') {
+          // Handle OAuth callback with authorization code
+          cleanup();
+          try {
+            const success = await this.handleCallback(event.data.code, event.data.state);
+            if (!success) {
+              this.setAuthState(prev => ({
+                ...prev,
+                isLoading: false,
+                error: 'Authentication failed during token exchange',
+              }));
+            }
+            // If successful, handleCallback will update the auth state
+          } catch (error) {
+            console.error('OAuth callback handling failed:', error);
+            this.setAuthState(prev => ({
+              ...prev,
+              isLoading: false,
+              error: error instanceof Error ? error.message : 'Authentication failed',
+            }));
+          }
+        } else if (event.data.type === 'oauth-error') {
+          // Authentication failed
+          cleanup();
+          this.setAuthState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: event.data.errorDescription || event.data.error || 'Authentication failed',
+          }));
+        }
+      };
+
+      // Monitor popup for manual closure
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          cleanup();
+          // Check if authentication was successful by looking for tokens
+          const tokens = getCachedTokens(this.config.tokenStorageKey);
+          if (!tokens) {
+            // No tokens found, user likely closed popup without completing auth
+            this.setAuthState(prev => ({
+              ...prev,
+              isLoading: false,
+              error: 'Authentication was cancelled',
+            }));
+          }
+        }
+      }, 1000);
+
+      // Set a timeout to close popup if it takes too long
+      const timeout = setTimeout(() => {
+        cleanup();
+        if (!popup.closed) {
+          popup.close();
+        }
+        this.setAuthState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Authentication timed out',
+        }));
+      }, 300000); // 5 minutes timeout
+
+      // Cleanup function
+      const cleanup = () => {
+        window.removeEventListener('message', messageListener);
+        clearInterval(checkClosed);
+        clearTimeout(timeout);
+      };
+
+      // Add message listener
+      window.addEventListener('message', messageListener);
+
     } catch (error) {
       console.error('Login initiation failed:', error);
       this.setAuthState(prev => ({

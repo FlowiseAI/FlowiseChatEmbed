@@ -93,3 +93,52 @@ To verify debugging is working:
 6. Interact with the chatbot to trigger the breakpoint
 
 The breakpoint should hit and you should be able to inspect variables, step through code, and see the original TypeScript source.
+
+## OAuth Popup Authentication
+
+The authentication system now uses popup windows instead of full-page redirects for a better user experience:
+
+### How It Works
+
+1. **Popup Window**: When users click "Sign In", a popup window opens with the OAuth provider
+2. **Callback Handling**: The popup redirects to `/oauth-callback.html` which processes the OAuth response
+3. **Message Communication**: The popup communicates back to the parent window via `postMessage`
+4. **Automatic Closure**: The popup closes automatically after authentication completes
+
+### OAuth Provider Configuration
+
+**Important**: You need to configure your OAuth provider to allow the popup callback URL:
+
+- **Redirect URI**: Add `https://your-domain.com/oauth-callback.html` to your OAuth provider's allowed redirect URIs
+- **For Development**: Add `http://localhost:51914/oauth-callback.html` for local testing
+
+### Example Provider Settings
+
+```javascript
+// Your OAuth config should include:
+export const oauthConfig = {
+  clientId: 'your-client-id',
+  authority: 'https://your-oidc-provider.com',
+  redirectUri: window.location.origin + '/oauth-callback.html', // Note: /oauth-callback.html
+  scope: 'openid profile email',
+  responseType: 'code'
+};
+```
+
+### Popup Blocked?
+
+If popups are blocked:
+- The system will show an error message asking users to allow popups
+- Users can manually allow popups for your domain in their browser settings
+- The authentication will work normally after popups are enabled
+
+### Debugging Popup Authentication
+
+1. **Check Popup**: Verify the popup window opens when clicking "Sign In"
+2. **Check Callback**: Look for the `/oauth-callback.html` page loading in the popup
+3. **Check Messages**: Monitor browser console for `postMessage` communication
+4. **Check Provider Config**: Ensure your OAuth provider allows the popup callback URL
+
+### Fallback for Popup Issues
+
+If popup authentication fails, you can temporarily modify the auth service to use full-page redirects by changing the `redirectUri` back to your main callback URL and removing the popup logic.

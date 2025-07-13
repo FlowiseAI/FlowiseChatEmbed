@@ -77671,6 +77671,10 @@ function validateIssuer(expected, result) {
     return result;
 }
 const branded = new WeakSet();
+function brand(searchParams) {
+    branded.add(searchParams);
+    return searchParams;
+}
 async function authorizationCodeGrantRequest(as, client, callbackParameters, redirectUri, codeVerifier, options) {
     assertAs(as);
     assertClient(client);
@@ -77950,6 +77954,63 @@ function getURLSearchParameter(parameters, name) {
     }
     return value;
 }
+const skipStateCheck = Symbol();
+const expectNoState = Symbol();
+function validateAuthResponse(as, client, parameters, expectedState) {
+    assertAs(as);
+    assertClient(client);
+    if (parameters instanceof URL) {
+        parameters = parameters.searchParams;
+    }
+    if (!(parameters instanceof URLSearchParams)) {
+        throw new TypeError('"parameters" must be an instance of URLSearchParams, or URL');
+    }
+    if (getURLSearchParameter(parameters, 'response')) {
+        throw new OPE('"parameters" contains a JARM response, use validateJwtAuthResponse() instead of validateAuthResponse()');
+    }
+    const iss = getURLSearchParameter(parameters, 'iss');
+    const state = getURLSearchParameter(parameters, 'state');
+    if (!iss && as.authorization_response_iss_parameter_supported) {
+        throw new OPE('response parameter "iss" (issuer) missing');
+    }
+    if (iss && iss !== as.issuer) {
+        throw new OPE('unexpected "iss" (issuer) response parameter value');
+    }
+    switch (expectedState) {
+        case undefined:
+        case expectNoState:
+            if (state !== undefined) {
+                throw new OPE('unexpected "state" response parameter encountered');
+            }
+            break;
+        case skipStateCheck:
+            break;
+        default:
+            if (!validateString(expectedState)) {
+                throw new OPE('"expectedState" must be a non-empty string');
+            }
+            if (state === undefined) {
+                throw new OPE('response parameter "state" missing');
+            }
+            if (state !== expectedState) {
+                throw new OPE('unexpected "state" response parameter value');
+            }
+    }
+    const error = getURLSearchParameter(parameters, 'error');
+    if (error) {
+        return {
+            error,
+            error_description: getURLSearchParameter(parameters, 'error_description'),
+            error_uri: getURLSearchParameter(parameters, 'error_uri'),
+        };
+    }
+    const id_token = getURLSearchParameter(parameters, 'id_token');
+    const token = getURLSearchParameter(parameters, 'token');
+    if (id_token !== undefined || token !== undefined) {
+        throw new UnsupportedOperationError('implicit and hybrid flows are not supported');
+    }
+    return brand(new URLSearchParams(parameters));
+}
 
 /**
  * Default storage key for OAuth tokens
@@ -78151,12 +78212,27 @@ const exchangeCodeForTokens = async (config, code, state) => {
     sessionStorage.removeItem('oauth_code_verifier');
     // Discover the authorization server configuration
     const as = await discoveryRequest(new URL(config.authority)).then(response => processDiscoveryResponse(new URL(config.authority), response));
-    // Exchange code for tokens
-    const response = await authorizationCodeGrantRequest(as, {
+    // Create callback parameters in the format expected by the OAuth library
+    const callbackParams = new URLSearchParams();
+    callbackParams.set('code', code);
+    // Note: Don't include state in callbackParams as we validate it separately
+    // Validate the callback parameters first (required by oauth4webapi)
+    const validatedParams = validateAuthResponse(as, {
       client_id: config.clientId
-    }, new URLSearchParams({
-      code
-    }), config.redirectUri, codeVerifier);
+    }, callbackParams, expectNoState // We handle state validation separately
+    );
+
+    if (isOAuth2Error(validatedParams)) {
+      throw new Error(`OAuth validation error: ${validatedParams.error} - ${validatedParams.error_description}`);
+    }
+    // Exchange code for tokens using validated parameters
+    // For public clients (browser apps), we need to explicitly set token_endpoint_auth_method to 'none'
+    const client = {
+      client_id: config.clientId,
+      token_endpoint_auth_method: 'none' // Explicitly specify this is a public client
+    };
+
+    const response = await authorizationCodeGrantRequest(as, client, validatedParams, config.redirectUri, codeVerifier);
     const result = await processAuthorizationCodeOpenIDResponse(as, {
       client_id: config.clientId
     }, response);
@@ -78423,9 +78499,90 @@ class AuthService {
         isLoading: true,
         error: undefined
       }));
-      const authUrl = await buildAuthorizationUrl(this.config.oauth);
-      // Redirect to authorization server
-      window.location.href = authUrl;
+      // Create a modified OAuth config with popup callback URL
+      const popupConfig = {
+        ...this.config.oauth,
+        redirectUri: `${window.location.origin}/oauth-callback.html`
+      };
+      const authUrl = await buildAuthorizationUrl(popupConfig);
+      // Open OAuth in popup window instead of full page redirect
+      const popup = window.open(authUrl, 'oauth-popup', 'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no');
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site and try again.');
+      }
+      // Listen for messages from popup
+      const messageListener = async event => {
+        // Verify origin for security
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+        if (event.data.type === 'oauth-callback') {
+          // Handle OAuth callback with authorization code
+          cleanup();
+          try {
+            const success = await this.handleCallback(event.data.code, event.data.state);
+            if (!success) {
+              this.setAuthState(prev => ({
+                ...prev,
+                isLoading: false,
+                error: 'Authentication failed during token exchange'
+              }));
+            }
+            // If successful, handleCallback will update the auth state
+          } catch (error) {
+            console.error('OAuth callback handling failed:', error);
+            this.setAuthState(prev => ({
+              ...prev,
+              isLoading: false,
+              error: error instanceof Error ? error.message : 'Authentication failed'
+            }));
+          }
+        } else if (event.data.type === 'oauth-error') {
+          // Authentication failed
+          cleanup();
+          this.setAuthState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: event.data.errorDescription || event.data.error || 'Authentication failed'
+          }));
+        }
+      };
+      // Monitor popup for manual closure
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          cleanup();
+          // Check if authentication was successful by looking for tokens
+          const tokens = getCachedTokens(this.config.tokenStorageKey);
+          if (!tokens) {
+            // No tokens found, user likely closed popup without completing auth
+            this.setAuthState(prev => ({
+              ...prev,
+              isLoading: false,
+              error: 'Authentication was cancelled'
+            }));
+          }
+        }
+      }, 1000);
+      // Set a timeout to close popup if it takes too long
+      const timeout = setTimeout(() => {
+        cleanup();
+        if (!popup.closed) {
+          popup.close();
+        }
+        this.setAuthState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Authentication timed out'
+        }));
+      }, 300000); // 5 minutes timeout
+      // Cleanup function
+      const cleanup = () => {
+        window.removeEventListener('message', messageListener);
+        clearInterval(checkClosed);
+        clearTimeout(timeout);
+      };
+      // Add message listener
+      window.addEventListener('message', messageListener);
     } catch (error) {
       console.error('Login initiation failed:', error);
       this.setAuthState(prev => ({
@@ -79062,6 +79219,8 @@ const Bot = botProps => {
   const [authError, setAuthError] = createSignal(null);
   const [isAuthenticating, setIsAuthenticating] = createSignal(false);
   const [isGuestMode, setIsGuestMode] = createSignal(false);
+  // Reactive auth state that updates when auth service state changes
+  const [authState, setAuthState] = createSignal(null);
   createSignal({});
   const [formInputParams, setFormInputParams] = createSignal([]);
   // drag & drop file input
@@ -79095,6 +79254,31 @@ const Bot = botProps => {
         if (authState.error) {
           setAuthError(authState.error);
         }
+        // Set up reactive effect to watch auth state changes
+        // Poll the auth service state periodically to ensure UI updates
+        const pollAuthState = () => {
+          const currentService = authService();
+          if (currentService) {
+            const state = currentService.getAuthState();
+            setAuthState(state);
+            setIsAuthenticating(state.isLoading);
+            setAuthError(state.error || null);
+            // Removed debug logging - authentication is working properly
+            // Update auth prompt visibility
+            if (currentService.isAuthRequired() && !currentService.isAuthenticated() && !isGuestMode()) {
+              setShowAuthPrompt(true);
+            } else {
+              setShowAuthPrompt(false);
+            }
+          }
+        };
+        // Poll immediately and then every 500ms
+        pollAuthState();
+        const pollInterval = setInterval(pollAuthState, 500);
+        // Cleanup interval on unmount
+        onCleanup(() => {
+          clearInterval(pollInterval);
+        });
         // Show auth prompt if required and not authenticated
         if (service.isAuthRequired() && !service.isAuthenticated()) {
           setShowAuthPrompt(true);

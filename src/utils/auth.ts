@@ -260,11 +260,34 @@ export const exchangeCodeForTokens = async (
     const as = await oauth.discoveryRequest(new URL(config.authority))
       .then((response: Response) => oauth.processDiscoveryResponse(new URL(config.authority), response));
 
-    // Exchange code for tokens
-    const response = await oauth.authorizationCodeGrantRequest(
+    // Create callback parameters in the format expected by the OAuth library
+    const callbackParams = new URLSearchParams();
+    callbackParams.set('code', code);
+    // Note: Don't include state in callbackParams as we validate it separately
+    
+    // Validate the callback parameters first (required by oauth4webapi)
+    const validatedParams = oauth.validateAuthResponse(
       as,
       { client_id: config.clientId },
-      new URLSearchParams({ code }),
+      callbackParams,
+      oauth.expectNoState // We handle state validation separately
+    );
+    
+    if (oauth.isOAuth2Error(validatedParams)) {
+      throw new Error(`OAuth validation error: ${validatedParams.error} - ${validatedParams.error_description}`);
+    }
+
+    // Exchange code for tokens using validated parameters
+    // For public clients (browser apps), we need to explicitly set token_endpoint_auth_method to 'none'
+    const client = {
+      client_id: config.clientId,
+      token_endpoint_auth_method: 'none' // Explicitly specify this is a public client
+    };
+    
+    const response = await oauth.authorizationCodeGrantRequest(
+      as,
+      client,
+      validatedParams,
       config.redirectUri,
       codeVerifier
     );
