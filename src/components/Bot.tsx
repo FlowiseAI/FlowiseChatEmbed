@@ -505,6 +505,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [showAuthPrompt, setShowAuthPrompt] = createSignal(false);
   const [authError, setAuthError] = createSignal<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = createSignal(false);
+  const [isGuestMode, setIsGuestMode] = createSignal(false);
   const [formInputsData, setFormInputsData] = createSignal({});
   const [formInputParams, setFormInputParams] = createSignal([]);
 
@@ -596,6 +597,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     try {
       setIsAuthenticating(true);
       setAuthError(null);
+      setIsGuestMode(false); // Reset guest mode when user chooses to authenticate
       await service.login();
     } catch (error) {
       console.error('Login failed:', error);
@@ -607,6 +609,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const handleSkipAuth = () => {
     setShowAuthPrompt(false);
     setAuthError(null);
+    setIsGuestMode(true);
   };
 
   const handleAuthRetry = () => {
@@ -622,7 +625,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const service = authService();
     if (!service || service.isAuthDisabled()) return false;
     
-    return service.isAuthRequired() && !service.isAuthenticated();
+    // Allow chat if user is authenticated OR in guest mode
+    return service.isAuthRequired() && !service.isAuthenticated() && !isGuestMode();
   };
 
   /**

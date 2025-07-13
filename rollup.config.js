@@ -12,6 +12,7 @@ import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 
 const isDev = process.env.NODE_ENV === 'development';
+const isDebug = process.env.NODE_ENV === 'debug';
 
 const extensions = ['.ts', '.tsx'];
 
@@ -32,13 +33,17 @@ const indexConfig = {
       extract: false,
       modules: false,
       autoModules: false,
-      minimize: true,
+      minimize: !isDebug,
       inject: false,
     }),
-    typescript(),
+    typescript({
+      sourceMap: isDebug,
+      inlineSources: isDebug,
+    }),
     typescriptPaths({ preserveExtensions: true }),
-    terser({ output: { comments: false } }),
-    ...(isDev
+    // Only use terser in production mode, skip in debug mode
+    ...(isDebug ? [] : [terser({ output: { comments: false } })]),
+    ...(isDev || isDebug
       ? [
           serve({
             open: true,
@@ -49,7 +54,7 @@ const indexConfig = {
           }),
           livereload({ watch: 'dist' }),
         ]
-      : []), // Add serve/livereload only in development
+      : []), // Add serve/livereload in development and debug modes
   ],
 };
 
@@ -60,6 +65,7 @@ const configs = [
     output: {
       file: 'dist/web.js',
       format: 'es',
+      sourcemap: isDebug,
     },
   },
   {
@@ -69,6 +75,7 @@ const configs = [
       file: 'dist/web.umd.js',
       format: 'umd',
       name: 'FlowiseEmbed',
+      sourcemap: isDebug,
     },
   },
 ];

@@ -1,5 +1,6 @@
 import { observersConfigType } from './components/Bot';
 import { BubbleTheme } from './features/bubble/types';
+import { AuthenticationConfig } from './types/auth';
 type BotProps = {
     chatflowid: string;
     apiHost?: string;
@@ -7,6 +8,7 @@ type BotProps = {
     chatflowConfig?: Record<string, unknown>;
     observersConfig?: observersConfigType;
     theme?: BubbleTheme;
+    authentication?: AuthenticationConfig;
 };
 export declare const initFull: (props: BotProps & {
     id?: string;

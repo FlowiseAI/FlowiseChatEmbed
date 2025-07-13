@@ -14,6 +14,9 @@
         "target": "ESNext",
         "declaration": true,
         "declarationMap": true,
+        "sourceMap": true,
+        "inlineSourceMap": false,
+        "inlineSources": true,
         "outDir": "dist",
         "emitDeclarationOnly": true
     }

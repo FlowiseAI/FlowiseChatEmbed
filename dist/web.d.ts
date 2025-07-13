@@ -6,6 +6,7 @@ declare const chatbot: {
         chatflowConfig?: Record<string, unknown> | undefined;
         observersConfig?: import("./components/Bot").observersConfigType | undefined;
         theme?: import("./features/bubble/types").BubbleTheme | undefined;
+        authentication?: import("./types/auth").AuthenticationConfig | undefined;
     } & {
         id?: string | undefined;
     }) => void;
@@ -16,6 +17,7 @@ declare const chatbot: {
         chatflowConfig?: Record<string, unknown> | undefined;
         observersConfig?: import("./components/Bot").observersConfigType | undefined;
         theme?: import("./features/bubble/types").BubbleTheme | undefined;
+        authentication?: import("./types/auth").AuthenticationConfig | undefined;
     }) => void;
     destroy: () => void;
 };

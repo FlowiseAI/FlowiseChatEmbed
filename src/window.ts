@@ -1,5 +1,6 @@
 import { observersConfigType } from './components/Bot';
 import { BubbleTheme } from './features/bubble/types';
+import { AuthenticationConfig } from './types/auth';
 
 /* eslint-disable solid/reactivity */
 type BotProps = {
@@ -9,6 +10,7 @@ type BotProps = {
   chatflowConfig?: Record<string, unknown>;
   observersConfig?: observersConfigType;
   theme?: BubbleTheme;
+  authentication?: AuthenticationConfig;
 };
 
 let elementUsed: Element | undefined;
