@@ -8,8 +8,6 @@ import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { AttachmentUploadButton } from '@/components/buttons/AttachmentUploadButton';
 import { ChatInputHistory } from '@/utils/chatInputHistory';
 
-
-
 // Props definition
 
 type TextInputProps = {
@@ -110,8 +108,6 @@ export const TextInput = (props: TextInputProps) => {
         'background-color': props.backgroundColor ?? defaultBackgroundColor,
       }}
     >
-  
-
       {/* Input field */}
       <div class="flex-1">
         <ShortTextInput
@@ -147,21 +143,11 @@ export const TextInput = (props: TextInputProps) => {
       {/* Send / Stop Buttons */}
       <div class="flex gap-1 items-end">
         <Show when={props.showStopButton}>
-          <CancelButton
-            buttonColor="black"
-            class="h-6 text-black"
-            isDisabled={false}
-            onClick={props.onStopButtonClick}
-          >
+          <CancelButton buttonColor="black" class="h-6 text-black" isDisabled={false} onClick={props.onStopButtonClick}>
             Stop
           </CancelButton>
         </Show>
-        <SendButton
-          sendButtonColor="black"
-          class="h-6 text-black"
-          isDisabled={props.disabled || isSendButtonDisabled()}
-          onClick={submit}
-        >
+        <SendButton sendButtonColor="black" class="h-6 text-black" isDisabled={props.disabled || isSendButtonDisabled()} onClick={submit}>
           Send
         </SendButton>
       </div>

@@ -37,17 +37,10 @@ import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
-const modelOptions = [
-  'gpt-3.5-turbo',
-  'gpt-4',
-  'claude-3.5'
-];
-
+const modelOptions = ['gpt-3.5-turbo', 'gpt-4', 'claude-3.5'];
 
 const [selectedModel, setSelectedModel] = createSignal(modelOptions[0]);
 // const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
-
-
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -1822,8 +1815,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 'border-top-right-radius': props.isFullPage ? '0px' : '6px',
               }}
             >
-
-
               {/* <Show when={props.titleAvatarSrc}>
                 <>
                   <div style={{ width: '15px' }} />
@@ -1835,15 +1826,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               <select
                 class="ml-3 px-2 py-1 rounded bg-white text-black"
                 value={selectedModel()}
-                onInput={e => setSelectedModel(e.currentTarget.value)}
+                onInput={(e) => setSelectedModel(e.currentTarget.value)}
               >
-                <For each={modelOptions}>
-                  {m => <option value={m}>{m}</option>}
-                </For>
+                <For each={modelOptions}>{(m) => <option value={m}>{m}</option>}</For>
               </select>
-
-
-
 
               <Show when={props.title}>
                 <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>

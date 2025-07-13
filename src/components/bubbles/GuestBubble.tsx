@@ -17,7 +17,7 @@ type Props = {
   renderHTML?: boolean;
 };
 
-const defaultBackgroundColor = '#f3f4f6';  // Closer to ChatGPT's subtle tone
+const defaultBackgroundColor = '#f3f4f6'; // Closer to ChatGPT's subtle tone
 const defaultTextColor = '#000000';
 const defaultFontSize = 16;
 
