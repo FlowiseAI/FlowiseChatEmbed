@@ -176,13 +176,22 @@ export class AuthService {
     try {
       this.setAuthState(prev => ({ ...prev, isLoading: true, error: undefined }));
       
-      // Create a modified OAuth config with popup callback URL
+      // Create a modified OAuth config with centralized callback URL
+      // Detect environment based on hostname for browser compatibility
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const callbackServerUrl = isDevelopment
+        ? 'http://localhost:3001/oauth-callback.html'  // Local callback server for development
+        : 'https://your-callback-server.com/oauth-callback.html'; // Production callback server
+        
+      console.log('Using callback server URL:', callbackServerUrl);
+      
       const popupConfig = {
         ...this.config.oauth,
-        redirectUri: `${window.location.origin}/oauth-callback.html`
+        redirectUri: callbackServerUrl
       };
       
       const authUrl = await buildAuthorizationUrl(popupConfig);
+      console.log('Opening OAuth popup to:', authUrl);
       
       // Open OAuth in popup window instead of full page redirect
       const popup = window.open(
@@ -197,10 +206,20 @@ export class AuthService {
 
       // Listen for messages from popup
       const messageListener = async (event: MessageEvent) => {
-        // Verify origin for security
-        if (event.origin !== window.location.origin) {
+        console.log('Received message from popup:', event);
+        console.log('Message origin:', event.origin);
+        console.log('Message data:', event.data);
+        
+        // Verify origin for security - should be from the callback server
+        const callbackOrigin = new URL(callbackServerUrl).origin;
+        console.log('Expected callback server origin:', callbackOrigin);
+        
+        if (event.origin !== callbackOrigin) {
+          console.warn('Message origin mismatch - ignoring message. Expected:', callbackOrigin, 'Got:', event.origin);
           return;
         }
+        
+        console.log('Origin validation passed, processing message...');
 
         if (event.data.type === 'oauth-callback') {
           // Handle OAuth callback with authorization code
@@ -237,11 +256,14 @@ export class AuthService {
       // Monitor popup for manual closure
       const checkClosed = setInterval(() => {
         if (popup.closed) {
+          console.log('Popup was closed');
           cleanup();
           // Check if authentication was successful by looking for tokens
           const tokens = getCachedTokens(this.config.tokenStorageKey);
+          console.log('Tokens after popup closed:', tokens ? 'Found' : 'Not found');
           if (!tokens) {
             // No tokens found, user likely closed popup without completing auth
+            console.log('Setting authentication cancelled error');
             this.setAuthState(prev => ({
               ...prev,
               isLoading: false,
@@ -297,7 +319,10 @@ export class AuthService {
       }
 
       // Exchange code for tokens
-      const tokens = await exchangeCodeForTokens(this.config.oauth, code, state);
+      // We need to pass the original CSRF token, not the encoded state
+      const decodedState = atob(state);
+      const [originalCsrfToken] = decodedState.split('|');
+      const tokens = await exchangeCodeForTokens(this.config.oauth, code, originalCsrfToken);
       
       // Store tokens
       storeCachedTokens(tokens, this.config.tokenStorageKey);

@@ -190,12 +190,17 @@ export const buildAuthorizationUrl = async (config: AuthConfig): Promise<string>
       .then((response: Response) => oauth.processDiscoveryResponse(new URL(config.authority), response));
 
     // Generate state and code verifier for PKCE
-    const state = oauth.generateRandomState();
+    const csrfToken = oauth.generateRandomState();
     const codeVerifier = oauth.generateRandomCodeVerifier();
     const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
 
-    // Store state and code verifier for later validation
-    sessionStorage.setItem('oauth_state', state);
+    // Encode the origin in the state parameter for secure callback communication
+    // Format: base64(csrf_token|origin_url)
+    const stateData = `${csrfToken}|${window.location.origin}`;
+    const state = btoa(stateData);
+
+    // Store CSRF token and code verifier for later validation
+    sessionStorage.setItem('oauth_state', csrfToken);
     sessionStorage.setItem('oauth_code_verifier', codeVerifier);
 
     // Build authorization URL
@@ -256,47 +261,51 @@ export const exchangeCodeForTokens = async (
     sessionStorage.removeItem('oauth_state');
     sessionStorage.removeItem('oauth_code_verifier');
 
-    // Discover the authorization server configuration
-    const as = await oauth.discoveryRequest(new URL(config.authority))
-      .then((response: Response) => oauth.processDiscoveryResponse(new URL(config.authority), response));
-
-    // Create callback parameters in the format expected by the OAuth library
-    const callbackParams = new URLSearchParams();
-    callbackParams.set('code', code);
-    // Note: Don't include state in callbackParams as we validate it separately
+    // Exchange code for tokens directly with Microsoft (required for SPA client type)
+    // Microsoft requires SPA tokens to be redeemed via cross-origin requests from the browser
+    console.log('🔄 Exchanging code for tokens directly with Microsoft...');
     
-    // Validate the callback parameters first (required by oauth4webapi)
-    const validatedParams = oauth.validateAuthResponse(
-      as,
-      { client_id: config.clientId },
-      callbackParams,
-      oauth.expectNoState // We handle state validation separately
-    );
-    
-    if (oauth.isOAuth2Error(validatedParams)) {
-      throw new Error(`OAuth validation error: ${validatedParams.error} - ${validatedParams.error_description}`);
-    }
+    // Use the token endpoint directly (we know it from Microsoft Entra endpoints)
+    // Remove /v2.0 from authority if present, then add the full oauth2/v2.0/token path
+    const baseAuthority = config.authority.replace('/v2.0', '');
+    const tokenEndpoint = `${baseAuthority}/oauth2/v2.0/token`;
+    console.log('🎯 Token endpoint:', tokenEndpoint);
 
-    // Exchange code for tokens using validated parameters
-    // For public clients (browser apps), we need to explicitly set token_endpoint_auth_method to 'none'
-    const client = {
+    // Prepare token exchange request
+    const tokenParams = new URLSearchParams({
+      grant_type: 'authorization_code',
       client_id: config.clientId,
-      token_endpoint_auth_method: 'none' // Explicitly specify this is a public client
-    };
+      code: code,
+      code_verifier: codeVerifier,
+      redirect_uri: config.redirectUri
+    });
+
+    console.log('🚀 Exchanging code for tokens...');
     
-    const response = await oauth.authorizationCodeGrantRequest(
-      as,
-      client,
-      validatedParams,
-      config.redirectUri,
-      codeVerifier
-    );
+    // Exchange code for tokens
+    const response = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: tokenParams.toString()
+    });
 
-    const result = await oauth.processAuthorizationCodeOpenIDResponse(as, { client_id: config.clientId }, response);
-
-    if (oauth.isOAuth2Error(result)) {
-      throw new Error(`OAuth error: ${result.error} - ${result.error_description}`);
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.error('❌ Token exchange failed:', result);
+      throw new Error(`Token exchange failed: ${result.error} - ${result.error_description}`);
     }
+
+    console.log('✅ Token exchange successful');
+    console.log('📊 Token response:', {
+      access_token: result.access_token ? `${result.access_token.substring(0, 20)}...` : 'none',
+      id_token: result.id_token ? `${result.id_token.substring(0, 20)}...` : 'none',
+      token_type: result.token_type,
+      expires_in: result.expires_in
+    });
 
     // Convert to our token format
     const tokens: OAuthTokens = {
@@ -404,8 +413,33 @@ export const getUserInfo = async (
  * Validates OAuth state parameter
  */
 export const validateOAuthState = (receivedState: string): boolean => {
-  const storedState = sessionStorage.getItem('oauth_state');
-  return storedState === receivedState;
+  const storedCsrfToken = sessionStorage.getItem('oauth_state');
+  
+  console.log('Validating OAuth state...');
+  console.log('Stored CSRF token:', storedCsrfToken);
+  console.log('Received state:', receivedState);
+  
+  if (!storedCsrfToken) {
+    console.error('No stored CSRF token found');
+    return false;
+  }
+  
+  try {
+    // Decode the received state to extract the CSRF token
+    // Format: base64(csrf_token|origin_url)
+    const decodedState = atob(receivedState);
+    console.log('Decoded state:', decodedState);
+    const [receivedCsrfToken] = decodedState.split('|');
+    console.log('Received CSRF token:', receivedCsrfToken);
+    
+    const isValid = storedCsrfToken === receivedCsrfToken;
+    console.log('State validation result:', isValid);
+    
+    return isValid;
+  } catch (error) {
+    console.error('Failed to decode state parameter:', error);
+    return false;
+  }
 };
 
 /**

@@ -107,10 +107,10 @@ The authentication system now uses popup windows instead of full-page redirects 
 
 ### OAuth Provider Configuration
 
-**Important**: You need to configure your OAuth provider to allow the popup callback URL:
+**Important**: You need to configure your OAuth provider to allow the centralized callback server URL:
 
-- **Redirect URI**: Add `https://your-domain.com/oauth-callback.html` to your OAuth provider's allowed redirect URIs
-- **For Development**: Add `http://localhost:51914/oauth-callback.html` for local testing
+- **Redirect URI**: Add `https://your-callback-server.com/oauth-callback.html` to your OAuth provider's allowed redirect URIs
+- **For Development**: Add `http://localhost:3001/oauth-callback.html` for local testing
 
 ### Example Provider Settings
 
@@ -119,11 +119,25 @@ The authentication system now uses popup windows instead of full-page redirects 
 export const oauthConfig = {
   clientId: 'your-client-id',
   authority: 'https://your-oidc-provider.com',
-  redirectUri: window.location.origin + '/oauth-callback.html', // Note: /oauth-callback.html
+  redirectUri: 'http://localhost:3001/oauth-callback.html', // Points to callback server
   scope: 'openid profile email',
   responseType: 'code'
 };
 ```
+
+### Microsoft Azure AD Specific Configuration
+
+```javascript
+export const oauthConfig = {
+  clientId: 'your-azure-client-id',
+  authority: 'https://login.microsoftonline.com/your-tenant-id/v2.0',
+  redirectUri: 'http://localhost:3001/oauth-callback.html',
+  scope: 'openid profile email',
+  responseType: 'code'
+};
+```
+
+**Important**: Configure your Azure AD app as "Single-page application" type.
 
 ### Popup Blocked?
 
