@@ -388,7 +388,7 @@ echo "examples/config.js" >> .gitignore</code></pre>
             try {
                 // Import the chatbot using the standard development approach
                 // This matches the pattern shown in the README under "Yarn dev" section
-                const { default: Chatbot } = await import('http://localhost:51914/web.js');
+                const { default: Chatbot } = await import('http://localhost:3005/web.js');
                 
                 // Initialize with authentication configuration
                 Chatbot.init({
