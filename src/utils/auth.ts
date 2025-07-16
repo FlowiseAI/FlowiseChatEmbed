@@ -403,6 +403,15 @@ export const getUserInfo = async (
     }
 
     const userInfo = await response.json();
+    
+    // Debug: Log user information retrieved from OAuth provider
+    debugLogger.log('👤 User info retrieved from OAuth provider:', {
+      displayName: userInfo.name,
+      email: userInfo.email,
+      username: userInfo.preferred_username,
+      sub: userInfo.sub
+    });
+    
     return userInfo as OIDCUserInfo;
   } catch (error) {
     console.error('Error getting user info:', error);

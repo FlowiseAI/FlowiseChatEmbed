@@ -73,6 +73,13 @@ export class AuthService {
             
             const userInfo = await getUserInfo(this.config.oauth, newTokens.access_token);
             
+            // Debug: Log user information after token refresh
+            debugLogger.log('🔄 User info retrieved after token refresh:', {
+              displayName: userInfo.name,
+              email: userInfo.email,
+              username: userInfo.preferred_username
+            });
+            
             this.setAuthState({
               isAuthenticated: true,
               isLoading: false,
@@ -98,6 +105,13 @@ export class AuthService {
       // Tokens are valid, get user info
       try {
         const userInfo = await getUserInfo(this.config.oauth, tokens.access_token);
+        
+        // Debug: Log user information after initial authentication
+        debugLogger.log('🔐 User info retrieved after initial authentication:', {
+          displayName: userInfo.name,
+          email: userInfo.email,
+          username: userInfo.preferred_username
+        });
         
         this.setAuthState({
           isAuthenticated: true,
@@ -330,6 +344,13 @@ export class AuthService {
 
       // Get user info
       const userInfo = await getUserInfo(this.config.oauth, tokens.access_token);
+
+      // Debug: Log user information after OAuth callback
+      debugLogger.log('✅ User info retrieved after OAuth callback:', {
+        displayName: userInfo.name,
+        email: userInfo.email,
+        username: userInfo.preferred_username
+      });
 
       this.setAuthState({
         isAuthenticated: true,
