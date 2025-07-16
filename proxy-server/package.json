@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "debug": "node --inspect=9229 server.js",
-    "debug-brk": "node --inspect-brk=9229 server.js"
+    "debug-brk": "node --inspect-brk=9229 server.js",
+    "debug-verbose": "NODE_ENV=debug node server.js",
+    "debug-verbose-inspect": "NODE_ENV=debug node --inspect=9229 server.js"
   },
   "dependencies": {
     "axios": "^1.7.7",

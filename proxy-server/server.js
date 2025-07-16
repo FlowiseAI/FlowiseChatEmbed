@@ -14,6 +14,13 @@ import { generateEmbedScript } from '../src/utils/embedScript.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Debug logging utility - only logs when NODE_ENV=debug
+const debugLog = (message, ...args) => {
+  if (process.env.NODE_ENV === 'debug') {
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: ${message}`, ...args);
+  }
+};
+
 // Configuration loading with priority: prod.config.json > local.config.json > config.json
 const loadConfiguration = () => {
   const configFiles = ['prod.config.json', 'local.config.json', 'config.json'];
@@ -458,8 +465,8 @@ app.post('/api/v1/attachments/:identifier/:chatId', upload.any(), async (req, re
   try {
     const chatflow = getChatflowDetails(identifier);
     
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Attachment upload - identifier: ${identifier}, chatId: ${chatId}`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Files received:`, req.files?.length || 0);
+    debugLog(`Attachment upload - identifier: ${identifier}, chatId: ${chatId}`);
+    debugLog(`Files received:`, req.files?.length || 0);
     
     if (!req.files || req.files.length === 0) {
       console.warn('\x1b[33m%s\x1b[0m', `⚠️  Attachment upload failed: No files provided (identifier: ${identifier})`);
@@ -476,16 +483,16 @@ app.post('/api/v1/attachments/:identifier/:chatId', upload.any(), async (req, re
     req.files.forEach((file, index) => {
       formData.append('files', file.buffer, file.originalname);
       totalSize += file.size;
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Added file ${index}: ${file.originalname} (${file.size} bytes, ${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+      debugLog(`Added file ${index}: ${file.originalname} (${file.size} bytes, ${(file.size / 1024 / 1024).toFixed(2)} MB)`);
     });
     
     // Add other form fields from body
     Object.keys(req.body || {}).forEach(key => {
       formData.append(key, req.body[key]);
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Added field ${key}: ${req.body[key]}`);
+      debugLog(`Added field ${key}: ${req.body[key]}`);
     });
     
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Total upload size: ${totalSize} bytes (${(totalSize / 1024 / 1024).toFixed(2)} MB)`);
+    debugLog(`Total upload size: ${totalSize} bytes (${(totalSize / 1024 / 1024).toFixed(2)} MB)`);
     
     // Check if the upload size is reasonable (warn if > 50MB)
     if (totalSize > 50 * 1024 * 1024) {
@@ -533,10 +540,10 @@ app.use('/api/v1/*', async (req, res) => {
     const fullPath = req.originalUrl.split('?')[0]; // Remove query string for path processing
     
     // DEBUG: Log initial request details
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: req.path = "${req.path}"`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: req.url = "${req.url}"`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: req.originalUrl = "${req.originalUrl}"`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: fullPath = "${fullPath}"`);
+    debugLog(`req.path = "${req.path}"`);
+    debugLog(`req.url = "${req.url}"`);
+    debugLog(`req.originalUrl = "${req.originalUrl}"`);
+    debugLog(`fullPath = "${fullPath}"`);
     
     // Extract identifier from various possible locations in the path
     let identifier = null;
@@ -544,7 +551,7 @@ app.use('/api/v1/*', async (req, res) => {
     
     // Parse path to find identifier and convert to chatflowId
     const pathParts = fullPath.split('/').filter(Boolean);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: pathParts = [${pathParts.join(', ')}]`);
+    debugLog(`pathParts = [${pathParts.join(', ')}]`);
     
     // Look for identifier in common positions
     if (pathParts.length >= 3) {
@@ -559,7 +566,7 @@ app.use('/api/v1/*', async (req, res) => {
           // Replace identifier with actual chatflowId in the path
           pathParts[2] = chatflow.chatflowId;
           targetPath = '/' + pathParts.join('/');
-          console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: After identifier replacement - targetPath = "${targetPath}"`);
+          debugLog(`After identifier replacement - targetPath = "${targetPath}"`);
         } catch (error) {
           // Not a valid identifier, continue with original path
         }
@@ -575,7 +582,7 @@ app.use('/api/v1/*', async (req, res) => {
           identifier = potentialIdentifier;
           pathParts[3] = chatflow.chatflowId;
           targetPath = '/' + pathParts.join('/');
-          console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: After position 3 replacement - targetPath = "${targetPath}"`);
+          debugLog(`After position 3 replacement - targetPath = "${targetPath}"`);
         } catch (error) {
           // Not a valid identifier, continue with original path
         }
@@ -586,10 +593,10 @@ app.use('/api/v1/*', async (req, res) => {
     const queryString = req.originalUrl.includes('?') ? '?' + req.originalUrl.split('?')[1] : '';
     const apiUrl = `${config.apiHost}${targetPath}${queryString}`;
     
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: config.apiHost = "${config.apiHost}"`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: targetPath = "${targetPath}"`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: queryString = "${queryString}"`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Final apiUrl = "${apiUrl}"`);
+    debugLog(`config.apiHost = "${config.apiHost}"`);
+    debugLog(`targetPath = "${targetPath}"`);
+    debugLog(`queryString = "${queryString}"`);
+    debugLog(`Final apiUrl = "${apiUrl}"`);
     
     console.info('\x1b[34m%s\x1b[0m', `📤 API Proxy: ${req.method} ${apiUrl}${identifier ? ` (identifier: ${identifier})` : ''}`);
     
@@ -614,14 +621,14 @@ app.use('/api/v1/*', async (req, res) => {
     // Handle request body for POST/PUT requests
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
       if (req.is('multipart/form-data')) {
-        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Detected multipart/form-data request - this should be handled by specific route`);
+        debugLog(`Detected multipart/form-data request - this should be handled by specific route`);
         // Multipart requests should be handled by specific routes (like /api/v1/attachments)
         // If we get here, it means the route wasn't matched properly
         return res.status(400).json({ error: 'Multipart requests must use specific endpoints' });
       } else {
         // Handle JSON data
         requestOptions.data = req.body;
-        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Using JSON body data`);
+        debugLog(`Using JSON body data`);
       }
     }
     
@@ -631,11 +638,11 @@ app.use('/api/v1/*', async (req, res) => {
     
     if (isStreamingRequest || isDownloadRequest) {
       requestOptions.responseType = 'stream';
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Setting responseType to stream (streaming: ${isStreamingRequest}, download: ${isDownloadRequest})`);
+      debugLog(`Setting responseType to stream (streaming: ${isStreamingRequest}, download: ${isDownloadRequest})`);
     }
     
     // Make the request
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Making axios request with options:`, JSON.stringify({
+    debugLog(`Making axios request with options:`, JSON.stringify({
       method: requestOptions.method,
       url: requestOptions.url,
       headers: Object.keys(requestOptions.headers || {}),
@@ -649,8 +656,8 @@ app.use('/api/v1/*', async (req, res) => {
     const response = await axios(requestOptions);
     
     console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText}${identifier ? ` (identifier: ${identifier})` : ''}`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response headers:`, response.headers);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response data type: ${typeof response.data}`);
+    debugLog(`Response headers:`, response.headers);
+    debugLog(`Response data type: ${typeof response.data}`);
     
     // Safe JSON stringification to avoid circular reference errors
     let dataSize = 'unknown';
@@ -660,7 +667,7 @@ app.use('/api/v1/*', async (req, res) => {
       dataSize = `${jsonString.length} chars`;
       dataPreview = jsonString.substring(0, 500) + (jsonString.length > 500 ? '...' : '');
     } catch (err) {
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Cannot stringify response data (likely circular reference):`, err.message);
+      debugLog(`Cannot stringify response data (likely circular reference):`, err.message);
       if (response.data && typeof response.data === 'object') {
         dataPreview = `Object with keys: [${Object.keys(response.data).join(', ')}]`;
       } else {
@@ -668,13 +675,13 @@ app.use('/api/v1/*', async (req, res) => {
       }
     }
     
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response data size: ${dataSize}`);
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response data preview:`, dataPreview);
+    debugLog(`Response data size: ${dataSize}`);
+    debugLog(`Response data preview:`, dataPreview);
     
     // Handle streaming responses
     if (requestOptions.responseType === 'stream') {
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Handling as stream response`);
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Stream response headers:`, response.headers);
+      debugLog(`Handling as stream response`);
+      debugLog(`Stream response headers:`, response.headers);
       
       // Copy response headers - important for Server-Sent Events
       Object.keys(response.headers).forEach(key => {
@@ -685,7 +692,7 @@ app.use('/api/v1/*', async (req, res) => {
       if (response.headers['content-type']?.includes('text/event-stream')) {
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
-        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Set SSE headers for event stream`);
+        debugLog(`Set SSE headers for event stream`);
       }
       
       res.status(response.status);
@@ -693,18 +700,18 @@ app.use('/api/v1/*', async (req, res) => {
       
       // Log when stream ends
       response.data.on('end', () => {
-        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Stream ended`);
+        debugLog(`Stream ended`);
       });
       
       response.data.on('error', (err) => {
-        console.error('\x1b[31m%s\x1b[0m', `🔍 DEBUG: Stream error:`, err);
+        debugLog(`Stream error:`, err);
       });
     } else {
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Handling as JSON response`);
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Sending response with status ${response.status}`);
+      debugLog(`Handling as JSON response`);
+      debugLog(`Sending response with status ${response.status}`);
       // Handle regular JSON responses
       res.status(response.status).json(response.data);
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response sent successfully`);
+      debugLog(`Response sent successfully`);
     }
     
   } catch (error) {
@@ -739,10 +746,10 @@ app.use('/api/v1/*', async (req, res) => {
       }
     }
     
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Error details:`, errorDetails);
+    debugLog(`Error details:`, errorDetails);
     
     if (error.response) {
-      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Sending error response with status ${error.response.status}`);
+      debugLog(`Sending error response with status ${error.response.status}`);
       res.status(error.response.status).json({
         error: error.response.data || 'Upstream server error'
       });
@@ -797,7 +804,7 @@ app.get('/api/v1/get-upload-file', async (req, res) => {
   try {
     const { chatflowId, chatId, fileName } = req.query;
     
-    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: get-upload-file request - chatflowId: ${chatflowId}, chatId: ${chatId}, fileName: ${fileName}`);
+    debugLog(`get-upload-file request - chatflowId: ${chatflowId}, chatId: ${chatId}, fileName: ${fileName}`);
     
     // Convert identifier to actual chatflow UUID if needed
     let actualChatflowId = chatflowId;
@@ -805,7 +812,7 @@ app.get('/api/v1/get-upload-file', async (req, res) => {
       try {
         const chatflow = getChatflowDetails(chatflowId);
         actualChatflowId = chatflow.chatflowId;
-        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Converted identifier "${chatflowId}" to UUID "${actualChatflowId}"`);
+        debugLog(`Converted identifier "${chatflowId}" to UUID "${actualChatflowId}"`);
       } catch (error) {
         console.warn('\x1b[33m%s\x1b[0m', `⚠️  Invalid chatflow identifier: ${chatflowId}`);
         return res.status(404).json({ error: `Chatflow not found: ${chatflowId}` });
