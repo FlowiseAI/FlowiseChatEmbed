@@ -9,7 +9,7 @@ import fs from 'fs';
 import axios from 'axios';
 import multer from 'multer';
 import FormData from 'form-data';
-import { generateEmbedScript } from '../src/utils/embedScript.js';
+import { generateEmbedScript } from './src/utils/embedScript.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,21 +26,21 @@ const loadConfiguration = () => {
   const configFiles = ['prod.config.json', 'local.config.json', 'config.json'];
   
   for (const configFile of configFiles) {
-    const configPath = path.join(__dirname, configFile);
+    const configPath = path.join(__dirname, 'config', configFile);
     if (fs.existsSync(configPath)) {
       try {
         const configData = fs.readFileSync(configPath, 'utf8');
         const config = JSON.parse(configData);
-        console.info('\x1b[32m%s\x1b[0m', `✓ Loaded configuration from: ${configFile}`);
+        console.info('\x1b[32m%s\x1b[0m', `✓ Loaded configuration from: config/${configFile}`);
         return config;
       } catch (error) {
-        console.error(`Error parsing ${configFile}:`, error.message);
+        console.error(`Error parsing config/${configFile}:`, error.message);
         continue;
       }
     }
   }
   
-  console.error('\x1b[31m%s\x1b[0m', '✗ No configuration found. Please create one of: prod.config.json, local.config.json, or config.json');
+  console.error('\x1b[31m%s\x1b[0m', '✗ No configuration found. Please create one of: config/prod.config.json, config/local.config.json, or config/config.json');
   process.exit(1);
 };
 
@@ -161,10 +161,13 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(
   cors({
-    origin: true,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+    origin: '*',
+    credentials: false, // Must be false when origin is '*'
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['*'],
+    exposedHeaders: ['*'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
   }),
 );
 
@@ -185,6 +188,24 @@ app.get('/', (_, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Handle OPTIONS preflight for /web.js
+app.options('/web.js', (req, res) => {
+  const origin = req.headers.origin;
+  const allAllowedDomains = Array.from(chatflows.values()).flatMap((config) => config.domains);
+
+  if (!isValidDomain(origin, allAllowedDomains)) {
+    return res.status(403).send('Access Denied');
+  }
+
+  res.set({
+    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Credentials': 'false',
+  });
+  res.status(200).end();
+});
+
 app.get('/web.js', (req, res) => {
   const origin = req.headers.origin;
 
@@ -199,6 +220,10 @@ app.get('/web.js', (req, res) => {
     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
     Pragma: 'no-cache',
     Expires: '0',
+    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Credentials': 'false',
   });
   res.sendFile(path.join(__dirname, 'public', 'web.js'));
 });

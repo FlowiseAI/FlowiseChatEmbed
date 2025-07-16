@@ -8,3 +8,4 @@ dist/
 /proxy-server/public/web.js
 /proxy-server/prod.config.json
 /proxy-server/local.config.json
+/proxy-server/config.json

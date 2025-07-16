@@ -1,0 +1,26 @@
+{
+  "apiHost": "https://your-flowise-instance.com",
+  "flowiseApiKey": "your-flowise-api-key-here",
+  "oauthApiKey": "your-secure-oauth-api-key-here",
+  "oauthRedirectUri": "http://localhost:3001/oauth-callback.html",
+  "port": 3001,
+  "host": "0.0.0.0",
+  "chatflows": [
+    {
+      "identifier": "chatflow_1",
+      "chatflowId": "your-chatflow-uuid-here",
+      "allowedDomains": [
+        "http://localhost:5678",
+        "https://yourdomain.com"
+      ],
+      "oauth": {
+        "mode": "optional",
+        "clientId": "your-oauth-client-id",
+        "authority": "https://login.microsoftonline.com/your-tenant-id/v2.0",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "select_account"
+      }
+    }
+  ]
+}

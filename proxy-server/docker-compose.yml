@@ -1,0 +1,26 @@
+services:
+  flowise-proxy:
+    build:
+      context: ..
+      dockerfile: proxy-server/Dockerfile
+    container_name: flowise-proxy-server
+    ports:
+      - 3001:3001
+      - 3005:3005
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      - NODE_ENV=production
+      - DEBUG=*
+    restart: no
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { hostname: 'localhost', port: 3005, path: '/health', timeout: 2000 }; const req = http.request(options, (res) => { if (res.statusCode === 200) process.exit(0); else process.exit(1); }); req.on('error', () => process.exit(1)); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks: ['demo']
+
+networks:
+  demo:
+    driver: bridge
