@@ -2,40 +2,65 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Flowise Embed",
+      "name": "Debug Proxy Server",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/rollup",
-      "args": [
-        "--watch",
-        "--config",
-        "rollup.config.js"
-      ],
+      "program": "${workspaceFolder}/proxy-server/server.js",
+      "cwd": "${workspaceFolder}/proxy-server",
       "env": {
-        "NODE_ENV": "debug"
+        "NODE_ENV": "development",
+        "DEBUG": "*"
       },
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
-    },
-    {
-      "name": "Debug in Browser",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:51914",
-      "webRoot": "${workspaceFolder}",
-      "sourceMapPathOverrides": {
-        "webpack:///./src/*": "${webRoot}/src/*",
-        "webpack:///./*": "${webRoot}/*",
-        "webpack:///src/*": "${webRoot}/src/*"
-      },
-      "smartStep": true,
+      "restart": true,
+      "runtimeArgs": ["--inspect=9229"],
       "skipFiles": [
         "<node_internals>/**",
-        "node_modules/**"
-      ]
+        "**/node_modules/**"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "outputCapture": "console"
+    },
+    {
+      "name": "Debug Proxy Server (Break on Start)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/proxy-server/server.js",
+      "cwd": "${workspaceFolder}/proxy-server",
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "*"
+      },
+      "console": "integratedTerminal",
+      "restart": true,
+      "runtimeArgs": ["--inspect-brk=9229"],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "outputCapture": "console",
+      "stopOnEntry": true
+    },
+    {
+      "name": "Debug Proxy Server (Attach)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "outputCapture": "console"
     }
   ]
 }

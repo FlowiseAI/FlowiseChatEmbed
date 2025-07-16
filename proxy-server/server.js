@@ -452,12 +452,22 @@ app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
 // This forwards all Flowise API calls to the upstream server with proper authentication
 app.use('/api/v1/*', async (req, res) => {
   try {
+    // Use originalUrl to get the full path before Express strips the prefix
+    const fullPath = req.originalUrl.split('?')[0]; // Remove query string for path processing
+    
+    // DEBUG: Log initial request details
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: req.path = "${req.path}"`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: req.url = "${req.url}"`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: req.originalUrl = "${req.originalUrl}"`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: fullPath = "${fullPath}"`);
+    
     // Extract identifier from various possible locations in the path
     let identifier = null;
-    let targetPath = req.path;
+    let targetPath = fullPath; // Use the full original path
     
     // Parse path to find identifier and convert to chatflowId
-    const pathParts = req.path.split('/').filter(Boolean);
+    const pathParts = fullPath.split('/').filter(Boolean);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: pathParts = [${pathParts.join(', ')}]`);
     
     // Look for identifier in common positions
     if (pathParts.length >= 3) {
@@ -472,6 +482,7 @@ app.use('/api/v1/*', async (req, res) => {
           // Replace identifier with actual chatflowId in the path
           pathParts[2] = chatflow.chatflowId;
           targetPath = '/' + pathParts.join('/');
+          console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: After identifier replacement - targetPath = "${targetPath}"`);
         } catch (error) {
           // Not a valid identifier, continue with original path
         }
@@ -487,6 +498,7 @@ app.use('/api/v1/*', async (req, res) => {
           identifier = potentialIdentifier;
           pathParts[3] = chatflow.chatflowId;
           targetPath = '/' + pathParts.join('/');
+          console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: After position 3 replacement - targetPath = "${targetPath}"`);
         } catch (error) {
           // Not a valid identifier, continue with original path
         }
@@ -494,7 +506,13 @@ app.use('/api/v1/*', async (req, res) => {
     }
     
     // Construct the full API URL
-    const apiUrl = `${config.apiHost}${targetPath}${req.url.includes('?') ? '?' + req.url.split('?')[1] : ''}`;
+    const queryString = req.originalUrl.includes('?') ? '?' + req.originalUrl.split('?')[1] : '';
+    const apiUrl = `${config.apiHost}${targetPath}${queryString}`;
+    
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: config.apiHost = "${config.apiHost}"`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: targetPath = "${targetPath}"`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: queryString = "${queryString}"`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Final apiUrl = "${apiUrl}"`);
     
     console.info('\x1b[34m%s\x1b[0m', `📤 API Proxy: ${req.method} ${apiUrl}${identifier ? ` (identifier: ${identifier})` : ''}`);
     
@@ -543,33 +561,117 @@ app.use('/api/v1/*', async (req, res) => {
     }
     
     // Handle streaming responses
-    if (req.path.includes('download') || req.path.includes('stream')) {
+    const isStreamingRequest = req.body && req.body.streaming === true;
+    const isDownloadRequest = req.path.includes('download') || req.path.includes('stream');
+    
+    if (isStreamingRequest || isDownloadRequest) {
       requestOptions.responseType = 'stream';
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Setting responseType to stream (streaming: ${isStreamingRequest}, download: ${isDownloadRequest})`);
     }
     
     // Make the request
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Making axios request with options:`, JSON.stringify({
+      method: requestOptions.method,
+      url: requestOptions.url,
+      headers: Object.keys(requestOptions.headers || {}),
+      hasData: !!requestOptions.data,
+      dataSize: requestOptions.data ? JSON.stringify(requestOptions.data).length : 0,
+      timeout: requestOptions.timeout,
+      maxContentLength: requestOptions.maxContentLength,
+      maxBodyLength: requestOptions.maxBodyLength
+    }, null, 2));
+    
     const response = await axios(requestOptions);
     
     console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText}${identifier ? ` (identifier: ${identifier})` : ''}`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response headers:`, response.headers);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response data type: ${typeof response.data}`);
+    
+    // Safe JSON stringification to avoid circular reference errors
+    let dataSize = 'unknown';
+    let dataPreview = 'unable to stringify';
+    try {
+      const jsonString = JSON.stringify(response.data);
+      dataSize = `${jsonString.length} chars`;
+      dataPreview = jsonString.substring(0, 500) + (jsonString.length > 500 ? '...' : '');
+    } catch (err) {
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Cannot stringify response data (likely circular reference):`, err.message);
+      if (response.data && typeof response.data === 'object') {
+        dataPreview = `Object with keys: [${Object.keys(response.data).join(', ')}]`;
+      } else {
+        dataPreview = String(response.data).substring(0, 500);
+      }
+    }
+    
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response data size: ${dataSize}`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response data preview:`, dataPreview);
     
     // Handle streaming responses
     if (requestOptions.responseType === 'stream') {
-      // Copy response headers
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Handling as stream response`);
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Stream response headers:`, response.headers);
+      
+      // Copy response headers - important for Server-Sent Events
       Object.keys(response.headers).forEach(key => {
         res.setHeader(key, response.headers[key]);
       });
+      
+      // Ensure proper headers for Server-Sent Events
+      if (response.headers['content-type']?.includes('text/event-stream')) {
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Set SSE headers for event stream`);
+      }
+      
       res.status(response.status);
       response.data.pipe(res);
+      
+      // Log when stream ends
+      response.data.on('end', () => {
+        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Stream ended`);
+      });
+      
+      response.data.on('error', (err) => {
+        console.error('\x1b[31m%s\x1b[0m', `🔍 DEBUG: Stream error:`, err);
+      });
     } else {
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Handling as JSON response`);
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Sending response with status ${response.status}`);
       // Handle regular JSON responses
       res.status(response.status).json(response.data);
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Response sent successfully`);
     }
     
   } catch (error) {
     const identifier = req.path.split('/')[3]; // Best guess for logging
     console.error('\x1b[31m%s\x1b[0m', `❌ API Proxy Error: ${error.response?.status || 'Unknown'} - ${error.message}${identifier ? ` (identifier: ${identifier})` : ''}`);
     
+    // Safe error logging to avoid circular references
+    const errorDetails = {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      stack: error.stack?.split('\n').slice(0, 5).join('\n')
+    };
+    
+    // Safely handle response headers and data
+    if (error.response?.headers) {
+      errorDetails.responseHeaders = Object.keys(error.response.headers);
+    }
+    
+    if (error.response?.data) {
+      try {
+        errorDetails.responseData = JSON.stringify(error.response.data).substring(0, 500);
+      } catch (stringifyError) {
+        errorDetails.responseData = `Cannot stringify: ${stringifyError.message}`;
+      }
+    }
+    
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Error details:`, errorDetails);
+    
     if (error.response) {
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Sending error response with status ${error.response.status}`);
       res.status(error.response.status).json({
         error: error.response.data || 'Upstream server error'
       });
@@ -626,17 +728,34 @@ app.get('/api/v1/get-upload-file', async (req, res) => {
   try {
     const { chatflowId, chatId, fileName } = req.query;
     
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: get-upload-file request - chatflowId: ${chatflowId}, chatId: ${chatId}, fileName: ${fileName}`);
+    
+    // Convert identifier to actual chatflow UUID if needed
+    let actualChatflowId = chatflowId;
+    if (chatflowId && !isValidUUID(chatflowId)) {
+      try {
+        const chatflow = getChatflowDetails(chatflowId);
+        actualChatflowId = chatflow.chatflowId;
+        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Converted identifier "${chatflowId}" to UUID "${actualChatflowId}"`);
+      } catch (error) {
+        console.warn('\x1b[33m%s\x1b[0m', `⚠️  Invalid chatflow identifier: ${chatflowId}`);
+        return res.status(404).json({ error: `Chatflow not found: ${chatflowId}` });
+      }
+    }
+    
     const apiUrl = `${config.apiHost}/api/v1/get-upload-file`;
-    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: GET ${apiUrl} (chatflowId: ${chatflowId}, chatId: ${chatId}, fileName: ${fileName})`);
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: GET ${apiUrl} (chatflowId: ${actualChatflowId}, chatId: ${chatId}, fileName: ${fileName})`);
     
     const response = await axios.get(
       apiUrl,
       {
-        params: { chatflowId, chatId, fileName },
+        params: { chatflowId: actualChatflowId, chatId, fileName },
         headers: {
           'Authorization': `Bearer ${config.flowiseApiKey}`,
         },
         responseType: 'stream',
+        maxContentLength: Infinity, // Remove content length limit
+        maxBodyLength: Infinity,    // Remove body length limit
       }
     );
     

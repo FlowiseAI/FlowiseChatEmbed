@@ -1,0 +1,20 @@
+{
+  "name": "flowise-embed-proxy-server",
+  "version": "1.0.0",
+  "description": "Proxy server for Flowise Chat Embed",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "debug": "node --inspect=9229 server.js",
+    "debug-brk": "node --inspect-brk=9229 server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "form-data": "^4.0.1",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2"
+  }
+}

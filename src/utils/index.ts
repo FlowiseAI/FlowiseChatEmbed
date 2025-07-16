@@ -42,16 +42,32 @@ export const sendRequest = async <ResponseData>(
       await params.onRequest(requestInfo);
     }
 
+    console.log('🔍 CLIENT DEBUG: Making request to:', url);
+    console.log('🔍 CLIENT DEBUG: Request options:', {
+      method: requestInfo.method,
+      headers: requestInfo.headers,
+      hasBody: !!requestInfo.body,
+      bodyType: typeof requestInfo.body
+    });
+
     const response = await fetch(url, requestInfo);
+
+    console.log('🔍 CLIENT DEBUG: Response status:', response.status);
+    console.log('🔍 CLIENT DEBUG: Response headers:', Object.fromEntries(response.headers.entries()));
 
     let data: any;
     const contentType = response.headers.get('Content-Type');
+    console.log('🔍 CLIENT DEBUG: Content-Type:', contentType);
+    
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
+      console.log('🔍 CLIENT DEBUG: Parsed JSON data:', data);
     } else if (typeof params !== 'string' && params.type === 'blob') {
       data = await response.blob();
+      console.log('🔍 CLIENT DEBUG: Parsed blob data size:', data.size);
     } else {
       data = await response.text();
+      console.log('🔍 CLIENT DEBUG: Parsed text data:', data);
     }
     if (!response.ok) {
       let errorMessage;
