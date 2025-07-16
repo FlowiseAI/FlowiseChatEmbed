@@ -1,6 +1,10 @@
 node_modules
 .idea
 .env
+dist/
 
 /examples/config.js
 /proxy-server/.env
+/proxy-server/public/web.js
+/proxy-server/prod.config.json
+/proxy-server/local.config.json

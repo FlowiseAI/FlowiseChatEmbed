@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback - Flowise Chat Embed</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .success {
+            color: #4ade80;
+        }
+        .error {
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner" id="spinner"></div>
+        <h2 id="title">Processing Authentication...</h2>
+        <p id="message">Please wait while we complete your login.</p>
+    </div>
+
+    <script>
+        // Extract OAuth parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        // Get the origin from state parameter (encoded in state for security)
+        let targetOrigin = null;
+        
+        function updateUI(status, title, message) {
+            const spinner = document.getElementById('spinner');
+            const titleEl = document.getElementById('title');
+            const messageEl = document.getElementById('message');
+            
+            if (status === 'success') {
+                spinner.style.display = 'none';
+                titleEl.textContent = title;
+                titleEl.className = 'success';
+                messageEl.textContent = message;
+            } else if (status === 'error') {
+                spinner.style.display = 'none';
+                titleEl.textContent = title;
+                titleEl.className = 'error';
+                messageEl.textContent = message;
+            }
+        }
+
+        async function handleOAuthCallback() {
+            try {
+                console.log('Callback page loaded with params:', { code: code?.substring(0, 20) + '...', state: state?.substring(0, 20) + '...', error });
+                // alert('Callback page loaded! Check console for details.'); // Temporary debug alert - removed
+                
+                // Decode the target origin from the state parameter
+                // The state should contain both the CSRF token and the origin
+                if (state) {
+                    try {
+                        // Assume state format: "csrf_token|origin_url"
+                        console.log('Decoding state parameter...');
+                        const stateParts = atob(state).split('|');
+                        console.log('State parts:', stateParts);
+                        if (stateParts.length >= 2) {
+                            targetOrigin = stateParts[1];
+                            console.log('Target origin extracted:', targetOrigin);
+                        }
+                    } catch (e) {
+                        console.warn('Could not decode origin from state parameter:', e);
+                    }
+                }
+
+                // Fallback: try to get origin from referrer or opener
+                if (!targetOrigin) {
+                    if (window.opener && window.opener.location) {
+                        targetOrigin = window.opener.location.origin;
+                    } else if (document.referrer) {
+                        targetOrigin = new URL(document.referrer).origin;
+                    }
+                }
+
+                if (error) {
+                    // OAuth error occurred
+                    console.error('OAuth error:', error, errorDescription);
+                    updateUI('error', 'Authentication Failed', errorDescription || error);
+                    
+                    // Notify parent window of error
+                    if (window.opener && targetOrigin) {
+                        window.opener.postMessage({
+                            type: 'oauth-error',
+                            error: error,
+                            errorDescription: errorDescription
+                        }, targetOrigin);
+                    }
+                    
+                    // Close popup after a delay
+                    setTimeout(() => {
+                        window.close();
+                    }, 3000);
+                    return;
+                }
+
+                if (!code || !state) {
+                    throw new Error('Missing authorization code or state parameter');
+                }
+
+                if (!targetOrigin) {
+                    throw new Error('Could not determine target origin for secure communication');
+                }
+
+                // Send the authorization code and state to parent window
+                if (window.opener) {
+                    console.log('Parent window found, sending message...');
+                    updateUI('success', 'Authentication Successful!', 'Redirecting you back to the chat...');
+                    
+                    const message = {
+                        type: 'oauth-callback',
+                        code: code,
+                        state: state
+                    };
+                    
+                    console.log('Sending message to parent:', message, 'Target origin:', targetOrigin);
+                    window.opener.postMessage(message, targetOrigin);
+                    console.log('Message sent successfully');
+                    
+                    // Wait briefly before closing to ensure message is processed
+                    // Also add a manual close button for debugging
+                    updateUI('success', 'Authentication Successful!', 'Message sent to parent window. Popup will close in 1.5 seconds or click to close manually.');
+                    
+                    setTimeout(() => {
+                        console.log('Auto-closing popup after 1.5 seconds...');
+                        window.close();
+                    }, 1500);
+                    
+                    // Add manual close option
+                    document.addEventListener('click', () => {
+                        console.log('Manual popup close triggered');
+                        window.close();
+                    });
+                } else {
+                    console.error('Parent window not available');
+                    throw new Error('Parent window not available');
+                }
+
+            } catch (error) {
+                console.error('OAuth callback error:', error);
+                updateUI('error', 'Authentication Error', error.message);
+                
+                // Try to notify parent window of error if possible
+                if (window.opener && targetOrigin) {
+                    window.opener.postMessage({
+                        type: 'oauth-error',
+                        error: 'callback_failed',
+                        errorDescription: error.message
+                    }, targetOrigin);
+                }
+                
+                // Close popup after a delay
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+            }
+        }
+
+        // Start processing when page loads
+        handleOAuthCallback();
+    </script>
+</body>
+</html>

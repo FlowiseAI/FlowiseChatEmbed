@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development rollup --watch --config rollup.config.js",
     "debug": "cross-env NODE_ENV=debug rollup --watch --config rollup.config.js",
-    "build": "cross-env NODE_ENV=production rollup --config rollup.config.js",
+    "build": "cross-env NODE_ENV=production rollup --config rollup.config.js && npm run copy-web-js",
+    "copy-web-js": "cp dist/web.js proxy-server/public/web.js",
     "lint": "eslint \"src/**/*.ts*\"",
     "lint-fix": "eslint --fix \"src/**/*.ts*\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,mdx}\"",

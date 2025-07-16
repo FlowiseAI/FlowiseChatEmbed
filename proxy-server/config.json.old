@@ -1,0 +1,58 @@
+{
+  "apiHost": "https://flowise.lab.calstate.ai",
+  "flowiseApiKey": "your-flowise-api-key-here",
+  "oauthApiKey": "your-secure-oauth-api-key-here",
+  "oauthRedirectUri": "http://localhost:3005/oauth-callback.html",
+  "port": 3001,
+  "host": "localhost",
+  "chatflows": [
+    {
+      "identifier": "chatflow_1",
+      "chatflowId": "be29834a-84e7-45c1-ac5b-99adcc5fbcc3",
+      "allowedDomains": [
+        "http://localhost:5678",
+        "https://yourdomain.com"
+      ],
+      "oauth": {
+        "mode": "optional",
+        "clientId": "a3f47b20-9262-4c47-b885-41be1b0c4d56",
+        "authority": "https://login.microsoftonline.com/ae9a1f93-89ad-45f8-94b4-8629e935ab33/v2.0",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "select_account"
+      }
+    },
+    {
+      "identifier": "support_bot",
+      "chatflowId": "12345678-1234-1234-1234-123456789012",
+      "allowedDomains": [
+        "https://support.yourdomain.com",
+        "http://localhost:3000"
+      ],
+      "oauth": {
+        "mode": "required",
+        "clientId": "support-client-id",
+        "authority": "https://accounts.google.com",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "consent"
+      }
+    },
+    {
+      "identifier": "public_bot",
+      "chatflowId": "87654321-4321-4321-4321-210987654321",
+      "allowedDomains": [
+        "https://public.yourdomain.com",
+        "http://localhost:3000"
+      ],
+      "oauth": {
+        "mode": "disabled",
+        "clientId": "public-client-id",
+        "authority": "https://login.microsoftonline.com/common/v2.0",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "select_account"
+      }
+    }
+  ]
+}

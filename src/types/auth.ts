@@ -63,7 +63,7 @@ export interface AuthenticationPromptProps {
   buttonTextColor?: string;
 }
 
-export type AuthenticationMode = 'required' | 'optional' | 'disabled';
+export type AuthenticationMode = 'required' | 'optional' | 'disabled' | 'server';
 
 export interface AuthenticationConfig {
   mode: AuthenticationMode;

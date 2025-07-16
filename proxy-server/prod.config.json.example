@@ -1,0 +1,39 @@
+{
+  "apiHost": "https://your-flowise-production.com",
+  "flowiseApiKey": "REPLACE_WITH_PRODUCTION_API_KEY",
+  "oauthApiKey": "REPLACE_WITH_PRODUCTION_OAUTH_KEY",
+  "oauthRedirectUri": "https://yourdomain.com/oauth-callback.html",
+  "port": 3001,
+  "host": "0.0.0.0",
+  "chatflows": [
+    {
+      "identifier": "main_chatbot",
+      "chatflowId": "REPLACE_WITH_PRODUCTION_CHATFLOW_ID",
+      "allowedDomains": [
+        "https://yourdomain.com",
+        "https://www.yourdomain.com"
+      ],
+      "oauth": {
+        "clientId": "REPLACE_WITH_PRODUCTION_CLIENT_ID",
+        "authority": "https://login.microsoftonline.com/TENANT_ID/v2.0",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "select_account"
+      }
+    },
+    {
+      "identifier": "support_chatbot",
+      "chatflowId": "REPLACE_WITH_SUPPORT_CHATFLOW_ID",
+      "allowedDomains": [
+        "https://support.yourdomain.com"
+      ],
+      "oauth": {
+        "clientId": "REPLACE_WITH_SUPPORT_CLIENT_ID",
+        "authority": "https://accounts.google.com",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "consent"
+      }
+    }
+  ]
+}

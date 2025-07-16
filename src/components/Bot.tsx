@@ -40,6 +40,7 @@ import { AuthenticationConfig } from '@/types/auth';
 import { AuthService, createAuthService } from '@/services/authService';
 import { AuthenticationPrompt, AuthenticationLoading, AuthenticationError } from './auth/AuthenticationPrompt';
 import { AuthenticationStatusTag } from './auth/AuthenticationStatusTag';
+import { fetchOAuthConfig } from '@/constants';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -536,11 +537,41 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setChatId(customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4());
   });
 
-  onMount(() => {
-    // Initialize authentication if configured
-    if (props.authentication && props.authentication.mode !== 'disabled') {
+  onMount(async () => {
+    // Initialize authentication - prioritize server-side config over client-side
+    let authConfig = props.authentication;
+    let usingServerConfig = false;
+    
+    // Always try to fetch server-side config first (unless client config is complete)
+    if (!authConfig || authConfig.mode === 'server') {
       try {
-        const service = createAuthService(props.authentication);
+        const serverAuthConfig = await fetchOAuthConfig(props.apiHost || '', props.chatflowid);
+        if (serverAuthConfig) {
+          authConfig = serverAuthConfig;
+          usingServerConfig = true;
+          console.log(`🔧 Using server-side OAuth configuration (mode: ${serverAuthConfig.mode})`);
+        } else if (!props.authentication) {
+          // No server config and no client config - disable auth
+          console.log('❌ No OAuth configuration found, authentication disabled');
+          return;
+        } else {
+          console.log('⚠️ No server-side OAuth config found, using client-side config');
+        }
+      } catch (error) {
+        console.warn('❌ Failed to fetch server-side OAuth config:', error);
+        if (!props.authentication) {
+          console.log('❌ No fallback client config available, authentication disabled');
+          return;
+        }
+        console.log('🔄 Falling back to client-side configuration');
+      }
+    } else {
+      console.log('🔧 Using client-side OAuth configuration');
+    }
+    
+    if (authConfig && authConfig.mode !== 'disabled') {
+      try {
+        const service = createAuthService(authConfig);
         setAuthService(service);
         
         // Check authentication state

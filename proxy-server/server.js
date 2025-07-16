@@ -5,90 +5,98 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
+import fs from 'fs';
 import axios from 'axios';
 import multer from 'multer';
 import FormData from 'form-data';
 import { generateEmbedScript } from '../src/utils/embedScript.js';
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const API_HOST = process.env.API_HOST;
-const FLOWISE_API_KEY = process.env.FLOWISE_API_KEY;
-
-if (!API_HOST) {
-  console.error('API_HOST is not set in environment variables');
-  process.exit(1);
-}
-
-if (!FLOWISE_API_KEY) {
-  console.error('FLOWISE_API_KEY is not set in environment variables');
-  process.exit(1);
-}
-
-const parseChatflows = () => {
-  try {
-    const chatflows = new Map();
-
-    // Get all environment variables that don't start with special prefixes
-    const chatflowVars = Object.entries(process.env).filter(([key]) => {
-      return (
-        !key.startsWith('_') &&
-        !key.startsWith('npm_') &&
-        !key.startsWith('yarn_') &&
-        !key.startsWith('VSCODE_') &&
-        key !== 'API_HOST' &&
-        key !== 'FLOWISE_API_KEY' &&
-        key !== 'PORT' &&
-        key !== 'HOST' &&
-        key !== 'BASE_URL' &&
-        key !== 'NODE_ENV'
-      );
-    });
-
-    if (chatflowVars.length === 0) {
-      console.error('No chatflow configurations found in environment variables');
-      process.exit(1);
-    }
-
-    const defaultDomains = process.env.NODE_ENV === 'production' ? [] : ['http://localhost:5678'];
-
-    for (const [identifier, value] of chatflowVars) {
-      const parts = value.split(',').map((s) => s.trim());
-      const chatflowId = parts[0];
-      const configuredDomains = parts.length > 1 ? parts.slice(1) : [];
-
-      const domains = [...new Set([...defaultDomains, ...configuredDomains])];
-
-      if (!chatflowId) {
-        console.error(`Missing chatflow ID for ${identifier}`);
+// Configuration loading with priority: prod.config.json > local.config.json > config.json
+const loadConfiguration = () => {
+  const configFiles = ['prod.config.json', 'local.config.json', 'config.json'];
+  
+  for (const configFile of configFiles) {
+    const configPath = path.join(__dirname, configFile);
+    if (fs.existsSync(configPath)) {
+      try {
+        const configData = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(configData);
+        console.info('\x1b[32m%s\x1b[0m', `✓ Loaded configuration from: ${configFile}`);
+        return config;
+      } catch (error) {
+        console.error(`Error parsing ${configFile}:`, error.message);
         continue;
       }
-
-      if (domains.includes('*')) {
-        console.error(`\x1b[31mError: Wildcard (*) domains are not allowed in ${identifier}. This flow will not be accessible.\x1b[0m`);
-        continue;
-      }
-
-      chatflows.set(identifier, { chatflowId, domains });
     }
-
-    if (chatflows.size === 0) {
-      console.error('No valid chatflow configurations found');
-      process.exit(1);
-    }
-
-    return chatflows;
-  } catch (error) {
-    console.error('Failed to parse chatflow configurations:', error);
-    process.exit(1);
   }
+  
+  console.error('\x1b[31m%s\x1b[0m', '✗ No configuration found. Please create one of: prod.config.json, local.config.json, or config.json');
+  process.exit(1);
 };
 
-const chatflows = parseChatflows();
+const config = loadConfiguration();
+
+// Validate required configuration
+if (!config.apiHost) {
+  console.error('apiHost is not set in configuration');
+  process.exit(1);
+}
+
+if (!config.flowiseApiKey) {
+  console.error('flowiseApiKey is not set in configuration');
+  process.exit(1);
+}
+
+if (!config.chatflows || !Array.isArray(config.chatflows) || config.chatflows.length === 0) {
+  console.error('No chatflows configured');
+  process.exit(1);
+}
+
+// Create chatflows map for quick lookup
+const chatflows = new Map();
+const oauthConfigs = new Map();
+
+for (const chatflow of config.chatflows) {
+  if (!chatflow.identifier || !chatflow.chatflowId) {
+    console.error('Invalid chatflow configuration: missing identifier or chatflowId');
+    continue;
+  }
+  
+  // Default domains for development
+  const defaultDomains = process.env.NODE_ENV === 'production' ? [] : ['http://localhost:5678'];
+  const domains = [...new Set([...defaultDomains, ...(chatflow.allowedDomains || [])])];
+  
+  if (domains.includes('*')) {
+    console.error(`\x1b[31mError: Wildcard (*) domains are not allowed in ${chatflow.identifier}. This flow will not be accessible.\x1b[0m`);
+    continue;
+  }
+  
+  chatflows.set(chatflow.identifier, {
+    chatflowId: chatflow.chatflowId,
+    domains: domains
+  });
+  
+  // Store OAuth configuration if present
+  if (chatflow.oauth) {
+    oauthConfigs.set(chatflow.identifier, {
+      mode: chatflow.oauth.mode || 'optional', // Default to 'optional' if not specified
+      clientId: chatflow.oauth.clientId,
+      authority: chatflow.oauth.authority,
+      redirectUri: config.oauthRedirectUri || 'http://localhost:3005/oauth-callback.html',
+      scope: chatflow.oauth.scope || 'openid profile email',
+      responseType: chatflow.oauth.responseType || 'code',
+      prompt: chatflow.oauth.prompt || 'select_account'
+    });
+  }
+}
+
+if (chatflows.size === 0) {
+  console.error('No valid chatflow configurations found');
+  process.exit(1);
+}
 
 const getChatflowDetails = (identifier) => {
   let chatflow = chatflows.get(identifier);
@@ -116,8 +124,7 @@ const isValidUUID = (str) => {
 
 const isValidChatflowConfig = (value) => {
   if (!value) return false;
-  const parts = value.split(',').map((s) => s.trim());
-  return isValidUUID(parts[0]);
+  return isValidUUID(value);
 };
 
 console.info('\x1b[36m%s\x1b[0m', 'Configured chatflows:');
@@ -126,6 +133,15 @@ chatflows.forEach((config, identifier) => {
     console.info('\x1b[36m%s\x1b[0m', `  ${identifier}: ${config.chatflowId} (${config.domains.join(', ')})`);
   }
 });
+
+console.info('\x1b[33m%s\x1b[0m', 'Configured OAuth:');
+if (oauthConfigs.size > 0) {
+  oauthConfigs.forEach((oauthConfig, identifier) => {
+    console.info('\x1b[33m%s\x1b[0m', `  ${identifier}: ${oauthConfig.authority} (${oauthConfig.clientId})`);
+  });
+} else {
+  console.info('\x1b[33m%s\x1b[0m', '  No OAuth configurations found');
+}
 
 const isValidDomain = (origin, domains) => {
   if (!origin) return true;
@@ -144,6 +160,19 @@ app.use(
     allowedHeaders: ['*'],
   }),
 );
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  const method = req.method;
+  const url = req.url;
+  const origin = req.headers.origin || 'unknown';
+  const userAgent = req.headers['user-agent'] || 'unknown';
+  
+  console.info('\x1b[90m%s\x1b[0m', `📨 ${timestamp} - ${method} ${url} (origin: ${origin})`);
+  
+  next();
+});
 
 app.get('/', (_, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -164,7 +193,60 @@ app.get('/web.js', (req, res) => {
     Pragma: 'no-cache',
     Expires: '0',
   });
-  res.sendFile(path.join(__dirname, '../dist', 'web.js'));
+  res.sendFile(path.join(__dirname, 'public', 'web.js'));
+});
+
+// OAuth configuration endpoint
+app.get('/api/auth/config/:identifier', (req, res) => {
+  const { identifier } = req.params;
+  const apiKey = req.headers['x-oauth-api-key'];
+  
+  console.info('\x1b[35m%s\x1b[0m', `🔐 OAuth Config Request: GET /api/auth/config/${identifier}`);
+  
+  // Validate API key if configured
+  if (config.oauthApiKey && apiKey !== config.oauthApiKey) {
+    console.warn('\x1b[33m%s\x1b[0m', `⚠️  OAuth config failed: Invalid API key (identifier: ${identifier})`);
+    return res.status(401).json({ error: 'Invalid API key' });
+  }
+  
+  // Check if chatflow exists
+  try {
+    getChatflowDetails(identifier);
+  } catch (error) {
+    console.warn('\x1b[33m%s\x1b[0m', `⚠️  OAuth config failed: Chatflow not found (identifier: ${identifier})`);
+    return res.status(404).json({ error: 'Chatflow not found' });
+  }
+  
+  // Get OAuth config for this identifier
+  const oauthConfig = oauthConfigs.get(identifier);
+  if (!oauthConfig) {
+    console.warn('\x1b[33m%s\x1b[0m', `⚠️  OAuth config failed: No OAuth configuration (identifier: ${identifier})`);
+    return res.status(404).json({ error: 'OAuth configuration not found for this chatflow' });
+  }
+  
+  console.info('\x1b[32m%s\x1b[0m', `✅ OAuth config provided (identifier: ${identifier}, authority: ${oauthConfig.authority})`);
+  
+  // Return OAuth configuration
+  res.json({
+    mode: oauthConfig.mode, // Use mode from chatflow configuration
+    oauth: {
+      clientId: oauthConfig.clientId,
+      authority: oauthConfig.authority,
+      redirectUri: oauthConfig.redirectUri,
+      scope: oauthConfig.scope,
+      responseType: oauthConfig.responseType,
+      prompt: oauthConfig.prompt
+    },
+    promptConfig: {
+      title: 'Sign In to Continue',
+      message: 'Please sign in to access personalized chat features and chat history.',
+      loginButtonText: 'Sign In',
+      skipButtonText: 'Continue as Guest'
+    },
+    tokenStorageKey: `flowise_tokens_${identifier}`,
+    autoRefresh: true,
+    refreshThreshold: 300
+  });
 });
 
 const validateApiKey = (req, res, next) => {
@@ -173,6 +255,11 @@ const validateApiKey = (req, res, next) => {
   }
 
   if (req.path.includes('/get-upload-file')) {
+    return next();
+  }
+
+  // Skip validation for OAuth endpoints
+  if (req.path === '/oauth-callback.html' || req.path === '/exchange-token' || req.path === '/health' || req.path.startsWith('/api/auth/config/')) {
     return next();
   }
 
@@ -192,203 +279,161 @@ const validateApiKey = (req, res, next) => {
   let chatflow;
   try {
     chatflow = getChatflowDetails(identifier);
-    req.chatflow = chatflow;
   } catch (error) {
-    return res.status(404).json({ error: 'Not Found' });
+    return res.status(404).json({ error: error.message });
   }
 
   const origin = req.headers.origin;
-  const userAgent = req.headers['user-agent'];
-  const acceptLanguage = req.headers['accept-language'];
-  const accept = req.headers['accept'];
-  const secFetchMode = req.headers['sec-fetch-mode'];
-  const secFetchSite = req.headers['sec-fetch-site'];
-
-  if (
-    userAgent &&
-    acceptLanguage &&
-    accept &&
-    secFetchMode === 'cors' &&
-    secFetchSite &&
-    ['same-origin', 'same-site', 'cross-site'].includes(secFetchSite)
-  ) {
-    if (isValidDomain(origin, chatflow.domains)) {
-      return next();
-    }
+  if (!isValidDomain(origin, chatflow.domains)) {
+    return res.status(403).json({ error: 'Access Denied' });
   }
 
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1] === FLOWISE_API_KEY) {
-    return next();
-  }
-
-  return res.status(401).json({ error: 'Unauthorized' });
+  next();
 };
 
 app.use(validateApiKey);
 
-const proxyEndpoints = {
-  prediction: {
-    method: 'POST',
-    path: '/api/v1/prediction/:identifier',
-    target: '/api/v1/prediction',
-  },
-  config: {
-    method: 'GET',
-    path: '/api/v1/public-chatbotConfig/:identifier',
-    target: '/api/v1/public-chatbotConfig',
-  },
-  streaming: {
-    method: 'GET',
-    path: '/api/v1/chatflows-streaming/:identifier',
-    target: '/api/v1/chatflows-streaming',
-  },
-  files: {
-    method: 'GET',
-    path: '/api/v1/get-upload-file',
-    target: '/api/v1/get-upload-file',
-  },
-};
-
-const handleProxy = async (req, res, targetPath) => {
-  try {
-    let identifier = req.query.chatflowId?.split('/')[0] || req.path.split('/').pop() || null;
-
-    if (!identifier) {
-      return res.status(400).json({ error: 'Bad Request' });
-    }
-
-    const chatflow = getChatflowDetails(identifier);
-    if (!chatflow) {
-      return res.status(404).json({ error: 'Not Found' });
-    }
-
-    if (req.query.chatId && req.query.fileName) {
-      const url = `${API_HOST}${targetPath}?chatflowId=${chatflow.chatflowId}&chatId=${req.query.chatId}&fileName=${req.query.fileName}`;
-
-      const response = await fetch(url, {
-        method: req.method,
-        headers: {
-          Authorization: `Bearer ${FLOWISE_API_KEY}`,
-        },
-      });
-
-      if (!response.ok) {
-        console.error(`File proxy error: ${response.status} ${response.statusText}`);
-        return res.status(response.status).json({ error: `File proxy error: ${response.statusText}` });
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (contentType) {
-        res.setHeader('Content-Type', contentType);
-      }
-
-      return response.body.pipe(res);
-    }
-
-    let finalPath = `${targetPath}/${chatflow.chatflowId}`;
-    const url = `${API_HOST}${finalPath}`;
-
-    const response = await fetch(url, {
-      method: req.method,
-      headers: {
-        ...(req.method !== 'GET' && { 'Content-Type': 'application/json' }),
-        Authorization: `Bearer ${FLOWISE_API_KEY}`,
-      },
-      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
-    });
-
-    if (!response.ok) {
-      console.error(`Proxy error: ${response.status} ${response.statusText}`);
-      return res.status(response.status).json({ error: `Proxy error: ${response.statusText}` });
-    }
-
-    const contentType = response.headers.get('content-type');
-
-    if (contentType?.includes('image/') || contentType?.includes('audio/') || contentType?.includes('application/octet-stream')) {
-      res.setHeader('Content-Type', contentType);
-      return response.body.pipe(res);
-    }
-
-    if (contentType?.includes('text/event-stream')) {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-      return response.body.pipe(res);
-    }
-
-    if (contentType?.includes('application/json')) {
-      const data = await response.json();
-      return res.json(data);
-    }
-
-    return response.body.pipe(res);
-  } catch (error) {
-    console.error('Proxy error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-Object.values(proxyEndpoints).forEach(({ method, path, target }) => {
-  app[method.toLowerCase()](path, (req, res) => {
-    return handleProxy(req, res, target);
-  });
+// Health check endpoint
+app.get('/health', (_, res) => {
+  console.info('\x1b[32m%s\x1b[0m', '💚 Health check requested');
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// OAuth callback endpoint
+app.get('/oauth-callback.html', (_, res) => {
+  console.info('\x1b[35m%s\x1b[0m', '🔐 OAuth callback page requested');
+  res.sendFile(path.join(__dirname, 'public', 'oauth-callback.html'));
+});
 
-app.post('/api/v1/attachments/:identifier/:chatId', upload.array('files'), async (req, res) => {
+// Proxy endpoints for Flowise API
+app.post('/api/v1/prediction/:identifier', async (req, res) => {
   try {
-    const chatId = req.params.chatId;
-    if (!chatId) {
-      return res.status(400).json({ error: 'Bad Request' });
-    }
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: 'Bad Request' });
-    }
-
-    const form = new FormData();
-    req.files.forEach((file) => {
-      form.append('files', file.buffer, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
-    });
-
-    const chatflow = req.chatflow;
-    const targetUrl = `${API_HOST}/api/v1/attachments/${chatflow.chatflowId}/${chatId}`;
-
-    const response = await axios.post(targetUrl, form, {
-      headers: {
-        ...form.getHeaders(),
-        Authorization: `Bearer ${FLOWISE_API_KEY}`,
-      },
-    });
-
+    const { identifier } = req.params;
+    const chatflow = getChatflowDetails(identifier);
+    
+    const apiUrl = `${config.apiHost}/api/v1/prediction/${chatflow.chatflowId}`;
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: POST ${apiUrl} (identifier: ${identifier})`);
+    
+    const response = await axios.post(
+      apiUrl,
+      req.body,
+      {
+        headers: {
+          'Authorization': `Bearer ${config.flowiseApiKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    
+    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (identifier: ${identifier})`);
     res.json(response.data);
   } catch (error) {
-    console.error('Attachment upload error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('\x1b[31m%s\x1b[0m', `❌ API Error: ${error.response?.status || 'Unknown'} - ${error.message} (identifier: ${identifier})`);
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data || 'Internal server error'
+    });
   }
 });
 
-app.use((_req, res) => {
-  res.status(404).json({ error: 'Not Found' });
+// File upload endpoint
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/api/v1/openai-assistants-file/:identifier', upload.single('file'), async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const chatflow = getChatflowDetails(identifier);
+    
+    if (!req.file) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  File upload failed: No file provided (identifier: ${identifier})`);
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    const apiUrl = `${config.apiHost}/api/v1/openai-assistants-file/${chatflow.chatflowId}`;
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: POST ${apiUrl} (identifier: ${identifier}, file: ${req.file.originalname}, size: ${req.file.size} bytes)`);
+    
+    const formData = new FormData();
+    formData.append('file', req.file.buffer, req.file.originalname);
+    
+    const response = await axios.post(
+      apiUrl,
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${config.flowiseApiKey}`,
+          ...formData.getHeaders(),
+        },
+      }
+    );
+    
+    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (identifier: ${identifier}, file: ${req.file.originalname})`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ API Error: ${error.response?.status || 'Unknown'} - ${error.message} (identifier: ${identifier}, file: ${req.file?.originalname || 'unknown'})`);
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data || 'Internal server error'
+    });
+  }
 });
 
-const PORT = process.env.PORT || 3001;
-const HOST = process.env.HOST || '0.0.0.0';
+// Get upload file endpoint
+app.get('/api/v1/get-upload-file', async (req, res) => {
+  try {
+    const { chatflowId, chatId, fileName } = req.query;
+    
+    const apiUrl = `${config.apiHost}/api/v1/get-upload-file`;
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: GET ${apiUrl} (chatflowId: ${chatflowId}, chatId: ${chatId}, fileName: ${fileName})`);
+    
+    const response = await axios.get(
+      apiUrl,
+      {
+        params: { chatflowId, chatId, fileName },
+        headers: {
+          'Authorization': `Bearer ${config.flowiseApiKey}`,
+        },
+        responseType: 'stream',
+      }
+    );
+    
+    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (fileName: ${fileName})`);
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ API Error: ${error.response?.status || 'Unknown'} - ${error.message} (fileName: ${fileName})`);
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data || 'Internal server error'
+    });
+  }
+});
 
-const server = app.listen(PORT, HOST, () => {
-  const addr = server.address();
-  if (!addr || typeof addr === 'string') return;
+// Embed script generation
+app.get('/api/v1/chatflows/:identifier/embed', (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const origin = req.headers.origin || req.headers.referer;
+    
+    console.info('\x1b[36m%s\x1b[0m', `📜 Embed Script Request: GET /api/v1/chatflows/${identifier}/embed (origin: ${origin})`);
+    
+    const chatflow = getChatflowDetails(identifier);
+    
+    const script = generateEmbedScript({
+      chatflowid: identifier,
+      apiHost: `${req.protocol}://${req.get('host')}`,
+      chatflowConfig: req.query,
+    });
+    
+    console.info('\x1b[32m%s\x1b[0m', `✅ Embed script generated (identifier: ${identifier}, size: ${script.length} chars)`);
+    
+    res.set('Content-Type', 'application/javascript');
+    res.send(script);
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Embed script error: ${error.message} (identifier: ${identifier})`);
+    res.status(404).json({ error: error.message });
+  }
+});
 
-  const baseUrl =
-    process.env.BASE_URL || process.env.NODE_ENV === 'production'
-      ? `https://${process.env.HOST || 'localhost'}`
-      : `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${addr.port}`;
+const PORT = config.port || 3001;
+const HOST = config.host || 'localhost';
 
-  generateEmbedScript(baseUrl);
+app.listen(PORT, HOST, () => {
+  console.info('\x1b[32m%s\x1b[0m', `✓ Proxy server running on http://${HOST}:${PORT}`);
+  console.info('\x1b[32m%s\x1b[0m', `✓ Flowise API Host: ${config.apiHost}`);
 });

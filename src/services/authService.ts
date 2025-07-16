@@ -180,8 +180,8 @@ export class AuthService {
       // Detect environment based on hostname for browser compatibility
       const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       const callbackServerUrl = isDevelopment
-        ? 'http://localhost:3001/oauth-callback.html'  // Local callback server for development
-        : 'https://your-callback-server.com/oauth-callback.html'; // Production callback server
+        ? 'http://localhost:3005/oauth-callback.html'  // Integrated proxy server for development
+        : 'https://your-proxy-server.com/oauth-callback.html'; // Production proxy server
         
       console.log('Using callback server URL:', callbackServerUrl);
       
