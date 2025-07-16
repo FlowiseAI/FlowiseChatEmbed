@@ -1,6 +1,9 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
+export declare function ToolsButton(props: {
+    onSelect: (tool: string) => void;
+}): import("solid-js").JSX.Element;
 export type FileEvent<T = EventTarget> = {
     target: T;
 };

@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo, onCleanup } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import {
   sendMessageQuery,
@@ -37,6 +37,15 @@ import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
+
+
+const toolActions = [
+  { label: "Run deep research", icon: "🧑‍🔬" },
+  { label: "Create an image", icon: "🖼️" },
+  { label: "Search the web", icon: "🌐" },
+  { label: "Write or code", icon: "💻" },
+];
+
 const modelPlatforms = [
   {
     platform: 'ChatGPT',
@@ -66,11 +75,69 @@ const modelPlatforms = [
 
 const [menuOpen, setMenuOpen] = createSignal(false);
 const [moreOpen, setMoreOpen] = createSignal(''); // Store platform name string
+const [isAtBottom, setIsAtBottom] = createSignal(true);
 
 const [selectedPlatform, setSelectedPlatform] = createSignal(modelPlatforms[0]);
 const [selectedModel, setSelectedModel] = createSignal(modelPlatforms[0].models[0]);
 
 // const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
+
+
+//FOR CHOOSING TOOLS
+export function ToolsButton(props: { onSelect: (tool: string) => void }) {
+  const [open, setOpen] = createSignal(false);
+
+  // Close dropdown if clicked outside
+  let btnRef: HTMLButtonElement | undefined;
+  let menuRef: HTMLDivElement | undefined;
+  document.addEventListener("mousedown", (e) => {
+    if (open() && menuRef && !menuRef.contains(e.target as Node) && btnRef && !btnRef.contains(e.target as Node)) {
+      setOpen(false);
+    }
+  });
+
+  return (
+    <div class="relative">
+      <button
+        ref={btnRef}
+        class="inline-flex items-center px-3 py-2 rounded hover:bg-gray-100"
+        style="font-weight:600;"
+        aria-label="Open tools"
+        onClick={() => setOpen((v) => !v)}
+        type="button"
+      >
+        <span class="mr-1">🛠️</span>
+        <span>Tools</span>
+        <svg class="w-4 h-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" />
+        </svg>
+      </button>
+      <Show when={open()}>
+        <div
+          ref={menuRef}
+          class="absolute left-0 bottom-full mt-1 min-w-[200px] bg-white border border-gray-200 rounded shadow-lg z-50 animate-fade-in"
+        >
+          <div class="px-3 py-1 text-xs font-semibold text-gray-500">Choose a Tool</div>
+          <For each={toolActions}>
+            {(tool) => (
+              <button
+                class="w-full flex items-center px-3 py-2 text-left hover:bg-gray-100 text-black"
+                onClick={() => {
+                  props.onSelect(tool.label);
+                  setOpen(false);
+                }}
+                type="button"
+              >
+                <span class="text-lg mr-2">{tool.icon}</span>
+                <span>{tool.label}</span>
+              </button>
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
+  );
+}
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -217,6 +284,8 @@ export type LeadsConfig = {
   phone?: boolean;
   successMessage?: string;
 };
+
+
 
 const defaultWelcomeMessage = 'Hi there! How can I help?';
 
@@ -488,11 +557,13 @@ const FormInputView = (props: {
   );
 };
 
+
+
+
 export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
   const props = mergeProps({ showTitle: true }, botProps);
   let chatContainer: HTMLDivElement | undefined;
-  let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
 
   const [userInput, setUserInput] = createSignal('');
@@ -578,11 +649,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
     }
 
-    if (!bottomSpacer) return;
-    setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-    }, 50);
-  });
+    if (!chatContainer) return;
+        setTimeout(() => chatContainer.scrollTo(0, chatContainer.scrollHeight), 50);
+
+        const handleScroll = () => {
+          const dist =
+            chatContainer.scrollHeight -
+            chatContainer.scrollTop -
+            chatContainer.clientHeight;
+          setIsAtBottom(dist < 10);
+        };
+        chatContainer.addEventListener('scroll', handleScroll);
+        handleScroll();
+        return () => chatContainer.removeEventListener('scroll', handleScroll);
+      });
+
+ 
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -1079,6 +1161,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const body: IncomingInput = {
       question: value,
       chatId: chatId(),
+      overrideConfig: {
+            vars: {
+              model: selectedModel().value,        // ✅ add your custom field here
+              platform: selectedPlatform().platform,      // (optional) anything else you need
+            }
+  }
     };
 
     if (startInputType() === 'formInput') {
@@ -1088,7 +1176,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (uploads && uploads.length > 0) body.uploads = uploads;
 
-    if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
+    // OVERRIDE CONFIG CHANGE FOR MODEL AND PLATFORM
+    // if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
+
+        if (props.chatflowConfig) {
+      body.overrideConfig = {
+        ...props.chatflowConfig,
+        vars: {
+          ...(props.chatflowConfig.vars ?? {}),
+          model: selectedModel().value,
+          platform: selectedPlatform().platform
+        }
+      };
+    }
+
+    // MORE DEFENSIVELY
+
+//     if (!body.overrideConfig) body.overrideConfig = {};
+// if (!body.overrideConfig.vars) body.overrideConfig.vars = {};
+// body.overrideConfig.vars.model = selectedModel().value;
+// body.overrideConfig.vars.platform = selectedPlatform().platform;
+
 
     if (leadEmail()) body.leadEmail = leadEmail();
 
@@ -1865,7 +1973,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 >
                   <span class="font-bold text-black text-base mr-1">{selectedPlatform().platform}</span>
                   &nbsp;
-                  <span class="text-gray-800 text-base" style={{ 'margin-left': '-8px' }}>
+                  <span class="text-gray-800 text-base" style={{ 'margin-left': '-4px' }}>
                     {selectedModel().label}
                   </span>
                   <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -2060,178 +2168,172 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 </>
               </Show>
             </Show>
+
+                       {/* only show when scrolled up */}
+            <Show when={!isAtBottom()}>
+            <button
+              type="button"
+              onClick={scrollToBottom}
+              class="absolute right-8 bottom-24 z-50 bg-white rounded-full shadow p-2 border border-gray-200 hover:bg-gray-100"
+              aria-label="Scroll to bottom"
+            >
+              ⬇️
+            </button>
+          </Show>
+
+
             <Show when={previews().length > 0}>
               <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
                 <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
               </div>
             </Show>
-            <div class="w-full px-5 pt-2 pb-1">
-              {isRecording() ? (
-                <>
-                  {recordingNotSupported() ? (
-                    <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee]">
-                      <div class="w-full flex items-center justify-between gap-3">
-                        <span class="text-base">To record audio, use modern browsers like Chrome or Firefox that support audio recording.</span>
-                        <button
-                          class="py-2 px-4 justify-center flex items-center bg-red-500 text-white rounded-md"
-                          type="button"
-                          onClick={() => onRecordingCancelled()}
-                        >
-                          Okay
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
-                      data-testid="input"
-                      style={{
-                        margin: 'auto',
-                        'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
-                        color: props.textInput?.textColor ?? defaultTextColor,
-                      }}
-                    >
-                      <div class="flex items-center gap-3 px-4 py-2">
-                        <span>
-                          <CircleDotIcon color="red" />
-                        </span>
-                        <span>{elapsedTime() || '00:00'}</span>
-                        {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
-                      </div>
-                      <div class="flex items-center">
-                        <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0" on:click={onRecordingCancelled}>
-                          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-                        </CancelButton>
-                        <SendButton
-                          sendButtonColor={props.textInput?.sendButtonColor}
-                          type="button"
-                          isDisabled={loading()}
-                          class="m-0"
-                          on:click={onRecordingStopped}
-                        >
-                          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-                        </SendButton>
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  {/* <Show when={loading() && isChatFlowAvailableToStream()}>
-                <CancelButton
-                  buttonColor={props.textInput?.sendButtonColor}
-                  type="button"
-                  class="mr-2"
-                  onClick={() => {
-                    abortController()?.abort();
-                    setIsMessageStopping(true);
-                  }}
-                >
-                  Stop
-                </CancelButton>
-                </Show> */}
 
-                  <div class="flex items-center space-x-2">
-                    {/* ← NEW: your multi-model selector */}
-                    {/* <select
-                class="px-3 py-2 border rounded focus:outline-none bg-white"
-                value={selectedModels()}
-                onChange={e => {
-                  const opts = Array.from(e.currentTarget.selectedOptions).map(o => o.value)
-                  setSelectedModels(opts)
-                }}
-                style={{ 'min-width': '150px', 'max-width': '200px' }}
-              >
-                <option value="auto">Auto</option>
-                <option value="gpt-4.1">ChatGPT 4.1</option>
-                <option value="gemini-2.5">Gemini 2.5</option>
-                <option value="llama-4">Llama 4</option>
-                <option disabled value="qwen-2.5">Qwen 2.5 (β)</option>
-                <option value="deepseek-v3">Deepseek V3</option>
-              </select> */}
-                  </div>
 
-                  <TextInput
-                    backgroundColor={props.textInput?.backgroundColor}
-                    showStopButton={loading() && isChatFlowAvailableToStream()}
-                    onStopButtonClick={() => {
-                      // stop the stream…
-                      abortController()?.abort();
-                      // then clean up exactly like end-of-stream:
-                      closeResponse();
-                      // ensure the old prompt is cleared:
-                      setUserInput('');
-                    }}
-                    textColor={props.textInput?.textColor}
-                    placeholder={props.textInput?.placeholder}
-                    sendButtonColor={props.textInput?.sendButtonColor}
-                    maxChars={props.textInput?.maxChars}
-                    maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
-                    autoFocus={props.textInput?.autoFocus}
-                    fontSize={props.fontSize}
-                    disabled={getInputDisabled()}
-                    inputValue={userInput()}
-                    onInputChange={(value) => setUserInput(value)}
-                    onSubmit={handleSubmit}
-                    uploadsConfig={uploadsConfig()}
-                    isFullFileUpload={fullFileUpload()}
-                    fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
-                    setPreviews={setPreviews}
-                    onMicrophoneClicked={onMicrophoneClicked}
-                    handleFileChange={handleFileChange}
-                    sendMessageSound={props.textInput?.sendMessageSound}
-                    sendSoundLocation={props.textInput?.sendSoundLocation}
-                    enableInputHistory={true}
-                    maxHistorySize={10}
-                  />
-                </>
-              )}
-            </div>
-
-            {/* Model Selection ======================================================================================== */}
-
-            {/* <Badge
-              footer={props.footer}
-              badgeBackgroundColor={props.badgeBackgroundColor}
-              poweredByTextColor={props.poweredByTextColor}
-              botContainer={botContainer}
-            /> */}
+                    {/* … somewhere in your Bot component’s JSX … */}
+<div class="w-full px-5 pt-2 pb-1">
+  {isRecording() ? (
+    <>
+      {recordingNotSupported() ? (
+        <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee]">
+          <div class="w-full flex items-center justify-between gap-3">
+            <span class="text-base">
+              To record audio, use modern browsers like Chrome or Firefox that support audio recording.
+            </span>
+            <button
+              class="py-2 px-4 bg-red-500 text-white rounded-md"
+              type="button"
+              onClick={onRecordingCancelled}
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          class="h-[58px] flex items-center justify-between border border-[#eeeeee]"
+          style={{
+            margin: 'auto',
+            'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
+            color:         props.textInput?.textColor       ?? defaultTextColor,
+          }}
+        >
+          <div class="flex items-center gap-3 px-4 py-2">
+            <CircleDotIcon color="red" />
+            <span>{elapsedTime() || '00:00'}</span>
+            {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
+          </div>
+          <div class="flex items-center">
+            <CancelButton
+              buttonColor={props.textInput?.sendButtonColor}
+              type="button"
+              class="m-0"
+              on:click={onRecordingCancelled}
+            >
+              <span style="font-family: Poppins, sans-serif;">Send</span>
+            </CancelButton>
+            <SendButton
+              sendButtonColor={props.textInput?.sendButtonColor}
+              type="button"
+              isDisabled={loading()}
+              class="m-0"
+              on:click={onRecordingStopped}
+            >
+              <span style="font-family: Poppins, sans-serif;">Send</span>
+            </SendButton>
           </div>
         </div>
       )}
-      {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
-
-      {disclaimerPopupOpen() && (
-        <DisclaimerPopup
-          isOpen={disclaimerPopupOpen()}
-          onAccept={handleDisclaimerAccept}
-          title={props.disclaimer?.title}
-          message={props.disclaimer?.message}
-          textColor={props.disclaimer?.textColor}
-          buttonColor={props.disclaimer?.buttonColor}
-          buttonText={props.disclaimer?.buttonText}
-          buttonTextColor={props.disclaimer?.buttonTextColor}
-          blurredBackgroundColor={props.disclaimer?.blurredBackgroundColor}
-          backgroundColor={props.disclaimer?.backgroundColor}
-          denyButtonBgColor={props.disclaimer?.denyButtonBgColor}
-          denyButtonText={props.disclaimer?.denyButtonText}
-          onDeny={props.closeBot}
-          isFullPage={props.isFullPage}
-        />
-      )}
-
-      {openFeedbackDialog() && (
-        <FeedbackDialog
-          isOpen={openFeedbackDialog()}
-          onClose={() => {
-            setOpenFeedbackDialog(false);
-            handleSubmitFeedback();
-          }}
-          onSubmit={handleSubmitFeedback}
-          feedbackValue={feedback()}
-          setFeedbackValue={(value) => setFeedback(value)}
-        />
-      )}
     </>
-  );
-};
+  ) : (
+    <>
+     <div class="mr-2">
+    <ToolsButton onSelect={(tool) => alert(`Selected: ${tool}`)} />
+      </div>
+
+      {/** pad the TextInput over so it never sits beneath the Tools button */}
+      <div class="flex-1">
+        <TextInput
+          backgroundColor={props.textInput?.backgroundColor}
+          showStopButton={loading() && isChatFlowAvailableToStream()}
+          onStopButtonClick={() => {
+            abortController()?.abort();
+            closeResponse();
+            setUserInput('');
+          }}
+          textColor={props.textInput?.textColor}
+          placeholder={props.textInput?.placeholder}
+          sendButtonColor={props.textInput?.sendButtonColor}
+          maxChars={props.textInput?.maxChars}
+          maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
+          autoFocus={props.textInput?.autoFocus}
+          fontSize={props.fontSize}
+          disabled={getInputDisabled()}
+          inputValue={userInput()}
+          onInputChange={(v) => setUserInput(v)}
+          onSubmit={handleSubmit}
+          uploadsConfig={uploadsConfig()}
+          isFullFileUpload={fullFileUpload()}
+          fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
+          setPreviews={setPreviews}
+          onMicrophoneClicked={onMicrophoneClicked}
+          handleFileChange={handleFileChange}
+          sendMessageSound={props.textInput?.sendMessageSound}
+          sendSoundLocation={props.textInput?.sendSoundLocation}
+          enableInputHistory={true}
+          maxHistorySize={10}
+        />
+      </div>
+    </>
+  )}
+</div>
+
+
+
+
+                    {/* Model Selection ======================================================================================== */}
+
+                    {/* <Badge
+                      footer={props.footer}
+                      badgeBackgroundColor={props.badgeBackgroundColor}
+                      poweredByTextColor={props.poweredByTextColor}
+                      botContainer={botContainer}
+                    /> */}
+                  </div>
+                </div>
+              )}
+              {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
+
+              {disclaimerPopupOpen() && (
+                <DisclaimerPopup
+                  isOpen={disclaimerPopupOpen()}
+                  onAccept={handleDisclaimerAccept}
+                  title={props.disclaimer?.title}
+                  message={props.disclaimer?.message}
+                  textColor={props.disclaimer?.textColor}
+                  buttonColor={props.disclaimer?.buttonColor}
+                  buttonText={props.disclaimer?.buttonText}
+                  buttonTextColor={props.disclaimer?.buttonTextColor}
+                  blurredBackgroundColor={props.disclaimer?.blurredBackgroundColor}
+                  backgroundColor={props.disclaimer?.backgroundColor}
+                  denyButtonBgColor={props.disclaimer?.denyButtonBgColor}
+                  denyButtonText={props.disclaimer?.denyButtonText}
+                  onDeny={props.closeBot}
+                  isFullPage={props.isFullPage}
+                />
+              )}
+
+              {openFeedbackDialog() && (
+                <FeedbackDialog
+                  isOpen={openFeedbackDialog()}
+                  onClose={() => {
+                    setOpenFeedbackDialog(false);
+                    handleSubmitFeedback();
+                  }}
+                  onSubmit={handleSubmitFeedback}
+                  feedbackValue={feedback()}
+                  setFeedbackValue={(value) => setFeedback(value)}
+                />
+              )}
+            </>
+          );
+        };

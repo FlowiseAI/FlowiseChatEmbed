@@ -67,6 +67,7 @@ export const TextInput = (props: TextInputProps) => {
         inputHistory().addToHistory(props.inputValue);
       }
       props.onSubmit(props.inputValue);
+      props.onInputChange('');
       if (props.sendMessageSound && audioRef) {
         audioRef.play();
       }
@@ -110,6 +111,14 @@ export const TextInput = (props: TextInputProps) => {
     >
       {/* Input field */}
       <div class="flex-1">
+        {/* <ShortTextInput
+          ref={(el) => (inputRef = el)}
+          onInput={handleInput}
+          value={props.inputValue}
+          fontSize={props.fontSize}
+          disabled={props.disabled}
+          placeholder={props.placeholder ?? 'Type your message...'}
+        /> */}
         <ShortTextInput
           ref={(el) => (inputRef = el)}
           onInput={handleInput}
@@ -117,7 +126,17 @@ export const TextInput = (props: TextInputProps) => {
           fontSize={props.fontSize}
           disabled={props.disabled}
           placeholder={props.placeholder ?? 'Type your message...'}
+          onKeyDown={(e) => {
+            // Enter = send, Shift+Enter = newline
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              submit()
+            }
+          }}
         />
+
+
+
       </div>
 
       {/* File upload */}
