@@ -258,8 +258,8 @@ const validateApiKey = (req, res, next) => {
     return next();
   }
 
-  // Skip validation for OAuth endpoints
-  if (req.path === '/oauth-callback.html' || req.path === '/exchange-token' || req.path === '/health' || req.path.startsWith('/api/auth/config/')) {
+  // Skip validation for OAuth endpoints and other local endpoints
+  if (req.path === '/oauth-callback.html' || req.path === '/exchange-token' || req.path === '/health' || req.path.startsWith('/api/auth/config/') || req.path.startsWith('/api/v1/public-chatbotConfig/')) {
     return next();
   }
 
@@ -305,33 +305,203 @@ app.get('/oauth-callback.html', (_, res) => {
   res.sendFile(path.join(__dirname, 'public', 'oauth-callback.html'));
 });
 
-// Proxy endpoints for Flowise API
-app.post('/api/v1/prediction/:identifier', async (req, res) => {
+// Public chatbot configuration endpoint (handled locally)
+app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
+  const { identifier } = req.params;
+  
+  console.info('\x1b[35m%s\x1b[0m', `🔧 Chatbot Config Request: GET /api/v1/public-chatbotConfig/${identifier}`);
+  
   try {
-    const { identifier } = req.params;
+    // Validate chatflow exists
     const chatflow = getChatflowDetails(identifier);
     
-    const apiUrl = `${config.apiHost}/api/v1/prediction/${chatflow.chatflowId}`;
-    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: POST ${apiUrl} (identifier: ${identifier})`);
+    // Get OAuth config for this identifier if available
+    const oauthConfig = oauthConfigs.get(identifier);
     
-    const response = await axios.post(
-      apiUrl,
-      req.body,
-      {
-        headers: {
-          'Authorization': `Bearer ${config.flowiseApiKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // Build local chatbot configuration
+    const chatbotConfig = {
+      // Basic chatflow information
+      chatflowId: chatflow.chatflowId,
+      identifier: identifier,
+      
+      // Authentication configuration (if available)
+      ...(oauthConfig && {
+        authentication: {
+          mode: oauthConfig.mode,
+          oauth: {
+            clientId: oauthConfig.clientId,
+            authority: oauthConfig.authority,
+            redirectUri: oauthConfig.redirectUri,
+            scope: oauthConfig.scope,
+            responseType: oauthConfig.responseType,
+            prompt: oauthConfig.prompt
+          },
+          promptConfig: {
+            title: 'Sign In to Continue',
+            message: 'Please sign in to access personalized chat features and chat history.',
+            loginButtonText: 'Sign In',
+            skipButtonText: 'Continue as Guest'
+          },
+          tokenStorageKey: `flowise_tokens_${identifier}`,
+          autoRefresh: true,
+          refreshThreshold: 300
+        }
+      }),
+      
+      // Proxy server information
+      proxyServer: {
+        version: '1.0.0',
+        host: `${req.protocol}://${req.get('host')}`,
+        features: {
+          authentication: !!oauthConfig,
+          domainValidation: true,
+          apiProxy: true
+        }
+      },
+      
+      // Additional configuration can be added here
+      // This could include UI themes, feature flags, etc.
+    };
     
-    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (identifier: ${identifier})`);
-    res.json(response.data);
+    console.info('\x1b[32m%s\x1b[0m', `✅ Chatbot config provided (identifier: ${identifier}, auth: ${!!oauthConfig})`);
+    res.json(chatbotConfig);
+    
   } catch (error) {
-    console.error('\x1b[31m%s\x1b[0m', `❌ API Error: ${error.response?.status || 'Unknown'} - ${error.message} (identifier: ${identifier})`);
-    res.status(error.response?.status || 500).json({
-      error: error.response?.data || 'Internal server error'
-    });
+    console.warn('\x1b[33m%s\x1b[0m', `⚠️  Chatbot config failed: ${error.message} (identifier: ${identifier})`);
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// Generic API proxy for all /api/v1/* endpoints
+// This forwards all Flowise API calls to the upstream server with proper authentication
+app.use('/api/v1/*', async (req, res) => {
+  try {
+    // Extract identifier from various possible locations in the path
+    let identifier = null;
+    let targetPath = req.path;
+    
+    // Parse path to find identifier and convert to chatflowId
+    const pathParts = req.path.split('/').filter(Boolean);
+    
+    // Look for identifier in common positions
+    if (pathParts.length >= 3) {
+      // For paths like /api/v1/prediction/:identifier or /api/v1/public-chatbotConfig/:identifier
+      const potentialIdentifier = pathParts[2];
+      
+      // Check if this looks like an identifier (not a UUID)
+      if (potentialIdentifier && !isValidUUID(potentialIdentifier)) {
+        try {
+          const chatflow = getChatflowDetails(potentialIdentifier);
+          identifier = potentialIdentifier;
+          // Replace identifier with actual chatflowId in the path
+          pathParts[2] = chatflow.chatflowId;
+          targetPath = '/' + pathParts.join('/');
+        } catch (error) {
+          // Not a valid identifier, continue with original path
+        }
+      }
+    }
+    
+    // For paths with identifier in different positions (e.g., /api/v1/attachments/:identifier/:chatId)
+    if (!identifier && pathParts.length >= 4) {
+      const potentialIdentifier = pathParts[3];
+      if (potentialIdentifier && !isValidUUID(potentialIdentifier)) {
+        try {
+          const chatflow = getChatflowDetails(potentialIdentifier);
+          identifier = potentialIdentifier;
+          pathParts[3] = chatflow.chatflowId;
+          targetPath = '/' + pathParts.join('/');
+        } catch (error) {
+          // Not a valid identifier, continue with original path
+        }
+      }
+    }
+    
+    // Construct the full API URL
+    const apiUrl = `${config.apiHost}${targetPath}${req.url.includes('?') ? '?' + req.url.split('?')[1] : ''}`;
+    
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Proxy: ${req.method} ${apiUrl}${identifier ? ` (identifier: ${identifier})` : ''}`);
+    
+    // Prepare headers
+    const headers = {
+      'Authorization': `Bearer ${config.flowiseApiKey}`,
+      ...req.headers
+    };
+    
+    // Remove host header to avoid conflicts
+    delete headers.host;
+    delete headers['content-length']; // Let axios handle this
+    
+    // Prepare request options
+    const requestOptions = {
+      method: req.method,
+      url: apiUrl,
+      headers,
+      timeout: 30000, // 30 second timeout
+    };
+    
+    // Handle request body for POST/PUT requests
+    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      if (req.is('multipart/form-data')) {
+        // Handle multipart form data (file uploads)
+        const formData = new FormData();
+        
+        if (req.file) {
+          formData.append('file', req.file.buffer, req.file.originalname);
+        }
+        
+        // Add other form fields
+        Object.keys(req.body || {}).forEach(key => {
+          formData.append(key, req.body[key]);
+        });
+        
+        requestOptions.data = formData;
+        requestOptions.headers = {
+          ...requestOptions.headers,
+          ...formData.getHeaders(),
+        };
+      } else {
+        // Handle JSON data
+        requestOptions.data = req.body;
+      }
+    }
+    
+    // Handle streaming responses
+    if (req.path.includes('download') || req.path.includes('stream')) {
+      requestOptions.responseType = 'stream';
+    }
+    
+    // Make the request
+    const response = await axios(requestOptions);
+    
+    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText}${identifier ? ` (identifier: ${identifier})` : ''}`);
+    
+    // Handle streaming responses
+    if (requestOptions.responseType === 'stream') {
+      // Copy response headers
+      Object.keys(response.headers).forEach(key => {
+        res.setHeader(key, response.headers[key]);
+      });
+      res.status(response.status);
+      response.data.pipe(res);
+    } else {
+      // Handle regular JSON responses
+      res.status(response.status).json(response.data);
+    }
+    
+  } catch (error) {
+    const identifier = req.path.split('/')[3]; // Best guess for logging
+    console.error('\x1b[31m%s\x1b[0m', `❌ API Proxy Error: ${error.response?.status || 'Unknown'} - ${error.message}${identifier ? ` (identifier: ${identifier})` : ''}`);
+    
+    if (error.response) {
+      res.status(error.response.status).json({
+        error: error.response.data || 'Upstream server error'
+      });
+    } else {
+      res.status(500).json({
+        error: 'Proxy server error'
+      });
+    }
   }
 });
 
