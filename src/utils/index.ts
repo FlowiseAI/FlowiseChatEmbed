@@ -1,3 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
+import { debugLogger } from './debugLogger';
+
 export const isNotDefined = <T>(value: T | undefined | null): value is undefined | null => value === undefined || value === null;
 
 export const isDefined = <T>(value: T | undefined | null): value is NonNullable<T> => value !== undefined && value !== null;
@@ -42,8 +45,8 @@ export const sendRequest = async <ResponseData>(
       await params.onRequest(requestInfo);
     }
 
-    console.log('🔍 CLIENT DEBUG: Making request to:', url);
-    console.log('🔍 CLIENT DEBUG: Request options:', {
+    debugLogger.log('Making request to:', url);
+    debugLogger.log('Request options:', {
       method: requestInfo.method,
       headers: requestInfo.headers,
       hasBody: !!requestInfo.body,
@@ -52,22 +55,22 @@ export const sendRequest = async <ResponseData>(
 
     const response = await fetch(url, requestInfo);
 
-    console.log('🔍 CLIENT DEBUG: Response status:', response.status);
-    console.log('🔍 CLIENT DEBUG: Response headers:', Object.fromEntries(response.headers.entries()));
+    debugLogger.log('Response status:', response.status);
+    debugLogger.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     let data: any;
     const contentType = response.headers.get('Content-Type');
-    console.log('🔍 CLIENT DEBUG: Content-Type:', contentType);
+    debugLogger.log('Content-Type:', contentType);
     
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
-      console.log('🔍 CLIENT DEBUG: Parsed JSON data:', data);
+      debugLogger.log('Parsed JSON data:', data);
     } else if (typeof params !== 'string' && params.type === 'blob') {
       data = await response.blob();
-      console.log('🔍 CLIENT DEBUG: Parsed blob data size:', data.size);
+      debugLogger.log('Parsed blob data size:', data.size);
     } else {
       data = await response.text();
-      console.log('🔍 CLIENT DEBUG: Parsed text data:', data);
+      debugLogger.log('Parsed text data:', data);
     }
     if (!response.ok) {
       let errorMessage;

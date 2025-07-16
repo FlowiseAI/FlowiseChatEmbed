@@ -5,10 +5,12 @@
   "oauthRedirectUri": "http://localhost:3001/oauth-callback.html",
   "port": 3001,
   "host": "0.0.0.0",
+  "debug": false,
   "chatflows": [
     {
       "identifier": "chatflow_1",
       "chatflowId": "your-chatflow-uuid-here",
+      "debug": false,
       "allowedDomains": [
         "http://localhost:5678",
         "https://yourdomain.com"

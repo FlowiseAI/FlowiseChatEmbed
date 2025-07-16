@@ -1,3 +1,12 @@
+declare global {
+    interface Window {
+        FlowiseDebug: {
+            enable: () => void;
+            disable: () => void;
+            isEnabled: () => boolean;
+        };
+    }
+}
 declare const chatbot: {
     initFull: (props: {
         chatflowid: string;

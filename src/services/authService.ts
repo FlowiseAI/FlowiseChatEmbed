@@ -14,6 +14,7 @@ import {
   initiateLogout,
   STORAGE_KEYS,
 } from '../utils/auth';
+import { debugLogger } from '../utils/debugLogger';
 
 /**
  * Authentication Service for managing OAuth/OIDC authentication state
@@ -183,7 +184,7 @@ export class AuthService {
         ? 'http://localhost:3005/oauth-callback.html'  // Integrated proxy server for development
         : 'https://your-proxy-server.com/oauth-callback.html'; // Production proxy server
         
-      console.log('Using callback server URL:', callbackServerUrl);
+      debugLogger.log('Using callback server URL:', callbackServerUrl);
       
       const popupConfig = {
         ...this.config.oauth,
@@ -191,7 +192,7 @@ export class AuthService {
       };
       
       const authUrl = await buildAuthorizationUrl(popupConfig);
-      console.log('Opening OAuth popup to:', authUrl);
+      debugLogger.log('Opening OAuth popup to:', authUrl);
       
       // Open OAuth in popup window instead of full page redirect
       const popup = window.open(
@@ -206,20 +207,20 @@ export class AuthService {
 
       // Listen for messages from popup
       const messageListener = async (event: MessageEvent) => {
-        console.log('Received message from popup:', event);
-        console.log('Message origin:', event.origin);
-        console.log('Message data:', event.data);
+        debugLogger.log('Received message from popup:', event);
+        debugLogger.log('Message origin:', event.origin);
+        debugLogger.log('Message data:', event.data);
         
         // Verify origin for security - should be from the callback server
         const callbackOrigin = new URL(callbackServerUrl).origin;
-        console.log('Expected callback server origin:', callbackOrigin);
+        debugLogger.log('Expected callback server origin:', callbackOrigin);
         
         if (event.origin !== callbackOrigin) {
           console.warn('Message origin mismatch - ignoring message. Expected:', callbackOrigin, 'Got:', event.origin);
           return;
         }
         
-        console.log('Origin validation passed, processing message...');
+        debugLogger.log('Origin validation passed, processing message...');
 
         if (event.data.type === 'oauth-callback') {
           // Handle OAuth callback with authorization code
@@ -256,14 +257,14 @@ export class AuthService {
       // Monitor popup for manual closure
       const checkClosed = setInterval(() => {
         if (popup.closed) {
-          console.log('Popup was closed');
+          debugLogger.log('Popup was closed');
           cleanup();
           // Check if authentication was successful by looking for tokens
           const tokens = getCachedTokens(this.config.tokenStorageKey);
-          console.log('Tokens after popup closed:', tokens ? 'Found' : 'Not found');
+          debugLogger.log('Tokens after popup closed:', tokens ? 'Found' : 'Not found');
           if (!tokens) {
             // No tokens found, user likely closed popup without completing auth
-            console.log('Setting authentication cancelled error');
+            debugLogger.log('Setting authentication cancelled error');
             this.setAuthState(prev => ({
               ...prev,
               isLoading: false,

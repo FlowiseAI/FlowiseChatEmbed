@@ -1,6 +1,7 @@
 import * as oauth from 'oauth4webapi';
 import { OAuthTokens, TokenValidationResult, AuthConfig, OIDCUserInfo } from '../types/auth';
 import { getCookie, setCookie } from './index';
+import { debugLogger } from './debugLogger';
 
 /**
  * Default storage key for OAuth tokens
@@ -263,13 +264,13 @@ export const exchangeCodeForTokens = async (
 
     // Exchange code for tokens directly with Microsoft (required for SPA client type)
     // Microsoft requires SPA tokens to be redeemed via cross-origin requests from the browser
-    console.log('🔄 Exchanging code for tokens directly with Microsoft...');
+    debugLogger.log('🔄 Exchanging code for tokens directly with Microsoft...');
     
     // Use the token endpoint directly (we know it from Microsoft Entra endpoints)
     // Remove /v2.0 from authority if present, then add the full oauth2/v2.0/token path
     const baseAuthority = config.authority.replace('/v2.0', '');
     const tokenEndpoint = `${baseAuthority}/oauth2/v2.0/token`;
-    console.log('🎯 Token endpoint:', tokenEndpoint);
+    debugLogger.log('🎯 Token endpoint:', tokenEndpoint);
 
     // Prepare token exchange request
     const tokenParams = new URLSearchParams({
@@ -280,7 +281,7 @@ export const exchangeCodeForTokens = async (
       redirect_uri: config.redirectUri
     });
 
-    console.log('🚀 Exchanging code for tokens...');
+    debugLogger.log('🚀 Exchanging code for tokens...');
     
     // Exchange code for tokens
     const response = await fetch(tokenEndpoint, {
@@ -299,8 +300,8 @@ export const exchangeCodeForTokens = async (
       throw new Error(`Token exchange failed: ${result.error} - ${result.error_description}`);
     }
 
-    console.log('✅ Token exchange successful');
-    console.log('📊 Token response:', {
+    debugLogger.log('✅ Token exchange successful');
+    debugLogger.log('📊 Token response:', {
       access_token: result.access_token ? `${result.access_token.substring(0, 20)}...` : 'none',
       id_token: result.id_token ? `${result.id_token.substring(0, 20)}...` : 'none',
       token_type: result.token_type,
@@ -415,9 +416,9 @@ export const getUserInfo = async (
 export const validateOAuthState = (receivedState: string): boolean => {
   const storedCsrfToken = sessionStorage.getItem('oauth_state');
   
-  console.log('Validating OAuth state...');
-  console.log('Stored CSRF token:', storedCsrfToken);
-  console.log('Received state:', receivedState);
+  debugLogger.log('Validating OAuth state...');
+  debugLogger.log('Stored CSRF token:', storedCsrfToken);
+  debugLogger.log('Received state:', receivedState);
   
   if (!storedCsrfToken) {
     console.error('No stored CSRF token found');
@@ -428,12 +429,12 @@ export const validateOAuthState = (receivedState: string): boolean => {
     // Decode the received state to extract the CSRF token
     // Format: base64(csrf_token|origin_url)
     const decodedState = atob(receivedState);
-    console.log('Decoded state:', decodedState);
+    debugLogger.log('Decoded state:', decodedState);
     const [receivedCsrfToken] = decodedState.split('|');
-    console.log('Received CSRF token:', receivedCsrfToken);
+    debugLogger.log('Received CSRF token:', receivedCsrfToken);
     
     const isValid = storedCsrfToken === receivedCsrfToken;
-    console.log('State validation result:', isValid);
+    debugLogger.log('State validation result:', isValid);
     
     return isValid;
   } catch (error) {

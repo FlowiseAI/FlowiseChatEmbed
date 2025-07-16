@@ -41,6 +41,7 @@ import { AuthService, createAuthService } from '@/services/authService';
 import { AuthenticationPrompt, AuthenticationLoading, AuthenticationError } from './auth/AuthenticationPrompt';
 import { AuthenticationStatusTag } from './auth/AuthenticationStatusTag';
 import { fetchOAuthConfig } from '@/constants';
+import { debugLogger } from '@/utils/debugLogger';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -549,7 +550,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         if (serverAuthConfig) {
           authConfig = serverAuthConfig;
           usingServerConfig = true;
-          console.log(`🔧 Using server-side OAuth configuration (mode: ${serverAuthConfig.mode})`);
+          debugLogger.log(`🔧 Using server-side OAuth configuration (mode: ${serverAuthConfig.mode})`);
         } else if (!props.authentication) {
           // No server config and no client config - disable auth
           console.log('❌ No OAuth configuration found, authentication disabled');
@@ -930,8 +931,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     params.streaming = true;
     
     const streamUrl = `${props.apiHost}/api/v1/prediction/${chatflowid}`;
-    console.log('🔍 CLIENT DEBUG: Starting EventSource stream to:', streamUrl);
-    console.log('🔍 CLIENT DEBUG: Stream params:', params);
+    debugLogger.log('Starting EventSource stream to:', streamUrl);
+    debugLogger.log('Stream params:', params);
     
     fetchEventSource(streamUrl, {
       openWhenHidden: true,
@@ -941,13 +942,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         'Content-Type': 'application/json',
       },
       async onopen(response) {
-        console.log('🔍 CLIENT DEBUG: EventSource onopen - status:', response.status);
-        console.log('🔍 CLIENT DEBUG: EventSource onopen - headers:', Object.fromEntries(response.headers.entries()));
-        console.log('🔍 CLIENT DEBUG: EventSource onopen - content-type:', response.headers.get('content-type'));
-        console.log('🔍 CLIENT DEBUG: EventStreamContentType expected:', EventStreamContentType);
+        debugLogger.log('EventSource onopen - status:', response.status);
+        debugLogger.log('EventSource onopen - headers:', Object.fromEntries(response.headers.entries()));
+        debugLogger.log('EventSource onopen - content-type:', response.headers.get('content-type'));
+        debugLogger.log('EventStreamContentType expected:', EventStreamContentType);
         
         if (response.ok && response.headers.get('content-type')?.startsWith(EventStreamContentType)) {
-          console.log('🔍 CLIENT DEBUG: EventSource connection successful');
+          debugLogger.log('EventSource connection successful');
           return; // everything's good
         } else if (response.status === 429) {
           const errMessage = (await response.text()) ?? 'Too many requests. Please try again later.';
@@ -1020,7 +1021,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onclose() {
-        console.log('🔍 CLIENT DEBUG: EventSource onclose called');
+        debugLogger.log('EventSource onclose called');
         closeResponse();
       },
       onerror(err) {
@@ -1200,14 +1201,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (humanInput) body.humanInput = humanInput;
 
-    console.log('🔍 CLIENT DEBUG: Message submission - streaming available:', isChatFlowAvailableToStream());
-    console.log('🔍 CLIENT DEBUG: Message body:', body);
+    debugLogger.log('Message submission - streaming available:', isChatFlowAvailableToStream());
+    debugLogger.log('Message body:', body);
     
     if (isChatFlowAvailableToStream()) {
-      console.log('🔍 CLIENT DEBUG: Using streaming mode (EventSource)');
+      debugLogger.log('Using streaming mode (EventSource)');
       fetchResponseFromEventStream(props.chatflowid, body);
     } else {
-      console.log('🔍 CLIENT DEBUG: Using non-streaming mode (regular HTTP)');
+      debugLogger.log('Using non-streaming mode (regular HTTP)');
       const result = await sendMessageQuery({
         chatflowid: props.chatflowid,
         apiHost: props.apiHost,
@@ -1215,28 +1216,28 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         onRequest: props.onRequest,
       });
       
-      console.log('🔍 CLIENT DEBUG: sendMessageQuery result:', result);
+      debugLogger.log('sendMessageQuery result:', result);
 
       if (result.data) {
         const data = result.data;
 
         // DEBUG: Log the actual response structure
-        console.log('🔍 CLIENT DEBUG: Received response data:', data);
-        console.log('🔍 CLIENT DEBUG: Response data type:', typeof data);
-        console.log('🔍 CLIENT DEBUG: Response data keys:', Object.keys(data || {}));
-        console.log('🔍 CLIENT DEBUG: data.text exists:', !!data.text);
-        console.log('🔍 CLIENT DEBUG: data.json exists:', !!data.json);
+        debugLogger.log('Received response data:', data);
+        debugLogger.log('Response data type:', typeof data);
+        debugLogger.log('Response data keys:', Object.keys(data || {}));
+        debugLogger.log('data.text exists:', !!data.text);
+        debugLogger.log('data.json exists:', !!data.json);
 
         let text = '';
         if (data.text) {
           text = data.text;
-          console.log('🔍 CLIENT DEBUG: Using data.text:', text);
+          debugLogger.log('Using data.text:', text);
         } else if (data.json) {
           text = JSON.stringify(data.json, null, 2);
-          console.log('🔍 CLIENT DEBUG: Using data.json (stringified):', text);
+          debugLogger.log('Using data.json (stringified):', text);
         } else {
           text = JSON.stringify(data, null, 2);
-          console.log('🔍 CLIENT DEBUG: Using fallback JSON.stringify:', text);
+          debugLogger.log('Using fallback JSON.stringify:', text);
         }
 
         if (data?.chatId) setChatId(data.chatId);
@@ -1476,18 +1477,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     // Determine if particular chatflow is available for streaming
-    console.log('🔍 CLIENT DEBUG: Checking streaming availability...');
+    debugLogger.log('Checking streaming availability...');
     const { data } = await isStreamAvailableQuery({
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       onRequest: props.onRequest,
     });
 
-    console.log('🔍 CLIENT DEBUG: Streaming query result:', data);
+    debugLogger.log('Streaming query result:', data);
     
     if (data) {
       const isStreamingAvailable = data?.isStreaming ?? false;
-      console.log('🔍 CLIENT DEBUG: Streaming available:', isStreamingAvailable);
+      debugLogger.log('Streaming available:', isStreamingAvailable);
       
       // Re-enable streaming to debug the EventSource issue
       setIsChatFlowAvailableToStream(isStreamingAvailable);
@@ -1502,6 +1503,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (result.data) {
       const chatbotConfig = result.data;
+
+      // Handle debug configuration - defaults to false if not specified
+      if (chatbotConfig.debug === true) {
+        debugLogger.setEnabled(true);
+      } else {
+        debugLogger.setEnabled(false);
+      }
 
       if (chatbotConfig.flowData) {
         const nodes = JSON.parse(chatbotConfig.flowData).nodes ?? [];
