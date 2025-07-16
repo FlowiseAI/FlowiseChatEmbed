@@ -2,6 +2,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 import { babel } from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
+import replace from '@rollup/plugin-replace';
 import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
 import tailwindcss from 'tailwindcss';
@@ -10,15 +11,42 @@ import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 import commonjs from '@rollup/plugin-commonjs';
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
+import { execSync } from 'child_process';
+import { readFileSync } from 'fs';
 
 const isDev = process.env.NODE_ENV === 'development';
 const isDebug = process.env.NODE_ENV === 'debug';
+
+// Version generation function
+const getVersion = () => {
+  const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
+  const packageVersion = packageJson.version;
+  
+  // In development, use git hash for unique builds
+  if (isDev || isDebug) {
+    try {
+      const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+      const isDirty = execSync('git diff --quiet || echo "dirty"').toString().trim();
+      const suffix = isDirty ? '-dirty' : '';
+      return `${packageVersion}-dev.${gitHash}${suffix}`;
+    } catch {
+      return `${packageVersion}-dev`;
+    }
+  }
+  
+  // In production, use environment variable or package.json version
+  return process.env.BUILD_VERSION || packageVersion;
+};
 
 const extensions = ['.ts', '.tsx'];
 
 const indexConfig = {
   context: 'this',
   plugins: [
+    replace({
+      __VERSION__: JSON.stringify(getVersion()),
+      preventAssignment: true
+    }),
     resolve({ extensions, browser: true }),
     commonjs(),
     json(),
