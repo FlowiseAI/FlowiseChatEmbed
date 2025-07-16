@@ -448,6 +448,83 @@ app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
   }
 });
 
+// File upload middleware - must be declared before use
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Attachment upload endpoint - MUST be before the generic API proxy
+app.post('/api/v1/attachments/:identifier/:chatId', upload.any(), async (req, res) => {
+  const { identifier, chatId } = req.params;
+  
+  try {
+    const chatflow = getChatflowDetails(identifier);
+    
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Attachment upload - identifier: ${identifier}, chatId: ${chatId}`);
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Files received:`, req.files?.length || 0);
+    
+    if (!req.files || req.files.length === 0) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Attachment upload failed: No files provided (identifier: ${identifier})`);
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+    
+    const apiUrl = `${config.apiHost}/api/v1/attachments/${chatflow.chatflowId}/${chatId}`;
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: POST ${apiUrl} (identifier: ${identifier}, files: ${req.files.length})`);
+    
+    const formData = new FormData();
+    let totalSize = 0;
+    
+    // Add all uploaded files
+    req.files.forEach((file, index) => {
+      formData.append('files', file.buffer, file.originalname);
+      totalSize += file.size;
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Added file ${index}: ${file.originalname} (${file.size} bytes, ${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+    });
+    
+    // Add other form fields from body
+    Object.keys(req.body || {}).forEach(key => {
+      formData.append(key, req.body[key]);
+      console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Added field ${key}: ${req.body[key]}`);
+    });
+    
+    console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Total upload size: ${totalSize} bytes (${(totalSize / 1024 / 1024).toFixed(2)} MB)`);
+    
+    // Check if the upload size is reasonable (warn if > 50MB)
+    if (totalSize > 50 * 1024 * 1024) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Large upload detected: ${(totalSize / 1024 / 1024).toFixed(2)} MB - this may exceed server limits`);
+    }
+    
+    const response = await axios.post(
+      apiUrl,
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${config.flowiseApiKey}`,
+          ...formData.getHeaders(),
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      }
+    );
+    
+    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (identifier: ${identifier})`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Attachment upload error: ${error.response?.status || 'Unknown'} - ${error.message} (identifier: ${identifier})`);
+    
+    // Handle specific error cases
+    if (error.response?.status === 413) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ File too large - FlowWise server rejected the upload (413 Request Entity Too Large)`);
+      res.status(413).json({
+        error: 'File too large. Please try uploading a smaller file or reduce the image size.',
+        details: 'The FlowWise server has a file size limit that was exceeded.'
+      });
+    } else {
+      res.status(error.response?.status || 500).json({
+        error: error.response?.data || 'Internal server error'
+      });
+    }
+  }
+});
+
 // Generic API proxy for all /api/v1/* endpoints
 // This forwards all Flowise API calls to the upstream server with proper authentication
 app.use('/api/v1/*', async (req, res) => {
@@ -537,26 +614,14 @@ app.use('/api/v1/*', async (req, res) => {
     // Handle request body for POST/PUT requests
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
       if (req.is('multipart/form-data')) {
-        // Handle multipart form data (file uploads)
-        const formData = new FormData();
-        
-        if (req.file) {
-          formData.append('file', req.file.buffer, req.file.originalname);
-        }
-        
-        // Add other form fields
-        Object.keys(req.body || {}).forEach(key => {
-          formData.append(key, req.body[key]);
-        });
-        
-        requestOptions.data = formData;
-        requestOptions.headers = {
-          ...requestOptions.headers,
-          ...formData.getHeaders(),
-        };
+        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Detected multipart/form-data request - this should be handled by specific route`);
+        // Multipart requests should be handled by specific routes (like /api/v1/attachments)
+        // If we get here, it means the route wasn't matched properly
+        return res.status(400).json({ error: 'Multipart requests must use specific endpoints' });
       } else {
         // Handle JSON data
         requestOptions.data = req.body;
+        console.log('\x1b[35m%s\x1b[0m', `🔍 DEBUG: Using JSON body data`);
       }
     }
     
@@ -662,9 +727,15 @@ app.use('/api/v1/*', async (req, res) => {
     
     if (error.response?.data) {
       try {
-        errorDetails.responseData = JSON.stringify(error.response.data).substring(0, 500);
+        if (typeof error.response.data === 'string') {
+          errorDetails.responseData = error.response.data.substring(0, 500);
+        } else if (typeof error.response.data === 'object') {
+          errorDetails.responseData = JSON.stringify(error.response.data).substring(0, 500);
+        } else {
+          errorDetails.responseData = String(error.response.data).substring(0, 500);
+        }
       } catch (stringifyError) {
-        errorDetails.responseData = `Cannot stringify: ${stringifyError.message}`;
+        errorDetails.responseData = `Cannot stringify response data: ${stringifyError.message}`;
       }
     }
     
@@ -684,8 +755,6 @@ app.use('/api/v1/*', async (req, res) => {
 });
 
 // File upload endpoint
-const upload = multer({ storage: multer.memoryStorage() });
-
 app.post('/api/v1/openai-assistants-file/:identifier', upload.single('file'), async (req, res) => {
   try {
     const { identifier } = req.params;
