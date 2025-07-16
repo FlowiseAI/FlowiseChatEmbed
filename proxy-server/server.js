@@ -305,7 +305,60 @@ app.get('/oauth-callback.html', (_, res) => {
   res.sendFile(path.join(__dirname, 'public', 'oauth-callback.html'));
 });
 
-// Public chatbot configuration endpoint (handled locally)
+// Helper function to detect and log configuration conflicts
+const detectConfigConflicts = (localConfig, flowiseConfig, identifier) => {
+  const conflicts = [];
+  const localKeys = Object.keys(localConfig);
+  const flowiseKeys = Object.keys(flowiseConfig);
+  
+  // Find overlapping keys
+  const overlappingKeys = localKeys.filter(key => flowiseKeys.includes(key));
+  
+  if (overlappingKeys.length > 0) {
+    console.warn('\x1b[33m%s\x1b[0m', `⚠️  Configuration conflicts detected for ${identifier}:`);
+    
+    overlappingKeys.forEach(key => {
+      const localValue = JSON.stringify(localConfig[key]);
+      const flowiseValue = JSON.stringify(flowiseConfig[key]);
+      
+      if (localValue !== flowiseValue) {
+        conflicts.push({
+          key,
+          localValue: localConfig[key],
+          flowiseValue: flowiseConfig[key]
+        });
+        
+        console.warn('\x1b[33m%s\x1b[0m', `   - ${key}: local=${localValue} vs flowise=${flowiseValue} (using local)`);
+      } else {
+        console.info('\x1b[36m%s\x1b[0m', `   - ${key}: values match, no conflict`);
+      }
+    });
+  }
+  
+  return conflicts;
+};
+
+// Helper function to merge configurations with local taking precedence
+const mergeConfigurations = (localConfig, flowiseConfig, identifier) => {
+  // Detect conflicts first
+  const conflicts = detectConfigConflicts(localConfig, flowiseConfig, identifier);
+  
+  // Merge with local config taking precedence
+  const mergedConfig = {
+    ...flowiseConfig,  // FlowWise config as base
+    ...localConfig     // Local config overrides
+  };
+  
+  if (conflicts.length > 0) {
+    console.info('\x1b[36m%s\x1b[0m', `🔀 Merged config for ${identifier}: ${conflicts.length} conflicts resolved (local values used)`);
+  } else {
+    console.info('\x1b[36m%s\x1b[0m', `🔀 Merged config for ${identifier}: no conflicts detected`);
+  }
+  
+  return mergedConfig;
+};
+
+// Public chatbot configuration endpoint (fetches from FlowWise and merges with local config)
 app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
   const { identifier } = req.params;
   
@@ -319,7 +372,7 @@ app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
     const oauthConfig = oauthConfigs.get(identifier);
     
     // Build local chatbot configuration
-    const chatbotConfig = {
+    const localConfig = {
       // Basic chatflow information
       chatflowId: chatflow.chatflowId,
       identifier: identifier,
@@ -357,14 +410,37 @@ app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
           domainValidation: true,
           apiProxy: true
         }
-      },
-      
-      // Additional configuration can be added here
-      // This could include UI themes, feature flags, etc.
+      }
     };
     
-    console.info('\x1b[32m%s\x1b[0m', `✅ Chatbot config provided (identifier: ${identifier}, auth: ${!!oauthConfig})`);
-    res.json(chatbotConfig);
+    // Fetch FlowWise chatbot configuration
+    let flowiseConfig = {};
+    try {
+      console.info('\x1b[34m%s\x1b[0m', `📤 Fetching FlowWise config: GET ${config.apiHost}/api/v1/public-chatbotConfig/${chatflow.chatflowId}`);
+      
+      const flowiseResponse = await axios({
+        method: 'GET',
+        url: `${config.apiHost}/api/v1/public-chatbotConfig/${chatflow.chatflowId}`,
+        headers: {
+          'Authorization': `Bearer ${config.flowiseApiKey}`,
+        },
+        timeout: 10000, // 10 second timeout
+      });
+      
+      if (flowiseResponse.data) {
+        flowiseConfig = flowiseResponse.data;
+        console.info('\x1b[32m%s\x1b[0m', `✅ FlowWise config fetched successfully (uploads: ${!!flowiseConfig.uploads}, keys: ${Object.keys(flowiseConfig).join(', ')})`);
+      }
+    } catch (flowiseError) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Failed to fetch FlowWise config: ${flowiseError.message}`);
+      console.warn('\x1b[33m%s\x1b[0m', `   Continuing with local config only...`);
+    }
+    
+    // Merge configurations with conflict detection
+    const finalConfig = mergeConfigurations(localConfig, flowiseConfig, identifier);
+    
+    console.info('\x1b[32m%s\x1b[0m', `✅ Chatbot config provided (identifier: ${identifier}, auth: ${!!oauthConfig}, uploads: ${!!finalConfig.uploads})`);
+    res.json(finalConfig);
     
   } catch (error) {
     console.warn('\x1b[33m%s\x1b[0m', `⚠️  Chatbot config failed: ${error.message} (identifier: ${identifier})`);
