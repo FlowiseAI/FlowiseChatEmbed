@@ -46,6 +46,29 @@ const loadConfiguration = () => {
 
 const config = loadConfiguration();
 
+// Resolve debug setting with per-chatflow override capability
+const resolveDebugSetting = (chatflow) => {
+  const globalDebug = config.debug === true;
+  const chatflowDebug = chatflow.debug === true;
+  
+  // Enable debug if either global debug is true OR chatflow debug overrides to true
+  const shouldEnableDebug = globalDebug || chatflowDebug;
+  
+  if (shouldEnableDebug) {
+    if (globalDebug && chatflowDebug) {
+      debugLog(`Debug enabled for ${chatflow.identifier}: Global debug=true, Chatflow debug=true`);
+    } else if (globalDebug && !chatflowDebug) {
+      debugLog(`Debug enabled for ${chatflow.identifier}: Global debug=true (chatflow debug=false ignored)`);
+    } else if (!globalDebug && chatflowDebug) {
+      debugLog(`Debug enabled for ${chatflow.identifier}: Chatflow debug=true overriding global debug=false`);
+    }
+  } else {
+    debugLog(`Debug disabled for ${chatflow.identifier}: Global debug=false, Chatflow debug=false`);
+  }
+  
+  return shouldEnableDebug;
+};
+
 // Validate required configuration
 if (!config.apiHost) {
   console.error('apiHost is not set in configuration');
@@ -83,7 +106,9 @@ for (const chatflow of config.chatflows) {
   
   chatflows.set(chatflow.identifier, {
     chatflowId: chatflow.chatflowId,
-    domains: domains
+    domains: domains,
+    debug: chatflow.debug,
+    identifier: chatflow.identifier
   });
   
   // Store OAuth configuration if present
@@ -408,6 +433,9 @@ app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
       // Basic chatflow information
       chatflowId: chatflow.chatflowId,
       identifier: identifier,
+      
+      // Debug configuration (global + per-chatflow override)
+      debug: resolveDebugSetting(chatflow),
       
       // Authentication configuration (if available)
       ...(oauthConfig && {

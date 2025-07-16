@@ -1504,11 +1504,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (result.data) {
       const chatbotConfig = result.data;
 
-      // Handle debug configuration - defaults to false if not specified
-      if (chatbotConfig.debug === true) {
-        debugLogger.setEnabled(true);
-      } else {
-        debugLogger.setEnabled(false);
+      // Handle debug configuration from server
+      // The server should send the resolved debug setting (global + chatflow override logic)
+      const debugEnabled = chatbotConfig.debug === true;
+      debugLogger.setEnabled(debugEnabled);
+      
+      if (debugEnabled) {
+        debugLogger.log('Debug logging enabled via configuration');
       }
 
       if (chatbotConfig.flowData) {
