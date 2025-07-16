@@ -12,7 +12,7 @@ export type IncomingInput = {
   leadEmail?: string;
   action?: IAction;
   humanInput?: Record<string, unknown>;
-  model?:string;
+  model?: string;
   platform?: string;
 };
 
