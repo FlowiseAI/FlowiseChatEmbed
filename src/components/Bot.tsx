@@ -37,9 +37,44 @@ import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
-const modelOptions = ['gpt-3.5-turbo', 'gpt-4', 'claude-3.5'];
 
-const [selectedModel, setSelectedModel] = createSignal(modelOptions[0]);
+
+const modelPlatforms = [
+  {
+    platform: 'ChatGPT',
+    models: [
+      { value: 'gpt-4o', label: '4o', desc: 'Great for most tasks' },
+      { value: 'gpt-4o-mini', label: '4o-mini', desc: 'Cheap and smart' },
+      { value: 'gpt-4.5', label: '4.5', desc: 'Good for writing & exploring ideas' },
+      { value: 'gpt-4.1', label: '4.1', desc: 'Great for quick coding & analysis' },
+      { value: 'gpt-3.5-turbo', label: '3.5-turbo', desc: 'Efficient & affordable' },
+    ]
+  },
+  {
+    platform: 'Claude',
+    models: [
+      { value: 'claude-3-opus', label: '3 Opus', desc: 'Anthropic’s most powerful' },
+      { value: 'claude-3-sonnet', label: '3 Sonnet', desc: 'Fast & capable' },
+    ]
+  },
+  {
+    platform: 'Gemini',
+    models: [
+      { value: 'gemini-1.5-pro', label: '1.5 Pro', desc: 'Google’s best for now' },
+      { value: 'gemini-1.0-ultra', label: '1.0 Ultra', desc: 'Earlier flagship' },
+    ]
+  },
+];
+
+
+const [menuOpen, setMenuOpen] = createSignal(false);
+const [moreOpen, setMoreOpen] = createSignal(""); // Store platform name string
+
+const [selectedPlatform, setSelectedPlatform] = createSignal(modelPlatforms[0]);
+const [selectedModel, setSelectedModel] = createSignal(modelPlatforms[0].models[0]);
+
+
+
 // const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
 
 export type FileEvent<T = EventTarget> = {
@@ -269,7 +304,10 @@ const defaultWelcomeMessage = 'Hi there! How can I help?';
 
 const defaultBackgroundColor = '#000000';
 const defaultTextColor = '#EEEEEE';
-const defaultTitleBackgroundColor = '#000000';
+// ←– make the title bar white
+const defaultTitleBackgroundColor = '#FFFFFF';
+
+
 
 /* FeedbackDialog component - for collecting user feedback */
 const FeedbackDialog = (props: {
@@ -369,7 +407,7 @@ const FormInputView = (props: {
             <For each={props.inputParams}>
               {(param) => (
                 <div class="space-y-2">
-                  <label class="block text-sm font-medium">{param.label}</label>
+                  <label class="block text-sm font-medium text-black">{param.label}</label>
 
                   {param.type === 'string' && (
                     <input
@@ -1047,7 +1085,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const body: IncomingInput = {
       question: value,
-      chatId: chatId(),
+      chatId: chatId()
     };
 
     if (startInputType() === 'formInput') {
@@ -1807,10 +1845,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10 bg-white text-black border-b border-gray-200"
               style={{
-                background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
-                color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
+                background: props.titleBackgroundColor || defaultTitleBackgroundColor,
+                // background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
+                // color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
+                color:      props.titleTextColor      || '#000000',
                 'border-top-left-radius': props.isFullPage ? '0px' : '6px',
                 'border-top-right-radius': props.isFullPage ? '0px' : '6px',
               }}
@@ -1823,13 +1863,90 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </Show> */}
 
               {/* your dropdown */}
-              <select
-                class="ml-3 px-2 py-1 rounded bg-white text-black"
-                value={selectedModel()}
-                onInput={(e) => setSelectedModel(e.currentTarget.value)}
+
+              
+{/* ChatGPT-style dropdown */}
+<div class="relative ml-3">
+  <button
+    class="inline-flex items-center px-3 py-2 bg-white text-black hover:bg-gray-100 rounded"
+    onClick={() => setMenuOpen(!menuOpen())}
+  >
+    <span class="font-bold text-black text-base mr-1">{selectedPlatform().platform}</span>
+    &nbsp;
+    <span class ="text-gray-800 text-base"
+    style="marginLeft: -8px">{selectedModel().label}</span>
+    <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"/>
+    </svg>
+  </button>
+  {menuOpen() && (
+    <div
+      class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded shadow-lg z-50"
+      onMouseLeave={() => { setMenuOpen(false); setMoreOpen(""); }}
+    >
+      <div class="px-3 py-1 text-xs font-semibold text-gray-500">Platform</div>
+      <For each={modelPlatforms}>
+        {(platform) => (
+          <div class="relative group">
+            <button
+              class={
+                "w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center justify-between text-black" +
+                (selectedPlatform().platform === platform.platform ? " bg-gray-100" : "")
+              }
+              onMouseEnter={() => setMoreOpen(platform.platform)}
+              onFocus={() => setMoreOpen(platform.platform)}
+              // onMouseLeave={() => setMoreOpen("")}  // Remove this to prevent menu flicker/gap
+              // onBlur={() => setMoreOpen("")}
+              style="zIndex: 51"
+            >
+              <span>{platform.platform}</span>
+              <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M7 6l5 4-5 4V6z" />
+              </svg>
+            </button>
+            {/* Dropright menu */}
+            {moreOpen() === platform.platform && (
+              <div
+                class="absolute top-0 left-full ml-0 w-72 bg-white border border-gray-200 rounded shadow-lg"
+                style="marginLeft: -4px"  // <-- closes gap for seamless hover
               >
-                <For each={modelOptions}>{(m) => <option value={m}>{m}</option>}</For>
-              </select>
+                <div class="px-3 py-1 text-xs font-semibold text-gray-500">{platform.platform} Models</div>
+                <For each={platform.models}>
+                  {(model) => (
+                    <button
+                      class={
+                        "w-full text-left px-3 py-2 hover:bg-gray-100 text-black" +
+                        (selectedModel().value === model.value ? " bg-gray-100 font-bold" : "")
+                      }
+                      onClick={() => {
+                        setSelectedPlatform(platform);
+                        setSelectedModel(model);
+                        setMenuOpen(false);
+                        setMoreOpen("");
+                      }}
+                    >
+                      <div class="text-sm font-medium">{model.label}</div>
+                      <div class="text-xs text-gray-500">{model.desc}</div>
+                    </button>
+                  )}
+                </For>
+              </div>
+            )}
+          </div>
+        )}
+      </For>
+    </div>
+  )}
+</div>
+
+
+
+
+
+
+
+
+
 
               <Show when={props.title}>
                 <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>

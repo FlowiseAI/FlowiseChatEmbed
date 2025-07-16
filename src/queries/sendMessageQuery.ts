@@ -12,6 +12,8 @@ export type IncomingInput = {
   leadEmail?: string;
   action?: IAction;
   humanInput?: Record<string, unknown>;
+  model?:string;
+  platform?: string;
 };
 
 type BaseRequest = {

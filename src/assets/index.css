@@ -13,7 +13,7 @@
   --chatbot-host-bubble-bg-color: #f7f8ff;
   --chatbot-host-bubble-color: #303235;
 
-  --chatbot-guest-bubble-bg-color: #3b81f6;
+  --chatbot-guest-bubble-bg-color: ffffff;
   --chatbot-guest-bubble-color: #ffffff;
 
   --chatbot-input-bg-color: #ffffff;
@@ -500,4 +500,13 @@ button {
   width: 24px;
   height: 24px;
   animation: spin 1s linear infinite;
+}
+
+.header-dropdown {
+  margin-left: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-header);
+  color: var(--text-primary);
 }

@@ -6,7 +6,7 @@
 </head>
 <body>
 
-  <!-- Model Selector -->
+  <!-- Model Selector
   <div id="model-select-wrapper">
     <label>
       🛠️ Select model:
@@ -18,7 +18,7 @@
         <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
       </select>
     </label>
-  </div>
+  </div> -->
 
   <!-- Flowise Embed -->
   <div id="chatbot-container">
@@ -27,25 +27,26 @@
 
   <!-- MODEL‐INJECTION (into every /prediction) -->
   <script>
-    window.__selectedModel = document.getElementById('modelSelect').value;
-    document.getElementById('modelSelect')
-      .addEventListener('change', e => window.__selectedModel = e.target.value);
+  //   window.__selectedModel = document.getElementById('modelSelect').value;
+  //   document.getElementById('modelSelect')
+  //     .addEventListener('change', e => window.__selectedModel = e.target.value);
 
-    const _orig = fetch.bind(window);
-    window.fetch = (url, init = {}) => {
-      if (typeof url === 'string' && url.includes('/api/v1/prediction/')) {
-        try {
-          const body = JSON.parse(init.body || '{}');
-          body.question = `[MODEL:${window.__selectedModel}]`
-                        + ' ' + (body.question || '');
-          init = { ...init, body: JSON.stringify(body) };
-        } catch (e) {
-          console.warn('model injection failed', e);
-        }
-      }
-      return _orig(url, init);
-    };
-  </script>
+  //   const _orig = fetch.bind(window);
+  //   window.fetch = (url, init = {}) => {
+  //     if (typeof url === 'string' && url.includes('/api/v1/prediction/')) {
+  //       try {
+  //         const body = JSON.parse(init.body || '{}');
+  //         body.question = `[MODEL:${window.__selectedModel}]`
+  //                       + ' ' + (body.question || '');
+  //         init = { ...init, body: JSON.stringify(body) };
+  //       } catch (e) {
+  //         console.warn('model injection failed', e);
+  //       }
+  //     }
+  //     return _orig(url, init);
+  //   };
+  // 
+  // </script>
 
  <script type="module">
   import Chatbot from 'http://localhost:3001/web.js';
