@@ -222,9 +222,8 @@ const isValidDomain = (origin, domains) => {
 };
 
 const app = express();
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// CORS middleware - must be first
 app.use(
   cors({
     origin: '*',
@@ -247,8 +246,208 @@ app.use((req, res, next) => {
   
   console.info('\x1b[90m%s\x1b[0m', `📨 ${timestamp} - ${method} ${url} (origin: ${origin})`);
   
+  // Debug: Check for multipart requests at the very beginning
+  if (req.url.includes('/attachments/') && req.method === 'POST') {
+    console.info('\x1b[36m%s\x1b[0m', `🔍 RAW REQUEST DEBUG: Attachment request detected`);
+    console.info('\x1b[36m%s\x1b[0m', `🔍 RAW REQUEST DEBUG: Raw Content-Type header: "${req.headers['content-type']}"`);
+    
+    // Check if boundary is present in the raw header
+    const rawContentType = req.headers['content-type'];
+    if (rawContentType && rawContentType.includes('multipart/form-data')) {
+      const boundaryMatch = rawContentType.match(/boundary=([^;]+)/);
+      const boundary = boundaryMatch ? boundaryMatch[1] : null;
+      console.info('\x1b[36m%s\x1b[0m', `🔍 RAW REQUEST DEBUG: Raw boundary extracted: "${boundary}"`);
+      
+      if (boundary) {
+        console.info('\x1b[32m%s\x1b[0m', `✅ RAW REQUEST DEBUG: Boundary IS present in original request!`);
+      } else {
+        console.error('\x1b[31m%s\x1b[0m', `❌ RAW REQUEST DEBUG: Boundary NOT present in original request!`);
+      }
+    } else {
+      console.error('\x1b[31m%s\x1b[0m', `❌ RAW REQUEST DEBUG: Not multipart/form-data in original request!`);
+    }
+    
+    // Log all headers for debugging
+    console.info('\x1b[36m%s\x1b[0m', `🔍 RAW REQUEST DEBUG: All raw headers:`);
+    Object.keys(req.headers).forEach(key => {
+      console.info('\x1b[36m%s\x1b[0m', `🔍   ${key}: ${req.headers[key]}`);
+    });
+  }
+  
   next();
 });
+
+// File upload middleware - must be declared before use
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Attachment upload endpoint - MUST be before body parsing middleware to preserve multipart data
+// This endpoint forwards form data directly without intermediate processing
+app.post('/api/v1/attachments/:identifier/:chatId', (req, res, next) => {
+  // Skip all Express body parsing and handle raw request
+  req.rawBody = [];
+  req.on('data', chunk => {
+    req.rawBody.push(chunk);
+  });
+  req.on('end', () => {
+    req.rawBody = Buffer.concat(req.rawBody);
+    next();
+  });
+}, async (req, res) => {
+  const { identifier, chatId } = req.params;
+  
+  try {
+    const chatflow = getChatflowDetails(identifier);
+    
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Starting upload - identifier: ${identifier}, chatId: ${chatId}`);
+    
+    // Debug: Log all incoming headers
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Incoming headers:`);
+    Object.keys(req.headers).forEach(key => {
+      console.info('\x1b[35m%s\x1b[0m', `🔍   ${key}: ${req.headers[key]}`);
+    });
+    
+    // Check if this is actually multipart form data
+    let contentType = req.headers['content-type'];
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Content-Type: "${contentType}"`);
+    
+    if (!contentType || !contentType.includes('multipart/form-data')) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Attachment upload failed: Not multipart form data (identifier: ${identifier})`);
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Received Content-Type: "${contentType}"`);
+      return res.status(400).json({ error: 'Request must be multipart/form-data' });
+    }
+    
+    // Extract and validate boundary
+    let boundaryMatch = contentType.match(/boundary=([^;]+)/);
+    let boundary = boundaryMatch ? boundaryMatch[1] : null;
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Extracted boundary: "${boundary}"`);
+    
+    // If no boundary in header, try to extract from raw body data
+    if (!boundary && req.rawBody) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  ATTACHMENT DEBUG: No boundary in header, attempting to extract from body data`);
+      
+      // Look for boundary in the first few lines of the raw body
+      const bodyStart = req.rawBody.toString('utf8', 0, Math.min(200, req.rawBody.length));
+      console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Body start: "${bodyStart.replace(/\r?\n/g, '\\n')}"`);
+      
+      // Multipart data typically starts with --boundary
+      const bodyBoundaryMatch = bodyStart.match(/^--([^\r\n]+)/);
+      if (bodyBoundaryMatch) {
+        boundary = bodyBoundaryMatch[1];
+        console.info('\x1b[32m%s\x1b[0m', `✅ ATTACHMENT DEBUG: Extracted boundary from body: "${boundary}"`);
+        
+        // Update the Content-Type header to include the boundary
+        const updatedContentType = `multipart/form-data; boundary=${boundary}`;
+        console.info('\x1b[32m%s\x1b[0m', `✅ ATTACHMENT DEBUG: Updated Content-Type: "${updatedContentType}"`);
+        
+        // We'll use the updated content type for the upstream request
+        contentType = updatedContentType;
+      } else {
+        console.error('\x1b[31m%s\x1b[0m', `❌ ATTACHMENT DEBUG: Could not extract boundary from body data either`);
+        return res.status(400).json({ error: 'Multipart boundary not found in Content-Type header or body data' });
+      }
+    }
+    
+    if (!boundary) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ ATTACHMENT DEBUG: No boundary found in Content-Type header`);
+      return res.status(400).json({ error: 'Multipart boundary not found in Content-Type header' });
+    }
+    
+    const apiUrl = `${config.apiHost}/api/v1/attachments/${chatflow.chatflowId}/${chatId}`;
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Call (streaming): POST ${apiUrl} (identifier: ${identifier})`);
+    
+    // Log content length if available for size monitoring
+    const contentLength = req.headers['content-length'];
+    if (contentLength) {
+      const sizeInMB = (parseInt(contentLength) / 1024 / 1024).toFixed(2);
+      console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Content-Length: ${contentLength} bytes (${sizeInMB} MB)`);
+      
+      // Check if the upload size is reasonable (warn if > 50MB)
+      if (parseInt(contentLength) > 50 * 1024 * 1024) {
+        console.warn('\x1b[33m%s\x1b[0m', `⚠️  Large upload detected: ${sizeInMB} MB - this may exceed server limits`);
+      }
+    } else {
+      console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: No Content-Length header present`);
+    }
+    
+    // Debug: Log the raw body buffer info
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Raw body buffer size: ${req.rawBody ? req.rawBody.length : 'null'} bytes`);
+    
+    // Prepare headers for upstream request
+    const upstreamHeaders = {
+      'Authorization': `Bearer ${config.flowiseApiKey}`,
+      'Content-Type': contentType, // Use the corrected content-type with boundary
+    };
+    
+    // Forward content-length if present
+    if (contentLength) {
+      upstreamHeaders['Content-Length'] = contentLength;
+    }
+    
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Upstream headers being sent:`);
+    Object.keys(upstreamHeaders).forEach(key => {
+      console.info('\x1b[35m%s\x1b[0m', `🔍   ${key}: ${upstreamHeaders[key]}`);
+    });
+    
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: About to make axios request to: ${apiUrl}`);
+    
+    // Create axios request with raw buffer data
+    const response = await axios({
+      method: 'POST',
+      url: apiUrl,
+      headers: upstreamHeaders,
+      data: req.rawBody, // Use the raw buffer data
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      timeout: 300000, // 5 minute timeout for large uploads
+    });
+    
+    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (identifier: ${identifier})`);
+    console.info('\x1b[35m%s\x1b[0m', `🔍 ATTACHMENT DEBUG: Response headers:`);
+    Object.keys(response.headers || {}).forEach(key => {
+      console.info('\x1b[35m%s\x1b[0m', `🔍   ${key}: ${response.headers[key]}`);
+    });
+    
+    res.status(response.status).json(response.data);
+    
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Attachment upload error: ${error.response?.status || 'Unknown'} - ${error.message} (identifier: ${identifier})`);
+    
+    // Enhanced error debugging
+    console.error('\x1b[31m%s\x1b[0m', `❌ ATTACHMENT DEBUG: Error details:`);
+    console.error('\x1b[31m%s\x1b[0m', `❌   Error message: ${error.message}`);
+    console.error('\x1b[31m%s\x1b[0m', `❌   Error code: ${error.code || 'N/A'}`);
+    console.error('\x1b[31m%s\x1b[0m', `❌   Response status: ${error.response?.status || 'N/A'}`);
+    console.error('\x1b[31m%s\x1b[0m', `❌   Response statusText: ${error.response?.statusText || 'N/A'}`);
+    
+    if (error.response?.data) {
+      console.error('\x1b[31m%s\x1b[0m', `❌   Response data:`, error.response.data);
+    }
+    
+    if (error.response?.headers) {
+      console.error('\x1b[31m%s\x1b[0m', `❌   Response headers:`);
+      Object.keys(error.response.headers).forEach(key => {
+        console.error('\x1b[31m%s\x1b[0m', `❌     ${key}: ${error.response.headers[key]}`);
+      });
+    }
+    
+    // Handle specific error cases
+    if (error.response?.status === 413) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ File too large - FlowWise server rejected the upload (413 Request Entity Too Large)`);
+      res.status(413).json({
+        error: 'File too large. Please try uploading a smaller file or reduce the image size.',
+        details: 'The FlowWise server has a file size limit that was exceeded.'
+      });
+    } else {
+      res.status(error.response?.status || 500).json({
+        error: error.response?.data || 'Internal server error'
+      });
+    }
+  }
+});
+
+// Body parsing middleware - MUST be after the attachments endpoint
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('/', (_, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -581,83 +780,6 @@ app.get('/api/v1/public-chatbotConfig/:identifier', async (req, res) => {
   } catch (error) {
     console.warn('\x1b[33m%s\x1b[0m', `⚠️  Chatbot config failed: ${error.message} (identifier: ${identifier})`);
     res.status(404).json({ error: error.message });
-  }
-});
-
-// File upload middleware - must be declared before use
-const upload = multer({ storage: multer.memoryStorage() });
-
-// Attachment upload endpoint - MUST be before the generic API proxy
-app.post('/api/v1/attachments/:identifier/:chatId', upload.any(), async (req, res) => {
-  const { identifier, chatId } = req.params;
-  
-  try {
-    const chatflow = getChatflowDetails(identifier);
-    
-    debugLog(`Attachment upload - identifier: ${identifier}, chatId: ${chatId}`);
-    debugLog(`Files received:`, req.files?.length || 0);
-    
-    if (!req.files || req.files.length === 0) {
-      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Attachment upload failed: No files provided (identifier: ${identifier})`);
-      return res.status(400).json({ error: 'No files uploaded' });
-    }
-    
-    const apiUrl = `${config.apiHost}/api/v1/attachments/${chatflow.chatflowId}/${chatId}`;
-    console.info('\x1b[34m%s\x1b[0m', `📤 API Call: POST ${apiUrl} (identifier: ${identifier}, files: ${req.files.length})`);
-    
-    const formData = new FormData();
-    let totalSize = 0;
-    
-    // Add all uploaded files
-    req.files.forEach((file, index) => {
-      formData.append('files', file.buffer, file.originalname);
-      totalSize += file.size;
-      debugLog(`Added file ${index}: ${file.originalname} (${file.size} bytes, ${(file.size / 1024 / 1024).toFixed(2)} MB)`);
-    });
-    
-    // Add other form fields from body
-    Object.keys(req.body || {}).forEach(key => {
-      formData.append(key, req.body[key]);
-      debugLog(`Added field ${key}: ${req.body[key]}`);
-    });
-    
-    debugLog(`Total upload size: ${totalSize} bytes (${(totalSize / 1024 / 1024).toFixed(2)} MB)`);
-    
-    // Check if the upload size is reasonable (warn if > 50MB)
-    if (totalSize > 50 * 1024 * 1024) {
-      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Large upload detected: ${(totalSize / 1024 / 1024).toFixed(2)} MB - this may exceed server limits`);
-    }
-    
-    const response = await axios.post(
-      apiUrl,
-      formData,
-      {
-        headers: {
-          'Authorization': `Bearer ${config.flowiseApiKey}`,
-          ...formData.getHeaders(),
-        },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-      }
-    );
-    
-    console.info('\x1b[32m%s\x1b[0m', `📥 API Response: ${response.status} ${response.statusText} (identifier: ${identifier})`);
-    res.json(response.data);
-  } catch (error) {
-    console.error('\x1b[31m%s\x1b[0m', `❌ Attachment upload error: ${error.response?.status || 'Unknown'} - ${error.message} (identifier: ${identifier})`);
-    
-    // Handle specific error cases
-    if (error.response?.status === 413) {
-      console.error('\x1b[31m%s\x1b[0m', `❌ File too large - FlowWise server rejected the upload (413 Request Entity Too Large)`);
-      res.status(413).json({
-        error: 'File too large. Please try uploading a smaller file or reduce the image size.',
-        details: 'The FlowWise server has a file size limit that was exceeded.'
-      });
-    } else {
-      res.status(error.response?.status || 500).json({
-        error: error.response?.data || 'Internal server error'
-      });
-    }
   }
 });
 
