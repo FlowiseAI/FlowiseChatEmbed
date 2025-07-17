@@ -336,8 +336,8 @@ app.get('/api/auth/config/:identifier', (req, res) => {
       prompt: oauthConfig.prompt
     },
     promptConfig: {
-      title: 'Sign In to Continue',
-      message: 'Please sign in to access personalized chat features and chat history.',
+      title: 'Are you with CSU?',
+      message: 'If so, please sign in to access personalized chat features and chat history.',
       loginButtonText: 'Sign In',
       skipButtonText: 'Continue as Guest'
     },
