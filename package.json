@@ -10,7 +10,7 @@
     "debug": "cross-env NODE_ENV=debug rollup --watch --config rollup.config.js",
     "build": "cross-env NODE_ENV=production rollup --config rollup.config.js && npm run copy-web-js",
     "build:version": "cross-env BUILD_VERSION=$npm_package_version-$(git rev-parse --short HEAD) npm run build",
-    "copy-web-js": "cp dist/web.js proxy-server/public/web.js",
+    "copy-web-js": "cp dist/web.js proxy-server/client-bot/web.js",
     "version:patch": "npm version patch && npm run build",
     "version:minor": "npm version minor && npm run build",
     "version:major": "npm version major && npm run build",

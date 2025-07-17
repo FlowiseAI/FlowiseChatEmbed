@@ -9,6 +9,7 @@ services:
       - 3005:3005
     volumes:
       - ./config:/app/config:ro
+      - ./client-bot/web.js:/app/public/web.js:ro
     environment:
       - NODE_ENV=debug
       - DEBUG=*

@@ -9,3 +9,4 @@ dist/
 /proxy-server/prod.config.json
 /proxy-server/local.config.json
 /proxy-server/config.json
+/proxy-server/client-bot/web.js

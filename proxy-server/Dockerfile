@@ -13,7 +13,7 @@ RUN npm install --production
 
 # Copy the application code
 COPY proxy-server/server.js ./
-COPY proxy-server/public/ ./public/
+COPY proxy-server/public/oauth-callback.html ./public/
 
 # Create the src/utils directory and copy embedScript.js
 RUN mkdir -p src/utils
