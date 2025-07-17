@@ -46,6 +46,47 @@ const loadConfiguration = () => {
 
 const config = loadConfiguration();
 
+// Session state management for tracking chat sessions with user info
+const sessionState = new Map();
+
+// Helper function to decode JWT token and extract expiry
+const decodeJWTExpiry = (token) => {
+  try {
+    // JWT tokens have 3 parts separated by dots: header.payload.signature
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    // Decode the payload (second part)
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+    
+    // Return expiry time in milliseconds (exp is in seconds)
+    return payload.exp ? payload.exp * 1000 : null;
+  } catch (error) {
+    debugLog(`Error decoding JWT token: ${error.message}`);
+    return null;
+  }
+};
+
+// Helper function to clean up expired sessions
+const cleanupExpiredSessions = () => {
+  const now = Date.now();
+  let cleanedCount = 0;
+  
+  for (const [chatId, session] of sessionState.entries()) {
+    if (session.expiresAt && session.expiresAt < now) {
+      sessionState.delete(chatId);
+      cleanedCount++;
+    }
+  }
+  
+  if (cleanedCount > 0) {
+    debugLog(`Cleaned up ${cleanedCount} expired sessions`);
+  }
+};
+
+// Run session cleanup every 5 minutes
+setInterval(cleanupExpiredSessions, 5 * 60 * 1000);
+
 // Resolve debug setting with per-chatflow override capability
 const resolveDebugSetting = (chatflow) => {
   const globalDebug = config.debug === true;
@@ -356,6 +397,36 @@ app.get('/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Session state debug endpoint (only in debug mode)
+app.get('/debug/sessions', (req, res) => {
+  if (process.env.NODE_ENV !== 'debug') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  
+  const sessions = {};
+  const now = Date.now();
+  
+  for (const [chatId, session] of sessionState.entries()) {
+    sessions[chatId] = {
+      userId: session.userInfo.sub,
+      email: session.userInfo.email,
+      name: session.userInfo.name,
+      identifier: session.identifier,
+      createdAt: new Date(session.createdAt).toISOString(),
+      expiresAt: new Date(session.expiresAt).toISOString(),
+      lastAccessed: new Date(session.lastAccessed).toISOString(),
+      isExpired: session.expiresAt < now,
+      timeUntilExpiry: session.expiresAt - now
+    };
+  }
+  
+  res.json({
+    totalSessions: sessionState.size,
+    sessions: sessions,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // OAuth callback endpoint
 app.get('/oauth-callback.html', (_, res) => {
   console.info('\x1b[35m%s\x1b[0m', '🔐 OAuth callback page requested');
@@ -632,6 +703,29 @@ const extractUserContext = async (req, res, next) => {
                 const userInfo = await userInfoResponse.json();
                 req.user = userInfo;
                 
+                // Check if this is a chat request with chatId for session management
+                if (req.body && req.body.chatId && req.method === 'POST') {
+                  const chatId = req.body.chatId;
+                  const tokenExpiry = decodeJWTExpiry(accessToken);
+                  
+                  // Store session state mapping chatId to user info
+                  const sessionData = {
+                    userInfo: userInfo,
+                    identifier: identifier,
+                    createdAt: Date.now(),
+                    expiresAt: tokenExpiry || (Date.now() + 24 * 60 * 60 * 1000), // Default 24h if no expiry
+                    lastAccessed: Date.now()
+                  };
+                  
+                  sessionState.set(chatId, sessionData);
+                  
+                  debugLog(`💾 Stored session state for chatId: ${chatId}`, {
+                    userId: userInfo.sub,
+                    email: userInfo.email,
+                    expiresAt: new Date(sessionData.expiresAt).toISOString()
+                  });
+                }
+                
                 // Debug message showing extracted user info (only in debug mode)
                 debugLog(`🔐 User authenticated via OAuth token:`, {
                   identifier: identifier,
@@ -649,6 +743,27 @@ const extractUserContext = async (req, res, next) => {
           }
         } else {
           debugLog(`ℹ️ No OAuth token provided in request (identifier: ${identifier})`);
+          
+          // Check if we have session state for this chat even without a token
+          if (req.body && req.body.chatId) {
+            const chatId = req.body.chatId;
+            const existingSession = sessionState.get(chatId);
+            
+            if (existingSession && existingSession.expiresAt > Date.now()) {
+              // Use cached user info from session
+              req.user = existingSession.userInfo;
+              existingSession.lastAccessed = Date.now();
+              
+              debugLog(`🔄 Using cached session for chatId: ${chatId}`, {
+                userId: existingSession.userInfo.sub,
+                email: existingSession.userInfo.email
+              });
+            } else if (existingSession) {
+              // Session expired, remove it
+              sessionState.delete(chatId);
+              debugLog(`🗑️ Removed expired session for chatId: ${chatId}`);
+            }
+          }
         }
       } else {
         debugLog(`ℹ️ No OAuth configuration for identifier: ${identifier}`);
