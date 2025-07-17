@@ -397,31 +397,36 @@ app.get('/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Session state debug endpoint (only in debug mode)
-app.get('/debug/sessions', (req, res) => {
+// Session state debug endpoint (only in debug mode) - requires identifier for API validation
+app.get('/debug/sessions/:identifier', (req, res) => {
   if (process.env.NODE_ENV !== 'debug') {
     return res.status(404).json({ error: 'Not found' });
   }
   
+  const { identifier } = req.params;
   const sessions = {};
   const now = Date.now();
   
+  // Filter sessions by identifier if specified, or show all
   for (const [chatId, session] of sessionState.entries()) {
-    sessions[chatId] = {
-      userId: session.userInfo.sub,
-      email: session.userInfo.email,
-      name: session.userInfo.name,
-      identifier: session.identifier,
-      createdAt: new Date(session.createdAt).toISOString(),
-      expiresAt: new Date(session.expiresAt).toISOString(),
-      lastAccessed: new Date(session.lastAccessed).toISOString(),
-      isExpired: session.expiresAt < now,
-      timeUntilExpiry: session.expiresAt - now
-    };
+    if (!identifier || identifier === 'all' || session.identifier === identifier) {
+      sessions[chatId] = {
+        userId: session.userInfo.sub,
+        email: session.userInfo.email,
+        name: session.userInfo.name,
+        identifier: session.identifier,
+        createdAt: new Date(session.createdAt).toISOString(),
+        expiresAt: new Date(session.expiresAt).toISOString(),
+        lastAccessed: new Date(session.lastAccessed).toISOString(),
+        isExpired: session.expiresAt < now,
+        timeUntilExpiry: session.expiresAt - now
+      };
+    }
   }
   
   res.json({
     totalSessions: sessionState.size,
+    filteredSessions: Object.keys(sessions).length,
     sessions: sessions,
     timestamp: new Date().toISOString()
   });

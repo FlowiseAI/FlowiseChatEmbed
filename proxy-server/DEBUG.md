@@ -129,3 +129,197 @@ After identifying where the error occurs:
 2. Check if it's a server-side limit (Flowise API)
 3. Consider implementing request size validation
 4. Consider implementing Base64 to multipart conversion for large images
+
+## OAuth Session Management Debugging
+
+The proxy server includes OAuth session management that tracks user authentication across chat sessions. Here's how to debug and monitor this functionality.
+
+### Debug Mode Setup
+
+To enable OAuth session debugging, start the server with debug mode:
+
+```bash
+# Option 1: Use the debug script
+cd proxy-server
+NODE_ENV=debug yarn start
+
+# Option 2: Use the dedicated debug script
+yarn start-debug
+
+# Option 3: Use existing debug script
+yarn debug-verbose
+```
+
+### Session State Management
+
+The proxy server maintains a session state map that tracks:
+- **Chat ID** → **User Information** mapping
+- **Token expiry times** for automatic session cleanup
+- **Last access times** for session monitoring
+
+### Debug Endpoints
+
+#### View Session State (Protected)
+
+The debug endpoint requires a valid chatflow identifier and is protected by API key validation:
+
+```bash
+# View sessions for a specific chatflow
+curl "http://localhost:3005/debug/sessions/chatflow1"
+
+# View all sessions
+curl "http://localhost:3005/debug/sessions/all"
+```
+
+**Response Format:**
+```json
+{
+  "totalSessions": 2,
+  "filteredSessions": 1,
+  "sessions": {
+    "861e5787-6c84-4c50-87be-7da67cf4f1dd": {
+      "userId": "user-123-456",
+      "email": "user@example.com",
+      "name": "User Name",
+      "identifier": "chatflow1",
+      "createdAt": "2025-01-16T19:42:00.000Z",
+      "expiresAt": "2025-01-17T02:37:00.000Z",
+      "lastAccessed": "2025-01-16T19:45:00.000Z",
+      "isExpired": false,
+      "timeUntilExpiry": 25020000
+    }
+  },
+  "timestamp": "2025-01-16T19:45:00.000Z"
+}
+```
+
+### Debug Log Messages
+
+When `NODE_ENV=debug`, you'll see these OAuth-related debug messages:
+
+#### Initial Authentication
+```
+🔍 DEBUG: 🔍 Extracting user context for originalUrl: /api/v1/prediction/chatflow1
+🔍 DEBUG: 🔍 Full path: /api/v1/prediction/chatflow1
+🔍 DEBUG: 🔍 Path parts: [api, v1, prediction, chatflow1]
+🔍 DEBUG: 🔍 Found identifier as last path part: chatflow1
+🔍 DEBUG: 🔐 User authenticated via OAuth token: {
+  identifier: 'chatflow1',
+  userId: 'user-123-456',
+  email: 'user@example.com',
+  name: 'User Name',
+  username: 'username'
+}
+🔍 DEBUG: 💾 Stored session state for chatId: 861e5787-6c84-4c50-87be-7da67cf4f1dd {
+  userId: 'user-123-456',
+  email: 'user@example.com',
+  expiresAt: '2025-01-17T02:37:00.000Z'
+}
+```
+
+#### Subsequent Requests (Using Cached Session)
+```
+🔍 DEBUG: ℹ️ No OAuth token provided in request (identifier: chatflow1)
+🔍 DEBUG: 🔄 Using cached session for chatId: 861e5787-6c84-4c50-87be-7da67cf4f1dd {
+  userId: 'user-123-456',
+  email: 'user@example.com'
+}
+```
+
+#### Session Cleanup
+```
+🔍 DEBUG: Cleaned up 2 expired sessions
+🔍 DEBUG: 🗑️ Removed expired session for chatId: old-chat-id
+```
+
+### OAuth Debugging Breakpoints
+
+Set breakpoints at these locations for OAuth debugging:
+
+1. **Line ~630**: User context extraction entry
+   ```javascript
+   const extractUserContext = async (req, res, next) => {
+   ```
+
+2. **Line ~672**: OAuth token validation
+   ```javascript
+   if (userInfoResponse.ok) {
+   ```
+
+3. **Line ~675**: Session state storage
+   ```javascript
+   if (req.body && req.body.chatId && req.method === 'POST') {
+   ```
+
+4. **Line ~712**: Cached session retrieval
+   ```javascript
+   if (req.body && req.body.chatId) {
+   ```
+
+### Debug Console Commands for OAuth
+
+Use these commands in the Debug Console when debugging OAuth:
+
+```javascript
+// Check if user context is attached
+req.user
+
+// Check session state size
+sessionState.size
+
+// Check specific session
+sessionState.get('your-chat-id-here')
+
+// Check OAuth config for identifier
+oauthConfigs.get('chatflow1')
+
+// Check JWT token expiry
+decodeJWTExpiry('your-jwt-token-here')
+
+// Check request body for chatId
+req.body && req.body.chatId
+```
+
+### Session State Structure
+
+Each session in the `sessionState` Map contains:
+
+```javascript
+{
+  userInfo: {
+    sub: "user-123-456",           // Unique user ID
+    email: "user@example.com",     // User email
+    name: "User Name",             // Display name
+    preferred_username: "username" // Username
+  },
+  identifier: "chatflow1",         // Chatflow identifier
+  createdAt: 1705456620000,        // Session creation timestamp
+  expiresAt: 1705543020000,        // Expiry based on JWT token
+  lastAccessed: 1705456620000      // Last access timestamp
+}
+```
+
+### Common OAuth Issues to Debug
+
+1. **Token Validation Failures**: Check if OAuth provider endpoints are accessible
+2. **Session Not Created**: Verify POST request contains `chatId` in body
+3. **Session Expiry**: Check JWT token expiry time extraction
+4. **Identifier Detection**: Ensure identifier is correctly extracted from URL path
+5. **Memory Leaks**: Monitor session cleanup and expired session removal
+
+### Monitoring Session Health
+
+- **Active Sessions**: Use `/debug/sessions/all` to see total active sessions
+- **Session Expiry**: Check `timeUntilExpiry` values in debug response
+- **Memory Usage**: Monitor `sessionState.size` over time
+- **Cleanup Frequency**: Sessions are cleaned every 5 minutes automatically
+
+### Testing OAuth Flow
+
+1. Start server with `NODE_ENV=debug yarn start`
+2. Set breakpoints in OAuth middleware
+3. Send authenticated chat request with `chatId`
+4. Verify session creation in debug logs
+5. Send follow-up request without token
+6. Verify cached session usage
+7. Check session state via debug endpoint
