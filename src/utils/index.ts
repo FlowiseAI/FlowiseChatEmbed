@@ -19,25 +19,42 @@ export const sendRequest = async <ResponseData>(
         headers?: Record<string, any>;
         formData?: FormData;
         onRequest?: (request: RequestInit) => Promise<void>;
+        authService?: any; // Add authService parameter
       }
     | string,
 ): Promise<{ data?: ResponseData; error?: Error }> => {
   try {
     const url = typeof params === 'string' ? params : params.url;
-    const headers =
-      typeof params !== 'string' && isDefined(params.body)
-        ? {
-            'Content-Type': 'application/json',
-            ...params.headers,
-          }
-        : undefined;
+    
+    // Build base headers
+    let headers: Record<string, any> = {};
+    if (typeof params !== 'string' && isDefined(params.body)) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    // Add OAuth access token if authService is provided and user is authenticated
+    if (typeof params !== 'string' && params.authService) {
+      const accessToken = params.authService.getAccessToken();
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+        debugLogger.log('🔐 Including OAuth access token in request headers');
+      }
+    }
+    
+    // Merge with any additional headers
+    if (typeof params !== 'string' && params.headers) {
+      headers = { ...headers, ...params.headers };
+    }
+    
+    // Set to undefined if no headers
+    const finalHeaders = Object.keys(headers).length > 0 ? headers : undefined;
     let body: string | FormData | undefined = typeof params !== 'string' && isDefined(params.body) ? JSON.stringify(params.body) : undefined;
     if (typeof params !== 'string' && params.formData) body = params.formData;
 
     const requestInfo: RequestInit = {
       method: typeof params === 'string' ? 'GET' : params.method,
       mode: 'cors',
-      headers,
+      headers: finalHeaders,
       body,
     };
 

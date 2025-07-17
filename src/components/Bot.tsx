@@ -1009,13 +1009,26 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     debugLogger.log('Starting EventSource stream to:', streamUrl);
     debugLogger.log('Stream params:', params);
     
+    // Build headers for streaming request
+    const streamHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add OAuth access token if available
+    const currentAuthService = authService();
+    if (currentAuthService) {
+      const accessToken = currentAuthService.getAccessToken();
+      if (accessToken) {
+        streamHeaders['Authorization'] = `Bearer ${accessToken}`;
+        debugLogger.log('🔐 Including OAuth access token in streaming request headers');
+      }
+    }
+    
     fetchEventSource(streamUrl, {
       openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: streamHeaders,
       async onopen(response) {
         debugLogger.log('EventSource onopen - status:', response.status);
         debugLogger.log('EventSource onopen - headers:', Object.fromEntries(response.headers.entries()));
@@ -1152,6 +1165,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           chatflowid: props.chatflowid,
           apiHost: props.apiHost,
           formData: formData,
+          authService: authService(),
         });
 
         if (!response.data) {
@@ -1189,6 +1203,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           chatflowid: props.chatflowid,
           apiHost: props.apiHost,
           formData: formData,
+          authService: authService(),
         });
 
         if (!response.data) {
@@ -1289,6 +1304,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         apiHost: props.apiHost,
         body,
         onRequest: props.onRequest,
+        authService: authService(),
       });
       
       debugLogger.log('sendMessageQuery result:', result);
@@ -1557,6 +1573,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       onRequest: props.onRequest,
+      authService: authService(),
     });
 
     debugLogger.log('Streaming query result:', data);
@@ -1574,6 +1591,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       chatflowid: props.chatflowid,
       apiHost: props.apiHost,
       onRequest: props.onRequest,
+      authService: authService(),
     });
 
     if (result.data) {

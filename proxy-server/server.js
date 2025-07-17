@@ -585,6 +585,85 @@ app.post('/api/v1/attachments/:identifier/:chatId', upload.any(), async (req, re
   }
 });
 
+// User context extraction middleware
+const extractUserContext = async (req, res, next) => {
+  try {
+    // Use originalUrl to get the full path before Express strips the prefix
+    const fullPath = req.originalUrl.split('?')[0]; // Remove query string for path processing
+    const pathParts = fullPath.split('/').filter(Boolean);
+    let identifier = null;
+    
+    debugLog(`🔍 Extracting user context for originalUrl: ${req.originalUrl}`);
+    debugLog(`🔍 Full path: ${fullPath}`);
+    debugLog(`🔍 Path parts: [${pathParts.join(', ')}]`);
+    
+    // Identifier is almost always the last entry in the request URI
+    if (pathParts.length > 0) {
+      const potentialIdentifier = pathParts[pathParts.length - 1];
+      if (potentialIdentifier && !isValidUUID(potentialIdentifier)) {
+        identifier = potentialIdentifier;
+        debugLog(`🔍 Found identifier as last path part: ${identifier}`);
+      }
+    }
+    
+    if (identifier) {
+      const oauthConfig = oauthConfigs.get(identifier);
+      
+      if (oauthConfig) {
+        // Check for access token in Authorization header
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const accessToken = authHeader.split(' ')[1];
+          
+          try {
+            // Validate token with OAuth provider using existing getUserInfo approach
+            const response = await fetch(`${oauthConfig.authority}/.well-known/openid-configuration`);
+            const discoveryDoc = await response.json();
+            
+            if (discoveryDoc.userinfo_endpoint) {
+              const userInfoResponse = await fetch(discoveryDoc.userinfo_endpoint, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Accept': 'application/json'
+                }
+              });
+              
+              if (userInfoResponse.ok) {
+                const userInfo = await userInfoResponse.json();
+                req.user = userInfo;
+                
+                // Debug message showing extracted user info (only in debug mode)
+                debugLog(`🔐 User authenticated via OAuth token:`, {
+                  identifier: identifier,
+                  userId: userInfo.sub,
+                  email: userInfo.email,
+                  name: userInfo.name,
+                  username: userInfo.preferred_username
+                });
+              } else {
+                debugLog(`⚠️ OAuth token validation failed: ${userInfoResponse.status} ${userInfoResponse.statusText} (identifier: ${identifier})`);
+              }
+            }
+          } catch (error) {
+            debugLog(`⚠️ OAuth token validation error: ${error.message} (identifier: ${identifier})`);
+          }
+        } else {
+          debugLog(`ℹ️ No OAuth token provided in request (identifier: ${identifier})`);
+        }
+      } else {
+        debugLog(`ℹ️ No OAuth configuration for identifier: ${identifier}`);
+      }
+    }
+  } catch (error) {
+    debugLog(`❌ Error in user context extraction: ${error.message}`);
+  }
+  
+  next();
+};
+
+// Apply user context extraction middleware to all API routes
+app.use('/api/v1/*', extractUserContext);
+
 // Generic API proxy for all /api/v1/* endpoints
 // This forwards all Flowise API calls to the upstream server with proper authentication
 app.use('/api/v1/*', async (req, res) => {
@@ -651,7 +730,12 @@ app.use('/api/v1/*', async (req, res) => {
     debugLog(`queryString = "${queryString}"`);
     debugLog(`Final apiUrl = "${apiUrl}"`);
     
-    console.info('\x1b[34m%s\x1b[0m', `📤 API Proxy: ${req.method} ${apiUrl}${identifier ? ` (identifier: ${identifier})` : ''}`);
+    // Log user context if available
+    if (req.user) {
+      console.info('\x1b[35m%s\x1b[0m', `👤 User context available: ${req.user.email || req.user.sub} (${req.user.name || 'No name'}) for ${identifier || 'unknown identifier'}`);
+    }
+    
+    console.info('\x1b[34m%s\x1b[0m', `📤 API Proxy: ${req.method} ${apiUrl}${identifier ? ` (identifier: ${identifier})` : ''}${req.user ? ` [User: ${req.user.email || req.user.sub}]` : ''}`);
     
     // Prepare headers
     const headers = {
