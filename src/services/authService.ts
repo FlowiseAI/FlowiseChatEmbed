@@ -191,18 +191,13 @@ export class AuthService {
     try {
       this.setAuthState(prev => ({ ...prev, isLoading: true, error: undefined }));
       
-      // Create a modified OAuth config with centralized callback URL
-      // Detect environment based on hostname for browser compatibility
-      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const callbackServerUrl = isDevelopment
-        ? 'http://localhost:3005/oauth-callback.html'  // Integrated proxy server for development
-        : 'https://your-proxy-server.com/oauth-callback.html'; // Production proxy server
+      // Use the redirectUri from the OAuth configuration
+      const callbackServerUrl = this.config.oauth.redirectUri;
         
-      debugLogger.log('Using callback server URL:', callbackServerUrl);
+      debugLogger.log('Using callback server URL from config:', callbackServerUrl);
       
       const popupConfig = {
-        ...this.config.oauth,
-        redirectUri: callbackServerUrl
+        ...this.config.oauth
       };
       
       const authUrl = await buildAuthorizationUrl(popupConfig);
