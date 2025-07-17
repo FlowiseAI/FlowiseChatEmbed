@@ -158,7 +158,7 @@ for (const chatflow of config.chatflows) {
       mode: chatflow.oauth.mode || 'optional', // Default to 'optional' if not specified
       clientId: chatflow.oauth.clientId,
       authority: chatflow.oauth.authority,
-      redirectUri: config.oauthRedirectUri || 'http://localhost:3005/oauth-callback.html',
+      redirectUri: config.oauthRedirectUri || 'https://chatbot.lab.calstate.ai/oauth-callback.html',
       scope: chatflow.oauth.scope || 'openid profile email',
       responseType: chatflow.oauth.responseType || 'code',
       prompt: chatflow.oauth.prompt || 'select_account'

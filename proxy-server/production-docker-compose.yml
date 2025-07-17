@@ -1,13 +1,13 @@
 services:
   flowise-proxy:
-    image: flowise-proxy:latest
-    container_name: flowise-proxy-server
-    ports:
-      #- 3001:3001
-      - 3005:3005
+    image: csuaidevacr.azurecr.io/flowise-proxy:latest
+    container_name: flowise-proxy
+    hostname: flowise-proxy
+    expose:
+      - 3005
     volumes:
-      - ./config:/app/config:ro
-      - ./client-bot/web.js:/app/public/web.js:ro
+      - ./flowise-proxy/config:/app/config:ro
+      - ./flowise-proxy/client-bot/web.js:/app/public/web.js:ro
     environment:
       - NODE_ENV=${FLOWISE_PROXY_NODE_ENV}
       - DEBUG=${FLOWISE_PROXY_DEBUG}
@@ -19,7 +19,3 @@ services:
       retries: 3
       start_period: 40s
     networks: ['demo']
-
-networks:
-  demo:
-    driver: bridge
