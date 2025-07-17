@@ -10,7 +10,7 @@ services:
     volumes:
       - ./config:/app/config:ro
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=debug
       - DEBUG=*
     restart: no
     healthcheck:
