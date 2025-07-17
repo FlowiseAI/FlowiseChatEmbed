@@ -729,12 +729,87 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   let hasSoundPlayed = false;
 
+  // Track which messages have been personalized to avoid duplicate personalization
+  const [personalizedMessages, setPersonalizedMessages] = createSignal<Set<number>>(new Set());
+
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
       if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
       if (!text) return allMessages;
-      allMessages[allMessages.length - 1].message += text;
+      
+      const lastMessage = allMessages[allMessages.length - 1];
+      const currentMessage = lastMessage.message || '';
+      const newMessage = currentMessage + text;
+      const messageIndex = allMessages.length - 1;
+      
+      // Personalize greeting with user's given name from OAuth
+      // Only do this once when we detect "Hello!" pattern and haven't personalized yet
+      let finalMessage = newMessage;
+      const currentAuthService = authService();
+      const currentUser = currentAuthService?.getCurrentUser();
+      const personalizedSet = personalizedMessages();
+      
+      if (currentUser?.given_name && !personalizedSet.has(messageIndex)) {
+        // Check if the accumulated message now contains "Hello!" and personalize it
+        if (newMessage.includes('Hello!')) {
+          finalMessage = newMessage.replace(/Hello!/g, `Hello ${currentUser.given_name}!`);
+          
+          // Mark this message as personalized
+          setPersonalizedMessages(prev => new Set([...prev, messageIndex]));
+          
+          debugLogger.log('🎯 Personalized greeting (Hello!):', {
+            original: newMessage,
+            personalized: finalMessage,
+            givenName: currentUser.given_name,
+            messageIndex
+          });
+        }
+        // Check for "Hi!" pattern
+        else if (newMessage.includes('Hi!')) {
+          finalMessage = newMessage.replace(/Hi!/g, `Hi ${currentUser.given_name}!`);
+          
+          // Mark this message as personalized
+          setPersonalizedMessages(prev => new Set([...prev, messageIndex]));
+          
+          debugLogger.log('🎯 Personalized greeting (Hi!):', {
+            original: newMessage,
+            personalized: finalMessage,
+            givenName: currentUser.given_name,
+            messageIndex
+          });
+        }
+        // Also handle "Hello" without exclamation mark (but be more careful)
+        else if (newMessage.match(/Hello(?!\s+\w)/)) {
+          finalMessage = newMessage.replace(/Hello(?!\s+\w)/g, `Hello ${currentUser.given_name}`);
+          
+          // Mark this message as personalized
+          setPersonalizedMessages(prev => new Set([...prev, messageIndex]));
+          
+          debugLogger.log('🎯 Personalized greeting (Hello):', {
+            original: newMessage,
+            personalized: finalMessage,
+            givenName: currentUser.given_name,
+            messageIndex
+          });
+        }
+        // Also handle "Hi" without exclamation mark
+        else if (newMessage.match(/Hi(?!\s+\w)/)) {
+          finalMessage = newMessage.replace(/Hi(?!\s+\w)/g, `Hi ${currentUser.given_name}`);
+          
+          // Mark this message as personalized
+          setPersonalizedMessages(prev => new Set([...prev, messageIndex]));
+          
+          debugLogger.log('🎯 Personalized greeting (Hi):', {
+            original: newMessage,
+            personalized: finalMessage,
+            givenName: currentUser.given_name,
+            messageIndex
+          });
+        }
+      }
+      
+      allMessages[allMessages.length - 1].message = finalMessage;
       allMessages[allMessages.length - 1].rating = undefined;
       allMessages[allMessages.length - 1].dateTime = new Date().toISOString();
       if (!hasSoundPlayed) {
