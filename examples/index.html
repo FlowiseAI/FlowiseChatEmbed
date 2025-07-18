@@ -1,450 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flowise Chat Embed - OAuth/OIDC Authentication Example</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: #3B81F6;
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 2.5em;
-            font-weight: 300;
-        }
-        
-        .header p {
-            margin: 0;
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-        
-        .content {
-            padding: 40px;
-        }
-        
-        .demo-section {
-            margin-bottom: 40px;
-        }
-        
-        .demo-section h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-        
-        .demo-section p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        
-        .config-example {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-        }
-        
-        .config-example pre {
-            margin: 0;
-            white-space: pre-wrap;
-        }
-        
-        .provider-examples {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .provider-card {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-        
-        .provider-card h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        
-        .provider-card code {
-            background: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        
-        .chat-container {
-            height: 600px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            position: relative;
-            background: #f8f9fa;
-        }
-        
-        .controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary {
-            background: #3B81F6;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .status {
-            padding: 15px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        .status.success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-        
-        .status.error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        
-        .status.info {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-        }
-    </style>
+    <title>Basic Test</title>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🤖 Flowise Chat Embed</h1>
-            <p>OAuth/OIDC Authentication Example</p>
-        </div>
-        
-        <div class="content">
-            <div class="demo-section">
-                <h2>🔐 Authentication Demo</h2>
-                <p>
-                    This example demonstrates how to integrate OAuth/OIDC authentication with the Flowise Chat Embed widget.
-                    The chat will check for valid tokens in the browser cache and prompt users to authenticate when needed.
-                </p>
-                
-                <div class="controls">
-                    <button class="btn btn-primary" onclick="testTokenValidation()">
-                        🔍 Test Token Validation
-                    </button>
-                    <button class="btn btn-secondary" onclick="simulateTokens()">
-                        🧪 Simulate Valid Tokens
-                    </button>
-                    <button class="btn btn-secondary" onclick="simulateExpiredTokens()">
-                        ⏰ Simulate Expired Tokens
-                    </button>
-                    <button class="btn btn-danger" onclick="clearTokens()">
-                        🗑️ Clear All Tokens
-                    </button>
-                </div>
-                
-                <div id="status" class="status info">
-                    Ready to test authentication. Click "Test Token Validation" to check current status.
-                </div>
-            </div>
-            
-            <div class="demo-section">
-                <h2>💬 Chat Widget</h2>
-                <p>
-                    The chat widget below is configured with optional OAuth authentication. 
-                    If no valid tokens are found, it will prompt the user to sign in or continue as a guest.
-                </p>
-                
-                <div class="chat-container">
-                    <flowise-chatbot></flowise-chatbot>
-                </div>
-            </div>
-            
-            <div class="demo-section">
-                <h2>⚙️ Configuration Setup</h2>
-                <p>
-                    The authentication configuration is loaded from <code>config.js</code>.
-                    Create this file from the provided example template.
-                </p>
-                
-                <div class="config-example">
-                    <pre><code># Step 1: Copy the example configuration
-cp example.config.js config.js
-
-# Step 2: Edit config.js with your OAuth settings
-// Your OIDC provider settings
-export const oauthConfig = {
-  clientId: 'your-actual-client-id',
-  authority: 'https://your-oidc-provider.com',
-  redirectUri: window.location.origin + '/callback',
-  scope: 'openid profile email'
-};
-
-# Step 3: Add config.js to .gitignore
-echo "examples/config.js" >> .gitignore</code></pre>
-                </div>
-                
-                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 15px 0;">
-                    <strong>⚠️ Setup Required:</strong>
-                    <p style="margin: 5px 0 0 0;">
-                        Before running this demo, copy <code>example.config.js</code> to <code>config.js</code>
-                        and edit it with your actual OIDC provider settings. See the README for detailed instructions.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="demo-section">
-                <h2>🌐 OIDC Provider Examples</h2>
-                <p>The authentication system works with any OIDC-compliant provider:</p>
-                
-                <div class="provider-examples">
-                    <div class="provider-card">
-                        <h3>🔵 Google OAuth 2.0</h3>
-                        <p><code>authority: 'https://accounts.google.com'</code></p>
-                        <p>Supports standard OpenID Connect with Google accounts.</p>
-                    </div>
-                    
-                    <div class="provider-card">
-                        <h3>🔷 Microsoft Azure AD</h3>
-                        <p><code>authority: 'https://login.microsoftonline.com/tenant-id'</code></p>
-                        <p>Enterprise authentication with Azure Active Directory.</p>
-                    </div>
-                    
-                    <div class="provider-card">
-                        <h3>🟠 Auth0</h3>
-                        <p><code>authority: 'https://your-domain.auth0.com'</code></p>
-                        <p>Flexible identity platform with social and enterprise providers.</p>
-                    </div>
-                    
-                    <div class="provider-card">
-                        <h3>🟢 Custom OIDC</h3>
-                        <p><code>authority: 'https://your-oidc-provider.com'</code></p>
-                        <p>Any OIDC-compliant provider with discovery endpoint.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Include the Flowise Chat Embed script -->
+    <h1>This is a customized version of the CSU flowise chatBot</h1>
+      <p> Test it by serving this html page from localhost:51914. For example, run `npx serve -p 51914` in the same folder as index.html</p>
     <script type="module">
-        // Import configuration from external config file
-        import { authConfig, chatbotConfig, providerExamples } from './config.js';
-        
-        // Make config available globally for demo functions
-        window.authConfig = authConfig;
-        window.chatbotConfig = chatbotConfig;
-        window.providerExamples = providerExamples;
-
-        // Demo token validation functions
-        window.testTokenValidation = async function() {
-            const statusEl = document.getElementById('status');
-            statusEl.className = 'status info';
-            statusEl.textContent = '🔍 Checking for cached tokens...';
-            
-            try {
-                // Simulate token validation
-                const tokens = localStorage.getItem(authConfig.tokenStorageKey);
-                
-                if (!tokens) {
-                    statusEl.className = 'status error';
-                    statusEl.textContent = '❌ No tokens found in cache. User needs to authenticate.';
-                    return;
-                }
-                
-                const parsedTokens = JSON.parse(tokens);
-                const isExpired = parsedTokens.expires_at < Date.now();
-                
-                if (isExpired) {
-                    statusEl.className = 'status error';
-                    statusEl.textContent = `⏰ Tokens found but expired at ${new Date(parsedTokens.expires_at).toLocaleString()}. User needs to re-authenticate.`;
-                } else {
-                    statusEl.className = 'status success';
-                    statusEl.textContent = `✅ Valid tokens found! Expires at ${new Date(parsedTokens.expires_at).toLocaleString()}. User is authenticated.`;
-                }
-            } catch (error) {
-                statusEl.className = 'status error';
-                statusEl.textContent = `❌ Error validating tokens: ${error.message}`;
-            }
-        };
-
-        window.simulateTokens = function() {
-            const tokens = {
-                access_token: 'demo_access_token_' + Date.now(),
-                token_type: 'Bearer',
-                expires_in: 3600,
-                expires_at: Date.now() + 3600 * 1000, // 1 hour from now
-                refresh_token: 'demo_refresh_token_' + Date.now(),
-                id_token: 'demo_id_token_' + Date.now(),
-                scope: 'openid profile email'
-            };
-            
-            localStorage.setItem(authConfig.tokenStorageKey, JSON.stringify(tokens));
-            
-            const statusEl = document.getElementById('status');
-            statusEl.className = 'status success';
-            statusEl.textContent = `✅ Valid tokens simulated and stored. Expires at ${new Date(tokens.expires_at).toLocaleString()}`;
-        };
-
-        window.simulateExpiredTokens = function() {
-            const tokens = {
-                access_token: 'expired_access_token',
-                token_type: 'Bearer',
-                expires_in: 3600,
-                expires_at: Date.now() - 1000, // 1 second ago (expired)
-                refresh_token: 'expired_refresh_token',
-                scope: 'openid profile email'
-            };
-            
-            localStorage.setItem(authConfig.tokenStorageKey, JSON.stringify(tokens));
-            
-            const statusEl = document.getElementById('status');
-            statusEl.className = 'status error';
-            statusEl.textContent = `⏰ Expired tokens simulated. Expired at ${new Date(tokens.expires_at).toLocaleString()}`;
-        };
-
-        window.clearTokens = function() {
-            localStorage.removeItem(authConfig.tokenStorageKey);
-            sessionStorage.removeItem(authConfig.tokenStorageKey);
-            
-            // Clear cookies
-            document.cookie = `${authConfig.tokenStorageKey}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            
-            const statusEl = document.getElementById('status');
-            statusEl.className = 'status info';
-            statusEl.textContent = '🗑️ All tokens cleared from localStorage, sessionStorage, and cookies.';
-        };
-
-        // Initialize the chat widget with authentication using the standard mechanism
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Import the chatbot using the standard development approach
-                // This matches the pattern shown in the README under "Yarn dev" section
-                const { default: Chatbot } = await import('http://localhost:3005/web.js');
-                
-                // Initialize with authentication configuration
-                Chatbot.init({
-                    chatflowid: chatbotConfig.chatflowid,
-                    apiHost: chatbotConfig.apiHost,
-                    authentication: authConfig,
-                    theme: chatbotConfig.theme
-                });
-                
-            } catch (error) {
-                console.error('Error loading chat widget:', error);
-                
-                // Fallback: try loading from built dist if dev server isn't running
-                try {
-                    const { default: Chatbot } = await import('../dist/web.js');
-                    Chatbot.init({
-                        chatflowid: chatbotConfig.chatflowid,
-                        apiHost: chatbotConfig.apiHost,
-                        authentication: authConfig,
-                        theme: chatbotConfig.theme
-                    });
-                } catch (fallbackError) {
-                    console.error('Fallback also failed:', fallbackError);
-                    showFallbackMessage('Failed to load chat widget. Make sure either the dev server is running (yarn dev) or the project is built (yarn build).');
-                }
-            }
-        });
-
-        // Fallback message function
-        function showFallbackMessage(message) {
-            const chatContainer = document.querySelector('.chat-container');
-            chatContainer.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; color: #666;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-                    <h3>Chat Widget Setup Required</h3>
-                    <p style="text-align: center; max-width: 400px; line-height: 1.5; margin-bottom: 20px;">
-                        ${message}
-                    </p>
-                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; max-width: 450px;">
-                        <strong>Setup Instructions:</strong>
-                        <ol style="margin: 10px 0 0 20px; text-align: left;">
-                            <li><strong>Start dev server:</strong> Run <code>yarn dev</code> in project root</li>
-                            <li><strong>Create config:</strong> Copy <code>example.config.js</code> to <code>config.js</code></li>
-                            <li><strong>Edit OAuth settings:</strong> Update <code>config.js</code> with your provider details</li>
-                            <li><strong>Access demo:</strong> Open <code>http://localhost:51914/examples/</code></li>
-                        </ol>
-                        <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">
-                            <strong>Alternative:</strong> If dev server isn't available, run <code>yarn build</code> and refresh this page.
-                        </p>
-                    </div>
-                    <div style="margin-top: 15px; padding: 10px 20px; background: #e3f2fd; border-radius: 6px; font-size: 14px;">
-                        Authentication Mode: <strong>${authConfig.mode}</strong>
-                    </div>
-                </div>
-            `;
-        }
+        import Chatbot from "https://chatbot.lab.calstate.ai/web.js"
+        Chatbot.init({
+            chatflowid: "chatflow1",
+            apiHost: "https://chatbot.lab.calstate.ai",
+           
+             theme: {
+        button: {
+        backgroundColor: '#CC0B2A',
+        right: 20,
+        bottom: 20,
+        size: 48, // small | medium | large | number
+        dragAndDrop: true,
+        iconColor: 'white',
+        customIconSrc: 'https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.6.0/element.svg',
+        autoWindowOpen: {
+          autoOpen: false, //parameter to control automatic window opening
+          openDelay: 2, // Optional parameter for delay time in seconds
+          autoOpenOnMobile: false, //parameter to control automatic window opening in mobile
+        },
+      },
+      disclaimer: {
+        title: 'Disclaimer',
+        message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+        textColor: 'black',
+        buttonColor: '#3b82f6',
+        buttonText: 'I agree',
+        buttonTextColor: 'white',
+        blurredBackgroundColor: 'rgba(0, 0, 0, 0.4)', //The color of the blurred background that overlays the chat interface
+        backgroundColor: 'white',
+        denyButtonText: 'Cancel',
+        denyButtonBgColor: '#ef4444',
+      },
+      form: {
+        backgroundColor: 'white',
+        textColor: 'black',
+      },
+      customCSS: ``, // Add custom CSS styles. Use !important to override default styles
+      chatWindow: {
+        showTitle: true,
+        showAgentMessages: false,
+        title: 'CSU Custom AI Agents Bot',
+        titleAvatarSrc: 'https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.6.0/element.svg',
+        titleBackgroundColor: '#CC0B2A',
+        titleTextColor: '#ffffff',
+        welcomeMessage: 'Hi! I am the CSU Custom AI Agents Bot. How can I help you today?',
+        errorMessage: 'Hi! I seem to be having some issues. Please try again later.',
+        backgroundColor: '#ffffff',
+        backgroundImage: 'enter image path or link', // If set, this will overlap the background color of the chat window.
+        height: 700,
+        width: 600,
+        fontSize: 16,
+        starterPrompts: ['What are Model Context Protocol agents?', 'What are Data Transformation bots?'], // It overrides the starter prompts set by the chat flow passed
+        starterPromptFontSize: 15,
+        clearChatOnReload: false, // If set to true, the chat will be cleared when the page reloads
+        sourceDocsTitle: 'Sources:',
+        renderHTML: true,
+        botMessage: {
+          backgroundColor: '#f7f8ff',
+          textColor: '#303235',
+          showAvatar: true,
+          avatarSrc: 'https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.6.0/element.svg',
+        },
+        userMessage: {
+          backgroundColor: '#f7f8ff',
+          textColor: '#303235',
+          showAvatar: true,
+          avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png',
+        },
+        textInput: {
+          placeholder: 'Type your question',
+          backgroundColor: '#ffffff',
+          textColor: '#303235',
+          sendButtonColor: '#CC0B2A',
+          maxChars: 50,
+          maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
+          autoFocus: true, // If not used, autofocus is disabled on mobile and enabled on desktop. true enables it on both, false disables it on both.
+          sendMessageSound: false,
+          // sendSoundLocation: "send_message.mp3", // If this is not used, the default sound effect will be played if sendSoundMessage is true.
+          receiveMessageSound: false,
+          // receiveSoundLocation: "receive_message.mp3", // If this is not used, the default sound effect will be played if receiveSoundMessage is true.
+        },
+        feedback: {
+          color: '#303235',
+        },
+        dateTimeToggle: {
+          date: true,
+          time: true,
+        },
+        footer: {
+          textColor: '#303235',
+          text: 'Maintained by',
+          company: 'CSU',
+          companyLink: 'https://calstate.edu',
+        },
+      },
+    },
+        })
     </script>
 </body>
-</html>
