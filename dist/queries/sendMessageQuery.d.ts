@@ -10,6 +10,13 @@ export type IncomingInput = {
     leadEmail?: string;
     action?: IAction;
     humanInput?: Record<string, unknown>;
+    userProfile?: {
+        firstName?: string;
+        lastName?: string;
+        fullName?: string;
+        email?: string;
+        username?: string;
+    };
 };
 type BaseRequest = {
     apiHost?: string;

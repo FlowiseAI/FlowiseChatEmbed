@@ -36,7 +36,7 @@ import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorage
 import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
-import { AuthenticationConfig } from '@/types/auth';
+import { AuthenticationConfig, OIDCUserInfo } from '@/types/auth';
 import { AuthService, createAuthService } from '@/services/authService';
 import { AuthenticationPrompt, AuthenticationLoading, AuthenticationError } from './auth/AuthenticationPrompt';
 import { AuthenticationStatusTag } from './auth/AuthenticationStatusTag';
@@ -508,9 +508,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [authError, setAuthError] = createSignal<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = createSignal(false);
   const [isGuestMode, setIsGuestMode] = createSignal(false);
+  const [profileSubmitted, setProfileSubmitted] = createSignal(false);
   
   // Reactive auth state that updates when auth service state changes
   const [authState, setAuthState] = createSignal<any>(null);
+  let previouslyAuthenticated = false;
   const [formInputsData, setFormInputsData] = createSignal({});
   const [formInputParams, setFormInputParams] = createSignal([]);
 
@@ -589,11 +591,20 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           const currentService = authService();
           if (currentService) {
             const state = currentService.getAuthState();
+            
             setAuthState(state);
             setIsAuthenticating(state.isLoading);
             setAuthError(state.error || null);
             
-            // Removed debug logging - authentication is working properly
+            // Check if user just became authenticated (transition from false to true)
+            if (!previouslyAuthenticated && state.isAuthenticated && !profileSubmitted() && state.user) {
+              debugLogger.log('🔐 User authentication detected, submitting profile...');
+              setProfileSubmitted(true);
+              submitUserProfile(state.user);
+            }
+            
+            // Update the previous authentication state
+            previouslyAuthenticated = state.isAuthenticated;
             
             // Update auth prompt visibility
             if (currentService.isAuthRequired() && !currentService.isAuthenticated() && !isGuestMode()) {
@@ -1225,6 +1236,44 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
     return uploads;
+  };
+
+  // Submit user profile data after successful OAuth authentication
+  const submitUserProfile = async (userInfo: OIDCUserInfo) => {
+    try {
+      const profileData = {
+        firstName: userInfo.given_name,
+        lastName: userInfo.family_name,
+        fullName: userInfo.name,
+        email: userInfo.email,
+        username: userInfo.preferred_username,
+      };
+
+      debugLogger.log('🔐 Submitting user profile after OAuth authentication:', profileData);
+
+      const body: IncomingInput = {
+        question: `User authenticated with profile information:\n${JSON.stringify(profileData, null, 2)}`,
+        chatId: chatId()
+      };
+
+      // Send the profile data to the server
+      if (isChatFlowAvailableToStream()) {
+        debugLogger.log('Using streaming mode for profile submission');
+        fetchResponseFromEventStream(props.chatflowid, body);
+      } else {
+        debugLogger.log('Using non-streaming mode for profile submission');
+        const result = await sendMessageQuery({
+          chatflowid: props.chatflowid,
+          apiHost: props.apiHost,
+          body,
+          onRequest: props.onRequest,
+          authService: authService(),
+        });
+        debugLogger.log('Profile submission result:', result);
+      }
+    } catch (error) {
+      console.error('Failed to submit user profile:', error);
+    }
   };
 
   // Handle form submission
