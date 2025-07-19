@@ -1,7 +1,9 @@
-import { Setter } from 'solid-js';
+import { Setter, JSX } from 'solid-js';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 type TextInputProps = {
     placeholder?: string;
+    selectedTool: string | null;
+    onToolSelect: (tool: string | null) => void;
     backgroundColor?: string;
     textColor?: string;
     sendButtonColor?: string;
@@ -13,19 +15,19 @@ type TextInputProps = {
     uploadsConfig?: Partial<UploadsConfig>;
     isFullFileUpload?: boolean;
     setPreviews: Setter<unknown[]>;
-    onMicrophoneClicked: () => void;
     handleFileChange: (event: FileEvent<HTMLInputElement>) => void;
+    fullFileUploadAllowedTypes?: string;
+    onMicrophoneClicked: () => void;
     maxChars?: number;
     maxCharsWarningMessage?: string;
     autoFocus?: boolean;
     sendMessageSound?: boolean;
     sendSoundLocation?: string;
-    fullFileUploadAllowedTypes?: string;
     enableInputHistory?: boolean;
     maxHistorySize?: number;
     showStopButton?: boolean;
     onStopButtonClick?: () => void;
 };
-export declare const TextInput: (props: TextInputProps) => import("solid-js").JSX.Element;
+export declare const TextInput: (props: TextInputProps) => JSX.Element;
 export {};
 //# sourceMappingURL=TextInput.d.ts.map

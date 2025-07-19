@@ -1,4 +1,4 @@
-import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo, onCleanup } from 'solid-js';
+import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo, onCleanup, JSX, Setter } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import {
   sendMessageQuery,
@@ -36,14 +36,16 @@ import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorage
 import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { ChevronDown } from 'lucide-solid';
 
-
+// Bot.tsx, somewhere after your other createSignal()s:
+const [started, setStarted] = createSignal(false);
 
 const toolActions = [
-  { label: "Run deep research", icon: "🧑‍🔬" },
-  { label: "Create an image", icon: "🖼️" },
-  { label: "Search the web", icon: "🌐" },
-  { label: "Write or code", icon: "💻" },
+  { label: 'Run deep research', icon: '🧑‍🔬' },
+  { label: 'Create an image', icon: '🖼️' },
+  { label: 'Search the web', icon: '🌐' },
+  { label: 'Write or code', icon: '💻' },
 ];
 
 const modelPlatforms = [
@@ -76,12 +78,14 @@ const modelPlatforms = [
 const [menuOpen, setMenuOpen] = createSignal(false);
 const [moreOpen, setMoreOpen] = createSignal(''); // Store platform name string
 const [isAtBottom, setIsAtBottom] = createSignal(true);
+const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
 
 const [selectedPlatform, setSelectedPlatform] = createSignal(modelPlatforms[0]);
 const [selectedModel, setSelectedModel] = createSignal(modelPlatforms[0].models[0]);
 
-// const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
+const [selectedTool, setSelectedTool] = createSignal<string | null>(null);
 
+// const [selectedModels, setSelectedModels] = createSignal<string[]>([]);
 
 //FOR CHOOSING TOOLS
 export function ToolsButton(props: { onSelect: (tool: string) => void }) {
@@ -90,7 +94,7 @@ export function ToolsButton(props: { onSelect: (tool: string) => void }) {
   // Close dropdown if clicked outside
   let btnRef: HTMLButtonElement | undefined;
   let menuRef: HTMLDivElement | undefined;
-  document.addEventListener("mousedown", (e) => {
+  document.addEventListener('mousedown', (e) => {
     if (open() && menuRef && !menuRef.contains(e.target as Node) && btnRef && !btnRef.contains(e.target as Node)) {
       setOpen(false);
     }
@@ -99,9 +103,9 @@ export function ToolsButton(props: { onSelect: (tool: string) => void }) {
   return (
     <div class="relative">
       <button
-        ref={btnRef}
+        ref={(el) => (btnRef = el)}
         class="inline-flex items-center px-3 py-2 rounded hover:bg-gray-100"
-        style={{"font-weight":"600"}}
+        style={{ 'font-weight': '600' }}
         aria-label="Open tools"
         onClick={() => setOpen((v) => !v)}
         type="button"
@@ -114,7 +118,7 @@ export function ToolsButton(props: { onSelect: (tool: string) => void }) {
       </button>
       <Show when={open()}>
         <div
-          ref={menuRef}
+          ref={(el) => (menuRef = el)}
           class="absolute left-0 bottom-full mt-1 min-w-[200px] bg-white border border-gray-200 rounded shadow-lg z-50 animate-fade-in"
         >
           <div class="px-3 py-1 text-xs font-semibold text-gray-500">Choose a Tool</div>
@@ -285,8 +289,6 @@ export type LeadsConfig = {
   successMessage?: string;
 };
 
-
-
 const defaultWelcomeMessage = 'Hi there! How can I help?';
 
 /*const sourceDocuments = [
@@ -442,7 +444,7 @@ const FormInputView = (props: {
     <div
       class="w-full h-full flex flex-col items-center justify-center px-4 py-8 rounded-lg"
       style={{
-        'font-family': 'Poppins, sans-serif',
+        'font-family': 'Inter, sans-serif',
         'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
         background: props.parentBackgroundColor || defaultBackgroundColor,
         color: props.textColor || defaultTextColor,
@@ -451,7 +453,7 @@ const FormInputView = (props: {
       <div
         class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden"
         style={{
-          'font-family': 'Poppins, sans-serif',
+          'font-family': 'Inter, sans-serif',
           'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
           background: props.backgroundColor || defaultBackgroundColor,
           color: props.textColor || defaultTextColor,
@@ -557,9 +559,6 @@ const FormInputView = (props: {
   );
 };
 
-
-
-
 export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
   const props = mergeProps({ showTitle: true }, botProps);
@@ -580,7 +579,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     { equals: false },
   );
 
-  const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
+  // Tri-state: null (unknown/loading), true (streaming), false (not streaming)
+  const [streamAvailable, setStreamAvailable] = createSignal<boolean | null>(null);
+  const [streamRetryCount, setStreamRetryCount] = createSignal<number>(0);
   const [chatId, setChatId] = createSignal('');
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [abortController, setAbortController] = createSignal<AbortController | null>(null);
@@ -630,45 +631,151 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   onMount(() => {
+    // Check if the key 'support_EXTERNAL' exists in localStorage
+    const storedChatData = localStorage.getItem('support_EXTERNAL');
+    console.log('[localStorage] Checking support_EXTERNAL:', storedChatData);
+
+    if (storedChatData) {
+      try {
+        const chatData = JSON.parse(storedChatData);
+        console.log('[localStorage] Parsed support_EXTERNAL data:', chatData);
+
+        if (Array.isArray(chatData) && chatData.some((msg) => msg.type === 'apiMessage' || msg.type === 'userMessage')) {
+          console.log('Chat data found in localStorage. Skipping landing page...');
+          // Skip landing page logic
+          setStarted(true); // Assuming `setStarted` is used to indicate the chat has started
+          setMessages(chatData); // Load messages from localStorage
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to parse chat data from localStorage:', error);
+      }
+    }
+
+    // If no valid chat data is found, proceed with the default landing page logic
+    console.log('No valid chat data found in support_EXTERNAL. Proceeding to check regular localStorage...');
+    setStarted(false); // Assuming `setStarted` is used to indicate the chat has not started
+  });
+
+  // Fetch stream availability as soon as component mounts
+  onMount(async () => {
+    try {
+      const { data } = await isStreamAvailableQuery({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        onRequest: props.onRequest,
+      });
+      const isStreaming = data?.isStreaming ?? false;
+      setStreamAvailable(isStreaming);
+      setIsChatFlowAvailableToStream(isStreaming);
+    } catch {
+      setStreamAvailable(false);
+      setIsChatFlowAvailableToStream(false);
+    }
+  });
+
+  onMount(() => {
     if (botProps?.observersConfig) {
       const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
       typeof observeUserInput === 'function' &&
-        // eslint-disable-next-line solid/reactivity
         createMemo(() => {
           observeUserInput(userInput());
         });
       typeof observeLoading === 'function' &&
-        // eslint-disable-next-line solid/reactivity
         createMemo(() => {
           observeLoading(loading());
         });
       typeof observeMessages === 'function' &&
-        // eslint-disable-next-line solid/reactivity
         createMemo(() => {
           observeMessages(messages());
         });
     }
+  });
 
-    if (!chatContainer) return;
-        setTimeout(() => chatContainer.scrollTo(0, chatContainer.scrollHeight), 50);
+  // Debounce utility function with type annotations
+  const debounce = <T extends (...args: any[]) => void>(func: T, wait: number): ((...args: Parameters<T>) => void) => {
+    let timeout: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
 
-        const handleScroll = () => {
-          const dist =
-            chatContainer.scrollHeight -
-            chatContainer.scrollTop -
-            chatContainer.clientHeight;
-          setIsAtBottom(dist < 10);
-        };
-        chatContainer.addEventListener('scroll', handleScroll);
+  // Set up scroll listeners when chat starts and chatContainer becomes available
+  createEffect(() => {
+    if (started() && chatContainer) {
+      // console.log('[ChevronDown] Chat started, setting up scroll listeners');
+
+      const handleScroll = debounce(() => {
+        if (!chatContainer) return;
+        const scrollTop = chatContainer.scrollTop;
+        const scrollHeight = chatContainer.scrollHeight;
+        const clientHeight = chatContainer.clientHeight;
+        const dist = scrollHeight - scrollTop - clientHeight;
+
+        // Adjusted threshold for atBottom
+        const atBottom = dist <= 5;
+        if (isAtBottom() !== atBottom) {
+          setIsAtBottom(atBottom);
+        }
+
+        // console.log('[ChevronDown] handleScroll:', {
+        //   scrollTop,
+        //   scrollHeight,
+        //   clientHeight,
+        //   dist,
+        //   atBottom,
+        //   isAtBottom: isAtBottom(),
+        // });
+      }, 100); // Debounce with 100ms delay
+
+      // Initial scroll to bottom
+      setTimeout(() => {
+        if (chatContainer) {
+          chatContainer.scrollTo(0, chatContainer.scrollHeight);
+          setIsAtBottom(true);
+        }
+      }, 100);
+
+      chatContainer.addEventListener('scroll', handleScroll);
+      // console.log('[ChevronDown] scroll listener added');
+
+      // Initial check
+      handleScroll();
+
+      // Observe DOM changes to chatContainer to update isAtBottom
+      const observer = new MutationObserver(() => {
+        // console.log('[ChevronDown] MutationObserver triggered');
         handleScroll();
-        return () => chatContainer.removeEventListener('scroll', handleScroll);
       });
+      observer.observe(chatContainer, { childList: true, subtree: true });
 
- 
+      // Also update on resize
+      const handleResize = debounce(() => {
+        // console.log('[ChevronDown] window resize');
+        handleScroll();
+      }, 100);
+      window.addEventListener('resize', handleResize);
+
+      // Cleanup
+      onCleanup(() => {
+        // console.log('[ChevronDown] Cleaning up listeners');
+        const container = chatContainer as HTMLDivElement | undefined;
+        if (container) {
+          container.removeEventListener('scroll', handleScroll);
+        }
+        observer.disconnect();
+        window.removeEventListener('resize', handleResize);
+      });
+    }
+  });
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      if (chatContainer) {
+        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        setIsAtBottom(true);
+      }
     }, 50);
   };
 
@@ -722,6 +829,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(allMessages);
       return allMessages;
     });
+    // Only scroll to bottom if user was already at bottom
+    if (chatContainer) {
+      const dist = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+      if (dist < 10) {
+        scrollToBottom();
+      }
+    }
   };
 
   const updateErrorMessage = (errorMessage: string) => {
@@ -845,7 +959,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
-    scrollToBottom();
+    // Only scroll to bottom if user was already at bottom
+    if (chatContainer) {
+      const dist = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+      if (dist < 10) {
+        scrollToBottom();
+      }
+    }
   };
 
   const handleDisclaimerAccept = () => {
@@ -906,12 +1026,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const fetchResponseFromEventStream = async (chatflowid: string, params: any) => {
     const chatId = params.chatId;
     const input = params.question;
-    params.streaming = true;
+    if (abortController()) {
+      console.debug('[Stream] Aborting previous controller');
+      abortController()?.abort();
+    }
     const controller = new AbortController();
     setAbortController(controller);
+    params.streaming = true;
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+      openWhenHidden: false,
       signal: controller.signal,
-      openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
       headers: {
@@ -1114,8 +1238,52 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     return uploads;
   };
 
+  // Debug function to log comprehensive connection info
+  const logConnectionDebugInfo = () => {
+    console.group('[Debug] Connection Diagnostics');
+    console.log('Navigator online:', navigator.onLine);
+    console.log('API Host:', props.apiHost);
+    console.log('Chat Flow ID:', props.chatflowid);
+    console.log('Stream available:', streamAvailable());
+    console.log('Stream retry count:', streamRetryCount());
+    console.log('User agent:', navigator.userAgent);
+    console.log('Connection type:', (navigator as any).connection?.effectiveType || 'unknown');
+    console.log('Current time:', new Date().toISOString());
+    console.groupEnd();
+  };
+
+  // Debug function to test API connectivity
+  const testApiConnectivity = async () => {
+    try {
+      console.log('[Debug] Testing API connectivity to:', props.apiHost);
+
+      const testUrl = `${props.apiHost}/api/v1/prediction/${props.chatflowid}`;
+      console.log('[Debug] Test URL:', testUrl);
+
+      // Test with a simple HEAD request first
+      const response = await fetch(testUrl, {
+        method: 'HEAD',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('[Debug] HEAD response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('[Debug] API connectivity test failed:', error);
+      return false;
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (value: string | object, action?: IAction | undefined | null, humanInput?: any) => {
+    if (!started()) setStarted(true);
     if (typeof value === 'string' && value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
@@ -1132,6 +1300,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setLoading(true);
+    // Force scroll to bottom when user sends a message
     scrollToBottom();
 
     let uploads: IUploads = previews().map((item) => {
@@ -1162,11 +1331,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       question: value,
       chatId: chatId(),
       overrideConfig: {
-            vars: {
-              model: selectedModel().value,        // ✅ add your custom field here
-              platform: selectedPlatform().platform,      // (optional) anything else you need
-            }
-  }
+        vars: {
+          model: selectedModel().value, // ✅ add your custom field here
+          platform: selectedPlatform().platform, // (optional) anything else you need
+        },
+      },
     };
 
     if (startInputType() === 'formInput') {
@@ -1179,24 +1348,23 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // OVERRIDE CONFIG CHANGE FOR MODEL AND PLATFORM
     // if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
-        if (props.chatflowConfig) {
+    if (props.chatflowConfig) {
       body.overrideConfig = {
         ...props.chatflowConfig,
         vars: {
           ...(props.chatflowConfig.vars ?? {}),
           model: selectedModel().value,
-          platform: selectedPlatform().platform
-        }
+          platform: selectedPlatform().platform,
+        },
       };
     }
 
     // MORE DEFENSIVELY
 
-//     if (!body.overrideConfig) body.overrideConfig = {};
-// if (!body.overrideConfig.vars) body.overrideConfig.vars = {};
-// body.overrideConfig.vars.model = selectedModel().value;
-// body.overrideConfig.vars.platform = selectedPlatform().platform;
-
+    //     if (!body.overrideConfig) body.overrideConfig = {};
+    // if (!body.overrideConfig.vars) body.overrideConfig.vars = {};
+    // body.overrideConfig.vars.model = selectedModel().value;
+    // body.overrideConfig.vars.platform = selectedPlatform().platform;
 
     if (leadEmail()) body.leadEmail = leadEmail();
 
@@ -1204,91 +1372,102 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (humanInput) body.humanInput = humanInput;
 
-    if (isChatFlowAvailableToStream()) {
-      fetchResponseFromEventStream(props.chatflowid, body);
-    } else {
-      const result = await sendMessageQuery({
-        chatflowid: props.chatflowid,
-        apiHost: props.apiHost,
-        body,
-        onRequest: props.onRequest,
-      });
+    try {
+      console.log('[handleSubmit] streamAvailable:', streamAvailable(), 'body:', body);
 
-      if (result.data) {
-        const data = result.data;
+      // Check network connectivity before attempting streaming
+      if (!navigator.onLine) {
+        throw new Error('No internet connection detected');
+      }
 
-        let text = '';
-        if (data.text) text = data.text;
-        else if (data.json) text = JSON.stringify(data.json, null, 2);
-        else text = JSON.stringify(data, null, 2);
+      // Test API connectivity in debug mode
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+        const apiConnected = await testApiConnectivity();
+        console.log('[handleSubmit] API connectivity test result:', apiConnected);
+      }
 
-        if (data?.chatId) setChatId(data.chatId);
-
-        playReceiveSound();
-
-        setMessages((prevMessages) => {
-          const allMessages = [...cloneDeep(prevMessages)];
-          const newMessage = {
-            message: text,
-            id: data?.chatMessageId,
-            sourceDocuments: data?.sourceDocuments,
-            usedTools: data?.usedTools,
-            fileAnnotations: data?.fileAnnotations,
-            agentReasoning: data?.agentReasoning,
-            agentFlowExecutedData: data?.agentFlowExecutedData,
-            action: data?.action,
-            artifacts: data?.artifacts,
-            type: 'apiMessage' as messageType,
-            feedback: null,
-            dateTime: new Date().toISOString(),
-          };
-          allMessages.push(newMessage);
-          addChatMessage(allMessages);
-          return allMessages;
+      if (streamAvailable() === null) {
+        fetchResponseFromEventStream(props.chatflowid, body);
+      } else {
+        const result = await sendMessageQuery({
+          chatflowid: props.chatflowid,
+          apiHost: props.apiHost,
+          body,
+          onRequest: props.onRequest,
         });
 
-        updateMetadata(data, value);
+        if (result.data) {
+          const data = result.data;
 
-        setLoading(false);
-        setUserInput('');
-        setUploadedFiles([]);
-        scrollToBottom();
-      }
-      if (result.error) {
-        const error = result.error;
-        console.error(error);
-        if (typeof error === 'object') {
-          handleError(`Error: ${error?.message.replaceAll('Error:', ' ')}`);
-          return;
-        }
-        if (typeof error === 'string') {
-          handleError(error);
-          return;
-        }
-        handleError();
-        return;
-      }
-    }
+          let text = '';
+          if (data.text) text = data.text;
+          else if (data.json) text = JSON.stringify(data.json, null, 2);
+          else text = JSON.stringify(data, null, 2);
 
-    // Update last question to avoid saving base64 data to localStorage
-    if (uploads && uploads.length > 0) {
-      setMessages((data) => {
-        const messages = data.map((item, i) => {
-          if (i === data.length - 2 && item.type === 'userMessage') {
-            if (item.fileUploads) {
-              const fileUploads = item?.fileUploads.map((file) => ({
-                type: file.type,
-                name: file.name,
-                mime: file.mime,
-              }));
-              return { ...item, fileUploads };
-            }
+          if (data?.chatId) setChatId(data.chatId);
+
+          playReceiveSound();
+
+          setMessages((prevMessages) => {
+            const allMessages = [...cloneDeep(prevMessages)];
+            const newMessage = {
+              message: text,
+              id: data?.chatMessageId,
+              sourceDocuments: data?.sourceDocuments,
+              usedTools: data?.usedTools,
+              fileAnnotations: data?.fileAnnotations,
+              agentReasoning: data?.agentReasoning,
+              agentFlowExecutedData: data?.agentFlowExecutedData,
+              action: data?.action,
+              artifacts: data?.artifacts,
+              type: 'apiMessage' as messageType,
+              feedback: null,
+              dateTime: new Date().toISOString(),
+            };
+            allMessages.push(newMessage);
+            addChatMessage(allMessages);
+            return allMessages;
+          });
+
+          updateMetadata(data, value);
+
+          setLoading(false);
+          setUserInput('');
+          setUploadedFiles([]);
+          scrollToBottom();
+        }
+
+        if (result.error) {
+          const error = result.error;
+          console.error(error);
+          if (typeof error === 'object') {
+            handleError(`Error: ${error?.message.replaceAll('Error:', ' ')}`);
+            return;
           }
-          return item;
+          if (typeof error === 'string') {
+            handleError(error);
+            return;
+          }
+          handleError();
+          return;
+        }
+      }
+
+      // Update last question to avoid saving base64 data to localStorage
+      if (uploads && uploads.length > 0) {
+        setMessages((data) => {
+          const messages = data.map((item, i) => {
+            if (i === data.length - 2 && item.type === 'userMessage') {
+              item.fileUploads = undefined;
+            }
+            return item;
+          });
+          addChatMessage(messages);
+          return [...messages];
         });
-        addChatMessage(messages);
-        return [...messages];
-      });
+      }
+    } catch (error) {
+      handleError(error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -1392,15 +1571,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   });
 
-  // Auto scroll chat to bottom
+  // Track isAtBottom state when messages change
+  let prevCount = 0;
   createEffect(() => {
-    if (messages()) {
-      if (messages().length > 1) {
-        setTimeout(() => {
-          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-        }, 400);
+    const count = messages().length;
+    if (count !== prevCount) {
+      if (isAtBottom()) {
+        scrollToBottom();
       }
     }
+    prevCount = count;
   });
 
   createEffect(() => {
@@ -1409,6 +1589,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
+    console.log('[createEffect] Starting main effect with chatflowid:', props.chatflowid);
+
     if (props.disclaimer) {
       if (getCookie('chatbotDisclaimer') == 'true') {
         setDisclaimerPopupOpen(false);
@@ -1420,7 +1602,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     const chatMessage = getLocalStorageChatflow(props.chatflowid);
+    console.log('[createEffect] getLocalStorageChatflow result:', chatMessage);
+
     if (chatMessage && Object.keys(chatMessage).length) {
+      console.log('[createEffect] Found existing chat data');
       if (chatMessage.chatId) setChatId(chatMessage.chatId);
       const savedLead = chatMessage.lead;
       if (savedLead) {
@@ -1455,7 +1640,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
+      console.log('[createEffect] Filtered messages:', filteredMessages);
       setMessages([...filteredMessages]);
+
+      // If we have existing chat history (more than just welcome message), start the chat
+      if (filteredMessages.length > 1 || (filteredMessages.length === 1 && filteredMessages[0].type === 'userMessage')) {
+        setStarted(true);
+        console.log('[createEffect] Chat history found, setting started to true');
+      }
+    } else {
+      console.log('[createEffect] No existing chat data found');
     }
 
     // Determine if particular chatflow is available for streaming
@@ -1838,6 +2032,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const disabled =
       loading() ||
       !props.chatflowid ||
+      !props.chatflowid ||
       (leadsConfig()?.status && !isLeadSaved()) ||
       (messagesArray[messagesArray.length - 1].action && Object.keys(messagesArray[messagesArray.length - 1].action as any).length > 0);
     if (disabled) {
@@ -1897,6 +2092,104 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   return (
     <>
+      {/* Always show the model selection header, even on landing page */}
+      {props.showTitle && (
+        <div
+          class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10 bg-white text-black border-b border-gray-200"
+          style={{
+            background: props.titleBackgroundColor || defaultTitleBackgroundColor,
+            color: props.titleTextColor || '#000000',
+            'border-top-left-radius': props.isFullPage ? '0px' : '6px',
+            'border-top-right-radius': props.isFullPage ? '0px' : '6px',
+            'font-family': 'Inter, sans-serif',
+          }}
+        >
+          <div class="relative ml-3">
+            <button class="inline-flex items-center px-3 py-2 bg-white text-black hover:bg-gray-100 rounded" onClick={() => setMenuOpen(!menuOpen())}>
+              <span class="font-bold text-black text-base mr-1">{selectedPlatform().platform}</span>
+              &nbsp;
+              <span class="text-gray-800 text-base" style={{ 'margin-left': '-4px' }}>
+                {selectedModel().label}
+              </span>
+              <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" />
+              </svg>
+            </button>
+            {menuOpen() && (
+              <div
+                class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded shadow-lg z-50"
+                onMouseLeave={() => {
+                  setMenuOpen(false);
+                  setMoreOpen('');
+                }}
+              >
+                <div class="px-3 py-1 text-xs font-semibold text-gray-500">Platform</div>
+                <For each={modelPlatforms}>
+                  {(platform) => (
+                    <div class="relative group">
+                      <button
+                        class={
+                          'w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center justify-between text-black' +
+                          (selectedPlatform().platform === platform.platform ? ' bg-gray-100' : '')
+                        }
+                        style={{ 'font-family': 'Inter, sans-serif' }}
+                        onMouseEnter={() => setMoreOpen(platform.platform)}
+                        onFocus={() => setMoreOpen(platform.platform)}
+                      >
+                        <span>{platform.platform}</span>
+                        <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M7 6l5 4-5 4V6z" />
+                        </svg>
+                      </button>
+                      {moreOpen() === platform.platform && (
+                        <div
+                          class="absolute top-0 left-full ml-0 w-72 bg-white border border-gray-200 rounded shadow-lg"
+                          style={{ 'margin-left': '-4px' }}
+                        >
+                          <div class="px-3 py-1 text-xs font-semibold text-gray-500">{platform.platform} Models</div>
+                          <For each={platform.models}>
+                            {(model) => (
+                              <button
+                                class={
+                                  'w-full text-left px-3 py-2 hover:bg-gray-100 text-black' +
+                                  (selectedModel().value === model.value ? ' bg-gray-100 font-bold' : '')
+                                }
+                                onClick={() => {
+                                  setSelectedPlatform(platform);
+                                  setSelectedModel(model);
+                                  setMenuOpen(false);
+                                  setMoreOpen('');
+                                }}
+                              >
+                                <div class="text-sm font-medium">{model.label}</div>
+                                <div class="text-xs text-gray-500">{model.desc}</div>
+                              </button>
+                            )}
+                          </For>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </For>
+              </div>
+            )}
+          </div>
+          <Show when={props.title}>
+            <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+          </Show>
+          <div style={{ flex: 1 }} />
+          <DeleteButton
+            sendButtonColor={props.bubbleTextColor}
+            type="button"
+            isDisabled={messages().length === 1}
+            class="my-2 ml-2"
+            on:click={clearChat}
+          >
+            <span style={{ 'font-family': 'Inter, sans-serif' }}>Clear</span>
+          </DeleteButton>
+        </div>
+      )}
+
       {startInputType() === 'formInput' && messages().length === 1 ? (
         <FormInputView
           title={formTitle()}
@@ -1909,7 +2202,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           sendButtonColor={props.textInput?.sendButtonColor}
           fontSize={props.fontSize}
         />
-      ) : (
+      ) : started() ? (
         <div
           ref={botContainer}
           class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}
@@ -1944,120 +2237,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </div>
           )}
 
-          {props.showTitle ? (
-            <div
-              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10 bg-white text-black border-b border-gray-200"
-              style={{
-                background: props.titleBackgroundColor || defaultTitleBackgroundColor,
-                // background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
-                // color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
-                color: props.titleTextColor || '#000000',
-                'border-top-left-radius': props.isFullPage ? '0px' : '6px',
-                'border-top-right-radius': props.isFullPage ? '0px' : '6px',
-              }}
-            >
-              {/* <Show when={props.titleAvatarSrc}>
-                <>
-                  <div style={{ width: '15px' }} />
-                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
-                </>
-              </Show> */}
-
-              {/* your dropdown */}
-
-              {/* ChatGPT-style dropdown */}
-              <div class="relative ml-3">
-                <button
-                  class="inline-flex items-center px-3 py-2 bg-white text-black hover:bg-gray-100 rounded"
-                  onClick={() => setMenuOpen(!menuOpen())}
-                >
-                  <span class="font-bold text-black text-base mr-1">{selectedPlatform().platform}</span>
-                  &nbsp;
-                  <span class="text-gray-800 text-base" style={{ 'margin-left': '-4px' }}>
-                    {selectedModel().label}
-                  </span>
-                  <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" />
-                  </svg>
-                </button>
-                {menuOpen() && (
-                  <div
-                    class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded shadow-lg z-50"
-                    onMouseLeave={() => {
-                      setMenuOpen(false);
-                      setMoreOpen('');
-                    }}
-                  >
-                    <div class="px-3 py-1 text-xs font-semibold text-gray-500">Platform</div>
-                    <For each={modelPlatforms}>
-                      {(platform) => (
-                        <div class="relative group">
-                          <button
-                            class={
-                              'w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center justify-between text-black' +
-                              (selectedPlatform().platform === platform.platform ? ' bg-gray-100' : '')
-                            }
-                            onMouseEnter={() => setMoreOpen(platform.platform)}
-                            onFocus={() => setMoreOpen(platform.platform)}
-                            // onMouseLeave={() => setMoreOpen("")}  // Remove this to prevent menu flicker/gap
-                            // onBlur={() => setMoreOpen("")}
-                            style={{ 'z-index': '51' }}
-                          >
-                            <span>{platform.platform}</span>
-                            <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M7 6l5 4-5 4V6z" />
-                            </svg>
-                          </button>
-                          {/* Dropright menu */}
-                          {moreOpen() === platform.platform && (
-                            <div
-                              class="absolute top-0 left-full ml-0 w-72 bg-white border border-gray-200 rounded shadow-lg"
-                              style={{ 'margin-left': '-4px' }} // <-- closes gap for seamless hover
-                            >
-                              <div class="px-3 py-1 text-xs font-semibold text-gray-500">{platform.platform} Models</div>
-                              <For each={platform.models}>
-                                {(model) => (
-                                  <button
-                                    class={
-                                      'w-full text-left px-3 py-2 hover:bg-gray-100 text-black' +
-                                      (selectedModel().value === model.value ? ' bg-gray-100 font-bold' : '')
-                                    }
-                                    onClick={() => {
-                                      setSelectedPlatform(platform);
-                                      setSelectedModel(model);
-                                      setMenuOpen(false);
-                                      setMoreOpen('');
-                                    }}
-                                  >
-                                    <div class="text-sm font-medium">{model.label}</div>
-                                    <div class="text-xs text-gray-500">{model.desc}</div>
-                                  </button>
-                                )}
-                              </For>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </For>
-                  </div>
-                )}
-              </div>
-
-              <Show when={props.title}>
-                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
-              </Show>
-              <div style={{ flex: 1 }} />
-              <DeleteButton
-                sendButtonColor={props.bubbleTextColor}
-                type="button"
-                isDisabled={messages().length === 1}
-                class="my-2 ml-2"
-                on:click={clearChat}
-              >
-                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
-              </DeleteButton>
-            </div>
-          ) : null}
           <div class="flex flex-col w-full h-full justify-start z-0">
             <div
               ref={chatContainer}
@@ -2140,7 +2319,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                       <StarterPromptBubble
                         prompt={key}
                         onPromptClick={() => promptClick(key)}
-                        starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
+                        starterPromptFontSize={botProps.starterPromptFontSize}
                       />
                     )}
                   </For>
@@ -2160,7 +2339,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                         <FollowUpPromptBubble
                           prompt={prompt}
                           onPromptClick={() => followUpPromptClick(prompt)}
-                          starterPromptFontSize={botProps.starterPromptFontSize} // Pass it here as a number
+                          starterPromptFontSize={botProps.starterPromptFontSize}
                         />
                       )}
                     </For>
@@ -2168,172 +2347,178 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 </>
               </Show>
             </Show>
-
-                       {/* only show when scrolled up */}
-            <Show when={!isAtBottom()}>
-            <button
-              type="button"
-              onClick={scrollToBottom}
-              class="absolute right-8 bottom-24 z-50 bg-white rounded-full shadow p-2 border border-gray-200 hover:bg-gray-100"
-              aria-label="Scroll to bottom"
-            >
-              ⬇️
-            </button>
-          </Show>
-
-
+            {/* Debugging logs for ChevronDown button rendering */}
+            <Show when={!isAtBottom() && props.isFullPage && started()}>
+              <button
+                type="button"
+                onClick={scrollToBottom}
+                class="absolute right-8 bottom-24 z-50 bg-white rounded-full shadow p-2 border border-gray-200 hover:bg-gray-100"
+                aria-label="Scroll to bottom"
+              >
+                <ChevronDown class="w-5 h-5" />
+              </button>
+            </Show>
+            {/* Debug logging for scroll-to-bottom button state */}
+            {(() => {
+              // This IIFE is only for dev debugging, will not render anything
+              // eslint-disable-next-line no-console
+              createEffect(() => {
+                console.log('[ChevronDown] isAtBottom:', isAtBottom(), '| isFullPage:', props.isFullPage, '| started:', started());
+              });
+              return null;
+            })()}
             <Show when={previews().length > 0}>
               <div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">
                 <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
               </div>
             </Show>
-
-
-                    {/* … somewhere in your Bot component’s JSX … */}
-<div class="w-full px-5 pt-2 pb-1">
-  {isRecording() ? (
-    <>
-      {recordingNotSupported() ? (
-        <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee]">
-          <div class="w-full flex items-center justify-between gap-3">
-            <span class="text-base">
-              To record audio, use modern browsers like Chrome or Firefox that support audio recording.
-            </span>
-            <button
-              class="py-2 px-4 bg-red-500 text-white rounded-md"
-              type="button"
-              onClick={onRecordingCancelled}
-            >
-              Okay
-            </button>
+            <div class="w-full px-5 pt-2 pb-1">
+              {isRecording() ? (
+                <>
+                  {recordingNotSupported() ? (
+                    <div class="w-full flex items-center justify-between p-4 border border-[#eeeeee] rounded-md">
+                      <div class="w-full flex items-center justify-between gap-3">
+                        <span class="text-base">To record audio, use modern browsers like Chrome or Firefox that support audio recording.</span>
+                        <button class="py-2 px-4 bg-red-500 text-white rounded-md" type="button" onClick={onRecordingCancelled}>
+                          Okay
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      class="h-[58px] flex items-center justify-between border border-[#eeeeee] rounded-md"
+                      style={{
+                        margin: 'auto',
+                        'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
+                        color: props.textInput?.textColor ?? defaultTextColor,
+                      }}
+                    >
+                      <div class="flex items-center gap-3 px-4 py-2">
+                        <CircleDotIcon color="red" />
+                        <span>{elapsedTime() || '00:00'}</span>
+                        {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
+                      </div>
+                      <div class="flex items-center gap-2 pr-2">
+                        <CancelButton buttonColor={props.textInput?.sendButtonColor} type="button" class="m-0" onClick={onRecordingCancelled}>
+                          <span style={{ 'font-family': 'Inter, sans-serif' }}>Cancel</span>
+                        </CancelButton>
+                        <SendButton
+                          sendButtonColor={props.textInput?.sendButtonColor}
+                          type="button"
+                          isDisabled={loading()}
+                          class="m-0"
+                          onClick={onRecordingStopped}
+                        >
+                          <span style={{ 'font-family': 'Inter, sans-serif' }}>Send</span>
+                        </SendButton>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <TextInput
+                  backgroundColor={props.textInput?.backgroundColor}
+                  showStopButton={loading() && !!streamAvailable()}
+                  onStopButtonClick={() => {
+                    abortController()?.abort();
+                    closeResponse();
+                    setUserInput('');
+                  }}
+                  textColor={props.textInput?.textColor}
+                  placeholder={props.textInput?.placeholder}
+                  sendButtonColor={props.textInput?.sendButtonColor}
+                  maxChars={props.textInput?.maxChars}
+                  maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
+                  autoFocus={props.textInput?.autoFocus}
+                  fontSize={props.fontSize}
+                  disabled={streamAvailable() === null || loading() || getInputDisabled()}
+                  inputValue={userInput()}
+                  onInputChange={(v) => setUserInput(v)}
+                  onSubmit={handleSubmit}
+                  uploadsConfig={uploadsConfig()}
+                  isFullFileUpload={fullFileUpload()}
+                  fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
+                  setPreviews={setPreviews as unknown as Setter<unknown[]>}
+                  onMicrophoneClicked={onMicrophoneClicked}
+                  handleFileChange={handleFileChange}
+                  sendMessageSound={props.textInput?.sendMessageSound}
+                  sendSoundLocation={props.textInput?.sendSoundLocation}
+                  enableInputHistory={true}
+                  maxHistorySize={10}
+                  selectedTool={selectedTool()}
+                  onToolSelect={setSelectedTool}
+                />
+              )}
+            </div>
           </div>
         </div>
       ) : (
-        <div
-          class="h-[58px] flex items-center justify-between border border-[#eeeeee]"
-          style={{
-            margin: 'auto',
-            'background-color': props.textInput?.backgroundColor ?? defaultBackgroundColor,
-            color:         props.textInput?.textColor       ?? defaultTextColor,
-          }}
-        >
-          <div class="flex items-center gap-3 px-4 py-2">
-            <CircleDotIcon color="red" />
-            <span>{elapsedTime() || '00:00'}</span>
-            {isLoadingRecording() && <span class="ml-1.5">Sending...</span>}
-          </div>
-          <div class="flex items-center">
-            <CancelButton
-              buttonColor={props.textInput?.sendButtonColor}
-              type="button"
-              class="m-0"
-              on:click={onRecordingCancelled}
-            >
-              <span style={{"font-family":"Poppins, sans-serif"}}>Send</span>
-            </CancelButton>
-            <SendButton
-              sendButtonColor={props.textInput?.sendButtonColor}
-              type="button"
-              isDisabled={loading()}
-              class="m-0"
-              on:click={onRecordingStopped}
-            >
-              <span style={{"font-family":"Poppins, sans-serif"}}>Send</span>
-            </SendButton>
-          </div>
+        <div class="flex flex-col items-center justify-center w-full h-full p-4 pt-[70px]" style={{ 'font-family': 'Inter, sans-serif' }}>
+          <h1 class="text-3xl font-bold mb-6">{props.welcomeMessage ?? defaultWelcomeMessage}</h1>
+          {/* NEW AGENDA LINE */}
+          {/* ChatGPT‐style prompt */}
+          <p
+            class="
+              max-w-lg
+              text-2xl sm:text-3xl md:text-4xl 
+              font-medium 
+              text-gray-800 
+              mb-8 
+              text-center"
+            style={{ 'font-family': 'Inter, system-ui, sans-serif' }}
+          >
+            What’s on the agenda today?
+          </p>
+          <TextInput
+            inputValue={userInput()}
+            onInputChange={setUserInput}
+            onSubmit={(v) => {
+              setStarted(true);
+              handleSubmit(v);
+            }}
+            placeholder={props.textInput?.placeholder}
+            sendButtonColor={props.textInput?.sendButtonColor}
+            selectedTool={selectedTool()}
+            onToolSelect={setSelectedTool}
+            //setPreviews={setPreviews as unknown as Setter<unknown[]>}
+            setPreviews={setPreviews as unknown as Setter<unknown[]>}
+            handleFileChange={handleFileChange}
+            onMicrophoneClicked={onMicrophoneClicked}
+            // fontFamily is not a valid prop for TextInput, so do not pass it
+          />
         </div>
       )}
-    </>
-  ) : (
-    <>
-     <div class="mr-2">
-    <ToolsButton onSelect={(tool) => alert(`Selected: ${tool}`)} />
-      </div>
-
-      {/** pad the TextInput over so it never sits beneath the Tools button */}
-      <div class="flex-1">
-        <TextInput
-          backgroundColor={props.textInput?.backgroundColor}
-          showStopButton={loading() && isChatFlowAvailableToStream()}
-          onStopButtonClick={() => {
-            abortController()?.abort();
-            closeResponse();
-            setUserInput('');
-          }}
-          textColor={props.textInput?.textColor}
-          placeholder={props.textInput?.placeholder}
-          sendButtonColor={props.textInput?.sendButtonColor}
-          maxChars={props.textInput?.maxChars}
-          maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
-          autoFocus={props.textInput?.autoFocus}
-          fontSize={props.fontSize}
-          disabled={getInputDisabled()}
-          inputValue={userInput()}
-          onInputChange={(v) => setUserInput(v)}
-          onSubmit={handleSubmit}
-          uploadsConfig={uploadsConfig()}
-          isFullFileUpload={fullFileUpload()}
-          fullFileUploadAllowedTypes={fullFileUploadAllowedTypes()}
-          setPreviews={setPreviews}
-          onMicrophoneClicked={onMicrophoneClicked}
-          handleFileChange={handleFileChange}
-          sendMessageSound={props.textInput?.sendMessageSound}
-          sendSoundLocation={props.textInput?.sendSoundLocation}
-          enableInputHistory={true}
-          maxHistorySize={10}
+      {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
+      {disclaimerPopupOpen() && (
+        <DisclaimerPopup
+          isOpen={disclaimerPopupOpen()}
+          onAccept={handleDisclaimerAccept}
+          title={props.disclaimer?.title}
+          message={props.disclaimer?.message}
+          textColor={props.disclaimer?.textColor}
+          buttonColor={props.disclaimer?.buttonColor}
+          buttonText={props.disclaimer?.buttonText}
+          buttonTextColor={props.disclaimer?.buttonTextColor}
+          blurredBackgroundColor={props.disclaimer?.blurredBackgroundColor}
+          backgroundColor={props.disclaimer?.backgroundColor}
+          denyButtonBgColor={props.disclaimer?.denyButtonBgColor}
+          denyButtonText={props.disclaimer?.denyButtonText}
+          onDeny={props.closeBot}
+          isFullPage={props.isFullPage}
         />
-      </div>
+      )}
+      {openFeedbackDialog() && (
+        <FeedbackDialog
+          isOpen={openFeedbackDialog()}
+          onClose={() => {
+            setOpenFeedbackDialog(false);
+            handleSubmitFeedback();
+          }}
+          onSubmit={handleSubmitFeedback}
+          feedbackValue={feedback()}
+          setFeedbackValue={(value) => setFeedback(value)}
+        />
+      )}
     </>
-  )}
-</div>
-
-
-
-
-                    {/* Model Selection ======================================================================================== */}
-
-                    {/* <Badge
-                      footer={props.footer}
-                      badgeBackgroundColor={props.badgeBackgroundColor}
-                      poweredByTextColor={props.poweredByTextColor}
-                      botContainer={botContainer}
-                    /> */}
-                  </div>
-                </div>
-              )}
-              {sourcePopupOpen() && <Popup isOpen={sourcePopupOpen()} value={sourcePopupSrc()} onClose={() => setSourcePopupOpen(false)} />}
-
-              {disclaimerPopupOpen() && (
-                <DisclaimerPopup
-                  isOpen={disclaimerPopupOpen()}
-                  onAccept={handleDisclaimerAccept}
-                  title={props.disclaimer?.title}
-                  message={props.disclaimer?.message}
-                  textColor={props.disclaimer?.textColor}
-                  buttonColor={props.disclaimer?.buttonColor}
-                  buttonText={props.disclaimer?.buttonText}
-                  buttonTextColor={props.disclaimer?.buttonTextColor}
-                  blurredBackgroundColor={props.disclaimer?.blurredBackgroundColor}
-                  backgroundColor={props.disclaimer?.backgroundColor}
-                  denyButtonBgColor={props.disclaimer?.denyButtonBgColor}
-                  denyButtonText={props.disclaimer?.denyButtonText}
-                  onDeny={props.closeBot}
-                  isFullPage={props.isFullPage}
-                />
-              )}
-
-              {openFeedbackDialog() && (
-                <FeedbackDialog
-                  isOpen={openFeedbackDialog()}
-                  onClose={() => {
-                    setOpenFeedbackDialog(false);
-                    handleSubmitFeedback();
-                  }}
-                  onSubmit={handleSubmitFeedback}
-                  feedbackValue={feedback()}
-                  setFeedbackValue={(value) => setFeedback(value)}
-                />
-              )}
-            </>
-          );
-        };
+  );
+};

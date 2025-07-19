@@ -1,9 +1,10 @@
+import { JSX } from 'solid-js';
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
 import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
 export declare function ToolsButton(props: {
     onSelect: (tool: string) => void;
-}): import("solid-js").JSX.Element;
+}): JSX.Element;
 export type FileEvent<T = EventTarget> = {
     target: T;
 };
@@ -132,6 +133,6 @@ export type LeadsConfig = {
 };
 export declare const Bot: (botProps: BotProps & {
     class?: string;
-}) => import("solid-js").JSX.Element;
+}) => JSX.Element;
 export {};
 //# sourceMappingURL=Bot.d.ts.map
