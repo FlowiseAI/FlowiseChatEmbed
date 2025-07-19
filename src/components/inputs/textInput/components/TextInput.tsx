@@ -129,14 +129,11 @@ export const TextInput = (props: TextInputProps) => {
           onKeyDown={(e) => {
             // Enter = send, Shift+Enter = newline
             if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              submit()
+              e.preventDefault();
+              submit();
             }
           }}
         />
-
-
-
       </div>
 
       {/* File upload */}

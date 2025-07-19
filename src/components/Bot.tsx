@@ -101,7 +101,7 @@ export function ToolsButton(props: { onSelect: (tool: string) => void }) {
       <button
         ref={btnRef}
         class="inline-flex items-center px-3 py-2 rounded hover:bg-gray-100"
-        style="font-weight:600;"
+        style={{"font-weight":"600"}}
         aria-label="Open tools"
         onClick={() => setOpen((v) => !v)}
         type="button"
@@ -2229,7 +2229,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               class="m-0"
               on:click={onRecordingCancelled}
             >
-              <span style="font-family: Poppins, sans-serif;">Send</span>
+              <span style={{"font-family":"Poppins, sans-serif"}}>Send</span>
             </CancelButton>
             <SendButton
               sendButtonColor={props.textInput?.sendButtonColor}
@@ -2238,7 +2238,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               class="m-0"
               on:click={onRecordingStopped}
             >
-              <span style="font-family: Poppins, sans-serif;">Send</span>
+              <span style={{"font-family":"Poppins, sans-serif"}}>Send</span>
             </SendButton>
           </div>
         </div>
