@@ -879,9 +879,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
   };
 
   const abortMessage = () => {
@@ -1226,6 +1223,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   });
 
+  /*
+  
   // Auto scroll chat to bottom
   createEffect(() => {
     if (messages()) {
@@ -1236,6 +1235,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
   });
+  */
 
   createEffect(() => {
     if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`;
