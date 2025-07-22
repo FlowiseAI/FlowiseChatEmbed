@@ -4,6 +4,8 @@ node_modules
 dist/
 
 /examples/config.js
+/examples/local.config.json
+/examples/prod.config.json
 /proxy-server/.env
 /proxy-server/public/web.js
 /proxy-server/prod.config.json
