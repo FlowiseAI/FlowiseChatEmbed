@@ -553,6 +553,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           authConfig = serverAuthConfig;
           usingServerConfig = true;
           debugLogger.log(`🔧 Using server-side OAuth configuration (mode: ${serverAuthConfig.mode})`);
+          debugLogger.log(`🔧 Server OAuth config:`, serverAuthConfig);
         } else if (!props.authentication) {
           // No server config and no client config - disable auth
           console.log('❌ No OAuth configuration found, authentication disabled');
@@ -570,11 +571,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     } else {
       console.log('🔧 Using client-side OAuth configuration');
+      debugLogger.log(`🔧 Client OAuth config:`, authConfig);
     }
     
     if (authConfig && authConfig.mode !== 'disabled') {
       try {
-        const service = createAuthService(authConfig);
+        const service = createAuthService(authConfig, props.apiHost || '', props.chatflowid);
         setAuthService(service);
         
         // Check authentication state

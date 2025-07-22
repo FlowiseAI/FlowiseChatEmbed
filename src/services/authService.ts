@@ -23,9 +23,11 @@ export class AuthService {
   private config: AuthenticationConfig;
   private authState: () => AuthState;
   private setAuthState: (value: AuthState | ((prev: AuthState) => AuthState)) => void;
+  private apiHost: string;
 
-  constructor(config: AuthenticationConfig) {
+  constructor(config: AuthenticationConfig, apiHost: string = '', private chatflowId: string = '') {
     this.config = config;
+    this.apiHost = apiHost;
     const [authState, setAuthState] = createSignal<AuthState>({
       isAuthenticated: false,
       isLoading: false,
@@ -48,9 +50,41 @@ export class AuthService {
       return;
     }
 
+    // If OAuth config is not available yet, set unauthenticated state
+    if (!this.config.oauth) {
+      this.setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      return;
+    }
+
     this.setAuthState(prev => ({ ...prev, isLoading: true }));
 
     try {
+      // For web authentication, check for stored session ID instead of tokens
+      if (this.isWebAuth()) {
+        const sessionId = this.getStoredSessionId();
+        if (sessionId) {
+          // Try to exchange session for user info
+          const success = await this.exchangeSession(sessionId);
+          if (success) {
+            return; // Authentication successful
+          } else {
+            // Session invalid, remove it
+            this.removeStoredSessionId();
+          }
+        }
+        
+        // No valid session, set unauthenticated state
+        this.setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+        });
+        return;
+      }
+
+      // For SPA authentication, use existing token validation logic
       const tokens = getCachedTokens(this.config.tokenStorageKey);
       
       if (!tokens) {
@@ -185,11 +219,160 @@ export class AuthService {
   }
 
   /**
-   * Initiate OAuth login flow
+   * Check if this is web authentication
+   */
+  private isWebAuth(): boolean {
+    return this.config.oauth?.authType === 'web';
+  }
+
+  /**
+   * Initiate OAuth login flow (supports both SPA and web authentication)
    */
   public async login(): Promise<void> {
+    debugLogger.log('🔐 Login method called');
+    debugLogger.log('🔐 OAuth config:', this.config.oauth);
+    debugLogger.log('🔐 Auth type:', this.config.oauth?.authType);
+    debugLogger.log('🔐 Is web auth:', this.isWebAuth());
+    
+    if (this.isWebAuth()) {
+      debugLogger.log('🔐 Using web authentication');
+      return this.loginWeb();
+    } else {
+      debugLogger.log('🔐 Using SPA authentication');
+      return this.loginSPA();
+    }
+  }
+
+  /**
+   * Initiate web authentication flow
+   */
+  public async loginWeb(): Promise<void> {
     try {
       this.setAuthState(prev => ({ ...prev, isLoading: true, error: undefined }));
+      
+      // Generate session ID
+      const sessionId = this.generateSessionId();
+      
+      // Call server to initiate web auth
+      const response = await fetch(`${this.apiHost}/api/auth/login/${this.getIdentifierFromApiHost()}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to initiate web authentication');
+      }
+      
+      const { authUrl, sessionId: returnedSessionId } = await response.json();
+      
+      // Store session ID
+      this.storeSessionId(returnedSessionId);
+      
+      debugLogger.log('Opening web auth URL:', authUrl);
+      
+      // Open auth URL in popup
+      const popup = window.open(
+        authUrl,
+        'web-auth-popup',
+        'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+      );
+      
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site and try again.');
+      }
+      
+      // Listen for messages from popup
+      const messageListener = async (event: MessageEvent) => {
+        debugLogger.log('Received message from web auth popup:', event);
+        
+        if (event.data.type === 'web-auth-success') {
+          cleanup();
+          try {
+            // Exchange session for user info
+            const success = await this.exchangeSession(event.data.sessionId);
+            if (!success) {
+              this.setAuthState(prev => ({
+                ...prev,
+                isLoading: false,
+                error: 'Authentication failed during session exchange',
+              }));
+            }
+          } catch (error) {
+            console.error('Web auth session exchange failed:', error);
+            this.setAuthState(prev => ({
+              ...prev,
+              isLoading: false,
+              error: error instanceof Error ? error.message : 'Authentication failed',
+            }));
+          }
+        }
+      };
+      
+      // Monitor popup for manual closure
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          debugLogger.log('Web auth popup was closed');
+          cleanup();
+          // Check if authentication was successful
+          const sessionId = this.getStoredSessionId();
+          if (!sessionId) {
+            this.setAuthState(prev => ({
+              ...prev,
+              isLoading: false,
+              error: 'Authentication was cancelled',
+            }));
+          }
+        }
+      }, 1000);
+      
+      // Set a timeout
+      const timeout = setTimeout(() => {
+        cleanup();
+        if (!popup.closed) {
+          popup.close();
+        }
+        this.setAuthState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Authentication timed out',
+        }));
+      }, 300000); // 5 minutes timeout
+      
+      // Cleanup function
+      const cleanup = () => {
+        window.removeEventListener('message', messageListener);
+        clearInterval(checkClosed);
+        clearTimeout(timeout);
+      };
+      
+      // Add message listener
+      window.addEventListener('message', messageListener);
+      
+    } catch (error) {
+      console.error('Web auth initiation failed:', error);
+      this.setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Web authentication failed',
+      }));
+    }
+  }
+
+  /**
+   * Initiate SPA OAuth login flow (existing implementation)
+   */
+  public async loginSPA(): Promise<void> {
+    try {
+      this.setAuthState(prev => ({ ...prev, isLoading: true, error: undefined }));
+      
+      // Check if OAuth config is available
+      if (!this.config.oauth || !this.config.oauth.redirectUri) {
+        throw new Error('OAuth configuration is missing or incomplete for SPA authentication');
+      }
       
       // Use the redirectUri from the OAuth configuration
       const callbackServerUrl = this.config.oauth.redirectUri;
@@ -376,6 +559,22 @@ export class AuthService {
    */
   public async logout(postLogoutRedirectUri?: string): Promise<void> {
     try {
+      if (this.isWebAuth()) {
+        // For web authentication, just clear session and local state
+        this.removeStoredSessionId();
+        this.setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+        });
+        
+        // Optionally redirect to a logout URL if provided
+        if (postLogoutRedirectUri) {
+          window.location.href = postLogoutRedirectUri;
+        }
+        return;
+      }
+
+      // For SPA authentication, use existing logout logic
       const tokens = this.authState().tokens;
       const logoutUrl = await initiateLogout(
         this.config.oauth,
@@ -396,7 +595,11 @@ export class AuthService {
     } catch (error) {
       console.error('Logout failed:', error);
       // Still clear local state even if logout URL generation fails
-      removeCachedTokens(this.config.tokenStorageKey);
+      if (this.isWebAuth()) {
+        this.removeStoredSessionId();
+      } else {
+        removeCachedTokens(this.config.tokenStorageKey);
+      }
       this.setAuthState({
         isAuthenticated: false,
         isLoading: false,
@@ -471,6 +674,10 @@ export class AuthService {
    * Get access token for API requests
    */
   public getAccessToken(): string | undefined {
+    // For web authentication, tokens are stored server-side
+    if (this.isWebAuth()) {
+      return undefined; // Web auth uses session ID instead
+    }
     return this.authState().tokens?.access_token;
   }
 
@@ -494,6 +701,93 @@ export class AuthService {
       isLoading: false,
     });
   }
+
+  /**
+   * Generate a secure session ID for web authentication
+   */
+  private generateSessionId(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  /**
+   * Extract identifier from API host URL
+   */
+  private getIdentifierFromApiHost(): string {
+    // Use the chatflowId passed to the constructor
+    return this.chatflowId || 'chatflow3'; // Default for web auth example
+  }
+
+  /**
+   * Store session ID in browser storage
+   */
+  private storeSessionId(sessionId: string): void {
+    const storageKey = `${this.config.tokenStorageKey}_session`;
+    localStorage.setItem(storageKey, sessionId);
+  }
+
+  /**
+   * Get stored session ID from browser storage
+   */
+  public getStoredSessionId(): string | null {
+    const storageKey = `${this.config.tokenStorageKey}_session`;
+    return localStorage.getItem(storageKey);
+  }
+
+  /**
+   * Remove stored session ID
+   */
+  public removeStoredSessionId(): void {
+    const storageKey = `${this.config.tokenStorageKey}_session`;
+    localStorage.removeItem(storageKey);
+  }
+
+  /**
+   * Exchange session ID for user info and tokens
+   */
+  private async exchangeSession(sessionId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.apiHost}/api/auth/exchange/${this.getIdentifierFromApiHost()}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId })
+      });
+
+      if (!response.ok) {
+        if (response.status === 404 || response.status === 401) {
+          // Session not found or expired - this is expected during initialization
+          debugLogger.log('Session not found or expired during exchange');
+          return false;
+        }
+        const error = await response.json();
+        throw new Error(error.error || 'Session exchange failed');
+      }
+
+      const sessionData = await response.json();
+      
+      // Update auth state with session data
+      this.setAuthState({
+        isAuthenticated: true,
+        isLoading: false,
+        user: sessionData.userInfo,
+        tokens: undefined, // Web auth doesn't expose tokens to frontend
+      });
+
+      debugLogger.log('✅ Web auth session exchange successful:', {
+        sessionId: sessionData.sessionId,
+        user: sessionData.userInfo?.email || sessionData.userInfo?.sub
+      });
+
+      return true;
+    } catch (error) {
+      debugLogger.log('Session exchange failed:', error instanceof Error ? error.message : 'Unknown error');
+      this.removeStoredSessionId();
+      return false;
+    }
+  }
 }
 
 /**
@@ -501,9 +795,9 @@ export class AuthService {
  */
 let authServiceInstance: AuthService | null = null;
 
-export const createAuthService = (config: AuthenticationConfig): AuthService => {
+export const createAuthService = (config: AuthenticationConfig, apiHost: string = '', chatflowId: string = ''): AuthService => {
   if (!authServiceInstance) {
-    authServiceInstance = new AuthService(config);
+    authServiceInstance = new AuthService(config, apiHost, chatflowId);
   }
   return authServiceInstance;
 };

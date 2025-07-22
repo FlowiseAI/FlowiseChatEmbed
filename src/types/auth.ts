@@ -23,17 +23,6 @@ export interface OIDCUserInfo {
   preferred_username?: string;
 }
 
-export interface AuthConfig {
-  clientId: string;
-  authority: string;
-  redirectUri: string;
-  scope?: string;
-  responseType?: string;
-  prompt?: string;
-  maxAge?: number;
-  uiLocales?: string;
-  acrValues?: string;
-}
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -64,6 +53,29 @@ export interface AuthenticationPromptProps {
 }
 
 export type AuthenticationMode = 'required' | 'optional' | 'disabled' | 'server';
+export type AuthenticationType = 'spa' | 'web';
+
+export interface AuthConfig {
+  clientId: string;
+  authority: string;
+  redirectUri: string;
+  scope?: string;
+  responseType?: string;
+  prompt?: string;
+  maxAge?: number;
+  uiLocales?: string;
+  acrValues?: string;
+  authType?: AuthenticationType; // New field for authentication type
+  clientSecret?: string; // Required for web flow
+}
+
+export interface WebAuthSession {
+  sessionId: string;
+  expiresAt: number;
+  authType: 'web';
+  userInfo?: OIDCUserInfo;
+  tokens?: OAuthTokens;
+}
 
 export interface AuthenticationConfig {
   mode: AuthenticationMode;

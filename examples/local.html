@@ -14,6 +14,15 @@
         Chatbot.init({
             chatflowid: "chatflow3",
             apiHost: "http://localhost:3005",
+            
+            // Authentication configuration - will be fetched from server
+            // This example shows how to configure web-based authentication
+            // The actual config comes from proxy-server/config/local.config.json
+            authentication: {
+                mode: 'required', // 'required' | 'optional' | 'disabled'
+                // Note: OAuth config will be fetched from server based on chatflowid
+                // Server config should include authType: 'web' for web authentication
+            },
            
              theme: {
         button: {

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Authentication Example</title>
+</head>
+
+<body>
+    <h1>Web Authentication Example</h1>
+    <p>This example demonstrates the new web-based OIDC authentication flow where the proxy server handles the OAuth flow server-side.</p>
+    
+    <script type="module">
+        import Chatbot from "http://localhost:3005/web.js"
+        Chatbot.init({
+            chatflowid: "chatflow3", // This chatflow is configured for web authentication
+            apiHost: "http://localhost:3005",
+            
+            // Authentication configuration - will be fetched from server
+            // The server config (proxy-server/config/local.config.json) should include:
+            // "authType": "web" for web-based authentication
+            authentication: {
+                mode: 'server', // Fetch OAuth config from server
+                // OAuth config will be fetched from server based on chatflowid
+                // Web flow uses server-side token storage and session management
+            },
+           
+            theme: {
+                button: {
+                    backgroundColor: '#CC0B2A',
+                    right: 20,
+                    bottom: 20,
+                    size: 48,
+                    dragAndDrop: true,
+                    iconColor: 'white',
+                    customIconSrc: 'https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.6.0/element.svg',
+                    autoWindowOpen: {
+                        autoOpen: false,
+                        openDelay: 2,
+                        autoOpenOnMobile: false,
+                    },
+                },
+                disclaimer: {
+                    title: 'Disclaimer',
+                    message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+                    textColor: 'black',
+                    buttonColor: '#3b82f6',
+                    buttonText: 'I agree',
+                    buttonTextColor: 'white',
+                    blurredBackgroundColor: 'rgba(0, 0, 0, 0.4)',
+                    backgroundColor: 'white',
+                    denyButtonText: 'Cancel',
+                    denyButtonBgColor: '#ef4444',
+                },
+                form: {
+                    backgroundColor: 'white',
+                    textColor: 'black',
+                },
+                customCSS: ``, // Add custom CSS styles. Use !important to override default styles
+                chatWindow: {
+                    showTitle: true,
+                    showAgentMessages: false,
+                    title: 'CSU Web Auth Bot',
+                    titleAvatarSrc: 'https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.6.0/element.svg',
+                    titleBackgroundColor: '#CC0B2A',
+                    titleTextColor: '#ffffff',
+                    welcomeMessage: 'Hi! I am the CSU Web Auth Bot. Please sign in to continue.',
+                    errorMessage: 'Hi! I seem to be having some issues. Please try again later.',
+                    backgroundColor: '#ffffff',
+                    height: 700,
+                    width: 600,
+                    fontSize: 16,
+                    starterPrompts: ['What is web authentication?', 'How does server-side OAuth work?'],
+                    starterPromptFontSize: 15,
+                    clearChatOnReload: false,
+                    sourceDocsTitle: 'Sources:',
+                    renderHTML: true,
+                    botMessage: {
+                        backgroundColor: '#f7f8ff',
+                        textColor: '#303235',
+                        showAvatar: true,
+                        avatarSrc: 'https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.6.0/element.svg',
+                    },
+                    userMessage: {
+                        backgroundColor: '#f7f8ff',
+                        textColor: '#303235',
+                        showAvatar: true,
+                        avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png',
+                    },
+                    textInput: {
+                        placeholder: 'Type your question',
+                        backgroundColor: '#ffffff',
+                        textColor: '#303235',
+                        sendButtonColor: '#CC0B2A',
+                        maxChars: 50,
+                        maxCharsWarningMessage: 'You exceeded the characters limit. Please input less than 50 characters.',
+                        autoFocus: true,
+                        sendMessageSound: false,
+                        receiveMessageSound: false,
+                    },
+                    feedback: {
+                        color: '#303235',
+                    },
+                    dateTimeToggle: {
+                        date: true,
+                        time: true,
+                    },
+                    footer: {
+                        textColor: '#303235',
+                        text: 'Maintained by',
+                        company: 'CSU',
+                        companyLink: 'https://calstate.edu',
+                    },
+                },
+            },
+        })
+    </script>
+</body>
+
+</html>

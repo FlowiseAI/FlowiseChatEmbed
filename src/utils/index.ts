@@ -32,12 +32,25 @@ export const sendRequest = async <ResponseData>(
       headers['Content-Type'] = 'application/json';
     }
     
-    // Add OAuth access token if authService is provided and user is authenticated
+    // Add OAuth access token or session ID if authService is provided and user is authenticated
     if (typeof params !== 'string' && params.authService) {
-      const accessToken = params.authService.getAccessToken();
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-        debugLogger.log('🔐 Including OAuth access token in request headers');
+      const authService = params.authService;
+      
+      // Check if this is web authentication
+      if (authService.config?.oauth?.authType === 'web') {
+        // For web auth, include session ID in headers
+        const sessionId = authService.getStoredSessionId?.();
+        if (sessionId) {
+          headers['X-Session-ID'] = sessionId;
+          debugLogger.log('🔐 Including web auth session ID in request headers');
+        }
+      } else {
+        // For SPA auth, include OAuth access token
+        const accessToken = authService.getAccessToken();
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+          debugLogger.log('🔐 Including OAuth access token in request headers');
+        }
       }
     }
     

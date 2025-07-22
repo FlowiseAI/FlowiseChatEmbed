@@ -49,6 +49,35 @@ const config = loadConfiguration();
 // Session state management for tracking chat sessions with user info
 const sessionState = new Map();
 
+// Web authentication session management
+const webAuthSessions = new Map();
+
+// Helper function to generate secure session ID
+const generateSessionId = async () => {
+  const crypto = await import('crypto');
+  return crypto.randomBytes(32).toString('hex');
+};
+
+// Helper function to clean up expired web auth sessions
+const cleanupExpiredWebSessions = () => {
+  const now = Date.now();
+  let cleanedCount = 0;
+  
+  for (const [sessionId, session] of webAuthSessions.entries()) {
+    if (session.expiresAt && session.expiresAt < now) {
+      webAuthSessions.delete(sessionId);
+      cleanedCount++;
+    }
+  }
+  
+  if (cleanedCount > 0) {
+    debugLog(`Cleaned up ${cleanedCount} expired web auth sessions`);
+  }
+};
+
+// Run web session cleanup every 5 minutes
+setInterval(cleanupExpiredWebSessions, 5 * 60 * 1000);
+
 // Helper function to decode JWT token and extract expiry
 const decodeJWTExpiry = (token) => {
   try {
@@ -154,12 +183,18 @@ for (const chatflow of config.chatflows) {
   
   // Store OAuth configuration if present
   if (chatflow.oauth) {
+    const authType = chatflow.oauth.authType || 'spa'; // Default to SPA if not specified
+    const defaultRedirectUri = authType === 'web'
+      ? `http://localhost:${config.port || 3005}/callback`
+      : (config.oauthRedirectUri || 'https://chatbot.lab.calstate.ai/oauth-callback.html');
+    
     oauthConfigs.set(chatflow.identifier, {
       mode: chatflow.oauth.mode || 'optional', // Default to 'optional' if not specified
+      authType: authType,
       clientId: chatflow.oauth.clientId,
       clientSecret: chatflow.oauth.clientSecret || null,
       authority: chatflow.oauth.authority,
-      redirectUri: config.oauthRedirectUri || 'https://chatbot.lab.calstate.ai/oauth-callback.html',
+      redirectUri: chatflow.oauth.redirectUri || defaultRedirectUri,
       scope: chatflow.oauth.scope || 'openid profile email',
       responseType: chatflow.oauth.responseType || 'code',
       prompt: chatflow.oauth.prompt || 'select_account'
@@ -494,6 +529,312 @@ app.get('/web.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'web.js'));
 });
 
+// Web authentication initiation endpoint
+app.post('/api/auth/login/:identifier', async (req, res) => {
+  const { identifier } = req.params;
+  const { sessionId } = req.body;
+  
+  console.info('\x1b[35m%s\x1b[0m', `🔐 Web Auth Login Request: POST /api/auth/login/${identifier}`);
+  
+  try {
+    // Check if chatflow exists
+    const chatflow = getChatflowDetails(identifier);
+    
+    // Get OAuth config for this identifier
+    const oauthConfig = oauthConfigs.get(identifier);
+    if (!oauthConfig) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Web auth failed: No OAuth configuration (identifier: ${identifier})`);
+      return res.status(404).json({ error: 'OAuth configuration not found for this chatflow' });
+    }
+    
+    // Verify this is configured for web authentication
+    if (oauthConfig.authType !== 'web') {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Web auth failed: Not configured for web auth (identifier: ${identifier}, authType: ${oauthConfig.authType})`);
+      return res.status(400).json({ error: 'This chatflow is not configured for web authentication' });
+    }
+    
+    // Generate session ID if not provided
+    const finalSessionId = sessionId || await generateSessionId();
+    
+    // Generate state parameter with session ID
+    const state = Buffer.from(`${finalSessionId}|${Date.now()}`).toString('base64');
+    
+    // Build authorization URL
+    const authUrl = new URL(`${oauthConfig.authority}/oauth2/v2.0/authorize`);
+    authUrl.searchParams.set('client_id', oauthConfig.clientId);
+    authUrl.searchParams.set('response_type', oauthConfig.responseType);
+    authUrl.searchParams.set('redirect_uri', oauthConfig.redirectUri);
+    authUrl.searchParams.set('scope', oauthConfig.scope);
+    authUrl.searchParams.set('state', state);
+    authUrl.searchParams.set('prompt', oauthConfig.prompt);
+    
+    // Store session state
+    webAuthSessions.set(finalSessionId, {
+      sessionId: finalSessionId,
+      identifier: identifier,
+      state: state,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + (30 * 60 * 1000), // 30 minutes
+      authType: 'web'
+    });
+    
+    console.info('\x1b[32m%s\x1b[0m', `✅ Web auth initiated (identifier: ${identifier}, sessionId: ${finalSessionId})`);
+    
+    res.json({
+      authUrl: authUrl.toString(),
+      sessionId: finalSessionId,
+      state: state
+    });
+    
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Web auth initiation failed: ${error.message} (identifier: ${identifier})`);
+    res.status(500).json({ error: 'Failed to initiate web authentication' });
+  }
+});
+
+// Web authentication callback endpoint
+app.get('/callback', async (req, res) => {
+  const { code, state, error, error_description } = req.query;
+  
+  console.info('\x1b[35m%s\x1b[0m', `🔐 Web Auth Callback: GET /callback`);
+  
+  try {
+    if (error) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ OAuth error in callback: ${error} - ${error_description}`);
+      return res.status(400).send(`
+        <html>
+          <body>
+            <h1>Authentication Error</h1>
+            <p>Error: ${error}</p>
+            <p>Description: ${error_description || 'No description provided'}</p>
+            <script>
+              setTimeout(() => window.close(), 3000);
+            </script>
+          </body>
+        </html>
+      `);
+    }
+    
+    if (!code || !state) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ Missing code or state in callback`);
+      return res.status(400).send(`
+        <html>
+          <body>
+            <h1>Authentication Error</h1>
+            <p>Missing authorization code or state parameter</p>
+            <script>
+              setTimeout(() => window.close(), 3000);
+            </script>
+          </body>
+        </html>
+      `);
+    }
+    
+    // Decode state to get session ID
+    const decodedState = Buffer.from(state, 'base64').toString();
+    const [sessionId] = decodedState.split('|');
+    
+    // Find the session
+    const session = webAuthSessions.get(sessionId);
+    if (!session) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ Session not found for sessionId: ${sessionId}`);
+      return res.status(400).send(`
+        <html>
+          <body>
+            <h1>Authentication Error</h1>
+            <p>Session not found or expired</p>
+            <script>
+              setTimeout(() => window.close(), 3000);
+            </script>
+          </body>
+        </html>
+      `);
+    }
+    
+    // Validate state
+    if (session.state !== state) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ State mismatch for sessionId: ${sessionId}`);
+      return res.status(400).send(`
+        <html>
+          <body>
+            <h1>Authentication Error</h1>
+            <p>Invalid state parameter</p>
+            <script>
+              setTimeout(() => window.close(), 3000);
+            </script>
+          </body>
+        </html>
+      `);
+    }
+    
+    // Get OAuth config
+    const oauthConfig = oauthConfigs.get(session.identifier);
+    if (!oauthConfig) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ OAuth config not found for identifier: ${session.identifier}`);
+      return res.status(500).send(`
+        <html>
+          <body>
+            <h1>Authentication Error</h1>
+            <p>OAuth configuration not found</p>
+            <script>
+              setTimeout(() => window.close(), 3000);
+            </script>
+          </body>
+        </html>
+      `);
+    }
+    
+    // Exchange code for tokens
+    const tokenEndpoint = `${oauthConfig.authority}/oauth2/v2.0/token`;
+    const tokenParams = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: oauthConfig.clientId,
+      client_secret: oauthConfig.clientSecret,
+      code: code,
+      redirect_uri: oauthConfig.redirectUri
+    });
+    
+    const tokenResponse = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: tokenParams.toString()
+    });
+    
+    const tokenResult = await tokenResponse.json();
+    
+    if (!tokenResponse.ok) {
+      console.error('\x1b[31m%s\x1b[0m', `❌ Token exchange failed:`, tokenResult);
+      return res.status(500).send(`
+        <html>
+          <body>
+            <h1>Authentication Error</h1>
+            <p>Failed to exchange authorization code for tokens</p>
+            <script>
+              setTimeout(() => window.close(), 3000);
+            </script>
+          </body>
+        </html>
+      `);
+    }
+    
+    // Get user info
+    const userInfoResponse = await fetch(`${oauthConfig.authority}/oidc/userinfo`, {
+      headers: {
+        'Authorization': `Bearer ${tokenResult.access_token}`,
+        'Accept': 'application/json'
+      }
+    });
+    
+    let userInfo = {};
+    if (userInfoResponse.ok) {
+      userInfo = await userInfoResponse.json();
+    }
+    
+    // Update session with tokens and user info
+    session.tokens = {
+      access_token: tokenResult.access_token,
+      token_type: tokenResult.token_type,
+      expires_in: tokenResult.expires_in || 3600,
+      expires_at: Date.now() + (tokenResult.expires_in || 3600) * 1000,
+      refresh_token: tokenResult.refresh_token,
+      id_token: tokenResult.id_token,
+      scope: tokenResult.scope
+    };
+    session.userInfo = userInfo;
+    session.authenticated = true;
+    
+    console.info('\x1b[32m%s\x1b[0m', `✅ Web auth completed (identifier: ${session.identifier}, sessionId: ${sessionId}, user: ${userInfo.email || userInfo.sub})`);
+    
+    // Return success page
+    res.send(`
+      <html>
+        <head>
+          <title>Authentication Successful</title>
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+            .success { color: #4ade80; }
+          </style>
+        </head>
+        <body>
+          <h1 class="success">Authentication Successful!</h1>
+          <p>You have been successfully authenticated. You can now close this window and return to the chat.</p>
+          <script>
+            // Notify parent window if opened as popup
+            if (window.opener) {
+              window.opener.postMessage({
+                type: 'web-auth-success',
+                sessionId: '${sessionId}'
+              }, '*');
+            }
+            setTimeout(() => window.close(), 2000);
+          </script>
+        </body>
+      </html>
+    `);
+    
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Web auth callback error: ${error.message}`);
+    res.status(500).send(`
+      <html>
+        <body>
+          <h1>Authentication Error</h1>
+          <p>An unexpected error occurred during authentication</p>
+          <script>
+            setTimeout(() => window.close(), 3000);
+          </script>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// Session exchange endpoint
+app.post('/api/auth/exchange/:identifier', (req, res) => {
+  const { identifier } = req.params;
+  const { sessionId } = req.body;
+  
+  console.info('\x1b[35m%s\x1b[0m', `🔐 Session Exchange Request: POST /api/auth/exchange/${identifier}`);
+  
+  try {
+    // Find the session
+    const session = webAuthSessions.get(sessionId);
+    if (!session || !session.authenticated) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Session not found or not authenticated (sessionId: ${sessionId})`);
+      return res.status(404).json({ error: 'Session not found or not authenticated' });
+    }
+    
+    // Verify session belongs to this identifier
+    if (session.identifier !== identifier) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Session identifier mismatch (sessionId: ${sessionId}, expected: ${identifier}, got: ${session.identifier})`);
+      return res.status(403).json({ error: 'Session identifier mismatch' });
+    }
+    
+    // Check if session is expired
+    if (session.expiresAt < Date.now()) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Session expired (sessionId: ${sessionId})`);
+      webAuthSessions.delete(sessionId);
+      return res.status(401).json({ error: 'Session expired' });
+    }
+    
+    console.info('\x1b[32m%s\x1b[0m', `✅ Session exchange successful (identifier: ${identifier}, sessionId: ${sessionId})`);
+    
+    // Return session info for frontend
+    res.json({
+      sessionId: sessionId,
+      userInfo: session.userInfo,
+      expiresAt: session.expiresAt,
+      authType: 'web'
+    });
+    
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Session exchange error: ${error.message} (identifier: ${identifier})`);
+    res.status(500).json({ error: 'Session exchange failed' });
+  }
+});
+
 // OAuth configuration endpoint
 app.get('/api/auth/config/:identifier', (req, res) => {
   const { identifier } = req.params;
@@ -533,7 +874,8 @@ app.get('/api/auth/config/:identifier', (req, res) => {
       redirectUri: oauthConfig.redirectUri,
       scope: oauthConfig.scope,
       responseType: oauthConfig.responseType,
-      prompt: oauthConfig.prompt
+      prompt: oauthConfig.prompt,
+      authType: oauthConfig.authType // Include authentication type
     },
     promptConfig: {
       title: 'Are you with CSU?',
@@ -871,6 +1213,25 @@ const extractUserContext = async (req, res, next) => {
           }
         } else {
           debugLog(`ℹ️ No OAuth token provided in request (identifier: ${identifier})`);
+          
+          // Check for web authentication session ID in headers
+          const sessionId = req.headers['x-session-id'];
+          if (sessionId) {
+            const webSession = webAuthSessions.get(sessionId);
+            if (webSession && webSession.authenticated && webSession.expiresAt > Date.now()) {
+              req.user = webSession.userInfo;
+              req.webAuthSession = webSession;
+              
+              debugLog(`🔐 Using web auth session: ${sessionId}`, {
+                userId: webSession.userInfo.sub,
+                email: webSession.userInfo.email
+              });
+            } else if (webSession) {
+              // Session expired, remove it
+              webAuthSessions.delete(sessionId);
+              debugLog(`🗑️ Removed expired web auth session: ${sessionId}`);
+            }
+          }
           
           // Check if we have session state for this chat even without a token
           if (req.body && req.body.chatId) {
