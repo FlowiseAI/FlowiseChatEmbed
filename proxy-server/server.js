@@ -197,7 +197,13 @@ for (const chatflow of config.chatflows) {
       redirectUri: chatflow.oauth.redirectUri || defaultRedirectUri,
       scope: chatflow.oauth.scope || 'openid profile email',
       responseType: chatflow.oauth.responseType || 'code',
-      prompt: chatflow.oauth.prompt || 'select_account'
+      prompt: chatflow.oauth.prompt || 'select_account',
+      // IDP-agnostic endpoint configuration
+      tokenEndpoint: chatflow.oauth.tokenEndpoint,
+      userInfoEndpoint: chatflow.oauth.userInfoEndpoint,
+      authorizationEndpoint: chatflow.oauth.authorizationEndpoint,
+      jwksUri: chatflow.oauth.jwksUri,
+      issuer: chatflow.oauth.issuer
     });
   }
 }
@@ -246,9 +252,19 @@ const discoverOAuthEndpoints = async (oauthConfig) => {
     issuer: oauthConfig.issuer
   };
 
-  // If all endpoints are explicitly configured, use them
+  console.info('\x1b[36m%s\x1b[0m', `🔍 OAuth endpoint discovery for ${oauthConfig.authority}`);
+  console.info('\x1b[36m%s\x1b[0m', `🔍 Explicit endpoints provided:`, {
+    tokenEndpoint: !!endpoints.tokenEndpoint,
+    userInfoEndpoint: !!endpoints.userInfoEndpoint,
+    authorizationEndpoint: !!endpoints.authorizationEndpoint
+  });
+
+  // If all required endpoints are explicitly configured, use them
   if (endpoints.tokenEndpoint && endpoints.userInfoEndpoint && endpoints.authorizationEndpoint) {
-    console.info('\x1b[36m%s\x1b[0m', `🔍 Using explicit OAuth endpoints for ${oauthConfig.authority}`);
+    console.info('\x1b[32m%s\x1b[0m', `✅ Using explicit OAuth endpoints for ${oauthConfig.authority}`);
+    console.info('\x1b[32m%s\x1b[0m', `   - Authorization: ${endpoints.authorizationEndpoint}`);
+    console.info('\x1b[32m%s\x1b[0m', `   - Token: ${endpoints.tokenEndpoint}`);
+    console.info('\x1b[32m%s\x1b[0m', `   - UserInfo: ${endpoints.userInfoEndpoint}`);
     return endpoints;
   }
 
@@ -262,30 +278,42 @@ const discoverOAuthEndpoints = async (oauthConfig) => {
       const discoveryDoc = await response.json();
       console.info('\x1b[32m%s\x1b[0m', `✅ OIDC discovery successful for ${oauthConfig.authority}`);
       
-      return {
+      const discoveredEndpoints = {
         tokenEndpoint: endpoints.tokenEndpoint || discoveryDoc.token_endpoint,
         userInfoEndpoint: endpoints.userInfoEndpoint || discoveryDoc.userinfo_endpoint,
         authorizationEndpoint: endpoints.authorizationEndpoint || discoveryDoc.authorization_endpoint,
         jwksUri: endpoints.jwksUri || discoveryDoc.jwks_uri,
         issuer: endpoints.issuer || discoveryDoc.issuer
       };
+      
+      console.info('\x1b[32m%s\x1b[0m', `   - Authorization: ${discoveredEndpoints.authorizationEndpoint}`);
+      console.info('\x1b[32m%s\x1b[0m', `   - Token: ${discoveredEndpoints.tokenEndpoint}`);
+      console.info('\x1b[32m%s\x1b[0m', `   - UserInfo: ${discoveredEndpoints.userInfoEndpoint}`);
+      
+      return discoveredEndpoints;
     }
   } catch (error) {
     console.warn('\x1b[33m%s\x1b[0m', `⚠️  OIDC discovery failed for ${oauthConfig.authority}: ${error.message}`);
   }
 
-  // Fallback: construct standard OAuth 2.0 endpoints
-  console.info('\x1b[33m%s\x1b[0m', `⚠️  Using fallback endpoint construction for ${oauthConfig.authority}`);
+  // Fallback: construct generic OAuth 2.0 endpoints (avoid Microsoft-specific paths)
+  console.warn('\x1b[33m%s\x1b[0m', `⚠️  Using fallback endpoint construction for ${oauthConfig.authority}`);
   
   const baseUrl = oauthConfig.authority.replace(/\/$/, ''); // Remove trailing slash
   
-  return {
-    tokenEndpoint: endpoints.tokenEndpoint || `${baseUrl}/oauth2/v2.0/token`,
-    userInfoEndpoint: endpoints.userInfoEndpoint || `${baseUrl}/oidc/userinfo`,
-    authorizationEndpoint: endpoints.authorizationEndpoint || `${baseUrl}/oauth2/v2.0/authorize`,
-    jwksUri: endpoints.jwksUri || `${baseUrl}/discovery/v2.0/keys`,
+  const fallbackEndpoints = {
+    tokenEndpoint: endpoints.tokenEndpoint || `${baseUrl}/oauth/token`,
+    userInfoEndpoint: endpoints.userInfoEndpoint || `${baseUrl}/oauth/userinfo`,
+    authorizationEndpoint: endpoints.authorizationEndpoint || `${baseUrl}/oauth/authorize`,
+    jwksUri: endpoints.jwksUri || `${baseUrl}/oauth/jwks`,
     issuer: endpoints.issuer || baseUrl
   };
+  
+  console.warn('\x1b[33m%s\x1b[0m', `   - Authorization: ${fallbackEndpoints.authorizationEndpoint}`);
+  console.warn('\x1b[33m%s\x1b[0m', `   - Token: ${fallbackEndpoints.tokenEndpoint}`);
+  console.warn('\x1b[33m%s\x1b[0m', `   - UserInfo: ${fallbackEndpoints.userInfoEndpoint}`);
+  
+  return fallbackEndpoints;
 };
 
 console.info('\x1b[36m%s\x1b[0m', 'Configured chatflows:');
@@ -660,10 +688,46 @@ app.get('/callback', async (req, res) => {
       console.error('\x1b[31m%s\x1b[0m', `❌ OAuth error in callback: ${error} - ${error_description}`);
       return res.status(400).send(`
         <html>
+          <head>
+            <title>Authentication Error - Flowise Chat Embed</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+              }
+              .error {
+                color: #f87171;
+              }
+              h1 {
+                margin-bottom: 20px;
+              }
+              p {
+                margin: 10px 0;
+                opacity: 0.9;
+              }
+            </style>
+          </head>
           <body>
-            <h1>Authentication Error</h1>
-            <p>Error: ${error}</p>
-            <p>Description: ${error_description || 'No description provided'}</p>
+            <div class="container">
+              <h1 class="error">Authentication Error</h1>
+              <p>Error: ${error}</p>
+              <p>Description: ${error_description || 'No description provided'}</p>
+            </div>
             <script>
               setTimeout(() => window.close(), 3000);
             </script>
@@ -676,9 +740,45 @@ app.get('/callback', async (req, res) => {
       console.error('\x1b[31m%s\x1b[0m', `❌ Missing code or state in callback`);
       return res.status(400).send(`
         <html>
+          <head>
+            <title>Authentication Error - Flowise Chat Embed</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+              }
+              .error {
+                color: #f87171;
+              }
+              h1 {
+                margin-bottom: 20px;
+              }
+              p {
+                margin: 0;
+                opacity: 0.9;
+              }
+            </style>
+          </head>
           <body>
-            <h1>Authentication Error</h1>
-            <p>Missing authorization code or state parameter</p>
+            <div class="container">
+              <h1 class="error">Authentication Error</h1>
+              <p>Missing authorization code or state parameter</p>
+            </div>
             <script>
               setTimeout(() => window.close(), 3000);
             </script>
@@ -697,9 +797,45 @@ app.get('/callback', async (req, res) => {
       console.error('\x1b[31m%s\x1b[0m', `❌ Session not found for sessionId: ${sessionId}`);
       return res.status(400).send(`
         <html>
+          <head>
+            <title>Authentication Error - Flowise Chat Embed</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+              }
+              .error {
+                color: #f87171;
+              }
+              h1 {
+                margin-bottom: 20px;
+              }
+              p {
+                margin: 0;
+                opacity: 0.9;
+              }
+            </style>
+          </head>
           <body>
-            <h1>Authentication Error</h1>
-            <p>Session not found or expired</p>
+            <div class="container">
+              <h1 class="error">Authentication Error</h1>
+              <p>Session not found or expired</p>
+            </div>
             <script>
               setTimeout(() => window.close(), 3000);
             </script>
@@ -713,9 +849,45 @@ app.get('/callback', async (req, res) => {
       console.error('\x1b[31m%s\x1b[0m', `❌ State mismatch for sessionId: ${sessionId}`);
       return res.status(400).send(`
         <html>
+          <head>
+            <title>Authentication Error - Flowise Chat Embed</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+              }
+              .error {
+                color: #f87171;
+              }
+              h1 {
+                margin-bottom: 20px;
+              }
+              p {
+                margin: 0;
+                opacity: 0.9;
+              }
+            </style>
+          </head>
           <body>
-            <h1>Authentication Error</h1>
-            <p>Invalid state parameter</p>
+            <div class="container">
+              <h1 class="error">Authentication Error</h1>
+              <p>Invalid state parameter</p>
+            </div>
             <script>
               setTimeout(() => window.close(), 3000);
             </script>
@@ -730,9 +902,45 @@ app.get('/callback', async (req, res) => {
       console.error('\x1b[31m%s\x1b[0m', `❌ OAuth config not found for identifier: ${session.identifier}`);
       return res.status(500).send(`
         <html>
+          <head>
+            <title>Authentication Error - Flowise Chat Embed</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+              }
+              .error {
+                color: #f87171;
+              }
+              h1 {
+                margin-bottom: 20px;
+              }
+              p {
+                margin: 0;
+                opacity: 0.9;
+              }
+            </style>
+          </head>
           <body>
-            <h1>Authentication Error</h1>
-            <p>OAuth configuration not found</p>
+            <div class="container">
+              <h1 class="error">Authentication Error</h1>
+              <p>OAuth configuration not found</p>
+            </div>
             <script>
               setTimeout(() => window.close(), 3000);
             </script>
@@ -770,9 +978,45 @@ app.get('/callback', async (req, res) => {
       console.error('\x1b[31m%s\x1b[0m', `❌ Token exchange failed:`, tokenResult);
       return res.status(500).send(`
         <html>
+          <head>
+            <title>Authentication Error - Flowise Chat Embed</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+              }
+              .error {
+                color: #f87171;
+              }
+              h1 {
+                margin-bottom: 20px;
+              }
+              p {
+                margin: 0;
+                opacity: 0.9;
+              }
+            </style>
+          </head>
           <body>
-            <h1>Authentication Error</h1>
-            <p>Failed to exchange authorization code for tokens</p>
+            <div class="container">
+              <h1 class="error">Authentication Error</h1>
+              <p>Failed to exchange authorization code for tokens</p>
+            </div>
             <script>
               setTimeout(() => window.close(), 3000);
             </script>
@@ -835,15 +1079,44 @@ app.get('/callback', async (req, res) => {
     res.send(`
       <html>
         <head>
-          <title>Authentication Successful</title>
+          <title>Authentication Successful - Flowise Chat Embed</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-            .success { color: #4ade80; }
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+            }
+            .container {
+              text-align: center;
+              background: rgba(255, 255, 255, 0.1);
+              padding: 30px;
+              border-radius: 10px;
+              backdrop-filter: blur(10px);
+            }
+            .success {
+              color: #4ade80;
+            }
+            h1 {
+              margin-bottom: 20px;
+            }
+            p {
+              margin: 0;
+              opacity: 0.9;
+            }
           </style>
         </head>
         <body>
-          <h1 class="success">Authentication Successful!</h1>
-          <p>You have been successfully authenticated. You can now close this window and return to the chat.</p>
+          <div class="container">
+            <h1 class="success">Authentication Successful!</h1>
+            <p>You have been successfully authenticated. You can now close this window and return to the chat.</p>
+          </div>
           <script>
             // Notify parent window if opened as popup
             if (window.opener) {
@@ -862,9 +1135,45 @@ app.get('/callback', async (req, res) => {
     console.error('\x1b[31m%s\x1b[0m', `❌ Web auth callback error: ${error.message}`);
     res.status(500).send(`
       <html>
+        <head>
+          <title>Authentication Error - Flowise Chat Embed</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+            }
+            .container {
+              text-align: center;
+              background: rgba(255, 255, 255, 0.1);
+              padding: 30px;
+              border-radius: 10px;
+              backdrop-filter: blur(10px);
+            }
+            .error {
+              color: #f87171;
+            }
+            h1 {
+              margin-bottom: 20px;
+            }
+            p {
+              margin: 0;
+              opacity: 0.9;
+            }
+          </style>
+        </head>
         <body>
-          <h1>Authentication Error</h1>
-          <p>An unexpected error occurred during authentication</p>
+          <div class="container">
+            <h1 class="error">Authentication Error</h1>
+            <p>An unexpected error occurred during authentication</p>
+          </div>
           <script>
             setTimeout(() => window.close(), 3000);
           </script>
