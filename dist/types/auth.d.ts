@@ -59,6 +59,12 @@ export interface AuthConfig {
     acrValues?: string;
     authType?: AuthenticationType;
     clientSecret?: string;
+    tokenEndpoint?: string;
+    userInfoEndpoint?: string;
+    authorizationEndpoint?: string;
+    jwksUri?: string;
+    issuer?: string;
+    endUserInfoEndpoint?: string;
 }
 export interface WebAuthSession {
     sessionId: string;

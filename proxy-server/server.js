@@ -236,6 +236,58 @@ const isValidChatflowConfig = (value) => {
   return isValidUUID(value);
 };
 
+// OAuth endpoint discovery function for IDP-agnostic authentication
+const discoverOAuthEndpoints = async (oauthConfig) => {
+  const endpoints = {
+    tokenEndpoint: oauthConfig.tokenEndpoint,
+    userInfoEndpoint: oauthConfig.userInfoEndpoint,
+    authorizationEndpoint: oauthConfig.authorizationEndpoint,
+    jwksUri: oauthConfig.jwksUri,
+    issuer: oauthConfig.issuer
+  };
+
+  // If all endpoints are explicitly configured, use them
+  if (endpoints.tokenEndpoint && endpoints.userInfoEndpoint && endpoints.authorizationEndpoint) {
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Using explicit OAuth endpoints for ${oauthConfig.authority}`);
+    return endpoints;
+  }
+
+  // Try OpenID Connect Discovery
+  try {
+    const discoveryUrl = `${oauthConfig.authority}/.well-known/openid_configuration`;
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Attempting OIDC discovery from: ${discoveryUrl}`);
+    
+    const response = await fetch(discoveryUrl);
+    if (response.ok) {
+      const discoveryDoc = await response.json();
+      console.info('\x1b[32m%s\x1b[0m', `✅ OIDC discovery successful for ${oauthConfig.authority}`);
+      
+      return {
+        tokenEndpoint: endpoints.tokenEndpoint || discoveryDoc.token_endpoint,
+        userInfoEndpoint: endpoints.userInfoEndpoint || discoveryDoc.userinfo_endpoint,
+        authorizationEndpoint: endpoints.authorizationEndpoint || discoveryDoc.authorization_endpoint,
+        jwksUri: endpoints.jwksUri || discoveryDoc.jwks_uri,
+        issuer: endpoints.issuer || discoveryDoc.issuer
+      };
+    }
+  } catch (error) {
+    console.warn('\x1b[33m%s\x1b[0m', `⚠️  OIDC discovery failed for ${oauthConfig.authority}: ${error.message}`);
+  }
+
+  // Fallback: construct standard OAuth 2.0 endpoints
+  console.info('\x1b[33m%s\x1b[0m', `⚠️  Using fallback endpoint construction for ${oauthConfig.authority}`);
+  
+  const baseUrl = oauthConfig.authority.replace(/\/$/, ''); // Remove trailing slash
+  
+  return {
+    tokenEndpoint: endpoints.tokenEndpoint || `${baseUrl}/oauth2/v2.0/token`,
+    userInfoEndpoint: endpoints.userInfoEndpoint || `${baseUrl}/oidc/userinfo`,
+    authorizationEndpoint: endpoints.authorizationEndpoint || `${baseUrl}/oauth2/v2.0/authorize`,
+    jwksUri: endpoints.jwksUri || `${baseUrl}/discovery/v2.0/keys`,
+    issuer: endpoints.issuer || baseUrl
+  };
+};
+
 console.info('\x1b[36m%s\x1b[0m', 'Configured chatflows:');
 chatflows.forEach((config, identifier) => {
   if (isValidChatflowConfig(config.chatflowId)) {
@@ -559,14 +611,19 @@ app.post('/api/auth/login/:identifier', async (req, res) => {
     // Generate state parameter with session ID
     const state = Buffer.from(`${finalSessionId}|${Date.now()}`).toString('base64');
     
-    // Build authorization URL
-    const authUrl = new URL(`${oauthConfig.authority}/oauth2/v2.0/authorize`);
+    // Discover OAuth endpoints for IDP-agnostic authentication
+    const discoveredEndpoints = await discoverOAuthEndpoints(oauthConfig);
+    
+    // Build authorization URL using discovered endpoint
+    const authUrl = new URL(discoveredEndpoints.authorizationEndpoint);
     authUrl.searchParams.set('client_id', oauthConfig.clientId);
     authUrl.searchParams.set('response_type', oauthConfig.responseType);
     authUrl.searchParams.set('redirect_uri', oauthConfig.redirectUri);
     authUrl.searchParams.set('scope', oauthConfig.scope);
     authUrl.searchParams.set('state', state);
     authUrl.searchParams.set('prompt', oauthConfig.prompt);
+    
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Using authorization endpoint: ${discoveredEndpoints.authorizationEndpoint}`);
     
     // Store session state
     webAuthSessions.set(finalSessionId, {
@@ -684,8 +741,10 @@ app.get('/callback', async (req, res) => {
       `);
     }
     
+    // Discover OAuth endpoints for IDP-agnostic authentication
+    const discoveredEndpoints = await discoverOAuthEndpoints(oauthConfig);
+    
     // Exchange code for tokens
-    const tokenEndpoint = `${oauthConfig.authority}/oauth2/v2.0/token`;
     const tokenParams = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: oauthConfig.clientId,
@@ -694,7 +753,9 @@ app.get('/callback', async (req, res) => {
       redirect_uri: oauthConfig.redirectUri
     });
     
-    const tokenResponse = await fetch(tokenEndpoint, {
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Exchanging code for tokens at: ${discoveredEndpoints.tokenEndpoint}`);
+    
+    const tokenResponse = await fetch(discoveredEndpoints.tokenEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -720,15 +781,10 @@ app.get('/callback', async (req, res) => {
       `);
     }
     
-    // Get user info - use Microsoft Graph API for Microsoft Entra ID
-    let userInfoEndpoint = `${oauthConfig.authority}/oidc/userinfo`;
-    if (oauthConfig.authority.includes('microsoftonline.com')) {
-      userInfoEndpoint = 'https://graph.microsoft.com/v1.0/me';
-    }
+    // Get user info using discovered endpoint
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Fetching user info from: ${discoveredEndpoints.userInfoEndpoint}`);
     
-    console.info('\x1b[36m%s\x1b[0m', `🔍 Fetching user info from: ${userInfoEndpoint}`);
-    
-    const userInfoResponse = await fetch(userInfoEndpoint, {
+    const userInfoResponse = await fetch(discoveredEndpoints.userInfoEndpoint, {
       headers: {
         'Authorization': `Bearer ${tokenResult.access_token}`,
         'Accept': 'application/json'

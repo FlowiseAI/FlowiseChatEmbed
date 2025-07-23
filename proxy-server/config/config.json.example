@@ -1,44 +1,142 @@
 {
   "apiHost": "https://your-flowise-instance.com",
-  "flowiseApiKey": "your-flowise-api-key-here",
-  "oauthApiKey": "your-secure-oauth-api-key-here",
-  "oauthRedirectUri": "http://localhost:3001/oauth-callback.html",
-  "port": 3001,
+  "flowiseApiKey": "your-flowise-api-key",
+  "oauthApiKey": "your-secure-api-key-here",
+  "oauthRedirectUri": "http://localhost:3005/oauth-callback.html",
+  "port": 3005,
   "host": "0.0.0.0",
   "debug": false,
   "chatflows": [
     {
-      "identifier": "chatflow_1",
-      "chatflowId": "your-chatflow-uuid-here",
-      "debug": false,
+      "identifier": "microsoft-spa",
+      "chatflowId": "your-chatflow-id",
+      "debug": true,
       "allowedDomains": [
-        "http://localhost:5678",
-        "https://yourdomain.com"
+        "http://localhost:3000",
+        "https://your-domain.com"
       ],
       "oauth": {
-        "mode": "optional",
-        "clientId": "your-oauth-client-id",
+        "mode": "required",
+        "authType": "spa",
+        "clientId": "your-microsoft-client-id",
         "authority": "https://login.microsoftonline.com/your-tenant-id/v2.0",
         "scope": "openid profile email",
         "responseType": "code",
-        "prompt": "select_account"
+        "prompt": "select_account",
+        "_comment": "SPA authentication - uses OIDC discovery automatically"
       }
     },
     {
-      "identifier": "chatflow_2_debug",
-      "chatflowId": "your-debug-chatflow-uuid-here",
+      "identifier": "microsoft-web-explicit",
+      "chatflowId": "your-chatflow-id",
       "debug": true,
       "allowedDomains": [
-        "http://localhost:5678",
-        "https://yourdomain.com"
+        "http://localhost:3000",
+        "https://your-domain.com"
       ],
       "oauth": {
-        "mode": "optional",
-        "clientId": "your-oauth-client-id",
-        "authority": "https://login.microsoftonline.com/your-tenant-id/v2.0",
+        "mode": "required",
+        "authType": "web",
+        "clientId": "your-microsoft-client-id",
+        "clientSecret": "your-microsoft-client-secret",
+        "authority": "https://login.microsoftonline.com/your-tenant-id",
+        "redirectUri": "http://localhost:3005/callback",
         "scope": "openid profile email",
         "responseType": "code",
-        "prompt": "select_account"
+        "prompt": "select_account",
+        "_comment": "Web authentication with explicit Microsoft endpoints",
+        "tokenEndpoint": "https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token",
+        "userInfoEndpoint": "https://graph.microsoft.com/v1.0/me",
+        "authorizationEndpoint": "https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/authorize",
+        "issuer": "https://login.microsoftonline.com/your-tenant-id/v2.0"
+      }
+    },
+    {
+      "identifier": "google-web-discovery",
+      "chatflowId": "your-chatflow-id",
+      "debug": true,
+      "allowedDomains": [
+        "http://localhost:3000",
+        "https://your-domain.com"
+      ],
+      "oauth": {
+        "mode": "required",
+        "authType": "web",
+        "clientId": "your-google-client-id.apps.googleusercontent.com",
+        "clientSecret": "your-google-client-secret",
+        "authority": "https://accounts.google.com",
+        "redirectUri": "http://localhost:3005/callback",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "select_account",
+        "_comment": "Google OAuth with OIDC discovery - endpoints auto-discovered from /.well-known/openid_configuration"
+      }
+    },
+    {
+      "identifier": "auth0-web-explicit",
+      "chatflowId": "your-chatflow-id",
+      "debug": true,
+      "allowedDomains": [
+        "http://localhost:3000",
+        "https://your-domain.com"
+      ],
+      "oauth": {
+        "mode": "required",
+        "authType": "web",
+        "clientId": "your-auth0-client-id",
+        "clientSecret": "your-auth0-client-secret",
+        "authority": "https://your-tenant.auth0.com",
+        "redirectUri": "http://localhost:3005/callback",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "login",
+        "_comment": "Auth0 with explicit endpoints",
+        "tokenEndpoint": "https://your-tenant.auth0.com/oauth/token",
+        "userInfoEndpoint": "https://your-tenant.auth0.com/userinfo",
+        "authorizationEndpoint": "https://your-tenant.auth0.com/authorize",
+        "issuer": "https://your-tenant.auth0.com/"
+      }
+    },
+    {
+      "identifier": "keycloak-web-discovery",
+      "chatflowId": "your-chatflow-id",
+      "debug": true,
+      "allowedDomains": [
+        "http://localhost:3000",
+        "https://your-domain.com"
+      ],
+      "oauth": {
+        "mode": "required",
+        "authType": "web",
+        "clientId": "your-keycloak-client-id",
+        "clientSecret": "your-keycloak-client-secret",
+        "authority": "https://your-keycloak.com/realms/your-realm",
+        "redirectUri": "http://localhost:3005/callback",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "login",
+        "_comment": "Keycloak with OIDC discovery - fully standards compliant"
+      }
+    },
+    {
+      "identifier": "generic-oauth-fallback",
+      "chatflowId": "your-chatflow-id",
+      "debug": true,
+      "allowedDomains": [
+        "http://localhost:3000",
+        "https://your-domain.com"
+      ],
+      "oauth": {
+        "mode": "required",
+        "authType": "web",
+        "clientId": "your-oauth-client-id",
+        "clientSecret": "your-oauth-client-secret",
+        "authority": "https://your-oauth-provider.com",
+        "redirectUri": "http://localhost:3005/callback",
+        "scope": "openid profile email",
+        "responseType": "code",
+        "prompt": "consent",
+        "_comment": "Generic OAuth provider - will use fallback endpoint construction if discovery fails"
       }
     }
   ]

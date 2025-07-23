@@ -67,6 +67,14 @@ export interface AuthConfig {
   acrValues?: string;
   authType?: AuthenticationType; // New field for authentication type
   clientSecret?: string; // Required for web flow
+  
+  // Optional OAuth/OIDC endpoint overrides for IDP-agnostic configuration
+  tokenEndpoint?: string; // Where to exchange authorization code for tokens
+  userInfoEndpoint?: string; // Where to get user profile information
+  authorizationEndpoint?: string; // Where to redirect users for authorization
+  jwksUri?: string; // JSON Web Key Set URI for token validation
+  issuer?: string; // OAuth issuer identifier
+  endUserInfoEndpoint?: string; // Alternative userinfo endpoint name
 }
 
 export interface WebAuthSession {
