@@ -976,6 +976,24 @@ app.get('/callback', async (req, res) => {
     
     if (!tokenResponse.ok) {
       console.error('\x1b[31m%s\x1b[0m', `❌ Token exchange failed:`, tokenResult);
+    } else {
+      // Debug: Log token exchange success and scope details
+      console.info('\x1b[32m%s\x1b[0m', `✅ Token exchange successful for session: ${sessionId}`);
+      console.info('\x1b[36m%s\x1b[0m', `🔍 Token Details:`, {
+        token_type: tokenResult.token_type,
+        expires_in: tokenResult.expires_in,
+        scope: tokenResult.scope,
+        has_access_token: !!tokenResult.access_token,
+        has_refresh_token: !!tokenResult.refresh_token,
+        has_id_token: !!tokenResult.id_token
+      });
+      
+      if (tokenResult.scope) {
+        console.info('\x1b[36m%s\x1b[0m', `🔍 Granted Scopes: ${tokenResult.scope}`);
+      }
+    }
+    
+    if (!tokenResponse.ok) {
       return res.status(500).send(`
         <html>
           <head>
@@ -1038,7 +1056,22 @@ app.get('/callback', async (req, res) => {
     let userInfo = {};
     if (userInfoResponse.ok) {
       userInfo = await userInfoResponse.json();
-      console.info('\x1b[32m%s\x1b[0m', `✅ User info retrieved successfully:`, userInfo);
+      console.info('\x1b[32m%s\x1b[0m', `✅ User info retrieved successfully from userinfo endpoint`);
+      
+      // Debug: Log detailed user profile information
+      console.info('\x1b[36m%s\x1b[0m', `🔍 User Profile Details:`, {
+        sub: userInfo.sub || 'N/A',
+        email: userInfo.email || 'N/A',
+        email_verified: userInfo.email_verified || 'N/A',
+        name: userInfo.name || 'N/A',
+        given_name: userInfo.given_name || 'N/A',
+        family_name: userInfo.family_name || 'N/A',
+        preferred_username: userInfo.preferred_username || 'N/A',
+        picture: userInfo.picture || 'N/A'
+      });
+      
+      // Log all available fields for debugging
+      console.info('\x1b[36m%s\x1b[0m', `🔍 Complete User Info Object:`, userInfo);
     } else {
       const errorText = await userInfoResponse.text();
       console.error('\x1b[31m%s\x1b[0m', `❌ Failed to fetch user info (${userInfoResponse.status}):`, errorText);
@@ -1053,7 +1086,20 @@ app.get('/callback', async (req, res) => {
             given_name: idTokenPayload.given_name,
             family_name: idTokenPayload.family_name
           };
-          console.info('\x1b[33m%s\x1b[0m', `⚠️  Using ID token claims as fallback:`, userInfo);
+          console.info('\x1b[33m%s\x1b[0m', `⚠️  Using ID token claims as fallback for user info`);
+          
+          // Debug: Log detailed user profile information from ID token
+          console.info('\x1b[36m%s\x1b[0m', `🔍 ID Token Profile Details:`, {
+            sub: userInfo.sub || 'N/A',
+            email: userInfo.email || 'N/A',
+            name: userInfo.name || 'N/A',
+            given_name: userInfo.given_name || 'N/A',
+            family_name: userInfo.family_name || 'N/A',
+            preferred_username: userInfo.preferred_username || 'N/A'
+          });
+          
+          // Log complete ID token payload for debugging
+          console.info('\x1b[36m%s\x1b[0m', `🔍 Complete ID Token Payload:`, idTokenPayload);
         } catch (idTokenError) {
           console.error('\x1b[31m%s\x1b[0m', `❌ Failed to parse ID token:`, idTokenError.message);
         }
@@ -1073,7 +1119,20 @@ app.get('/callback', async (req, res) => {
     session.userInfo = userInfo;
     session.authenticated = true;
     
-    console.info('\x1b[32m%s\x1b[0m', `✅ Web auth completed (identifier: ${session.identifier}, sessionId: ${sessionId}, user: ${userInfo.email || userInfo.sub})`);
+    console.info('\x1b[32m%s\x1b[0m', `✅ Web auth completed successfully`);
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Session Summary:`, {
+      identifier: session.identifier,
+      sessionId: sessionId,
+      userEmail: userInfo.email || 'N/A',
+      userSub: userInfo.sub || 'N/A',
+      userName: userInfo.name || 'N/A',
+      givenName: userInfo.given_name || 'N/A',
+      familyName: userInfo.family_name || 'N/A',
+      hasTokens: !!session.tokens,
+      hasUserInfo: !!session.userInfo,
+      tokenScope: session.tokens?.scope || 'N/A',
+      sessionExpiresAt: new Date(session.expiresAt).toISOString()
+    });
     
     // Return success page
     res.send(`
