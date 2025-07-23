@@ -720,8 +720,15 @@ app.get('/callback', async (req, res) => {
       `);
     }
     
-    // Get user info
-    const userInfoResponse = await fetch(`${oauthConfig.authority}/oidc/userinfo`, {
+    // Get user info - use Microsoft Graph API for Microsoft Entra ID
+    let userInfoEndpoint = `${oauthConfig.authority}/oidc/userinfo`;
+    if (oauthConfig.authority.includes('microsoftonline.com')) {
+      userInfoEndpoint = 'https://graph.microsoft.com/v1.0/me';
+    }
+    
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Fetching user info from: ${userInfoEndpoint}`);
+    
+    const userInfoResponse = await fetch(userInfoEndpoint, {
       headers: {
         'Authorization': `Bearer ${tokenResult.access_token}`,
         'Accept': 'application/json'
@@ -731,6 +738,26 @@ app.get('/callback', async (req, res) => {
     let userInfo = {};
     if (userInfoResponse.ok) {
       userInfo = await userInfoResponse.json();
+      console.info('\x1b[32m%s\x1b[0m', `✅ User info retrieved successfully:`, userInfo);
+    } else {
+      const errorText = await userInfoResponse.text();
+      console.error('\x1b[31m%s\x1b[0m', `❌ Failed to fetch user info (${userInfoResponse.status}):`, errorText);
+      // For debugging, let's still try to get some basic info from the ID token if available
+      if (tokenResult.id_token) {
+        try {
+          const idTokenPayload = JSON.parse(Buffer.from(tokenResult.id_token.split('.')[1], 'base64').toString());
+          userInfo = {
+            sub: idTokenPayload.sub,
+            email: idTokenPayload.email || idTokenPayload.preferred_username,
+            name: idTokenPayload.name,
+            given_name: idTokenPayload.given_name,
+            family_name: idTokenPayload.family_name
+          };
+          console.info('\x1b[33m%s\x1b[0m', `⚠️  Using ID token claims as fallback:`, userInfo);
+        } catch (idTokenError) {
+          console.error('\x1b[31m%s\x1b[0m', `❌ Failed to parse ID token:`, idTokenError.message);
+        }
+      }
     }
     
     // Update session with tokens and user info

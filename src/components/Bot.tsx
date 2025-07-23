@@ -601,6 +601,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             // Check if user just became authenticated (transition from false to true)
             if (!previouslyAuthenticated && state.isAuthenticated && !profileSubmitted() && state.user) {
               debugLogger.log('🔐 User authentication detected, submitting profile...');
+              debugLogger.log('🔐 User info:', state.user);
               setProfileSubmitted(true);
               submitUserProfile(state.user);
             }
@@ -617,9 +618,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           }
         };
         
-        // Poll immediately and then every 500ms
+        // Poll immediately and then every 5 seconds (less frequent)
         pollAuthState();
-        const pollInterval = setInterval(pollAuthState, 500);
+        const pollInterval = setInterval(pollAuthState, 5000);
         
         // Cleanup interval on unmount
         onCleanup(() => {
