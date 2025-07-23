@@ -75,8 +75,118 @@ const cleanupExpiredWebSessions = () => {
   }
 };
 
+// Token refresh service for web authentication sessions
+const refreshWebAuthToken = async (sessionId, session) => {
+  try {
+    const oauthConfig = oauthConfigs.get(session.identifier);
+    if (!oauthConfig || !session.tokens?.refresh_token) {
+      console.warn('\x1b[33m%s\x1b[0m', `⚠️  Cannot refresh token: missing OAuth config or refresh token (sessionId: ${sessionId})`);
+      return false;
+    }
+
+    // Discover OAuth endpoints for token refresh
+    const discoveredEndpoints = await discoverOAuthEndpoints(oauthConfig);
+    
+    console.info('\x1b[36m%s\x1b[0m', `🔄 Refreshing token for session: ${sessionId}`);
+    
+    // Prepare token refresh request
+    const refreshParams = new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: oauthConfig.clientId,
+      client_secret: oauthConfig.clientSecret,
+      refresh_token: session.tokens.refresh_token
+    });
+
+    const refreshResponse = await fetch(discoveredEndpoints.tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: refreshParams.toString()
+    });
+
+    if (!refreshResponse.ok) {
+      const errorText = await refreshResponse.text();
+      console.error('\x1b[31m%s\x1b[0m', `❌ Token refresh failed (${refreshResponse.status}):`, errorText);
+      return false;
+    }
+
+    const refreshResult = await refreshResponse.json();
+    
+    // Update session with new tokens
+    const oldExpiry = session.tokens.expires_at;
+    session.tokens = {
+      access_token: refreshResult.access_token,
+      token_type: refreshResult.token_type,
+      expires_in: refreshResult.expires_in || 3600,
+      expires_at: Date.now() + (refreshResult.expires_in || 3600) * 1000,
+      refresh_token: refreshResult.refresh_token || session.tokens.refresh_token, // Keep old refresh token if new one not provided
+      id_token: refreshResult.id_token || session.tokens.id_token,
+      scope: refreshResult.scope || session.tokens.scope
+    };
+
+    // Update session expiry based on new token
+    session.expiresAt = session.tokens.expires_at;
+
+    console.info('\x1b[32m%s\x1b[0m', `✅ Token refreshed successfully for session: ${sessionId}`);
+    console.info('\x1b[36m%s\x1b[0m', `🔍 Token Refresh Details:`, {
+      sessionId: sessionId,
+      oldExpiry: new Date(oldExpiry).toISOString(),
+      newExpiry: new Date(session.tokens.expires_at).toISOString(),
+      expiresIn: refreshResult.expires_in,
+      hasNewRefreshToken: !!refreshResult.refresh_token
+    });
+
+    return true;
+  } catch (error) {
+    console.error('\x1b[31m%s\x1b[0m', `❌ Token refresh error for session ${sessionId}:`, error.message);
+    return false;
+  }
+};
+
+// Background token refresh service
+const refreshActiveTokens = async () => {
+  const now = Date.now();
+  const refreshThreshold = 5 * 60 * 1000; // Refresh tokens 5 minutes before expiry
+  let refreshedCount = 0;
+  let failedCount = 0;
+
+  console.info('\x1b[36m%s\x1b[0m', `🔄 Starting background token refresh check (${webAuthSessions.size} active sessions)`);
+
+  for (const [sessionId, session] of webAuthSessions.entries()) {
+    // Only refresh authenticated sessions with tokens
+    if (!session.authenticated || !session.tokens?.access_token || !session.tokens?.refresh_token) {
+      continue;
+    }
+
+    // Check if token expires within the refresh threshold
+    const tokenExpiresAt = session.tokens.expires_at;
+    if (tokenExpiresAt && (tokenExpiresAt - now) <= refreshThreshold) {
+      console.info('\x1b[33m%s\x1b[0m', `⏰ Token expiring soon for session ${sessionId}, attempting refresh...`);
+      
+      const refreshSuccess = await refreshWebAuthToken(sessionId, session);
+      if (refreshSuccess) {
+        refreshedCount++;
+      } else {
+        failedCount++;
+        // Remove session if refresh failed
+        webAuthSessions.delete(sessionId);
+        console.warn('\x1b[33m%s\x1b[0m', `🗑️  Removed session ${sessionId} due to refresh failure`);
+      }
+    }
+  }
+
+  if (refreshedCount > 0 || failedCount > 0) {
+    console.info('\x1b[32m%s\x1b[0m', `✅ Background token refresh completed: ${refreshedCount} refreshed, ${failedCount} failed`);
+  }
+};
+
 // Run web session cleanup every 5 minutes
 setInterval(cleanupExpiredWebSessions, 5 * 60 * 1000);
+
+// Run background token refresh every 2 minutes
+setInterval(refreshActiveTokens, 2 * 60 * 1000);
 
 // Helper function to decode JWT token and extract expiry
 const decodeJWTExpiry = (token) => {
@@ -1669,18 +1779,40 @@ const extractUserContext = async (req, res, next) => {
           const sessionId = req.headers['x-session-id'];
           if (sessionId) {
             const webSession = webAuthSessions.get(sessionId);
-            if (webSession && webSession.authenticated && webSession.expiresAt > Date.now()) {
-              req.user = webSession.userInfo;
-              req.webAuthSession = webSession;
+            if (webSession && webSession.authenticated) {
+              // Check if token needs refresh (within 10 minutes of expiry)
+              const now = Date.now();
+              const refreshThreshold = 10 * 60 * 1000; // 10 minutes
+              const tokenExpiresAt = webSession.tokens?.expires_at;
               
-              debugLog(`🔐 Using web auth session: ${sessionId}`, {
-                userId: webSession.userInfo.sub,
-                email: webSession.userInfo.email
-              });
-            } else if (webSession) {
-              // Session expired, remove it
-              webAuthSessions.delete(sessionId);
-              debugLog(`🗑️ Removed expired web auth session: ${sessionId}`);
+              if (tokenExpiresAt && (tokenExpiresAt - now) <= refreshThreshold && webSession.tokens?.refresh_token) {
+                debugLog(`⏰ Token expiring soon for session ${sessionId}, attempting on-demand refresh...`);
+                
+                // Attempt to refresh token on-demand
+                const refreshSuccess = await refreshWebAuthToken(sessionId, webSession);
+                if (!refreshSuccess) {
+                  // If refresh failed, remove session
+                  webAuthSessions.delete(sessionId);
+                  debugLog(`🗑️ Removed session ${sessionId} due to on-demand refresh failure`);
+                  return next(); // Continue without user context
+                }
+              }
+              
+              // Check session validity after potential refresh
+              if (webSession.expiresAt > now) {
+                req.user = webSession.userInfo;
+                req.webAuthSession = webSession;
+                
+                debugLog(`🔐 Using web auth session: ${sessionId}`, {
+                  userId: webSession.userInfo.sub,
+                  email: webSession.userInfo.email,
+                  tokenExpiresAt: tokenExpiresAt ? new Date(tokenExpiresAt).toISOString() : 'N/A'
+                });
+              } else {
+                // Session expired and couldn't be refreshed, remove it
+                webAuthSessions.delete(sessionId);
+                debugLog(`🗑️ Removed expired web auth session: ${sessionId}`);
+              }
             }
           }
           
