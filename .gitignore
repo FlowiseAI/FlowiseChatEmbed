@@ -8,7 +8,7 @@ dist/
 /examples/prod.config.json
 /proxy-server/.env
 /proxy-server/public/web.js
-/proxy-server/prod.config.json
-/proxy-server/local.config.json
-/proxy-server/config.json
+/proxy-server/config/prod.config.json
+/proxy-server/config/local.config.json
+/proxy-server/config/config.json
 /proxy-server/client-bot/web.js
