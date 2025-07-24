@@ -89,15 +89,9 @@ export const TTSButton = (props: TTSButtonProps) => {
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
         {props.isPlaying ? (
-          <PauseIcon
-            color={props.feedbackColor ?? defaultFeedbackColor}
-            class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')}
-          />
+          <PauseIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
         ) : (
-          <PlayIcon
-            color={props.feedbackColor ?? defaultFeedbackColor}
-            class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')}
-          />
+          <PlayIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
         )}
       </Show>
     </button>

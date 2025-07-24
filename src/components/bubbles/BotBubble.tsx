@@ -152,7 +152,7 @@ export const BotBubble = (props: Props) => {
 
       if (props.ttsConfig?.voice) {
         const voices = window.speechSynthesis.getVoices();
-        const selectedVoice = voices.find(v => v.name === props.ttsConfig?.voice);
+        const selectedVoice = voices.find((v) => v.name === props.ttsConfig?.voice);
         if (selectedVoice) {
           utterance.voice = selectedVoice;
         }
