@@ -1177,7 +1177,8 @@ app.get('/callback', async (req, res) => {
         given_name: userInfo.given_name || 'N/A',
         family_name: userInfo.family_name || 'N/A',
         preferred_username: userInfo.preferred_username || 'N/A',
-        picture: userInfo.picture || 'N/A'
+        picture: userInfo.picture || 'N/A',
+        campusCode: userInfo.campusCode || 'N/A'
       });
       
       // Log all available fields for debugging
@@ -1194,7 +1195,10 @@ app.get('/callback', async (req, res) => {
             email: idTokenPayload.email || idTokenPayload.preferred_username,
             name: idTokenPayload.name,
             given_name: idTokenPayload.given_name,
-            family_name: idTokenPayload.family_name
+            family_name: idTokenPayload.family_name,
+            preferred_username: userInfo.preferred_username || 'N/A',
+            picture: userInfo.picture || 'N/A',
+            campusCode: userInfo.campusCode || 'N/A'
           };
           console.info('\x1b[33m%s\x1b[0m', `⚠️  Using ID token claims as fallback for user info`);
           
@@ -1205,7 +1209,9 @@ app.get('/callback', async (req, res) => {
             name: userInfo.name || 'N/A',
             given_name: userInfo.given_name || 'N/A',
             family_name: userInfo.family_name || 'N/A',
-            preferred_username: userInfo.preferred_username || 'N/A'
+            preferred_username: userInfo.preferred_username || 'N/A',
+            picture: userInfo.picture || 'N/A',
+            campusCode: userInfo.campusCode || 'N/A'
           });
           
           // Log complete ID token payload for debugging
