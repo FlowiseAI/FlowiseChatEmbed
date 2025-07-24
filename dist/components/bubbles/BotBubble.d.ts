@@ -1,4 +1,4 @@
-import { IAction, MessageType } from '../Bot';
+import { IAction, MessageType, ttsConfigType } from '../Bot';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
 type Props = {
     message: MessageType;
@@ -19,6 +19,7 @@ type Props = {
     showAgentMessages?: boolean;
     sourceDocsTitle?: string;
     renderHTML?: boolean;
+    ttsConfig?: ttsConfigType;
     handleActionClick: (elem: any, action: IAction | undefined | null) => void;
     handleSourceDocumentsClick: (src: any) => void;
 };

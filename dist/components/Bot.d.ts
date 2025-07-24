@@ -80,6 +80,13 @@ export type MessageType = {
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+export type ttsConfigType = {
+    language?: string;
+    voice?: string;
+    rate?: number;
+    pitch?: number;
+    volume?: number;
+};
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;
@@ -109,6 +116,7 @@ export type BotProps = {
     footer?: FooterTheme;
     sourceDocsTitle?: string;
     observersConfig?: observersConfigType;
+    ttsConfig?: ttsConfigType;
     starterPrompts?: string[] | Record<string, {
         prompt: string;
     }>;
