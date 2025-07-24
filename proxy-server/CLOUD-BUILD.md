@@ -10,7 +10,9 @@ For production deployment, build the Docker image and push to the ACR:
 
 3. You must be logged in using credentials for the csuaidevacr registry `az acr login -n csuaidevacr`.
 
-4. build and push the image to the registry:
+4. Remove `web.js` from `/proxy-server/public` if present.
+
+5. build and push the image to the registry:
    ```
    docker buildx build --platform linux/amd64,linux/arm64 -t csuaidevacr.azurecr.io/flowise-proxy:latest -f proxy-server/Dockerfile --push . --no-cache
    ```
