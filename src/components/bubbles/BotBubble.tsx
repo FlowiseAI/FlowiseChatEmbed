@@ -556,7 +556,7 @@ export const BotBubble = (props: Props) => {
         {props.chatFeedbackStatus && props.message.messageId && (
           <>
             <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
-              <TTSButton onClick={textToSpeech} isPlaying={isPlaying()} />
+              <TTSButton feedbackColor={props.feedbackColor} onClick={textToSpeech} isPlaying={isPlaying()} />
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
