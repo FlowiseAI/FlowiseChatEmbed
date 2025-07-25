@@ -2,8 +2,8 @@ import { createEffect, Show, createSignal, onMount, For } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
-import { FileUpload, IAction, MessageType } from '../Bot';
-import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
+import { FileUpload, IAction, MessageType, ttsConfigType } from '../Bot';
+import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton, TTSButton } from '../buttons/FeedbackButtons';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
@@ -30,6 +30,7 @@ type Props = {
   showAgentMessages?: boolean;
   sourceDocsTitle?: string;
   renderHTML?: boolean;
+  ttsConfig?: ttsConfigType;
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
 };
@@ -50,6 +51,7 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+  const [isPlaying, setIsPlaying] = createSignal(false);
 
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
@@ -131,6 +133,36 @@ export const BotBubble = (props: Props) => {
       link.remove();
     } catch (error) {
       console.error('Download failed:', error);
+    }
+  };
+
+  const textToSpeech = () => {
+    const text = botMessageElement()?.textContent?.trim();
+    if (!text) return;
+
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+    } else {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = props.ttsConfig?.language || 'en-US';
+      utterance.rate = props.ttsConfig?.rate ?? 1;
+      utterance.pitch = props.ttsConfig?.pitch ?? 1;
+      utterance.volume = props.ttsConfig?.volume ?? 1;
+
+      if (props.ttsConfig?.voice) {
+        const voices = window.speechSynthesis.getVoices();
+        const selectedVoice = voices.find((v) => v.name === props.ttsConfig?.voice);
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+        }
+      }
+
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+
+      window.speechSynthesis.speak(utterance);
+      setIsPlaying(true);
     }
   };
 
@@ -524,6 +556,7 @@ export const BotBubble = (props: Props) => {
         {props.chatFeedbackStatus && props.message.messageId && (
           <>
             <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
+              <TTSButton feedbackColor={props.feedbackColor} onClick={textToSpeech} isPlaying={isPlaying()} />
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>

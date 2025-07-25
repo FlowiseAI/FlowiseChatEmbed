@@ -150,6 +150,7 @@ export const Bubble = (props: BubbleProps) => {
               chatflowid={props.chatflowid}
               chatflowConfig={props.chatflowConfig}
               apiHost={props.apiHost}
+              ttsConfig={props?.ttsConfig}
               onRequest={props.onRequest}
               observersConfig={props.observersConfig}
               clearChatOnReload={bubbleProps.theme?.chatWindow?.clearChatOnReload}

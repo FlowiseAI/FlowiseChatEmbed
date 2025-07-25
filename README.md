@@ -111,6 +111,13 @@ You can also customize chatbot with different configuration
       observeLoading: (loading) => {
         console.log({ loading });
       },
+    // It is only applicable if feedback is enabled
+    ttsConfig: {
+      language: 'en-US', // ISO code, e.g., 'en-US'
+      voice: 'Google UK English Male', // Specific voice name, e.g., 'Google UK English Male'
+      rate: 1, // Speed of speech: 0.1 - 10 (default is 1)
+      pitch: 1, // Pitch of voice: 0 - 2 (default is 1)
+      volume: 1, // Volume: 0 - 1 (default is 1)
     },
     theme: {
       button: {
