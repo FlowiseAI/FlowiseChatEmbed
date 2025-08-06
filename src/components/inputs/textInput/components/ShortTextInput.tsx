@@ -21,7 +21,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
         // reset height when value is empty
         setHeight(DEFAULT_HEIGHT);
       } else {
-        setHeight(e.currentTarget.scrollHeight - 24);
+        setHeight(Math.min(Math.max(e.currentTarget.scrollHeight, DEFAULT_HEIGHT), 128));
       }
       e.currentTarget.scrollTo(0, e.currentTarget.scrollHeight);
       local.onInput(e.currentTarget.value);
