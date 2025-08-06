@@ -478,6 +478,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
+  const showTypingBubble = createMemo(() => {
+    if (!loading()) return false;
+    const msgs = messages();
+    const last = msgs[msgs.length - 1];
+    if (!last) return false;
+    return last.type === 'userMessage' || (last.type === 'apiMessage' && last.message === '');
+  });
   const [fullFileUpload, setFullFileUpload] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
   const [leadsConfig, setLeadsConfig] = createSignal<LeadsConfig>();
@@ -1876,12 +1883,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           setLeadEmail={setLeadEmail}
                         />
                       )}
-                      {message.type === 'userMessage' && loading() && index() === messages().length - 1 && <LoadingBubble />}
-                      {message.type === 'apiMessage' && message.message === '' && loading() && index() === messages().length - 1 && <LoadingBubble />}
                     </>
                   );
                 }}
               </For>
+              <div classList={{ hidden: !showTypingBubble() }}>
+                <LoadingBubble />
+              </div>
             </div>
             <Show when={messages().length === 1}>
               <Show when={starterPrompts().length > 0}>

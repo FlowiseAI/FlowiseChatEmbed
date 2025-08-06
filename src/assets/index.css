@@ -82,11 +82,13 @@ pre {
   transition: opacity 400ms ease-in 200ms;
 }
 
-.typing-dot {
-  background-color: var(--chatbot-host-bubble-color);
-  opacity: 0.2;
-  animation: typingBlink 1.2s infinite ease-in-out;
-}
+  .typing-dot {
+    background-color: var(--chatbot-host-bubble-color);
+    opacity: 0.2;
+    animation: typingBlink 1.2s infinite ease-in-out;
+    animation-fill-mode: both;
+    will-change: opacity;
+  }
 
 @keyframes typingBlink {
   0% {
