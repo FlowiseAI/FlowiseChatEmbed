@@ -1032,16 +1032,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     // Get current route/page state from localStorage
     const currentRoute = localStorage.getItem('currentRoute') || window.location.pathname;
-    
+
     // Create updated overrideConfig with current route
     const updatedConfig = {
       ...props.chatflowConfig,
       vars: {
-        ...(props.chatflowConfig?.vars as Record<string, unknown> || {}),
-        currentRoute: currentRoute
-      }
+        ...((props.chatflowConfig?.vars as Record<string, unknown>) || {}),
+        currentRoute: currentRoute,
+      },
     };
-    
+
     // Set the updated config in the request body
     body.overrideConfig = updatedConfig;
 
