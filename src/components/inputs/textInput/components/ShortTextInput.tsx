@@ -37,6 +37,11 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
       e.currentTarget.value += '\n';
       handleInput(e);
     }
+    
+    // 백스페이스 키 이벤트가 차단되지 않도록 보장
+    if (e.key === 'Backspace') {
+      e.stopImmediatePropagation();
+    }
   };
 
   return (
