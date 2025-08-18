@@ -27,11 +27,39 @@
         // salesbot=ghi123-jkl456,https://example.com
         //
         // Then use the environment variable name as chatflowid:
-        Chatbot.init({
-            chatflowid: 'agent1',    // or 'support', 'salesbot', etc.
-            apiHost: window.location.origin
+        Chatbot.initFull({
+            chatflowid: '09969c15-b7b3-49a4-bd25-0cc8b62be702',    // or 'support', 'salesbot', etc.
+            apiHost: 'https://flowise.tobeway.com:3000',
+            chatflowConfig: {
+                vars: {
+                    mdmModule: 'MDM'
+                }
+            },
+            theme: {
+                chatWindow: {
+                    botMessage: {
+                        backgroundColorEmphasize: '#E0F7FA'
+                    }
+                }
+            },
+            observersConfig: {
+                // The bot message stack has changed
+                observeMessages: (messages) => {
+                    //console.log({ messages });
+                },
+                // Source link has clicked
+                observeSourceClick: (source) => {
+                    if (source && source.metadata) {
+                        alert('PDF Viewer를 띄우겠습니다.' + source.metadata.solution + ' ' + source.metadata.solution + ' page');
+                    }
+                    //console.log(source.metadata.solution);
+                }
+            }         
         })
     </script>
+    <div id="chatbot-container">
+        <flowise-fullchatbot></flowise-fullchatbot>
+    </div>
 </body>
 
 </html>

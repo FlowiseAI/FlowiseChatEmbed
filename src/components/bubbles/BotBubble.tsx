@@ -21,6 +21,7 @@ type Props = {
   showAvatar?: boolean;
   avatarSrc?: string;
   backgroundColor?: string;
+  backgroundColorEmphasize?: string;
   textColor?: string;
   chatFeedbackStatus?: boolean;
   fontSize?: number;
@@ -32,6 +33,8 @@ type Props = {
   renderHTML?: boolean;
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
+  observeSourceClick?: (messages: any) => void;
+  setSourceClick?: (updater: any[] | ((prev: any[]) => any[])) => void;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -334,7 +337,9 @@ export const BotBubble = (props: Props) => {
             innerHTML={Marked.parse(item.data as string)}
             class="prose"
             style={{
-              'background-color': props.backgroundColor ?? defaultBackgroundColor,
+              'background-color': (props.message.sourceDocuments && props.message.sourceDocuments.length > 0) 
+                ? (props.backgroundColorEmphasize ?? defaultBackgroundColor)
+                : (props.backgroundColor ?? defaultBackgroundColor),
               color: props.textColor ?? defaultTextColor,
               'border-radius': '6px',
               'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
@@ -447,7 +452,9 @@ export const BotBubble = (props: Props) => {
               class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
               data-testid="host-bubble"
               style={{
-                'background-color': props.backgroundColor ?? defaultBackgroundColor,
+                'background-color': (props.message.sourceDocuments && props.message.sourceDocuments.length > 0) 
+                  ? (props.backgroundColorEmphasize ?? defaultBackgroundColor)
+                  : (props.backgroundColor ?? defaultBackgroundColor),
                 color: props.textColor ?? defaultTextColor,
                 'border-radius': '6px',
                 'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
@@ -509,7 +516,15 @@ export const BotBubble = (props: Props) => {
                         if (URL) {
                           window.open(src.metadata.source, '_blank');
                         } else {
-                          props.handleSourceDocumentsClick(src);
+                          //props.handleSourceDocumentsClick(src); // 원래 있던 코드.
+                          // observeSourceClick 이벤트 발생 시 호출
+                          if (props.observeSourceClick) {
+                            props.observeSourceClick(src);
+                          }
+                          // sourceClickEvents signal 업데이트
+                          //if (props.setSourceClick) {
+                          //  props.setSourceClick(prev => [...prev, src]);
+                          //}
                         }
                       }}
                     />

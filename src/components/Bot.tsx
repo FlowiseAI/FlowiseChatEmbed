@@ -134,7 +134,7 @@ type IUploads = {
 }[];
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
-export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages' | 'observeSourceClick', observerConfigType>;
 
 export type BotProps = {
   chatflowid: string;
@@ -463,6 +463,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [loading, setLoading] = createSignal(false);
   const [sourcePopupOpen, setSourcePopupOpen] = createSignal(false);
   const [sourcePopupSrc, setSourcePopupSrc] = createSignal({});
+  const [sourceClick, setSourceClick] = createSignal<any[]>([]);
   const [messages, setMessages] = createSignal<MessageType[]>(
     [
       {
@@ -523,7 +524,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   onMount(() => {
     if (botProps?.observersConfig) {
-      const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
+      const { observeUserInput, observeLoading, observeMessages, observeSourceClick } = botProps.observersConfig;
       typeof observeUserInput === 'function' &&
         // eslint-disable-next-line solid/reactivity
         createMemo(() => {
@@ -538,6 +539,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         // eslint-disable-next-line solid/reactivity
         createMemo(() => {
           observeMessages(messages());
+        });
+      typeof observeSourceClick === 'function' &&
+        // eslint-disable-next-line solid/reactivity
+        createMemo(() => {
+          observeSourceClick(sourceClick());
         });
     }
 
@@ -1840,6 +1846,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           chatId={chatId()}
                           apiHost={props.apiHost}
                           backgroundColor={props.botMessage?.backgroundColor}
+                          backgroundColorEmphasize={props.botMessage?.backgroundColorEmphasize}
                           textColor={props.botMessage?.textColor}
                           feedbackColor={props.feedback?.color}
                           showAvatar={props.botMessage?.showAvatar}
@@ -1853,9 +1860,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           handleSourceDocumentsClick={(sourceDocuments) => {
                             setSourcePopupSrc(sourceDocuments);
                             setSourcePopupOpen(true);
-                          }}
+                          }} 
                           dateTimeToggle={props.dateTimeToggle}
                           renderHTML={props.renderHTML}
+                          observeSourceClick={botProps.observersConfig?.observeSourceClick}
+                          setSourceClick={setSourceClick}
                         />
                       )}
                       {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (
