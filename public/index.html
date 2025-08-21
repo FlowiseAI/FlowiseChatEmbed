@@ -19,16 +19,8 @@
     <div id="root"></div>
     <script type="module">
         import Chatbot from './web.js'
-        
-        // Example initialization:
-        // If your .env contains:
-        // agent1=xyz789-uvw456,https://example.com
-        // support=abc123-def456,https://example.com
-        // salesbot=ghi123-jkl456,https://example.com
-        //
-        // Then use the environment variable name as chatflowid:
         Chatbot.initFull({
-            chatflowid: '09969c15-b7b3-49a4-bd25-0cc8b62be702',    // or 'support', 'salesbot', etc.
+            chatflowid: 'a1b9a25d-81ee-48cd-822b-09ae2bd89725',    
             apiHost: 'https://flowise.tobeway.com:3000',
             chatflowConfig: {
                 vars: {
@@ -36,11 +28,50 @@
                 }
             },
             theme: {
-                chatWindow: {
-                    botMessage: {
-                        backgroundColorEmphasize: '#E0F7FA'
+                button: {
+                    backgroundColor: "#B5C2FF",
+                    right: 20,
+                    bottom: 20,
+                    size: 48,
+                    dragAndDrop: true,
+                    iconColor: "#000000",
+                    autoWindowOpen: {
+                        autoOpen: true,
+                        openDelay: 2,
+                        autoOpenOnMobile: false
                     }
-                }
+                },
+                chatWindow: {
+                    width: '700',
+                    showTitle: true,
+                    showAgentMessages: false,
+                    title: "토비 AI",
+                    titleAvatarSrc: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg",
+                    welcomeMessage: "안녕하세요 <%=SessionUserName%>님! 필요한 정보나 궁금한 점이 있다면 말씀해주세요. 함께 해결해드리겠습니다.",
+                    clearChatOnReload: false,
+                    starterPrompts: ["메타데이터란 무엇인가요?"], 
+                    botMessage: {
+                        backgroundColor: "#E3F2FD",
+                        backgroundColorEmphasize: "#DCF0FF",
+                        showAvatar: true,
+                        avatarSrc: "https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/parroticon.png"
+                    },
+                    userMessage: {
+                        backgroundColor: "#DDE3FF",
+                        textColor: '#474747'
+                    },
+                    textInput: {
+                        placeholder: "질문을 입력하세요.",
+                        backgroundColor: "#ffffff",
+                        textColor: "#303235",
+                        sendButtonColor: "#5473F9",
+                        autoFocus: true,
+                    },
+                    footer: {
+                        text: "",
+                        company: ""
+                    }
+                }                
             },
             observersConfig: {
                 // The bot message stack has changed
@@ -49,6 +80,7 @@
                 },
                 // Source link has clicked
                 observeSourceClick: (source) => {
+                    console.log(source);
                     if (source && source.metadata) {
                         alert('PDF Viewer를 띄우겠습니다.' + source.metadata.solution + ' ' + source.metadata.solution + ' page');
                     }

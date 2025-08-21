@@ -9,7 +9,7 @@ import {
   FeedbackRatingType,
   createAttachmentWithFormData,
 } from '@/queries/sendMessageQuery';
-import { TextInput } from './inputs/textInput';
+import { TextInput, ComboBox } from './inputs';
 import { GuestBubble } from './bubbles/GuestBubble';
 import { BotBubble } from './bubbles/BotBubble';
 import { LoadingBubble } from './bubbles/LoadingBubble';
@@ -1803,7 +1803,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               <Show when={props.title}>
                 <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
               </Show>
+              
               <div style={{ flex: 1 }} />
+              <div class="flex items-center px-3">
+                <ComboBox
+                  options={[
+                    { value: 'MDM', label: 'MDM' },
+                    { value: 'DOM', label: 'DOM' },
+                    { value: 'DQM', label: 'DQM' },
+                    { value: 'META', label: 'META' },
+                    { value: 'DI', label: 'DI' },
+                    { value: 'SNOP', label: 'S&OP' },
+                  ]}
+                  defaultValue="MDM" // 초기 기본값 설정 (value 대신 사용)
+                  placeholder="옵션을 선택하세요"
+                  onChange={(value: string) => {
+                    // 여기에 선택된 옵션에 대한 로직을 추가할 수 있습니다
+                  }}
+                  style={{ "width": "120px" }}
+                />
+              </div>
+              
               <DeleteButton
                 sendButtonColor={props.bubbleTextColor}
                 type="button"
