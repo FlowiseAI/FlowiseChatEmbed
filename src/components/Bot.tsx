@@ -1936,8 +1936,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         URL.revokeObjectURL(currentState.audio.src);
       }
       // Remove all event listeners
-      currentState.audio.removeEventListener('playing');
-      currentState.audio.removeEventListener('ended');
+      currentState.audio.removeEventListener('playing', () => console.log('Playing'));
+      currentState.audio.removeEventListener('ended', () => console.log('Ended'));
     }
 
     if (currentState.sourceBuffer) {
