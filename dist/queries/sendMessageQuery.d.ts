@@ -49,6 +49,15 @@ export type LeadCaptureInput = {
 export type LeadCaptureRequest = BaseRequest & {
     body: Partial<LeadCaptureInput>;
 };
+export type GenerateTTSRequest = BaseRequest & {
+    body: {
+        chatId: string;
+        chatflowId: string;
+        chatMessageId: string;
+        text: string;
+    };
+    signal?: AbortSignal;
+};
 export declare const sendFeedbackQuery: ({ chatflowid, apiHost, body, onRequest }: CreateFeedbackRequest) => Promise<{
     data?: unknown;
     error?: Error | undefined;
@@ -85,5 +94,6 @@ export declare const addLeadQuery: ({ apiHost, body, onRequest }: LeadCaptureReq
     data?: any;
     error?: Error | undefined;
 }>;
+export declare const generateTTSQuery: ({ apiHost, body, onRequest, signal }: GenerateTTSRequest) => Promise<Response>;
 export {};
 //# sourceMappingURL=sendMessageQuery.d.ts.map

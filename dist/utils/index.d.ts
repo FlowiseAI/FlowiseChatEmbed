@@ -10,6 +10,7 @@ export declare const sendRequest: <ResponseData>(params: string | {
     headers?: Record<string, any> | undefined;
     formData?: FormData | undefined;
     onRequest?: ((request: RequestInit) => Promise<void>) | undefined;
+    signal?: AbortSignal | undefined;
 }) => Promise<{
     data?: ResponseData | undefined;
     error?: Error | undefined;
