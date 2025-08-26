@@ -16,6 +16,7 @@ export const sendRequest = async <ResponseData>(
         headers?: Record<string, any>;
         formData?: FormData;
         onRequest?: (request: RequestInit) => Promise<void>;
+        signal?: AbortSignal;
       }
     | string,
 ): Promise<{ data?: ResponseData; error?: Error }> => {
@@ -36,6 +37,7 @@ export const sendRequest = async <ResponseData>(
       mode: 'cors',
       headers,
       body,
+      signal: typeof params !== 'string' ? params.signal : undefined,
     };
 
     if (typeof params !== 'string' && params.onRequest) {

@@ -61,6 +61,16 @@ export type LeadCaptureRequest = BaseRequest & {
   body: Partial<LeadCaptureInput>;
 };
 
+export type GenerateTTSRequest = BaseRequest & {
+  body: {
+    chatId: string;
+    chatflowId: string;
+    chatMessageId: string;
+    text: string;
+  };
+  signal?: AbortSignal;
+};
+
 export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body, onRequest }: CreateFeedbackRequest) =>
   sendRequest({
     method: 'POST',
@@ -137,3 +147,23 @@ export const addLeadQuery = ({ apiHost = 'http://localhost:3000', body, onReques
     body,
     onRequest: onRequest,
   });
+
+export const generateTTSQuery = async ({ apiHost = 'http://localhost:3000', body, onRequest, signal }: GenerateTTSRequest): Promise<Response> => {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  const requestInfo: RequestInit = {
+    method: 'POST',
+    mode: 'cors',
+    headers,
+    body: JSON.stringify(body),
+    signal,
+  };
+
+  if (onRequest) {
+    await onRequest(requestInfo);
+  }
+
+  return fetch(`${apiHost}/api/v1/text-to-speech/generate`, requestInfo);
+};
