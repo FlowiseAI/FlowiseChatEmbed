@@ -504,14 +504,15 @@ export const BotBubble = (props: Props) => {
             <Show when={props.sourceDocsTitle}>
               <span class="px-2 py-[10px] font-semibold">{props.sourceDocsTitle}</span>
             </Show>
-            <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
-              <For each={[...removeDuplicateURL(props.message)]}>
-                {(src) => {
+            <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap', 'margin-left': '40px' }}>
+              <For each={[...removeDuplicateURL(props.message)].slice(0, 4)}>
+                {(src, index) => {
                   const URL = isValidURL(src.metadata.source);
                   return (
                     <SourceBubble
-                      pageContent={URL ? URL.pathname : src.pageContent}
-                      metadata={src.metadata}
+                      index={index()}
+                      chunkContent={URL ? URL.pathname : src.pageContent}
+                      title={src.metadata.section.text}
                       onSourceClick={() => {
                         if (URL) {
                           window.open(src.metadata.source, '_blank');

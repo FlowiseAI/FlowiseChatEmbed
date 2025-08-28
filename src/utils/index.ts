@@ -150,3 +150,6 @@ export const getCookie = (cname: string): string => {
   }
   return '';
 };
+
+// 텍스트 자르기 관련 유틸리티 함수들
+export { truncateTextByWidth, getTextWidth } from './textTruncator';

@@ -84,6 +84,29 @@ To enable full screen, add `margin: 0` to <code>body</code> style, and confirm y
 </body>
 ```
 
+## Features
+
+### Smart Text Truncation
+
+The library includes intelligent text truncation that considers different character widths for various languages:
+
+- **Korean (한글)**: 2.0 width units
+- **Korean consonants/vowels (ㄱ-ㅎ)**: 1.5 width units  
+- **Full-width characters (全角)**: 2.0 width units
+- **English, numbers, symbols**: 1.0 width units
+
+This ensures consistent visual length regardless of the text language.
+
+```typescript
+import { truncateTextByWidth, getTextWidth } from './utils/textTruncator';
+
+// Truncate text to fit within 25 width units
+const truncated = truncateTextByWidth('Hello 안녕하세요! １２３', 25);
+
+// Get actual width of text
+const width = getTextWidth('Hello 안녕하세요!');
+```
+
 ## Configuration
 
 You can also customize chatbot with different configuration

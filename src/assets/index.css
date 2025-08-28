@@ -199,7 +199,8 @@ textarea {
 
 .chatbot-host-bubble {
   color: var(--chatbot-host-bubble-color);
-  background-color: #f7f8ff;
+  /* border: 1px solid #CED4DA; */
+  background-color: #ffffff;
   /* force wrapping of long text or links */
   overflow-wrap: break-word;
   word-wrap: break-word;
