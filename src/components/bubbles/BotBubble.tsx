@@ -337,9 +337,10 @@ export const BotBubble = (props: Props) => {
             innerHTML={Marked.parse(item.data as string)}
             class="prose"
             style={{
-              'background-color': (props.message.sourceDocuments && props.message.sourceDocuments.length > 0) 
-                ? (props.backgroundColorEmphasize ?? defaultBackgroundColor)
-                : (props.backgroundColor ?? defaultBackgroundColor),
+              'background-color':
+                props.message.sourceDocuments && props.message.sourceDocuments.length > 0
+                  ? props.backgroundColorEmphasize ?? defaultBackgroundColor
+                  : props.backgroundColor ?? defaultBackgroundColor,
               color: props.textColor ?? defaultTextColor,
               'border-radius': '6px',
               'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
@@ -452,9 +453,10 @@ export const BotBubble = (props: Props) => {
               class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
               data-testid="host-bubble"
               style={{
-                'background-color': (props.message.sourceDocuments && props.message.sourceDocuments.length > 0) 
-                  ? (props.backgroundColorEmphasize ?? defaultBackgroundColor)
-                  : (props.backgroundColor ?? defaultBackgroundColor),
+                'background-color':
+                  props.message.sourceDocuments && props.message.sourceDocuments.length > 0
+                    ? props.backgroundColorEmphasize ?? defaultBackgroundColor
+                    : props.backgroundColor ?? defaultBackgroundColor,
                 color: props.textColor ?? defaultTextColor,
                 'border-radius': '6px',
                 'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
@@ -511,8 +513,9 @@ export const BotBubble = (props: Props) => {
                   return (
                     <SourceBubble
                       index={index()}
-                      chunkContent={URL ? URL.pathname : src.pageContent}
+                      chunkContent={URL ? URL.pathname : src.metadata.chunkContent}
                       title={src.metadata.section.text}
+                      imageSrc={src.metadata.related_image && src.metadata.related_image.length > 0 ? src.metadata.related_image[0] : undefined}
                       onSourceClick={() => {
                         if (URL) {
                           window.open(src.metadata.source, '_blank');
