@@ -24,7 +24,8 @@
             apiHost: 'https://flowise.tobeway.com:3000',
             chatflowConfig: {
                 vars: {
-                    mdmModule: 'MDM'
+                    mdmModule: 'META',
+                    gptModel: 'gpt-5-mini'
                 }
             },
             theme: {
@@ -49,7 +50,7 @@
                     titleAvatarSrc: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg",
                     welcomeMessage: "안녕하세요 <%=SessionUserName%>님! 필요한 정보나 궁금한 점이 있다면 말씀해주세요. 함께 해결해드리겠습니다.",
                     clearChatOnReload: false,
-                    starterPrompts: ["메타데이터란 무엇인가요?"], 
+                    starterPrompts: ["MDM 업무규칙?"], 
                     botMessage: {
                         backgroundColor: "#E3F2FD",
                         backgroundColorEmphasize: "#DCF0FF",
@@ -82,7 +83,7 @@
                 observeSourceClick: (source) => {
                     console.log(source);
                     if (source && source.metadata) {
-                        alert('PDF Viewer를 띄우겠습니다.' + source.metadata.solution + ' ' + source.metadata.solution + ' page');
+                        //alert('PDF Viewer를 띄우겠습니다.' + source.metadata.solution + ' ' + source.metadata.solution + ' page');
                     }
                     //console.log(source.metadata.solution);
                 }
