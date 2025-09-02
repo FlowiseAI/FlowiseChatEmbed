@@ -21,7 +21,8 @@ const indexConfig = {
   plugins: [
     resolve({ extensions, browser: true }),
     commonjs(),
-    uglify(),
+    // do not minify in development
+    ...(isDev ? [] : [uglify()]),
     json(),
     babel({
       babelHelpers: 'bundled',
@@ -34,12 +35,12 @@ const indexConfig = {
       extract: false,
       modules: false,
       autoModules: false,
-      minimize: true,
       inject: false,
     }),
     typescript(),
     typescriptPaths({ preserveExtensions: true }),
-    terser({ output: { comments: false } }),
+    // do not minify in development
+    ...(isDev ? [] : [terser({ output: { comments: false } })]),
     ...(isDev
       ? [
           serve({
@@ -48,10 +49,16 @@ const indexConfig = {
             contentBase: ['dist', 'public'],
             host: 'localhost',
             port: 5678,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET,HEAD,PUT,POST,DELETE,OPTIONS',
+              'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+            },
           }),
           livereload({ watch: 'dist' }),
         ]
       : []), // Add serve/livereload only in development
+
   ],
 };
 
