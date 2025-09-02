@@ -33,7 +33,6 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
-import { cloneDeep } from 'lodash';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
@@ -543,13 +542,43 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (!bottomSpacer) return;
     setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      scrollToBottom();
     }, 50);
   });
 
   const scrollToBottom = () => {
+    // Slight delay to allow DOM to render the new message
     setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      if (!chatContainer) return;
+
+      try {
+        const msgs = messages();
+        if (!msgs || msgs.length === 0) {
+          chatContainer.scrollTo({ top: chatContainer.scrollHeight });
+          return;
+        }
+
+        const lastMessage = msgs[msgs.length - 1];
+
+        // If the last message is from the bot, scroll so its top is visible
+        if (lastMessage.type === 'apiMessage') {
+          // Prefer the rendered host-bubble element
+          const hostEls = chatContainer.querySelectorAll('[data-testid="host-bubble"]');
+          const lastEl = hostEls && hostEls.length ? (hostEls[hostEls.length - 1] as HTMLElement) : null;
+          if (lastEl) {
+            // offsetTop is relative to the scroll container
+            const targetTop = Math.max(0, lastEl.offsetTop - (50 + 10)); // padding the size of the header with small padding 10px
+            chatContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
+            return;
+          }
+        }
+
+        // Fallback: scroll to bottom
+        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+      } catch (e) {
+        // In case of any unexpected error, fallback to basic scroll
+        chatContainer?.scrollTo(0, chatContainer?.scrollHeight);
+      }
     }, 50);
   };
 
@@ -589,120 +618,121 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let hasSoundPlayed = false;
 
   const updateLastMessage = (text: string) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      if (!text) return allMessages;
-      allMessages[allMessages.length - 1].message += text;
-      allMessages[allMessages.length - 1].rating = undefined;
-      allMessages[allMessages.length - 1].dateTime = new Date().toISOString();
+    if (!text) return;
+    setMessages((prev) => {
+      if (prev.length === 0) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.message += text; // mutate to preserve component identity
+      last.rating = undefined;
+      last.dateTime = new Date().toISOString();
       if (!hasSoundPlayed) {
         playReceiveSound();
         hasSoundPlayed = true;
       }
-      addChatMessage(allMessages);
-      return allMessages;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
   const updateErrorMessage = (errorMessage: string) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      allMessages.push({ message: props.errorMessage || errorMessage, type: 'apiMessage' });
-      addChatMessage(allMessages);
-      return allMessages;
+    setMessages((prev) => {
+      const next: MessageType[] = [...prev, { message: props.errorMessage || errorMessage, type: 'apiMessage' as messageType }];
+      addChatMessage(next);
+      return next;
     });
   };
 
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, sourceDocuments };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.sourceDocuments = sourceDocuments;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
   const updateLastMessageUsedTools = (usedTools: any[]) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].usedTools = usedTools;
-      addChatMessage(allMessages);
-      return allMessages;
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.usedTools = usedTools;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
   const updateLastMessageFileAnnotations = (fileAnnotations: any) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].fileAnnotations = fileAnnotations;
-      addChatMessage(allMessages);
-      return allMessages;
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.fileAnnotations = fileAnnotations;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
   const updateLastMessageAgentReasoning = (agentReasoning: string | IAgentReasoning[]) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, agentReasoning: typeof agentReasoning === 'string' ? JSON.parse(agentReasoning) : agentReasoning };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      const parsed = typeof agentReasoning === 'string' ? JSON.parse(agentReasoning) : agentReasoning;
+      last.agentReasoning = parsed as any;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
-  const updateAgentFlowEvent = (event: string) => {
-    if (event === 'INPROGRESS') {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
-    } else {
-      setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-        allMessages[allMessages.length - 1].agentFlowEventStatus = event;
-        return allMessages;
-      });
+  const updateAgentFlowEvent = (status: string) => {
+    if (status === 'INPROGRESS') {
+      setMessages((prev) => [...prev, { message: '', type: 'apiMessage' as messageType, agentFlowEventStatus: status, messageId: uuidv4() }]);
+      return;
     }
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.agentFlowEventStatus = status;
+      return prev;
+    });
   };
 
   const updateAgentFlowExecutedData = (agentFlowExecutedData: any) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].agentFlowExecutedData = agentFlowExecutedData;
-      addChatMessage(allMessages);
-      return allMessages;
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.agentFlowExecutedData = agentFlowExecutedData;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
   const updateLastMessageArtifacts = (artifacts: FileUpload[]) => {
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].artifacts = artifacts;
-      addChatMessage(allMessages);
-      return allMessages;
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      last.artifacts = artifacts;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
   const updateLastMessageAction = (action: IAction) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, action: typeof action === 'string' ? JSON.parse(action) : action };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      const parsed = typeof action === 'string' ? JSON.parse(action) : action;
+      last.action = parsed as any;
+      addChatMessage(prev);
+      return prev;
     });
   };
 
@@ -750,35 +780,40 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     // set message id that is needed for feedback
     if (data.chatMessageId) {
-      setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 1].type === 'apiMessage') {
-          allMessages[allMessages.length - 1].messageId = data.chatMessageId;
-        }
-        addChatMessage(allMessages);
-        return allMessages;
+      setMessages((prev) => {
+        if (!prev.length) return prev;
+        const last = prev[prev.length - 1];
+        if (last.type !== 'apiMessage') return prev;
+        const updatedLast = { ...last, messageId: data.chatMessageId };
+        const next = [...prev.slice(0, -1), updatedLast];
+        addChatMessage(next);
+        return next;
       });
     }
 
     if (input === '' && data.question) {
       // the response contains the question even if it was in an audio format
       // so if input is empty but the response contains the question, update the user message to show the question
-      setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 2].type === 'apiMessage') return allMessages;
-        allMessages[allMessages.length - 2].message = data.question;
-        addChatMessage(allMessages);
-        return allMessages;
+      setMessages((prev) => {
+        if (prev.length < 2) return prev;
+        const secondLast = prev[prev.length - 2];
+        if (secondLast.type === 'apiMessage') return prev;
+        const updatedSecondLast = { ...secondLast, message: data.question };
+        const next = [...prev.slice(0, -2), updatedSecondLast, prev[prev.length - 1]];
+        addChatMessage(next);
+        return next;
       });
     }
 
     if (data.followUpPrompts) {
-      setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-        allMessages[allMessages.length - 1].followUpPrompts = data.followUpPrompts;
-        addChatMessage(allMessages);
-        return allMessages;
+      setMessages((prev) => {
+        if (!prev.length) return prev;
+        const last = prev[prev.length - 1];
+        if (last.type === 'userMessage') return prev;
+        const updatedLast = { ...last, followUpPrompts: data.followUpPrompts };
+        const next = [...prev.slice(0, -1), updatedLast];
+        addChatMessage(next);
+        return next;
       });
       setFollowUpPrompts(JSON.parse(data.followUpPrompts));
     }
@@ -818,7 +853,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const payload = JSON.parse(ev.data);
         switch (payload.event) {
           case 'start':
-            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', messageId: uuidv4() }]);
             break;
           case 'token':
             updateLastMessage(payload.data);
@@ -886,14 +921,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const abortMessage = () => {
     setIsMessageStopping(false);
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning;
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      if (last.type === 'userMessage') return prev;
+      const lastAgentReasoning = last.agentReasoning;
       if (lastAgentReasoning && lastAgentReasoning.length > 0) {
-        allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent);
+        const filtered = lastAgentReasoning.filter((reasoning: any) => !reasoning.nextAgent);
+        const updatedLast = { ...last, agentReasoning: filtered };
+        return [...prev.slice(0, -1), updatedLast];
       }
-      return allMessages;
+      return prev;
     });
   };
 
@@ -1061,8 +1099,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         playReceiveSound();
 
         setMessages((prevMessages) => {
-          const allMessages = [...cloneDeep(prevMessages)];
-          const newMessage = {
+          const allMessages = [...prevMessages];
+          const newMessage: MessageType = {
             message: text,
             id: data?.chatMessageId,
             sourceDocuments: data?.sourceDocuments,
@@ -1075,7 +1113,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             type: 'apiMessage' as messageType,
             feedback: null,
             dateTime: new Date().toISOString(),
-          };
+          } as MessageType;
           allMessages.push(newMessage);
           addChatMessage(allMessages);
           return allMessages;
@@ -1231,7 +1269,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (messages()) {
       if (messages().length > 1) {
         setTimeout(() => {
-          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+          scrollToBottom();
         }, 400);
       }
     }
@@ -1814,7 +1852,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               ref={chatContainer}
               class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
             >
-              <For each={[...messages()]}>
+              <For each={messages()}>
                 {(message, index) => {
                   return (
                     <>
