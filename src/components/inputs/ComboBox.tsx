@@ -154,7 +154,7 @@ export const ComboBox = (props: Props) => {
         {/* 메인 입력 필드 */}
         <div
           class={`
-            flex items-center justify-between w-full px-3  
+            flex items-center justify-between w-full px-2  
             border border-gray-300 rounded-md cursor-pointer
             ${props.disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-gray-400'}
             ${isOpen() ? 'border-blue-500 ring-2 ring-blue-200' : ''}

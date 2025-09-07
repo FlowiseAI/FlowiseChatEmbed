@@ -38,32 +38,40 @@ export const SourceBubble = (props: Props) => (
             'text-overflow': 'ellipsis',
             overflow: 'hidden',
             'white-space': 'nowrap',
-            display: 'block',
+            display: 'flex',
+            'align-items': 'center',
+            gap: '4px',
           }}
         >
           <span
             style={{
-              'font-size': '10px',
-              display: 'inline-flex',
+              width: '16px',
               height: '16px',
-              padding: '2px 5px',
-              'align-items': 'center',
-              gap: '10px',
               'flex-shrink': '0',
-              'border-radius': '4px',
-              'margin-right': '2px',
-              background: 'linear-gradient(0deg, #CAE6FB 0%, #CAE6FB 100%), linear-gradient(0deg, #DCF0FF 0%, #DCF0FF 100%), #E2FFEC',
+              'background-image': 'url(./pdf_icon.png)',
+              'background-size': '16px 16px',
+              'background-position': 'center',
+              'background-repeat': 'no-repeat',
+            }}
+          />
+          <span
+            style={{
+              'text-overflow': 'ellipsis',
+              overflow: 'hidden',
+              'white-space': 'nowrap',
+              flex: '1',
             }}
           >
-            {props.index + 1}
+            {props.title}
           </span>
-          {props.title}
         </span>
         <span
           style={{
             'font-size': '10px',
             overflow: 'hidden',
-            height: props.imageSrc && props.imageSrc.trim() !== '' ? '110px' : 'auto',
+            height: props.imageSrc && props.imageSrc.trim() !== '' ? 'auto' : '110px',
+            display: props.imageSrc && props.imageSrc.trim() !== '' ? undefined : 'block',
+            'line-height': props.imageSrc && props.imageSrc.trim() !== '' ? undefined : '1.8',
           }}
         >
           {props.imageSrc && props.imageSrc.trim() !== '' ? truncateTextByWidth(props.chunkContent, 50) : props.chunkContent}

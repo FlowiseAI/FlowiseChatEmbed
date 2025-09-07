@@ -30,7 +30,7 @@ export const SendButton = (props: SendButtonProps) => {
 export const DeleteButton = (props: SendButtonProps) => {
   // Check if <flowise-fullchatbot> is present in the DOM
   const isFullChatbot = document.querySelector('flowise-fullchatbot') !== null;
-  const paddingClass = isFullChatbot ? 'px-4' : 'px-12';
+  const paddingClass = isFullChatbot ? 'px-2' : 'px-12';
 
   return (
     <button
@@ -38,14 +38,14 @@ export const DeleteButton = (props: SendButtonProps) => {
       disabled={props.isDisabled || props.isLoading}
       {...props}
       class={
-        `py-2 ${paddingClass} justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ` +
+        `py-2 ${paddingClass} justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button mr-1 ` +
         props.class
       }
       style={{ background: 'transparent', border: 'none' }}
       title="Reset Chat"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <DeleteIcon color={props.sendButtonColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
+        <img src="./refresh.png" />
       </Show>
     </button>
   );
