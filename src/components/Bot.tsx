@@ -124,6 +124,7 @@ export type MessageType = {
   id?: string;
   followUpPrompts?: string;
   dateTime?: string;
+  refreshTrigger?: number;
 };
 
 type IUploads = {
@@ -537,7 +538,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const updateErrorMessage = (errorMessage: string) => {
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
-      allMessages.push({ message: props.errorMessage || errorMessage, type: 'apiMessage' });
+      allMessages.push({ message: props.errorMessage || errorMessage, type: 'apiMessage', sourceDocuments: [] });
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -591,7 +592,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateAgentFlowEvent = (event: string) => {
     if (event === 'INPROGRESS') {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
+      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event, sourceDocuments: [] }]);
     } else {
       setMessages((prevMessages) => {
         const allMessages = [...cloneDeep(prevMessages)];
@@ -648,10 +649,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       errMessage = props.errorMessage;
     }
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: errMessage, type: 'apiMessage' }];
+      const messages: MessageType[] = [...prevMessages, { message: errMessage, type: 'apiMessage', sourceDocuments: [] }];
       addChatMessage(messages);
       return messages;
     });
+    console.log('setLoading(false) handleError')
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
@@ -745,9 +747,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       },
       async onmessage(ev) {
         const payload = JSON.parse(ev.data);
+        console.log('payload', payload);
         switch (payload.event) {
           case 'start':
-            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', sourceDocuments: [] }]);
             break;
           case 'token':
             updateLastMessage(payload.data);
@@ -804,10 +807,26 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const closeResponse = () => {
+    console.log('setLoading(false) closeResponse')
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
+    
+    // Force BotBubble refresh by updating the last message
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)];
+      if (allMessages.length > 0 && allMessages[allMessages.length - 1].type === 'apiMessage') {
+        // Add a small update to trigger re-render
+        allMessages[allMessages.length - 1] = {
+          ...allMessages[allMessages.length - 1],
+          // Force refresh by adding a timestamp to trigger reactivity
+          refreshTrigger: Date.now()
+        };
+      }
+      return allMessages;
+    });
+    
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -1012,6 +1031,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
         updateMetadata(data, value);
 
+        console.log('setLoading(false) updateMetadata')
         setLoading(false);
         setUserInput('');
         setUploadedFiles([]);
@@ -1115,7 +1135,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const messages: MessageType[] = [
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
-          type: 'apiMessage',
+          type: 'apiMessage'
         },
       ];
       if (leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead) {
@@ -1215,7 +1235,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
               return chatHistory;
             })
-          : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
+          : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage', sourceDocuments: [] }];
 
       const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
       setMessages([...filteredMessages]);
@@ -1336,11 +1356,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     return () => {
       setUserInput('');
       setUploadedFiles([]);
+      console.log('setLoading(false) return')
       setLoading(false);
       setMessages([
         {
           message: props.welcomeMessage ?? defaultWelcomeMessage,
           type: 'apiMessage',
+          sourceDocuments: [],
         },
       ]);
     };
@@ -1815,6 +1837,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           feedbackColor={props.feedback?.color}
                           showAvatar={props.botMessage?.showAvatar}
                           avatarSrc={props.botMessage?.avatarSrc}
+                          avatarLoadingSrc={props.botMessage?.avatarLoadingSrc}
+                          avatarInfoSrc={props.botMessage?.avatarInfoSrc}
+                          avatarEmptySrc={props.botMessage?.avatarEmptySrc}
                           chatFeedbackStatus={chatFeedbackStatus()}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
