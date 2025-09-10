@@ -20,6 +20,9 @@ type Props = {
   fileAnnotations?: any;
   showAvatar?: boolean;
   avatarSrc?: string;
+  avatarLoadingSrc?: string;
+  avatarInfoSrc?: string;
+  avatarEmptySrc?: string;
   backgroundColor?: string;
   backgroundColorEmphasize?: string;
   textColor?: string;
@@ -393,12 +396,27 @@ export const BotBubble = (props: Props) => {
       return '';
     }
   };
-
+  const getAvatarSrcSrc = (sourceDocuments: any[], isLoading: boolean, messageType: string, message: string) => {
+    console.log('sourceDocuments', sourceDocuments);
+    console.log('isLoading', isLoading);
+    console.log('messageType', messageType);
+    if(isLoading && messageType === 'apiMessage') {
+      return props.avatarLoadingSrc;
+    } else if(props.message.sourceDocuments) {
+      if(props.message.sourceDocuments.length === 0) {
+        return props.avatarEmptySrc;
+      } else {
+        return props.avatarInfoSrc;
+      }
+    } else {
+      return props.avatarSrc;
+    }    
+  };
   return (
     <div>
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
         <Show when={props.showAvatar}>
-          <Avatar initialAvatarSrc={props.avatarSrc} />
+          <Avatar initialAvatarSrc={getAvatarSrcSrc(props.message.sourceDocuments, props?.isLoading, props.message.type, props.message.message)} />
         </Show>
         <div class="flex flex-col justify-start">
           {props.showAgentMessages &&

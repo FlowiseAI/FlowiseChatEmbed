@@ -43,6 +43,9 @@ export type BotMessageTheme = {
   textColor?: string;
   showAvatar?: boolean;
   avatarSrc?: string;
+  avatarLoadingSrc?: string;  
+  avatarInfoSrc?: string;
+  avatarEmptySrc?: string;
 };
 
 export type FooterTheme = {

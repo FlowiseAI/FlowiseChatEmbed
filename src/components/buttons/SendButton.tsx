@@ -45,7 +45,7 @@ export const DeleteButton = (props: SendButtonProps) => {
       title="Reset Chat"
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <img src="./refresh.png" />
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGQSURBVHgB7VTLTcNAEJ1d2+KIJRKJGynB+XAmJaQD6IBwQwLiNYgzoYJQAlSQ5IpIDB2EExL44ALiHXb8gUhZbCOI4JAnrbW/eW81njcAa/w1WNGFytl0Dzh21MUOANZoDwEeaURzLsLLxvPH3d7EDc6bXikBu+vb5qZ0GWAXcoDA+oHXPCJyxlC8eS1WKJCQR0N16KhliMj6wOU4ELsjOq+KewfQOFT0B2lISGE0KSVQcSdX6ctnpsXbL6efaVjEtvBrEUZ+Rq4T4EuvP/ZrWVryyAlzKfcXyXVYEjA2pJtOb/LIs5xDAfjyBjrxhMlr+CG5FlX3AWnAL4HDiqERYDP6xgZbhYDKzW2ig20oiS13MkhTOygUAINlAl37ZLoDBaCy5qnhVFmLQoGg1xiT/ZVbbMuUozwRIrc25JDmFKMra32rEL5tYUSBcclK5QlD8v7rReOJ1vH/USlUpUqGtKnxBV6rruP6utkpERPLNbs5414o6uG3BDIk/YbcHRvQSYLYTFIxMHmXNcA1/i/eARk6pU1JgTB4AAAAAElFTkSuQmCC" />
       </Show>
     </button>
   );

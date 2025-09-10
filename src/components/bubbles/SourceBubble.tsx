@@ -48,7 +48,7 @@ export const SourceBubble = (props: Props) => (
               width: '16px',
               height: '16px',
               'flex-shrink': '0',
-              'background-image': 'url(./pdf_icon.png)',
+              'background-image': 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAB2AAAAdgFOeyYIAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAKJQTFRF////2///5ub/7+/v3uHn3d/l5Ojr4+fr6/Dz1tjd1dbb4eXo4+bq5n5x5n9y5oB05oN35oV554l+54p/54uA54+F55iP55yU6KSc6KWe6Kag6Keg6K+q6LSv6bi06cG+6cK/6cPA6cjG6cnG6crI6e3x6s3L6tfX6tnZ6tzc6t3d6t/g6uLj6uPl6+fo6+jq6+nr6+zv6+7w6+7x6+/y6/DzhcaqxgAAAAp0Uk5TAAcKEFZZ8vPz/vByzTcAAABySURBVBiVY2Bg4jCFADZWBjBghvJNeThZ0AS4ICJwAVVubnZGZAEQYIYJGMqaoArIi6ugCmgIqKMKmPIaoQroCkuiCkgpCUkra8IFjOX4JRTkBUXVoAI6YnzaQFX6igZQAS0RGTSH6aG4FO59IOBgYgAAUoYhi44/QgwAAAAASUVORK5CYII=)',
               'background-size': '16px 16px',
               'background-position': 'center',
               'background-repeat': 'no-repeat',
