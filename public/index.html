@@ -1,9 +1,7 @@
 <!--
-  NOTE: This .html file (and public folder) is optional and can be safely deleted.
-  It serves only as a demo/test page.
-  
-  The chatbot can be embedded directly on any allowed domain using the embed script that
-  is generated when starting the server.
+chatflowid::
+    gpt-4o-mini : a1b9a25d-81ee-48cd-822b-09ae2bd89725
+    gpt-5-nano  : fc142d8d-be62-4565-bdb4-42b3ee258009
 -->
 
 <!DOCTYPE html>
@@ -24,8 +22,14 @@
             apiHost: 'https://flowise.tobeway.com:3000',
             chatflowConfig: {
                 vars: {
-                    mdmModule: 'META',
-                    gptModel: 'gpt-4o-mini'
+                    mdmModule: 'MDM',
+                    aimlUrl:"http://192.168.3.158:8443",
+                    gptModel:"gpt-4o-mini",
+                    langCode: "KO",
+                    mdmModule: "MDM",
+                    mdmUrl: "https://rnd.tobeway.com:8000/tbwapi",
+                    userId: "ksm",
+                    userToken: "gejDolc+90dtL1t+mszjAPT0bIMdgqHCplmFf66mJ9s="                    
                 }
             },
             theme: {
@@ -48,7 +52,7 @@
                     showAgentMessages: false,
                     title: "토비 AI",
                     welcomeMessage: "안녕하세요 김신모님! 필요한 정보나 궁금한 점이 있다면 말씀해주세요. 함께 해결해드리겠습니다.",
-                    clearChatOnReload: false,
+                    clearChatOnReload: true,
                     starterPrompts: ["MDM 업무규칙?"], 
                     botMessage: {
                         backgroundColor: "#E3F2FD",
@@ -73,17 +77,37 @@
                     footer: {
                         text: "",
                         company: ""
-                    }
+                    },
+                    gptModels: {
+                        label: "모델",
+                        defaultValue: "gpt-4o-mini",
+                        values: [
+                            { value: 'gpt-4o-mini', label: 'gpt-4o-mini' },
+                            { value: 'gpt-5-nano', label: 'gpt-5-nano' },
+                        ]
+                    },
+                    mdmModules: {
+                        label: "모듈",
+                        defaultValue: "META",
+                        values: [
+                        { value: 'MDM', label: 'MDM' },
+                        { value: 'DOM', label: 'DOM' },
+                        { value: 'DQM', label: 'DQM' },
+                        { value: 'META', label: 'META' },
+                        { value: 'DI', label: 'DI' },
+                        { value: 'SNOP', label: 'S&OP' },
+                        ]
+                    },
                 }                
             },
             observersConfig: {
                 // The bot message stack has changed
                 observeMessages: (messages) => {
-                    //console.log({ messages });
+//                    console.log({ messages });
                 },
                 // Source link has clicked
                 observeSourceClick: (source) => {
-                    console.log(source);
+                    //console.log(source);
                     if (source && source.metadata) {
                         //alert('PDF Viewer를 띄우겠습니다.' + source.metadata.solution + ' ' + source.metadata.solution + ' page');
                     }

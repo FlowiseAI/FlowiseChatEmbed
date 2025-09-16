@@ -22,6 +22,7 @@ import {
   FeedbackTheme,
   DisclaimerPopUpTheme,
   DateTimeToggleTheme,
+  ComboBoxTheme, 
 } from '@/features/bubble/types';
 import { Badge } from './Badge';
 import { Popup, DisclaimerPopup } from '@/features/popup';
@@ -142,6 +143,8 @@ export type BotProps = {
   apiHost?: string;
   onRequest?: (request: RequestInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
+  gptModels?: ComboBoxTheme;
+  mdmModules?: ComboBoxTheme;
   backgroundColor?: string;
   welcomeMessage?: string;
   errorMessage?: string;
@@ -653,7 +656,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       addChatMessage(messages);
       return messages;
     });
-    console.log('setLoading(false) handleError')
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
@@ -747,7 +749,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       },
       async onmessage(ev) {
         const payload = JSON.parse(ev.data);
-        console.log('payload', payload);
         switch (payload.event) {
           case 'start':
             setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', sourceDocuments: [] }]);
@@ -807,7 +808,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const closeResponse = () => {
-    console.log('setLoading(false) closeResponse')
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
@@ -1031,7 +1031,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
         updateMetadata(data, value);
 
-        console.log('setLoading(false) updateMetadata')
         setLoading(false);
         setUserInput('');
         setUploadedFiles([]);
@@ -1356,7 +1355,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     return () => {
       setUserInput('');
       setUploadedFiles([]);
-      console.log('setLoading(false) return')
       setLoading(false);
       setMessages([
         {
@@ -1752,15 +1750,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               <div style={{ flex: 1 }} />
               <div class="flex items-center px-3">
                 <ComboBox
-                  options={[
-                    { value: 'gpt-4o-mini', label: 'gpt-4o-mini' },
-                    { value: 'gpt-5-mini', label: 'gpt-5-mini' },
-                  ]}
-                  label="모델"
-                  defaultValue={(botProps.chatflowConfig?.vars as any)?.gptModel || 'gpt-4o-mini'}
-                  placeholder="옵션을 선택하세요"
+                  options={props.gptModels?.values || []}
+                  label={props.gptModels?.label}
+                  defaultValue={props.gptModels?.defaultValue}
                   onChange={(value: string) => {
-                    // 선택된 MDM 모듈 값을 chatflowConfig에 저장
+                    // 선택된 모델델 값을 chatflowConfig에 저장
                     if (botProps.chatflowConfig?.vars) {
                       (botProps.chatflowConfig.vars as any).gptModel = value;
                     }
@@ -1770,17 +1764,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </div>
               <div class="flex items-center px-3">
                 <ComboBox
-                  options={[
-                    { value: 'MDM', label: 'MDM' },
-                    { value: 'DOM', label: 'DOM' },
-                    { value: 'DQM', label: 'DQM' },
-                    { value: 'META', label: 'META' },
-                    { value: 'DI', label: 'DI' },
-                    { value: 'SNOP', label: 'S&OP' },
-                  ]}
-                  label="모듈"
-                  defaultValue={(botProps.chatflowConfig?.vars as any)?.mdmModule || 'MDM'}
-                  placeholder="옵션을 선택하세요"
+                  options={props.mdmModules?.values || []}
+                  label={props.mdmModules?.label}
+                  defaultValue={props.mdmModules?.defaultValue}
+                  placeholder="모듈을 선택하세요"
                   onChange={(value: string) => {
                     // 선택된 MDM 모듈 값을 chatflowConfig에 저장
                     if (botProps.chatflowConfig?.vars) {

@@ -86,6 +86,8 @@ export type ChatWindowTheme = {
   clearChatOnReload?: boolean;
   dateTimeToggle?: DateTimeToggleTheme;
   renderHTML?: boolean;
+  gptModels?: ComboBoxTheme;
+  mdmModules?: ComboBoxTheme;
 };
 
 export type ButtonTheme = {
@@ -129,4 +131,10 @@ export type DisclaimerPopUpTheme = {
 export type DateTimeToggleTheme = {
   date?: boolean;
   time?: boolean;
+};
+
+export type ComboBoxTheme = {
+  label: string;
+  defaultValue: string;
+  values: { value: string; label: string }[];
 };

@@ -397,9 +397,6 @@ export const BotBubble = (props: Props) => {
     }
   };
   const getAvatarSrcSrc = (sourceDocuments: any[], isLoading: boolean, messageType: string, message: string) => {
-    console.log('sourceDocuments', sourceDocuments);
-    console.log('isLoading', isLoading);
-    console.log('messageType', messageType);
     if(isLoading && messageType === 'apiMessage') {
       return props.avatarLoadingSrc;
     } else if(props.message.sourceDocuments) {
@@ -532,7 +529,7 @@ export const BotBubble = (props: Props) => {
                     <SourceBubble
                       index={index()}
                       chunkContent={URL ? URL.pathname : src.metadata.chunkContent}
-                      title={src.metadata.section.text}
+                      title={src.metadata.section ? src.metadata.section.text : ""}
                       imageSrc={src.metadata.related_image && src.metadata.related_image.length > 0 ? src.metadata.related_image[0] : undefined}
                       onSourceClick={() => {
                         if (URL) {
