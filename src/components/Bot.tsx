@@ -542,9 +542,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (!bottomSpacer) return;
-    setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-    }, 50);
+    scrollToBottom();
   });
 
   const scrollToBottom = () => {
@@ -819,6 +817,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         switch (payload.event) {
           case 'start':
             setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+            scrollToBottom();
             break;
           case 'token':
             updateLastMessage(payload.data);
@@ -869,6 +868,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       onerror(err) {
         console.error('EventSource Error: ', err);
         closeResponse();
+        scrollToBottom();
         throw err;
       },
     });
@@ -879,9 +879,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
   };
 
   const abortMessage = () => {
@@ -1226,17 +1223,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   });
 
-  // Auto scroll chat to bottom
-  createEffect(() => {
-    if (messages()) {
-      if (messages().length > 1) {
-        setTimeout(() => {
-          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-        }, 400);
-      }
-    }
-  });
-
   createEffect(() => {
     if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`;
   });
@@ -1402,6 +1388,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       }
     }
+    scrollToBottom();
 
     // eslint-disable-next-line solid/reactivity
     return () => {
