@@ -529,7 +529,7 @@ export const BotBubble = (props: Props) => {
       </div>
       <div>
         <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
-          <Show when={props.isTTSEnabled}>
+          <Show when={props.isTTSEnabled && props.message.id}>
             <TTSButton
               feedbackColor={props.feedbackColor}
               isLoading={props.isTTSLoading?.[props.message.id || ''] || false}
@@ -537,6 +537,9 @@ export const BotBubble = (props: Props) => {
               onClick={() => {
                 const messageId = props.message.id || '';
                 const messageText = props.message.message || '';
+                if (props.isTTSLoading?.[messageId]) {
+                  return; // Prevent multiple clicks while loading
+                }
                 if (props.isTTSPlaying?.[messageId]) {
                   props.handleTTSStop?.(messageId);
                 } else {

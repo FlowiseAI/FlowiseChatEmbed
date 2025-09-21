@@ -532,6 +532,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     abortController: null as AbortController | null,
   });
 
+  // TTS auto-scroll prevention refs
+  let isTTSActionRef = false;
+  let ttsTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+
   createMemo(() => {
     const customerId = (props.chatflowConfig?.vars as any)?.customerId;
     setChatId(customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4());
@@ -567,6 +571,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
+  };
+
+  // Helper function to manage TTS action flag
+  const setTTSAction = (isActive: boolean) => {
+    isTTSActionRef = isActive;
+    if (ttsTimeoutRef) {
+      clearTimeout(ttsTimeoutRef);
+      ttsTimeoutRef = null;
+    }
+    if (isActive) {
+      // Reset the flag after a longer delay to ensure all state changes are complete
+      ttsTimeoutRef = setTimeout(() => {
+        isTTSActionRef = false;
+        ttsTimeoutRef = null;
+      }, 300);
+    }
   };
 
   /**
@@ -886,6 +906,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           case 'tts_end':
             handleTTSEnd();
             break;
+          case 'tts_abort':
+            handleTTSAbort(payload.data);
+            break;
         }
       },
       async onclose() {
@@ -911,6 +934,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const abortMessage = () => {
     setIsMessageStopping(false);
+
+    // Stop all TTS when aborting message
+    stopAllTTS();
+
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
       if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
@@ -1251,10 +1278,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   });
 
-  // Auto scroll chat to bottom
+  // Auto scroll chat to bottom (but not during TTS actions)
   createEffect(() => {
     if (messages()) {
-      if (messages().length > 1) {
+      if (messages().length > 1 && !isTTSActionRef) {
         setTimeout(() => {
           chatContainer?.scrollTo(0, chatContainer.scrollHeight);
         }, 400);
@@ -1479,6 +1506,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // TTS cleanup on component unmount
   onCleanup(() => {
     cleanupTTSStreaming();
+    // Cleanup TTS timeout on unmount
+    if (ttsTimeoutRef) {
+      clearTimeout(ttsTimeoutRef);
+      ttsTimeoutRef = null;
+    }
   });
 
   createEffect(() => {
@@ -1767,31 +1799,39 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleTTSStart = (data: { chatMessageId: string; format: string }) => {
-    setIsTTSLoading((prevState) => ({
-      ...prevState,
-      [data.chatMessageId]: true,
-    }));
+    setTTSAction(true);
 
-    setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      const lastMessage = allMessages[allMessages.length - 1];
-      if (lastMessage.type === 'userMessage') return allMessages;
-      if (lastMessage.id) return allMessages;
-      allMessages[allMessages.length - 1].id = data.chatMessageId;
-      return allMessages;
-    });
+    // Ensure complete cleanup before starting new TTS
+    stopAllTTS();
 
-    setTtsStreamingState({
-      mediaSource: null,
-      sourceBuffer: null,
-      audio: null,
-      chunkQueue: [],
-      isBuffering: false,
-      audioFormat: data.format,
-      abortController: null,
-    });
+    // Wait a bit for cleanup to complete before starting new stream
+    setTimeout(() => {
+      setIsTTSLoading((prevState) => ({
+        ...prevState,
+        [data.chatMessageId]: true,
+      }));
 
-    setTimeout(() => initializeTTSStreaming(data), 0);
+      setMessages((prevMessages) => {
+        const allMessages = [...cloneDeep(prevMessages)];
+        const lastMessage = allMessages[allMessages.length - 1];
+        if (lastMessage.type === 'userMessage') return allMessages;
+        if (lastMessage.id) return allMessages;
+        allMessages[allMessages.length - 1].id = data.chatMessageId;
+        return allMessages;
+      });
+
+      setTtsStreamingState({
+        mediaSource: null,
+        sourceBuffer: null,
+        audio: null,
+        chunkQueue: [],
+        isBuffering: false,
+        audioFormat: data.format,
+        abortController: null,
+      });
+
+      setTimeout(() => initializeTTSStreaming(data), 100);
+    }, 100);
   };
 
   const handleTTSDataChunk = (base64Data: string) => {
@@ -1821,47 +1861,43 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (currentState.mediaSource && currentState.mediaSource.readyState === 'open') {
       try {
         // Process any remaining chunks first
-        if (currentState.sourceBuffer && currentState.chunkQueue.length > 0) {
-          let processedCount = 0;
-          const totalChunks = currentState.chunkQueue.length;
-
-          const processRemainingChunks = () => {
-            const state = ttsStreamingState();
-            if (processedCount < totalChunks && state.sourceBuffer && !state.sourceBuffer.updating) {
-              const chunk = state.chunkQueue[0];
-              if (chunk) {
+        if (currentState.sourceBuffer && currentState.chunkQueue.length > 0 && !currentState.sourceBuffer.updating) {
+          const remainingChunks = [...currentState.chunkQueue];
+          remainingChunks.forEach((chunk, index) => {
+            setTimeout(() => {
+              const state = ttsStreamingState();
+              if (state.sourceBuffer && !state.sourceBuffer.updating) {
                 try {
                   state.sourceBuffer.appendBuffer(chunk);
-                  setTtsStreamingState((prevState) => ({
-                    ...prevState,
-                    chunkQueue: prevState.chunkQueue.slice(1),
-                  }));
-                  processedCount++;
+                  if (index === remainingChunks.length - 1) {
+                    setTimeout(() => {
+                      const finalState = ttsStreamingState();
+                      if (finalState.mediaSource && finalState.mediaSource.readyState === 'open') {
+                        finalState.mediaSource.endOfStream();
+                      }
+                    }, 100);
+                  }
                 } catch (error) {
                   console.error('Error appending remaining chunk:', error);
                 }
               }
-            } else if (processedCount >= totalChunks) {
-              // All chunks processed, end the stream
-              setTimeout(() => {
-                const finalState = ttsStreamingState();
-                if (finalState.mediaSource && finalState.mediaSource.readyState === 'open') {
-                  finalState.mediaSource.endOfStream();
-                }
-              }, 100);
-            }
-          };
+            }, index * 50);
+          });
 
-          // Set up listener for processing remaining chunks
-          if (currentState.sourceBuffer) {
-            const handleFinalUpdateEnd = () => {
-              processRemainingChunks();
-            };
-            currentState.sourceBuffer.addEventListener('updateend', handleFinalUpdateEnd);
-            processRemainingChunks();
-          }
+          setTtsStreamingState((prevState) => ({
+            ...prevState,
+            chunkQueue: [],
+          }));
         } else if (currentState.sourceBuffer && !currentState.sourceBuffer.updating) {
           currentState.mediaSource.endOfStream();
+        } else if (currentState.sourceBuffer) {
+          const handleFinalUpdateEnd = () => {
+            const finalState = ttsStreamingState();
+            if (finalState.mediaSource && finalState.mediaSource.readyState === 'open') {
+              finalState.mediaSource.endOfStream();
+            }
+          };
+          currentState.sourceBuffer.addEventListener('updateend', handleFinalUpdateEnd, { once: true });
         }
       } catch (error) {
         console.error('Error ending TTS stream:', error);
@@ -1873,11 +1909,23 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     try {
       const mediaSource = new MediaSource();
       const audio = new Audio();
+
+      // Pre-configure audio element
+      audio.preload = 'none';
+      audio.autoplay = false;
+
       audio.src = URL.createObjectURL(mediaSource);
 
-      mediaSource.addEventListener('sourceopen', () => {
+      const sourceOpenHandler = () => {
         try {
           const mimeType = data.format === 'mp3' ? 'audio/mpeg' : 'audio/mpeg';
+
+          // Check if MediaSource supports the MIME type
+          if (!MediaSource.isTypeSupported(mimeType)) {
+            console.error('MediaSource does not support MIME type:', mimeType);
+            return;
+          }
+
           const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
 
           setTtsStreamingState((prevState) => ({
@@ -1890,14 +1938,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           // Start audio playback
           audio.play().catch((playError) => {
             console.error('Error starting audio playback:', playError);
+            // Cleanup on play error
+            cleanupTTSStreaming();
           });
         } catch (error) {
           console.error('Error setting up source buffer:', error);
           console.error('MediaSource readyState:', mediaSource.readyState);
+          // Cleanup on error
+          cleanupTTSStreaming();
         }
-      });
+      };
 
-      audio.addEventListener('playing', () => {
+      const playingHandler = () => {
         setIsTTSLoading((prevState) => {
           const newState = { ...prevState };
           newState[data.chatMessageId] = false;
@@ -1907,18 +1959,44 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           ...prevState,
           [data.chatMessageId]: true,
         }));
-      });
+      };
 
-      audio.addEventListener('ended', () => {
+      const endedHandler = () => {
         setIsTTSPlaying((prevState) => {
           const newState = { ...prevState };
           delete newState[data.chatMessageId];
           return newState;
         });
         cleanupTTSStreaming();
-      });
+      };
+
+      const errorHandler = (event: Event) => {
+        console.error('Audio error during TTS playback:', event);
+        setIsTTSLoading((prev) => {
+          const newState = { ...prev };
+          delete newState[data.chatMessageId];
+          return newState;
+        });
+        setIsTTSPlaying((prev) => {
+          const newState = { ...prev };
+          delete newState[data.chatMessageId];
+          return newState;
+        });
+        cleanupTTSStreaming();
+      };
+
+      mediaSource.addEventListener('sourceopen', sourceOpenHandler);
+      audio.addEventListener('playing', playingHandler);
+      audio.addEventListener('ended', endedHandler);
+      audio.addEventListener('error', errorHandler);
     } catch (error) {
       console.error('Error initializing TTS streaming:', error);
+      // Ensure cleanup on initialization error
+      setIsTTSLoading((prev) => {
+        const newState = { ...prev };
+        delete newState[data.chatMessageId];
+        return newState;
+      });
     }
   };
 
@@ -1931,7 +2009,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (currentState.audio) {
       currentState.audio.pause();
+      currentState.audio.currentTime = 0;
       currentState.audio.removeAttribute('src');
+      currentState.audio.load(); // Force reload to clear buffer
       if (currentState.audio.src) {
         URL.revokeObjectURL(currentState.audio.src);
       }
@@ -1941,6 +2021,26 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     if (currentState.sourceBuffer) {
+      // Clear any pending data in the source buffer
+      if (currentState.sourceBuffer.updating) {
+        try {
+          currentState.sourceBuffer.abort();
+        } catch (e) {
+          // Ignore abort errors
+        }
+      }
+
+      // Remove buffered data if possible
+      try {
+        if (currentState.sourceBuffer.buffered.length > 0) {
+          const start = currentState.sourceBuffer.buffered.start(0);
+          const end = currentState.sourceBuffer.buffered.end(currentState.sourceBuffer.buffered.length - 1);
+          currentState.sourceBuffer.remove(start, end);
+        }
+      } catch (e) {
+        // Ignore remove errors during cleanup
+      }
+
       // Remove update listeners
       if (currentState.sourceBuffer.onupdateend) {
         currentState.sourceBuffer.removeEventListener('updateend', currentState.sourceBuffer.onupdateend);
@@ -1951,11 +2051,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (currentState.mediaSource) {
       if (currentState.mediaSource.readyState === 'open') {
         try {
+          // Remove source buffers before ending stream
+          if (currentState.sourceBuffer && currentState.mediaSource.sourceBuffers.length > 0) {
+            currentState.mediaSource.removeSourceBuffer(currentState.sourceBuffer);
+          }
           currentState.mediaSource.endOfStream();
         } catch (e) {
           // Ignore errors during cleanup
         }
       }
+      // Remove source open event listeners
+      currentState.mediaSource.removeEventListener('sourceopen', () => console.log('removed source open event listener'));
     }
 
     setTtsStreamingState({
@@ -1969,11 +2075,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
-  const handleTTSStop = (messageId: string) => {
-    const audioElement = ttsAudio()[messageId];
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
+  const cleanupTTSForMessage = (messageId: string) => {
+    const audioElements = ttsAudio();
+    if (audioElements[messageId]) {
+      audioElements[messageId].pause();
+      audioElements[messageId].currentTime = 0;
+      // Force cleanup of audio element
+      audioElements[messageId].src = '';
+      audioElements[messageId].load();
       setTtsAudio((prev) => {
         const newState = { ...prev };
         delete newState[messageId];
@@ -1981,9 +2090,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       });
     }
 
+    // Always cleanup streaming state when stopping any TTS
     const streamingState = ttsStreamingState();
-    if (streamingState.audio) {
-      streamingState.audio.pause();
+    if (streamingState.audio || streamingState.mediaSource || streamingState.sourceBuffer) {
       cleanupTTSStreaming();
     }
 
@@ -2000,12 +2109,40 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
-  const stopAllTTS = () => {
+  const handleTTSStop = async (messageId: string) => {
+    setTTSAction(true);
+
+    // Abort TTS request if active
+    try {
+      const response = await fetch(`${props.apiHost}/api/v1/text-to-speech/abort`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chatId: chatId(),
+          chatMessageId: messageId,
+        }),
+      });
+      if (!response.ok) {
+        console.warn(`Failed to abort TTS for message ${messageId}`);
+      }
+    } catch (error) {
+      console.warn(`Error aborting TTS for message ${messageId}:`, error);
+    }
+
+    cleanupTTSForMessage(messageId);
+  };
+
+  const stopAllTTS = async () => {
     const audioElements = ttsAudio();
     Object.keys(audioElements).forEach((messageId) => {
       if (audioElements[messageId]) {
         audioElements[messageId].pause();
         audioElements[messageId].currentTime = 0;
+        // Force cleanup of each audio element
+        audioElements[messageId].src = '';
+        audioElements[messageId].load();
       }
     });
     setTtsAudio({});
@@ -2015,9 +2152,29 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       streamingState.abortController.abort();
     }
 
-    if (streamingState.audio) {
-      streamingState.audio.pause();
-      cleanupTTSStreaming();
+    // Always cleanup streaming state
+    cleanupTTSStreaming();
+
+    // Abort any active TTS requests
+    const activeTTSMessages = Object.keys(isTTSLoading()).concat(Object.keys(isTTSPlaying()));
+    for (const messageId of activeTTSMessages) {
+      try {
+        const response = await fetch(`${props.apiHost}/api/v1/text-to-speech/abort`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chatId: chatId(),
+            chatMessageId: messageId,
+          }),
+        });
+        if (!response.ok) {
+          console.warn(`Failed to abort TTS for message ${messageId}`);
+        }
+      } catch (error) {
+        console.warn(`Error aborting TTS for message ${messageId}:`, error);
+      }
     }
 
     setIsTTSPlaying({});
@@ -2031,11 +2188,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const playingState = isTTSPlaying();
     const audioElement = ttsAudio()[messageId];
     if (playingState[messageId] || audioElement) {
-      handleTTSStop(messageId);
+      await handleTTSStop(messageId);
       return;
     }
 
-    stopAllTTS();
+    setTTSAction(true);
+
+    // Ensure complete cleanup before starting new TTS
+    await stopAllTTS();
+
+    // Wait for cleanup to complete
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
     handleTTSStart({ chatMessageId: messageId, format: 'mp3' });
 
     try {
@@ -2108,9 +2272,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.error('TTS request was aborted');
+        console.log('TTS request was aborted');
+        cleanupTTSForMessage(messageId);
       } else {
         console.error('Error with TTS:', error);
+        // Show error feedback to user
+        setIsTTSLoading((prev) => {
+          const newState = { ...prev };
+          delete newState[messageId];
+          return newState;
+        });
+        setIsTTSPlaying((prev) => {
+          const newState = { ...prev };
+          delete newState[messageId];
+          return newState;
+        });
+        cleanupTTSForMessage(messageId);
       }
     } finally {
       setIsTTSLoading((prev) => {
@@ -2119,6 +2296,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         return newState;
       });
     }
+  };
+
+  const handleTTSAbort = (data: { chatMessageId: string }) => {
+    const messageId = data.chatMessageId;
+    cleanupTTSForMessage(messageId);
   };
 
   createEffect(
