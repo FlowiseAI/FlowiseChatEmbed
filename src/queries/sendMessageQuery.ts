@@ -71,6 +71,13 @@ export type GenerateTTSRequest = BaseRequest & {
   signal?: AbortSignal;
 };
 
+export type AbortTTSRequest = BaseRequest & {
+  body: {
+    chatId: string;
+    chatMessageId: string;
+  };
+};
+
 export const sendFeedbackQuery = ({ chatflowid, apiHost = 'http://localhost:3000', body, onRequest }: CreateFeedbackRequest) =>
   sendRequest({
     method: 'POST',
@@ -167,3 +174,11 @@ export const generateTTSQuery = async ({ apiHost = 'http://localhost:3000', body
 
   return fetch(`${apiHost}/api/v1/text-to-speech/generate`, requestInfo);
 };
+
+export const abortTTSQuery = ({ apiHost = 'http://localhost:3000', body, onRequest }: AbortTTSRequest) =>
+  sendRequest<any>({
+    method: 'POST',
+    url: `${apiHost}/api/v1/text-to-speech/abort`,
+    body,
+    onRequest: onRequest,
+  });

@@ -9,6 +9,7 @@ import {
   FeedbackRatingType,
   createAttachmentWithFormData,
   generateTTSQuery,
+  abortTTSQuery,
 } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
@@ -936,7 +937,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setIsMessageStopping(false);
 
     // Stop all TTS when aborting message
-    stopAllTTS();
+    stopAllTTSLocally();
 
     setMessages((prevMessages) => {
       const allMessages = [...cloneDeep(prevMessages)];
@@ -1453,9 +1454,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           setFullFileUploadAllowedTypes(chatbotConfig.fullFileUpload?.allowedUploadFileTypes);
         }
       }
-      if (chatbotConfig.isTTSEnabled) {
-        setIsTTSEnabled(chatbotConfig.isTTSEnabled);
-      }
+      setIsTTSEnabled(!!chatbotConfig.isTTSEnabled);
     }
 
     // eslint-disable-next-line solid/reactivity
@@ -1802,7 +1801,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setTTSAction(true);
 
     // Ensure complete cleanup before starting new TTS
-    stopAllTTS();
+    stopAllTTSLocally();
 
     // Wait a bit for cleanup to complete before starting new stream
     setTimeout(() => {
@@ -2114,19 +2113,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     // Abort TTS request if active
     try {
-      const response = await fetch(`${props.apiHost}/api/v1/text-to-speech/abort`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      await abortTTSQuery({
+        apiHost: props.apiHost,
+        body: {
           chatId: chatId(),
           chatMessageId: messageId,
-        }),
+        },
+        onRequest: props.onRequest,
       });
-      if (!response.ok) {
-        console.warn(`Failed to abort TTS for message ${messageId}`);
-      }
     } catch (error) {
       console.warn(`Error aborting TTS for message ${messageId}:`, error);
     }
@@ -2134,7 +2128,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     cleanupTTSForMessage(messageId);
   };
 
-  const stopAllTTS = async () => {
+  const stopAllTTSLocally = () => {
     const audioElements = ttsAudio();
     Object.keys(audioElements).forEach((messageId) => {
       if (audioElements[messageId]) {
@@ -2155,30 +2149,30 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // Always cleanup streaming state
     cleanupTTSStreaming();
 
-    // Abort any active TTS requests
+    setIsTTSPlaying({});
+    setIsTTSLoading({});
+  };
+
+  const stopAllTTS = async () => {
+    // First do local cleanup
+    stopAllTTSLocally();
+
+    // Then abort any active TTS requests on the server
     const activeTTSMessages = Object.keys(isTTSLoading()).concat(Object.keys(isTTSPlaying()));
     for (const messageId of activeTTSMessages) {
       try {
-        const response = await fetch(`${props.apiHost}/api/v1/text-to-speech/abort`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        await abortTTSQuery({
+          apiHost: props.apiHost,
+          body: {
             chatId: chatId(),
             chatMessageId: messageId,
-          }),
+          },
+          onRequest: props.onRequest,
         });
-        if (!response.ok) {
-          console.warn(`Failed to abort TTS for message ${messageId}`);
-        }
       } catch (error) {
         console.warn(`Error aborting TTS for message ${messageId}:`, error);
       }
     }
-
-    setIsTTSPlaying({});
-    setIsTTSLoading({});
   };
 
   const handleTTSClick = async (messageId: string, messageText: string) => {

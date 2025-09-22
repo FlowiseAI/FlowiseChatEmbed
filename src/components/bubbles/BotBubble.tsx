@@ -395,6 +395,11 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  createEffect(() => {
+    console.log('messageId', props.message.id || props.message.messageId);
+    console.log('isTTSLoading', props.isTTSLoading);
+  });
+
   return (
     <div>
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -529,13 +534,21 @@ export const BotBubble = (props: Props) => {
       </div>
       <div>
         <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
-          <Show when={props.isTTSEnabled && props.message.id}>
+          <Show when={props.isTTSEnabled && (props.message.id || props.message.messageId)}>
             <TTSButton
               feedbackColor={props.feedbackColor}
-              isLoading={props.isTTSLoading?.[props.message.id || ''] || false}
-              isPlaying={props.isTTSPlaying?.[props.message.id || ''] || false}
+              isLoading={(() => {
+                const messageId = props.message.id || props.message.messageId;
+                return !!(messageId && props.isTTSLoading?.[messageId]);
+              })()}
+              isPlaying={(() => {
+                const messageId = props.message.id || props.message.messageId;
+                return !!(messageId && props.isTTSPlaying?.[messageId]);
+              })()}
               onClick={() => {
-                const messageId = props.message.id || '';
+                const messageId = props.message.id || props.message.messageId;
+                if (!messageId) return; // Don't allow TTS for messages without valid IDs
+
                 const messageText = props.message.message || '';
                 if (props.isTTSLoading?.[messageId]) {
                   return; // Prevent multiple clicks while loading
