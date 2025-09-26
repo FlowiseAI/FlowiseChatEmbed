@@ -395,11 +395,6 @@ export const BotBubble = (props: Props) => {
     }
   };
 
-  createEffect(() => {
-    console.log('messageId', props.message.id || props.message.messageId);
-    console.log('isTTSLoading', props.isTTSLoading);
-  });
-
   return (
     <div>
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>

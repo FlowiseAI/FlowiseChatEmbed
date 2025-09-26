@@ -60,6 +60,7 @@ export type GenerateTTSRequest = BaseRequest & {
 };
 export type AbortTTSRequest = BaseRequest & {
     body: {
+        chatflowId: string;
         chatId: string;
         chatMessageId: string;
     };

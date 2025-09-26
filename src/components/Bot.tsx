@@ -1803,34 +1803,31 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // Ensure complete cleanup before starting new TTS
     stopAllTTSLocally();
 
-    // Wait a bit for cleanup to complete before starting new stream
-    setTimeout(() => {
-      setIsTTSLoading((prevState) => ({
-        ...prevState,
-        [data.chatMessageId]: true,
-      }));
+    setIsTTSLoading((prevState) => ({
+      ...prevState,
+      [data.chatMessageId]: true,
+    }));
 
-      setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        const lastMessage = allMessages[allMessages.length - 1];
-        if (lastMessage.type === 'userMessage') return allMessages;
-        if (lastMessage.id) return allMessages;
-        allMessages[allMessages.length - 1].id = data.chatMessageId;
-        return allMessages;
-      });
+    setMessages((prevMessages) => {
+      const allMessages = [...cloneDeep(prevMessages)];
+      const lastMessage = allMessages[allMessages.length - 1];
+      if (lastMessage.type === 'userMessage') return allMessages;
+      if (lastMessage.id) return allMessages;
+      allMessages[allMessages.length - 1].id = data.chatMessageId;
+      return allMessages;
+    });
 
-      setTtsStreamingState({
-        mediaSource: null,
-        sourceBuffer: null,
-        audio: null,
-        chunkQueue: [],
-        isBuffering: false,
-        audioFormat: data.format,
-        abortController: null,
-      });
+    setTtsStreamingState({
+      mediaSource: null,
+      sourceBuffer: null,
+      audio: null,
+      chunkQueue: [],
+      isBuffering: false,
+      audioFormat: data.format,
+      abortController: null,
+    });
 
-      setTimeout(() => initializeTTSStreaming(data), 100);
-    }, 100);
+    setTimeout(() => initializeTTSStreaming(data), 100);
   };
 
   const handleTTSDataChunk = (base64Data: string) => {
@@ -2116,6 +2113,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       await abortTTSQuery({
         apiHost: props.apiHost,
         body: {
+          chatflowId: props.chatflowid,
           chatId: chatId(),
           chatMessageId: messageId,
         },
@@ -2164,6 +2162,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         await abortTTSQuery({
           apiHost: props.apiHost,
           body: {
+            chatflowId: props.chatflowid,
             chatId: chatId(),
             chatMessageId: messageId,
           },
