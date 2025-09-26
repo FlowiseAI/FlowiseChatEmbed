@@ -49,6 +49,22 @@ export type LeadCaptureInput = {
 export type LeadCaptureRequest = BaseRequest & {
     body: Partial<LeadCaptureInput>;
 };
+export type GenerateTTSRequest = BaseRequest & {
+    body: {
+        chatId: string;
+        chatflowId: string;
+        chatMessageId: string;
+        text: string;
+    };
+    signal?: AbortSignal;
+};
+export type AbortTTSRequest = BaseRequest & {
+    body: {
+        chatflowId: string;
+        chatId: string;
+        chatMessageId: string;
+    };
+};
 export declare const sendFeedbackQuery: ({ chatflowid, apiHost, body, onRequest }: CreateFeedbackRequest) => Promise<{
     data?: unknown;
     error?: Error | undefined;
@@ -82,6 +98,11 @@ export declare const sendFileDownloadQuery: ({ apiHost, body, onRequest }: Messa
     error?: Error | undefined;
 }>;
 export declare const addLeadQuery: ({ apiHost, body, onRequest }: LeadCaptureRequest) => Promise<{
+    data?: any;
+    error?: Error | undefined;
+}>;
+export declare const generateTTSQuery: ({ apiHost, body, onRequest, signal }: GenerateTTSRequest) => Promise<Response>;
+export declare const abortTTSQuery: ({ apiHost, body, onRequest }: AbortTTSRequest) => Promise<{
     data?: any;
     error?: Error | undefined;
 }>;
