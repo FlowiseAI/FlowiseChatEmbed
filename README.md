@@ -182,6 +182,11 @@ You can also customize chatbot with different configuration
           showAvatar: true,
           avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png',
         },
+        followUpPrompts: {
+          iconColor: '#3B81F6'',
+          textColor: '#303235',
+          text: 'Try these prompts',
+        },
         textInput: {
           placeholder: 'Type your question',
           backgroundColor: '#ffffff',

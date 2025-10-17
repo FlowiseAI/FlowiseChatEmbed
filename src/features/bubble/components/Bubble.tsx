@@ -141,6 +141,7 @@ export const Bubble = (props: BubbleProps) => {
               textInput={bubbleProps.theme?.chatWindow?.textInput}
               botMessage={bubbleProps.theme?.chatWindow?.botMessage}
               userMessage={bubbleProps.theme?.chatWindow?.userMessage}
+              followUpPrompts={bubbleProps.theme?.chatWindow?.followUpPrompts}
               feedback={bubbleProps.theme?.chatWindow?.feedback}
               fontSize={bubbleProps.theme?.chatWindow?.fontSize}
               footer={bubbleProps.theme?.chatWindow?.footer}
