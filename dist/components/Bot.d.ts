@@ -1,5 +1,5 @@
 import { FeedbackRatingType } from '@/queries/sendMessageQuery';
-import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme } from '@/features/bubble/types';
+import { BotMessageTheme, FooterTheme, TextInputTheme, UserMessageTheme, FeedbackTheme, DisclaimerPopUpTheme, DateTimeToggleTheme, FollowUpPromptTheme } from '@/features/bubble/types';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
 export type FileEvent<T = EventTarget> = {
     target: T;
@@ -90,6 +90,7 @@ export type BotProps = {
     errorMessage?: string;
     botMessage?: BotMessageTheme;
     userMessage?: UserMessageTheme;
+    followUpPrompts?: FollowUpPromptTheme;
     textInput?: TextInputTheme;
     feedback?: FeedbackTheme;
     poweredByTextColor?: string;

@@ -24,6 +24,7 @@ import {
   FeedbackTheme,
   DisclaimerPopUpTheme,
   DateTimeToggleTheme,
+  FollowUpPromptTheme,
 } from '@/features/bubble/types';
 import { Badge } from './Badge';
 import { Popup, DisclaimerPopup } from '@/features/popup';
@@ -148,6 +149,7 @@ export type BotProps = {
   errorMessage?: string;
   botMessage?: BotMessageTheme;
   userMessage?: UserMessageTheme;
+  followUpPrompts?: FollowUpPromptTheme;
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
   poweredByTextColor?: string;
@@ -1317,28 +1319,28 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-                rating: message.rating,
-                dateTime: message.dateTime,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-              if (message.action) chatHistory.action = message.action;
-              if (message.artifacts) chatHistory.artifacts = message.artifacts;
-              if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
-              if (message.execution && message.execution.executionData)
-                chatHistory.agentFlowExecutedData =
-                  typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
-              if (message.agentFlowExecutedData)
-                chatHistory.agentFlowExecutedData =
-                  typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
-              return chatHistory;
-            })
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+              rating: message.rating,
+              dateTime: message.dateTime,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+            if (message.action) chatHistory.action = message.action;
+            if (message.artifacts) chatHistory.artifacts = message.artifacts;
+            if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
+            if (message.execution && message.execution.executionData)
+              chatHistory.agentFlowExecutedData =
+                typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
+            if (message.agentFlowExecutedData)
+              chatHistory.agentFlowExecutedData =
+                typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
+            return chatHistory;
+          })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
@@ -2520,8 +2522,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               <Show when={followUpPrompts().length > 0}>
                 <>
                   <div class="flex items-center gap-1 px-5">
-                    <SparklesIcon class="w-4 h-4" />
-                    <span class="text-sm text-gray-700">Try these prompts</span>
+                    <SparklesIcon class="w-4 h-4" color={props.followUpPrompts?.iconColor || '#3B81F6'} />
+                    <span class="text-sm text-gray-700" style={{ color: props.followUpPrompts?.textColor || defaultTextColor }}>{props.followUpPrompts?.text || 'Try these prompts'}</span>
                   </div>
                   <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
                     <For each={[...followUpPrompts()]}>

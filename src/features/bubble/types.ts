@@ -44,6 +44,12 @@ export type BotMessageTheme = {
   avatarSrc?: string;
 };
 
+export type FollowUpPromptTheme = {
+  iconColor?: string;
+  textColor?: string;
+  text?: string;
+};
+
 export type FooterTheme = {
   showFooter?: boolean;
   textColor?: string;
@@ -72,6 +78,7 @@ export type ChatWindowTheme = {
   fontSize?: number;
   userMessage?: UserMessageTheme;
   botMessage?: BotMessageTheme;
+  followUpPrompts?: FollowUpPromptTheme;
   textInput?: TextInputTheme;
   feedback?: FeedbackTheme;
   footer?: FooterTheme;
