@@ -1029,17 +1029,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   // Handle form submission
   const handleSubmit = async (value: string | object, action?: IAction | undefined | null, humanInput?: any) => {
-    if (typeof value === 'string' && value.trim() === '') {
+    const fileUploadFallbackMessage = 'file uploaded';
+    let submissionValue: string | object = value;
+    let formData = {};
+
+    if (typeof submissionValue === 'string') {
+      const trimmedValue = submissionValue.trim();
+      const hasUploads = previews().length > 0;
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
-      if (!previews().length || (previews().length && containsFile)) {
+
+      if (!hasUploads && trimmedValue === '') {
         return;
+      }
+
+      if (trimmedValue === '' && hasUploads && containsFile) {
+        submissionValue = fileUploadFallbackMessage;
       }
     }
 
-    let formData = {};
-    if (typeof value === 'object') {
-      formData = value;
-      value = Object.entries(value)
+    if (typeof submissionValue === 'object') {
+      formData = submissionValue;
+      submissionValue = Object.entries(submissionValue)
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n');
     }
@@ -1065,14 +1075,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     clearPreviews();
 
+    const messageToDisplay = typeof value === 'string' ? value : (submissionValue as string);
+
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
+      const messages: MessageType[] = [...prevMessages, { message: messageToDisplay as string, type: 'userMessage', fileUploads: uploads }];
       addChatMessage(messages);
       return messages;
     });
 
     const body: IncomingInput = {
-      question: value,
+      question: submissionValue,
       chatId: chatId(),
     };
 
@@ -1134,7 +1146,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           return allMessages;
         });
 
-        updateMetadata(data, value);
+        updateMetadata(data, submissionValue);
 
         setLoading(false);
         setUserInput('');
