@@ -2,6 +2,7 @@ import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { Show, createSignal, createEffect, onMount, Setter } from 'solid-js';
 import { SendButton } from '@/components/buttons/SendButton';
+import { StopButton } from '@/components/buttons/StopButton';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
@@ -31,6 +32,8 @@ type TextInputProps = {
   fullFileUploadAllowedTypes?: string;
   enableInputHistory?: boolean;
   maxHistorySize?: number;
+  isLoading?: boolean;
+  onStopMessage?: () => void;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -220,15 +223,26 @@ export const TextInput = (props: TextInputProps) => {
             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
           </RecordAudioButton>
         ) : null}
-        <SendButton
-          sendButtonColor={props.sendButtonColor}
-          type="button"
-          isDisabled={props.disabled || isSendButtonDisabled()}
-          class="m-0 h-14 flex items-center justify-center"
-          on:click={submit}
-        >
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-        </SendButton>
+        {props.isLoading ? (
+          <StopButton
+            buttonColor={props.sendButtonColor}
+            type="button"
+            class="m-0 h-14 flex items-center justify-center"
+            on:click={props.onStopMessage}
+          >
+            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Stop</span>
+          </StopButton>
+        ) : (
+          <SendButton
+            sendButtonColor={props.sendButtonColor}
+            type="button"
+            isDisabled={props.disabled || isSendButtonDisabled()}
+            class="m-0 h-14 flex items-center justify-center"
+            on:click={submit}
+          >
+            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+          </SendButton>
+        )}
       </div>
     </div>
   );

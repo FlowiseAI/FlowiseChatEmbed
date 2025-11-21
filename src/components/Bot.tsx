@@ -478,6 +478,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal('');
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
+  const [messageAbortController, setMessageAbortController] = createSignal<AbortController | null>(null);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
   const [fullFileUpload, setFullFileUpload] = createSignal<boolean>(false);
@@ -825,6 +826,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
+
+    // Create and store AbortController for message streaming
+    const abortController = new AbortController();
+    setMessageAbortController(abortController);
+
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
       openWhenHidden: true,
       method: 'POST',
@@ -832,6 +838,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      signal: abortController.signal,
       async onopen(response) {
         if (response.ok && response.headers.get('content-type')?.startsWith(EventStreamContentType)) {
           return; // everything's good
@@ -927,6 +934,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
+    setMessageAbortController(null);
     hasSoundPlayed = false;
     setTimeout(() => {
       scrollToBottom();
@@ -948,6 +956,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       return allMessages;
     });
+  };
+
+  const stopMessage = () => {
+    const controller = messageAbortController();
+    if (controller) {
+      setIsMessageStopping(true);
+      controller.abort();
+      abortMessage();
+      closeResponse();
+    }
   };
 
   const handleFileUploads = async (uploads: IUploads) => {
@@ -2616,6 +2634,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   sendSoundLocation={props.textInput?.sendSoundLocation}
                   enableInputHistory={true}
                   maxHistorySize={10}
+                  isLoading={loading()}
+                  onStopMessage={stopMessage}
                 />
               )}
             </div>
