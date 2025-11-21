@@ -477,7 +477,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
   const [chatId, setChatId] = createSignal('');
-  const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [messageAbortController, setMessageAbortController] = createSignal<AbortController | null>(null);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
@@ -942,8 +941,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const abortMessage = () => {
-    setIsMessageStopping(false);
-
     // Stop all TTS when aborting message
     stopAllTTS();
 
@@ -961,7 +958,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const stopMessage = () => {
     const controller = messageAbortController();
     if (controller) {
-      setIsMessageStopping(true);
       controller.abort();
       abortMessage();
       closeResponse();
@@ -1110,7 +1106,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (humanInput) body.humanInput = humanInput;
 
     if (isChatFlowAvailableToStream()) {
-      fetchResponseFromEventStream(props.chatflowid, body);
+      try {
+        await fetchResponseFromEventStream(props.chatflowid, body);
+      } catch (error: any) {
+        // Handle AbortError silently as it's an expected user action
+        if (error.name !== 'AbortError') {
+          console.error('Error fetching response:', error);
+          handleError(error.message || 'An error occurred while fetching the response');
+        }
+      }
     } else {
       const result = await sendMessageQuery({
         chatflowid: props.chatflowid,

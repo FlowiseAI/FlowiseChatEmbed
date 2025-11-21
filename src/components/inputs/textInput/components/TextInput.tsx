@@ -229,9 +229,7 @@ export const TextInput = (props: TextInputProps) => {
             type="button"
             class="m-0 h-14 flex items-center justify-center"
             on:click={props.onStopMessage}
-          >
-            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Stop</span>
-          </StopButton>
+          />
         ) : (
           <SendButton
             sendButtonColor={props.sendButtonColor}
