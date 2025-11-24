@@ -103,6 +103,39 @@ export const TextInput = (props: TextInputProps) => {
     }
   };
 
+  const handlePaste = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+
+    // Check if any items in the clipboard are images
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    // If we found images, process them
+    if (imageFiles.length > 0 && (props.uploadsConfig?.isImageUploadAllowed || props.isFullFileUpload)) {
+      e.preventDefault(); // Prevent default paste behavior when images are detected
+
+      // Create a synthetic event to pass to handleFileChange
+      const syntheticEvent = {
+        target: {
+          files: imageFiles,
+          value: '',
+        } as unknown,
+      } as FileEvent<HTMLInputElement>;
+
+      props.handleFileChange(syntheticEvent);
+    }
+  };
+
   createEffect(() => {
     const shouldAutoFocus = props.autoFocus !== undefined ? props.autoFocus : !isMobile() && window.innerWidth > 640;
 
@@ -148,6 +181,7 @@ export const TextInput = (props: TextInputProps) => {
         color: props.textColor ?? defaultTextColor,
       }}
       onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
     >
       <Show when={warningMessage() !== ''}>
         <div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">
