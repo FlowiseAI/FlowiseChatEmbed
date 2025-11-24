@@ -37,6 +37,14 @@ Build:
 yarn build
 ```
 
+## Features
+
+### File-only uploads
+
+- **Purpose:** Allow users to send uploaded files immediately without having to type a companion message.
+- **Usage example:** Upload a document via the **File Upload** button and click **Send** right away; the embed will deliver the files to your Agentflow conversation and, if a text prompt is required, automatically include a hidden `file uploaded` message for you.
+- **Dependencies / breaking changes:** No additional configuration is required; the behavior is backward compatible with existing upload settings.
+
 ## Embed in your HTML
 
 ### PopUp
