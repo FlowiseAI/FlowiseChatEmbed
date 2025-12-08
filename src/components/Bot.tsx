@@ -2392,41 +2392,43 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           )}
 
           {props.showTitle ? (
-  <div
-    class="flex flex-row items-center justify-start w-full h-[50px] absolute top-0 left-0 z-10 px-4 gap-3"
-    style={{
-      background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
-      color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
-      'border-top-left-radius': props.isFullPage ? '0px' : '6px',
-      'border-top-right-radius': props.isFullPage ? '0px' : '6px',
-    }}
-  >
-    {/* Water Drop Logo - Always show */}
-    <img 
-      src={props.titleAvatarSrc || "https://cdn-icons-png.flaticon.com/512/2976/2976215.png"} 
-      alt="AquaSolar Logo"
-      class="h-8 w-8 object-contain"
-      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}
-    />
-    
-    {/* Text */}
-    <div class="flex items-center gap-2">
-      <span class="text-base font-light">ask</span>
-      <span class="text-lg font-bold" style={{ color: '#60A5FA' }}>aquasolar</span>
-    </div>
-    
-    <div style={{ flex: 1 }} />
-    <DeleteButton
-      sendButtonColor={props.bubbleTextColor}
-      type="button"
-      isDisabled={messages().length === 1}
-      class="my-2 ml-2"
-      on:click={clearChat}
-    >
-      <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
-    </DeleteButton>
-  </div>
-) : null}
+            <div
+              class="flex flex-row items-center justify-start w-full h-[50px] absolute top-0 left-0 z-10 px-4 gap-3"
+              style={{
+                background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
+                color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
+                'border-top-left-radius': props.isFullPage ? '0px' : '6px',
+                'border-top-right-radius': props.isFullPage ? '0px' : '6px',
+              }}
+            >
+              {/* Water Drop Logo - Always show */}
+              <img
+                src={props.titleAvatarSrc || 'https://cdn-icons-png.flaticon.com/512/2976/2976215.png'}
+                alt="AquaSolar Logo"
+                class="h-8 w-8 object-contain"
+                style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}
+              />
+
+              {/* Text */}
+              <div class="flex items-center gap-2">
+                <span class="text-base font-light">ask</span>
+                <span class="text-lg font-bold" style={{ color: '#60A5FA' }}>
+                  aquasolar
+                </span>
+              </div>
+
+              <div style={{ flex: 1 }} />
+              <DeleteButton
+                sendButtonColor={props.bubbleTextColor}
+                type="button"
+                isDisabled={messages().length === 1}
+                class="my-2 ml-2"
+                on:click={clearChat}
+              >
+                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+              </DeleteButton>
+            </div>
+          ) : null}
           <div class="flex flex-col w-full h-full justify-start z-0">
             <div
               ref={chatContainer}
