@@ -2393,7 +2393,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="flex flex-row items-center justify-start w-full h-[50px] absolute top-0 left-0 z-10 px-4 gap-3"
+              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
               style={{
                 background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
                 color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
@@ -2401,22 +2401,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 'border-top-right-radius': props.isFullPage ? '0px' : '6px',
               }}
             >
-              {/* Water Drop Logo - Always show */}
-              <img
-                src={props.titleAvatarSrc || 'https://cdn-icons-png.flaticon.com/512/2976/2976215.png'}
-                alt="AquaSolar Logo"
-                class="h-8 w-8 object-contain"
-                style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}
-              />
-
-              {/* Text */}
-              <div class="flex items-center gap-2">
-                <span class="text-base font-light">ask</span>
-                <span class="text-lg font-bold" style={{ color: '#60A5FA' }}>
-                  aquasolar
-                </span>
-              </div>
-
+              <Show when={props.titleAvatarSrc}>
+                <>
+                  <div style={{ width: '15px' }} />
+                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
+                </>
+              </Show>
+              <Show when={props.title}>
+                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+              </Show>
               <div style={{ flex: 1 }} />
               <DeleteButton
                 sendButtonColor={props.bubbleTextColor}
