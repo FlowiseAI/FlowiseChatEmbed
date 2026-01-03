@@ -11,3 +11,5 @@ export * from './XIcon';
 export * from './TickIcon';
 export * from './AttachmentIcon';
 export * from './SparklesIcon';
+export * from './VolumeIcon';
+export * from './SquareStopIcon';

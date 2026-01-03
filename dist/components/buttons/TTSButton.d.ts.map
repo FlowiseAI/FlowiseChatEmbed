@@ -1,0 +1,1 @@
+{"version":3,"file":"TTSButton.d.ts","sourceRoot":"","sources":["../../../src/components/buttons/TTSButton.tsx"],"names":[],"mappings":"AAGA,KAAK,KAAK,GAAG;IACX,SAAS,CAAC,EAAE,OAAO,CAAC;IACpB,SAAS,CAAC,EAAE,OAAO,CAAC;IACpB,aAAa,CAAC,EAAE,MAAM,CAAC;IACvB,OAAO,EAAE,MAAM,IAAI,CAAC;IACpB,KAAK,CAAC,EAAE,MAAM,CAAC;CAChB,CAAC;AAIF,eAAO,MAAM,SAAS,UAAW,KAAK,mCA6DrC,CAAC"}

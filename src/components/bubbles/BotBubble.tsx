@@ -4,6 +4,7 @@ import { Marked } from '@ts-stack/markdown';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
 import { FileUpload, IAction, MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
+import { TTSButton } from '../buttons/TTSButton';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
@@ -32,6 +33,12 @@ type Props = {
   renderHTML?: boolean;
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
+  // TTS props
+  isTTSEnabled?: boolean;
+  isTTSLoading?: Record<string, boolean>;
+  isTTSPlaying?: Record<string, boolean>;
+  handleTTSClick?: (messageId: string, messageText: string) => void;
+  handleTTSStop?: (messageId: string) => void;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -481,7 +488,7 @@ export const BotBubble = (props: Props) => {
                           {action.label}
                         </button>
                       ) : (
-                        <button>{action.label}</button>
+                        <button type="button">{action.label}</button>
                       )}
                     </>
                   );
@@ -521,9 +528,36 @@ export const BotBubble = (props: Props) => {
         )}
       </div>
       <div>
-        {props.chatFeedbackStatus && props.message.messageId && (
-          <>
-            <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
+        <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
+          <Show when={props.isTTSEnabled && (props.message.id || props.message.messageId)}>
+            <TTSButton
+              feedbackColor={props.feedbackColor}
+              isLoading={(() => {
+                const messageId = props.message.id || props.message.messageId;
+                return !!(messageId && props.isTTSLoading?.[messageId]);
+              })()}
+              isPlaying={(() => {
+                const messageId = props.message.id || props.message.messageId;
+                return !!(messageId && props.isTTSPlaying?.[messageId]);
+              })()}
+              onClick={() => {
+                const messageId = props.message.id || props.message.messageId;
+                if (!messageId) return; // Don't allow TTS for messages without valid IDs
+
+                const messageText = props.message.message || '';
+                if (props.isTTSLoading?.[messageId]) {
+                  return; // Prevent multiple clicks while loading
+                }
+                if (props.isTTSPlaying?.[messageId]) {
+                  props.handleTTSStop?.(messageId);
+                } else {
+                  props.handleTTSClick?.(messageId, messageText);
+                }
+              }}
+            />
+          </Show>
+          {props.chatFeedbackStatus && props.message.messageId && (
+            <>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
@@ -546,18 +580,18 @@ export const BotBubble = (props: Props) => {
                   {formatDateTime(props.message.dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time)}
                 </div>
               </Show>
-            </div>
-            <Show when={showFeedbackContentDialog()}>
-              <FeedbackContentDialog
-                isOpen={showFeedbackContentDialog()}
-                onClose={() => setShowFeedbackContentModal(false)}
-                onSubmit={submitFeedbackContent}
-                backgroundColor={props.backgroundColor}
-                textColor={props.textColor}
-              />
-            </Show>
-          </>
-        )}
+            </>
+          )}
+        </div>
+        <Show when={showFeedbackContentDialog()}>
+          <FeedbackContentDialog
+            isOpen={showFeedbackContentDialog()}
+            onClose={() => setShowFeedbackContentModal(false)}
+            onSubmit={submitFeedbackContent}
+            backgroundColor={props.backgroundColor}
+            textColor={props.textColor}
+          />
+        </Show>
       </div>
     </div>
   );
