@@ -4233,6 +4233,11 @@ solid-js@1.7.1:
     csstype "^3.1.0"
     seroval "^0.5.0"
 
+somepkg@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/somepkg/-/somepkg-0.0.0.tgz#45592b51938c4c8205b51affcc2e1acb8beb52bf"
+  integrity sha512-geghyLAc8USvWbTM5Ho4qWlrKMfz3x4kDb3EtpTQ0tIJBWRy9vuGLIPXXb9yMy03qr6rOEyw+HAUiUZKvDi6fg==
+
 source-map-js@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
