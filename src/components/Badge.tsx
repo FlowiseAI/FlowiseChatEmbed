@@ -42,7 +42,7 @@ export const Badge = (props: Props) => {
     <>
       <Show when={props.footer?.showFooter === undefined || props.footer?.showFooter === null || props.footer?.showFooter === true}>
         <span
-          class="w-full text-center px-[10px] pt-[6px] pb-[10px] m-auto text-[13px]"
+          class="poweredby w-full text-center px-[10px] pt-[6px] pb-[10px] m-auto text-[13px]"
           style={{
             color: props.footer?.textColor ?? props.poweredByTextColor ?? defaultTextColor,
             'background-color': props.badgeBackgroundColor ?? '#ffffff',
