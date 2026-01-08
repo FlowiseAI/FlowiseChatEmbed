@@ -2393,7 +2393,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="titlewraper flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              class="titlewrapper flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
               style={{
                 background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
                 color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
@@ -2503,7 +2503,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </div>
             <Show when={messages().length === 1}>
               <Show when={starterPrompts().length > 0}>
-                <div class="recomedations w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
+                <div class="recommendations w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
                   <For each={[...starterPrompts()]}>
                     {(key) => (
                       <StarterPromptBubble
