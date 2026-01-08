@@ -279,7 +279,7 @@ const FeedbackDialog = (props: {
   return (
     <Show when={props.isOpen}>
       <div class="fixed inset-0 rounded-lg flex items-center justify-center backdrop-blur-sm z-50" style={{ background: 'rgba(0, 0, 0, 0.4)' }}>
-        <div class="p-6 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans" style={{ background: 'white', color: 'black' }}>
+        <div class="feedback p-6 rounded-lg shadow-lg max-w-md w-full text-center mx-4 font-sans" style={{ background: 'white', color: 'black' }}>
           <h2 class="text-xl font-semibold mb-4 flex justify-center items-center">Your Feedback</h2>
 
           <textarea
@@ -2393,7 +2393,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              class="titlewrapper flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
               style={{
                 background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
                 color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
@@ -2422,10 +2422,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </DeleteButton>
             </div>
           ) : null}
-          <div class="flex flex-col w-full h-full justify-start z-0">
+          <div class="innerwindow flex flex-col w-full h-full justify-start z-0">
             <div
               ref={chatContainer}
-              class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
+              class="messages overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
             >
               <For each={[...messages()]}>
                 {(message, index) => {
@@ -2503,7 +2503,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </div>
             <Show when={messages().length === 1}>
               <Show when={starterPrompts().length > 0}>
-                <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
+                <div class="recommendations w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
                   <For each={[...starterPrompts()]}>
                     {(key) => (
                       <StarterPromptBubble
@@ -2523,7 +2523,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     <SparklesIcon class="w-4 h-4" />
                     <span class="text-sm text-gray-700">Try these prompts</span>
                   </div>
-                  <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
+                  <div class="tryout w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
                     <For each={[...followUpPrompts()]}>
                       {(prompt, index) => (
                         <FollowUpPromptBubble
@@ -2542,7 +2542,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 <For each={[...previews()]}>{(item) => <>{previewDisplay(item)}</>}</For>
               </div>
             </Show>
-            <div class="w-full px-5 pt-2 pb-1">
+            <div class="userinput w-full px-5 pt-2 pb-1">
               {isRecording() ? (
                 <>
                   {recordingNotSupported() ? (
