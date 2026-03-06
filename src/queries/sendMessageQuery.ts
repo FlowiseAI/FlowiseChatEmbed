@@ -183,3 +183,15 @@ export const abortTTSQuery = ({ apiHost = 'http://localhost:3000', body, onReque
     body,
     onRequest: onRequest,
   });
+
+export type AbortMessageRequest = BaseRequest & {
+  chatflowid: string;
+  chatId: string;
+};
+
+export const abortMessageQuery = ({ chatflowid, apiHost = 'http://localhost:3000', chatId, onRequest }: AbortMessageRequest) =>
+  sendRequest<any>({
+    method: 'PUT',
+    url: `${apiHost}/api/v1/chatmessage/abort/${chatflowid}/${chatId}`,
+    onRequest: onRequest,
+  });

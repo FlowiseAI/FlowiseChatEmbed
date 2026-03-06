@@ -106,5 +106,13 @@ export declare const abortTTSQuery: ({ apiHost, body, onRequest }: AbortTTSReque
     data?: any;
     error?: Error | undefined;
 }>;
+export type AbortMessageRequest = BaseRequest & {
+    chatflowid: string;
+    chatId: string;
+};
+export declare const abortMessageQuery: ({ chatflowid, apiHost, chatId, onRequest }: AbortMessageRequest) => Promise<{
+    data?: any;
+    error?: Error | undefined;
+}>;
 export {};
 //# sourceMappingURL=sendMessageQuery.d.ts.map
