@@ -2,6 +2,7 @@ import { ShortTextInput } from './ShortTextInput';
 import { isMobile } from '@/utils/isMobileSignal';
 import { Show, createSignal, createEffect, onMount, Setter } from 'solid-js';
 import { SendButton } from '@/components/buttons/SendButton';
+import { StopButton } from '@/components/buttons/StopButton';
 import { FileEvent, UploadsConfig } from '@/components/Bot';
 import { ImageUploadButton } from '@/components/buttons/ImageUploadButton';
 import { RecordAudioButton } from '@/components/buttons/RecordAudioButton';
@@ -31,6 +32,10 @@ type TextInputProps = {
   fullFileUploadAllowedTypes?: string;
   enableInputHistory?: boolean;
   maxHistorySize?: number;
+  isLoading?: boolean;
+  showAbortButton?: boolean;
+  isMessageStopping?: boolean;
+  onAbort?: () => void;
 };
 
 const defaultBackgroundColor = '#ffffff';
@@ -70,7 +75,9 @@ export const TextInput = (props: TextInputProps) => {
       }
       props.onSubmit(props.inputValue);
       if (props.sendMessageSound && audioRef) {
-        audioRef.play();
+        audioRef.play().catch(() => {
+          /* ignore autoplay errors */
+        });
       }
     }
   };
@@ -220,15 +227,31 @@ export const TextInput = (props: TextInputProps) => {
             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
           </RecordAudioButton>
         ) : null}
-        <SendButton
-          sendButtonColor={props.sendButtonColor}
-          type="button"
-          isDisabled={props.disabled || isSendButtonDisabled()}
-          class="m-0 h-14 flex items-center justify-center"
-          on:click={submit}
+        <Show
+          when={props.showAbortButton}
+          fallback={
+            <SendButton
+              sendButtonColor={props.sendButtonColor}
+              type="button"
+              isDisabled={props.disabled || isSendButtonDisabled()}
+              class="m-0 h-14 flex items-center justify-center"
+              on:click={submit}
+            >
+              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+            </SendButton>
+          }
         >
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-        </SendButton>
+          <StopButton
+            sendButtonColor={props.sendButtonColor}
+            type="button"
+            isDisabled={props.isMessageStopping}
+            class="m-0 h-14 flex items-center justify-center"
+            on:click={() => props.onAbort?.()}
+            isStopping={props.isMessageStopping}
+          >
+            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Stop</span>
+          </StopButton>
+        </Show>
       </div>
     </div>
   );

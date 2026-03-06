@@ -10,6 +10,7 @@ import {
   createAttachmentWithFormData,
   generateTTSQuery,
   abortTTSQuery,
+  abortMessageQuery,
 } from '@/queries/sendMessageQuery';
 import { TextInput } from './inputs/textInput';
 import { GuestBubble } from './bubbles/GuestBubble';
@@ -30,12 +31,18 @@ import { Popup, DisclaimerPopup } from '@/features/popup';
 import { Avatar } from '@/components/avatars/Avatar';
 import { DeleteButton, SendButton } from '@/components/buttons/SendButton';
 import { FilePreview } from '@/components/inputs/textInput/components/FilePreview';
-import { CircleDotIcon, SparklesIcon, TrashIcon } from './icons';
+import { ChevronDownIcon, CircleDotIcon, SparklesIcon, TrashIcon } from './icons';
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
-import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie } from '@/utils';
-import { cloneDeep } from 'lodash';
+import {
+  removeLocalStorageChatHistory,
+  getLocalStorageChatflow,
+  setLocalStorageChatflow,
+  setCookie,
+  getCookie,
+  getRecordingExtensionForMime,
+} from '@/utils';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
@@ -460,6 +467,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
+  const [showScrollButton, setShowScrollButton] = createSignal(false);
+  let stickyToBottom = true;
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -562,16 +571,48 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
     }
 
-    if (!bottomSpacer) return;
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
+
+    let isProgrammaticScroll = false;
+    const handleScroll = () => {
+      if (!chatContainer || isProgrammaticScroll) return;
+      const threshold = 80;
+      const nearBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight <= threshold;
+      stickyToBottom = nearBottom;
+      setShowScrollButton(!nearBottom);
+    };
+    chatContainer?.addEventListener('scroll', handleScroll, { passive: true });
+    onCleanup(() => chatContainer?.removeEventListener('scroll', handleScroll));
+
+    // Expose programmatic scroll guard to outer scope
+    let guardTimeout: ReturnType<typeof setTimeout> | null = null;
+    programmaticScrollGuard = (fn: () => void) => {
+      isProgrammaticScroll = true;
+      if (guardTimeout) clearTimeout(guardTimeout);
+      fn();
+      guardTimeout = setTimeout(() => {
+        isProgrammaticScroll = false;
+      }, 500);
+    };
   });
 
+  let programmaticScrollGuard: (fn: () => void) => void = (fn) => fn();
+
   const scrollToBottom = () => {
+    if (!stickyToBottom) return;
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
+  };
+
+  const forceScrollToBottom = () => {
+    stickyToBottom = true;
+    setShowScrollButton(false);
+    programmaticScrollGuard(() => {
+      chatContainer?.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+    });
   };
 
   // Helper function to manage TTS action flag
@@ -618,8 +659,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       if (props.textInput?.receiveSoundLocation) {
         audioSrc = props.textInput?.receiveSoundLocation;
       }
+      if (audioRef) {
+        audioRef.pause();
+        audioRef.currentTime = 0;
+      }
       audioRef = new Audio(audioSrc);
-      audioRef.play();
+      audioRef.play().catch(() => {
+        /* ignore autoplay errors */
+      });
     }
   };
 
@@ -627,25 +674,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      if (!text) return allMessages;
-      allMessages[allMessages.length - 1].message += text;
-      allMessages[allMessages.length - 1].rating = undefined;
-      allMessages[allMessages.length - 1].dateTime = new Date().toISOString();
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      if (!text) return prevMessages;
+      const updatedMsg = { ...lastMsg, message: lastMsg.message + text, rating: undefined, dateTime: new Date().toISOString() };
       if (!hasSoundPlayed) {
         playReceiveSound();
         hasSoundPlayed = true;
       }
+      const allMessages = [...prevMessages.slice(0, -1), updatedMsg];
       addChatMessage(allMessages);
       return allMessages;
     });
   };
 
   const updateErrorMessage = (errorMessage: string) => {
+    const cleanedMessage = errorMessage.replace(/^Error:\s*\S+\s*-\s*/, '');
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      allMessages.push({ message: props.errorMessage || errorMessage, type: 'apiMessage' });
+      const allMessages = [...prevMessages, { message: props.errorMessage || cleanedMessage, type: 'apiMessage' as messageType }];
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -666,9 +712,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessageUsedTools = (usedTools: any[]) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].usedTools = usedTools;
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, usedTools }];
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -676,9 +722,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessageFileAnnotations = (fileAnnotations: any) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].fileAnnotations = fileAnnotations;
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, fileAnnotations }];
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -702,19 +748,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
     } else {
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-        allMessages[allMessages.length - 1].agentFlowEventStatus = event;
-        return allMessages;
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        if (lastMsg.type === 'userMessage') return prevMessages;
+        return [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowEventStatus: event }];
       });
     }
   };
 
   const updateAgentFlowExecutedData = (agentFlowExecutedData: any) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].agentFlowExecutedData = agentFlowExecutedData;
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowExecutedData }];
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -722,9 +767,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateLastMessageArtifacts = (artifacts: FileUpload[]) => {
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      allMessages[allMessages.length - 1].artifacts = artifacts;
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, artifacts }];
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -788,12 +833,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // set message id that is needed for feedback
     if (data.chatMessageId) {
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 1].type === 'apiMessage') {
-          allMessages[allMessages.length - 1].messageId = data.chatMessageId;
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        if (lastMsg.type === 'apiMessage') {
+          const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, messageId: data.chatMessageId }];
+          addChatMessage(allMessages);
+          return allMessages;
         }
-        addChatMessage(allMessages);
-        return allMessages;
+        return prevMessages;
       });
     }
 
@@ -801,9 +847,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       // the response contains the question even if it was in an audio format
       // so if input is empty but the response contains the question, update the user message to show the question
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 2].type === 'apiMessage') return allMessages;
-        allMessages[allMessages.length - 2].message = data.question;
+        const secondLast = prevMessages[prevMessages.length - 2];
+        if (secondLast.type === 'apiMessage') return prevMessages;
+        const allMessages = [...prevMessages.slice(0, -2), { ...secondLast, message: data.question }, prevMessages[prevMessages.length - 1]];
         addChatMessage(allMessages);
         return allMessages;
       });
@@ -811,9 +857,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (data.followUpPrompts) {
       setMessages((prevMessages) => {
-        const allMessages = [...cloneDeep(prevMessages)];
-        if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-        allMessages[allMessages.length - 1].followUpPrompts = data.followUpPrompts;
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        if (lastMsg.type === 'userMessage') return prevMessages;
+        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, followUpPrompts: data.followUpPrompts }];
         addChatMessage(allMessages);
         return allMessages;
       });
@@ -940,14 +986,37 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     stopAllTTS();
 
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      if (allMessages[allMessages.length - 1].type === 'userMessage') return allMessages;
-      const lastAgentReasoning = allMessages[allMessages.length - 1].agentReasoning;
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      const lastAgentReasoning = lastMsg.agentReasoning;
       if (lastAgentReasoning && lastAgentReasoning.length > 0) {
-        allMessages[allMessages.length - 1].agentReasoning = lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent);
+        return [...prevMessages.slice(0, -1), { ...lastMsg, agentReasoning: lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent) }];
       }
-      return allMessages;
+      return prevMessages;
     });
+  };
+
+  const handleAbort = async () => {
+    setIsMessageStopping(true);
+    try {
+      await abortMessageQuery({
+        chatflowid: props.chatflowid,
+        apiHost: props.apiHost,
+        chatId: chatId(),
+        onRequest: props.onRequest,
+      });
+      setIsMessageStopping(false);
+    } catch (error) {
+      setIsMessageStopping(false);
+      console.error('Error aborting message:', error);
+    }
+  };
+
+  const hasAgentFlowExecutedData = () => {
+    const msgs = messages();
+    if (msgs.length === 0) return false;
+    const lastMsg = msgs[msgs.length - 1];
+    return lastMsg.type === 'apiMessage' && Array.isArray(lastMsg.agentFlowExecutedData) && lastMsg.agentFlowExecutedData.length > 0;
   };
 
   const handleFileUploads = async (uploads: IUploads) => {
@@ -1114,7 +1183,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         playReceiveSound();
 
         setMessages((prevMessages) => {
-          const allMessages = [...cloneDeep(prevMessages)];
           const newMessage = {
             message: text,
             id: data?.chatMessageId,
@@ -1129,7 +1197,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             feedback: null,
             dateTime: new Date().toISOString(),
           };
-          allMessages.push(newMessage);
+          const allMessages = [...prevMessages, newMessage];
           addChatMessage(allMessages);
           return allMessages;
         });
@@ -1279,11 +1347,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   });
 
-  // Auto scroll chat to bottom (but not during TTS actions)
+  // Auto scroll chat to bottom (but not during TTS actions or when user has scrolled up)
   createEffect(() => {
     if (messages()) {
-      if (messages().length > 1 && !isTTSActionRef) {
+      if (messages().length > 1 && !isTTSActionRef && stickyToBottom) {
         setTimeout(() => {
+          if (!stickyToBottom) return;
           chatContainer?.scrollTo(0, chatContainer.scrollHeight);
         }, 400);
       }
@@ -1531,7 +1600,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     } else {
       mimeType = blob.type.substring(0, pos);
     }
-
+    const ext = getRecordingExtensionForMime(mimeType);
     // read blob and add to previews
     const reader = new FileReader();
     reader.readAsDataURL(blob);
@@ -1541,7 +1610,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         data: base64data,
         preview: '../assets/wave-sound.jpg',
         type: 'audio',
-        name: `audio_${Date.now()}.wav`,
+        name: `audio_${Date.now()}.${ext}`,
         mime: mimeType,
       };
       setPreviews((prevPreviews) => [...prevPreviews, upload]);
@@ -1809,16 +1878,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }));
 
     setMessages((prevMessages) => {
-      const allMessages = [...cloneDeep(prevMessages)];
-      const lastMessage = allMessages[allMessages.length - 1];
-      if (lastMessage.type === 'userMessage') return allMessages;
-      const existingId = lastMessage.id || lastMessage.messageId;
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      if (lastMsg.type === 'userMessage') return prevMessages;
+      const existingId = lastMsg.id || lastMsg.messageId;
+      let id = lastMsg.id;
       if (!existingId) {
-        allMessages[allMessages.length - 1].id = data.chatMessageId;
-      } else if (!lastMessage.id) {
-        allMessages[allMessages.length - 1].id = existingId;
+        id = data.chatMessageId;
+      } else if (!lastMsg.id) {
+        id = existingId;
       }
-      return allMessages;
+      if (id === lastMsg.id) return prevMessages;
+      return [...prevMessages.slice(0, -1), { ...lastMsg, id }];
     });
 
     setTtsStreamingState({
@@ -1937,8 +2007,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           // Start audio playback
           audio.play().catch((playError) => {
+            if (playError.name === 'AbortError') return;
             console.error('Error starting audio playback:', playError);
-            // Cleanup on play error
             cleanupTTSStreaming();
           });
         } catch (error) {
@@ -2422,10 +2492,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </DeleteButton>
             </div>
           ) : null}
-          <div class="flex flex-col w-full h-full justify-start z-0">
+          <div class="relative flex flex-col w-full h-full justify-start z-0">
             <div
               ref={chatContainer}
-              class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view scroll-smooth"
+              class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view"
             >
               <For each={[...messages()]}>
                 {(message, index) => {
@@ -2500,7 +2570,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   );
                 }}
               </For>
+              <Show when={loading()}>
+                <div ref={bottomSpacer} style={{ 'flex-grow': '1' }} />
+              </Show>
             </div>
+            <Show when={showScrollButton()}>
+              <div class="absolute bottom-[140px] left-1/2 -translate-x-1/2 z-10">
+                <button
+                  class="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-md border border-gray-200 text-gray-500 hover:text-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  onClick={forceScrollToBottom}
+                  title="Scroll to bottom"
+                  type="button"
+                >
+                  <ChevronDownIcon class="w-5 h-5" />
+                </button>
+              </div>
+            </Show>
             <Show when={messages().length === 1}>
               <Show when={starterPrompts().length > 0}>
                 <div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">
@@ -2616,6 +2701,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   sendSoundLocation={props.textInput?.sendSoundLocation}
                   enableInputHistory={true}
                   maxHistorySize={10}
+                  isLoading={loading()}
+                  showAbortButton={loading() && hasAgentFlowExecutedData()}
+                  isMessageStopping={isMessageStopping()}
+                  onAbort={handleAbort}
                 />
               )}
             </div>

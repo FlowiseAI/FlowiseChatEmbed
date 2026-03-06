@@ -1,5 +1,6 @@
 import { createSignal, Show, For, JSXElement } from 'solid-js';
 import { Marked } from '@ts-stack/markdown';
+import DOMPurify from 'dompurify';
 import { getAgentflowIcon } from './AgentflowIcons';
 
 type NodeDetailsDialogProps = {
@@ -561,7 +562,7 @@ const ArtifactBlock = (props: { artifact: any; index: number; apiHost?: string; 
   }
 
   if (type === 'html') {
-    return <div style={{ ...artifactBoxStyle, padding: '8px 12px', 'font-size': '0.85rem' }} innerHTML={data} />;
+    return <div style={{ ...artifactBoxStyle, padding: '8px 12px', 'font-size': '0.85rem' }} innerHTML={DOMPurify.sanitize(data)} />;
   }
 
   return (

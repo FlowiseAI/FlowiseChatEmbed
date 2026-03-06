@@ -67,15 +67,38 @@ pre {
   color: rgb(0, 43, 54);
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollable-container::-webkit-scrollbar {
-  display: none;
+/* Thin scrollbar for Firefox */
+.scrollable-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.scrollable-container {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+/* Thin scrollbar for Chrome, Safari and Opera */
+.scrollable-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollable-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.scrollable-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+/* Auto-hide scrollbar on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .scrollable-container {
+    scrollbar-width: none;
+  }
+  .scrollable-container::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .text-fade-in {
