@@ -304,11 +304,15 @@ export const TreeItem = (props: TreeItemProps) => {
       <Show when={hasChildren && context.isExpanded(props.itemId)}>
         <div
           class="tree-item-children"
-          style={props.borderColor ? {
-            'border-left': `3px solid ${props.borderColor}`,
-            'margin-left': '13px',
-            'padding-left': '8px',
-          } : undefined}
+          style={
+            props.borderColor
+              ? {
+                  'border-left': `3px solid ${props.borderColor}`,
+                  'margin-left': '13px',
+                  'padding-left': '8px',
+                }
+              : undefined
+          }
         >
           {props.children}
         </div>

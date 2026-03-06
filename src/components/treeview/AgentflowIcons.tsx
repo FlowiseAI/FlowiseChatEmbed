@@ -7,7 +7,17 @@ type IconProps = {
 
 // Condition - forking arrows (IconArrowsSplit)
 const ConditionIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M21 17h-8l-3.5 -5h-6.5" />
     <path d="M21 7h-8l-3.5 5" />
     <path d="M18 4l3 3l-3 3" />
@@ -17,14 +27,31 @@ const ConditionIcon = (props: IconProps) => (
 
 // Start - filled play triangle (IconPlayerPlayFilled)
 const StartIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill={props.color ?? 'currentColor'} stroke="none">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill={props.color ?? 'currentColor'}
+    stroke="none"
+  >
     <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z" />
   </svg>
 );
 
 // LLM - sparkles (IconSparkles)
 const LlmIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z" />
     <path d="M2 9a6 6 0 0 1 6 6a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6z" />
   </svg>
@@ -32,7 +59,17 @@ const LlmIcon = (props: IconProps) => (
 
 // Agent - robot (IconRobot)
 const AgentIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M6 4m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z" />
     <path d="M12 2v2" />
     <path d="M9 12v9" />
@@ -47,7 +84,17 @@ const AgentIcon = (props: IconProps) => (
 
 // Human Input - person with arrows (IconUserQuestion simplified)
 const HumanInputIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
     <path d="M6 21v-2a4 4 0 0 1 4 -4h3" />
     <path d="M19 17v.01" />
@@ -57,7 +104,17 @@ const HumanInputIcon = (props: IconProps) => (
 
 // Loop - circular arrows (IconRepeat)
 const LoopIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3" />
     <path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3" />
   </svg>
@@ -65,14 +122,28 @@ const LoopIcon = (props: IconProps) => (
 
 // Direct Reply - filled chat bubble (IconMessageCircleFilled)
 const DirectReplyIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill={props.color ?? 'currentColor'} stroke="none">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill={props.color ?? 'currentColor'}
+    stroke="none"
+  >
     <path d="M5.821 4.91c3.898 -2.765 9.469 -2.539 13.073 .536c3.667 3.127 4.168 8.238 1.152 11.897c-2.842 3.447 -7.965 4.583 -12.231 2.805l-.232 -.101l-4.375 .931l-.075 .013l-.11 .009l-.113 -.004l-.044 -.005l-.11 -.02l-.105 -.034l-.1 -.044l-.076 -.042l-.108 -.077l-.081 -.074l-.073 -.083l-.053 -.075l-.065 -.115l-.042 -.106l-.031 -.113l-.013 -.075l-.009 -.11l.004 -.113l.005 -.044l.02 -.11l.022 -.072l1.15 -3.451l-.022 -.036c-2.21 -3.747 -1.209 -8.392 2.411 -11.118l.23 -.168z" />
   </svg>
 );
 
 // Custom Function - f(x) (IconFunctionFilled)
 const CustomFunctionIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill={props.color ?? 'currentColor'} stroke="none">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill={props.color ?? 'currentColor'}
+    stroke="none"
+  >
     <path d="M4.586 3.586a2 2 0 0 1 2.828 0l2.829 2.828a2 2 0 0 1 0 2.829l-2.829 2.828a2 2 0 0 1 -2.828 0l-2.829 -2.828a2 2 0 0 1 0 -2.829z" />
     <path d="M14 12h2v2h2v-2h2v-2h-2v-2h-2v2h-2z" />
     <path d="M3 18h7v-2h-7z" />
@@ -82,7 +153,17 @@ const CustomFunctionIcon = (props: IconProps) => (
 
 // Tool - wrench (IconTools)
 const ToolIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" />
     <path d="M14.5 5.5l4 4" />
     <path d="M12 8l-5 -5l-4 4l5 5" />
@@ -92,7 +173,17 @@ const ToolIcon = (props: IconProps) => (
 
 // Retriever - library/books (IconLibrary)
 const RetrieverIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
     <path d="M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
     <path d="M5 8h4" />
@@ -105,7 +196,17 @@ const RetrieverIcon = (props: IconProps) => (
 
 // Condition Agent - subtask branching (IconSubtask)
 const ConditionAgentIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M6 9l6 0" />
     <path d="M4 5m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
     <path d="M14 7m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
@@ -117,7 +218,17 @@ const ConditionAgentIcon = (props: IconProps) => (
 
 // Sticky Note - note page (IconNote)
 const StickyNoteIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M13 20l7 -7" />
     <path d="M13 20v-6a1 1 0 0 1 1 -1h6v-7a2 2 0 0 0 -2 -2h-12a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7" />
   </svg>
@@ -125,7 +236,17 @@ const StickyNoteIcon = (props: IconProps) => (
 
 // HTTP - globe (IconWorld)
 const HttpIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
     <path d="M3.6 9h16.8" />
     <path d="M3.6 15h16.8" />
@@ -136,7 +257,14 @@ const HttpIcon = (props: IconProps) => (
 
 // Iteration - one-to-many (IconRelationOneToManyFilled)
 const IterationIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill={props.color ?? 'currentColor'} stroke="none">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill={props.color ?? 'currentColor'}
+    stroke="none"
+  >
     <path d="M4 4a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z" />
     <path d="M15 3a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z" />
     <path d="M15 10a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z" />
@@ -149,7 +277,17 @@ const IterationIcon = (props: IconProps) => (
 
 // Execute Flow - bezier curve (IconVectorBezier2)
 const ExecuteFlowIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'currentColor'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 20}
+    height={props.size ?? 20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'currentColor'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M3 10m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
     <path d="M17 10m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
     <path d="M10 3m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
@@ -161,7 +299,17 @@ const ExecuteFlowIcon = (props: IconProps) => (
 
 // Maximize icon for the detail expand button
 export const MaximizeIcon = (props: IconProps) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size ?? 15} height={props.size ?? 15} viewBox="0 0 24 24" fill="none" stroke={props.color ?? 'teal'} stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size ?? 15}
+    height={props.size ?? 15}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={props.color ?? 'teal'}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M16 4l4 0l0 4" />
     <path d="M14 10l6 -6" />
     <path d="M8 20l-4 0l0 -4" />

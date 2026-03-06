@@ -37,59 +37,116 @@ const removeFlowiseCredentialId = (data: any): any => {
 function syntaxHighlight(json: string): string {
   if (!json) return '';
   json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return json.replace(
-    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
-    function (match) {
-      let cls = 'number';
-      if (/^"/.test(match)) {
-        cls = /:$/.test(match) ? 'key' : 'string';
-      } else if (/true|false/.test(match)) {
-        cls = 'boolean';
-      } else if (/null/.test(match)) {
-        cls = 'null';
-      }
-      return '<span class="' + cls + '">' + match + '</span>';
-    },
-  );
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
+    let cls = 'number';
+    if (/^"/.test(match)) {
+      cls = /:$/.test(match) ? 'key' : 'string';
+    } else if (/true|false/.test(match)) {
+      cls = 'boolean';
+    } else if (/null/.test(match)) {
+      cls = 'null';
+    }
+    return '<span class="' + cls + '">' + match + '</span>';
+  });
 }
 
 // --- SVG Icons ---
 
 const CopyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
   </svg>
 );
 
 const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
 const CloseIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
 const ChevronDownSmall = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="m6 9 6 6 6-6" />
   </svg>
 );
 
 const ClockIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 const CoinIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <circle cx="12" cy="12" r="9" />
     <path d="M14.8 9A2 2 0 0 0 13 8h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1-1.8-1" />
     <path d="M12 6v2m0 8v2" />
@@ -97,7 +154,17 @@ const CoinIcon = () => (
 );
 
 const TokenIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M5 5l14 14" />
     <path d="M19 5l-14 14" />
     <path d="M3 12h18" />
@@ -106,14 +173,34 @@ const TokenIcon = () => (
 );
 
 const ToolIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" />
     <path d="M14.5 5.5l4 4" />
   </svg>
 );
 
 const DownloadIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="7 10 12 15 17 10" />
     <line x1="12" y1="15" x2="12" y2="3" />
@@ -123,7 +210,17 @@ const DownloadIcon = () => (
 // --- Node icon: agentflow SVG or API image fallback ---
 
 const DefaultNodeIcon = (props: { size: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size} height={props.size} viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size}
+    height={props.size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
     <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -136,11 +233,18 @@ const NodeIcon = (props: { name: string; apiHost?: string; size?: number; border
 
   if (iconEntry) {
     return (
-      <div style={{
-        'flex-shrink': '0', display: 'flex', 'align-items': 'center', 'justify-content': 'center',
-        width: `${sz}px`, height: `${sz}px`, 'border-radius': props.borderRadius ?? '50%',
-        background: props.bgColor ?? iconEntry.color,
-      }}>
+      <div
+        style={{
+          'flex-shrink': '0',
+          display: 'flex',
+          'align-items': 'center',
+          'justify-content': 'center',
+          width: `${sz}px`,
+          height: `${sz}px`,
+          'border-radius': props.borderRadius ?? '50%',
+          background: props.bgColor ?? iconEntry.color,
+        }}
+      >
         {iconEntry.icon({ size: Math.round(sz * 0.55), color: 'white' })}
       </div>
     );
@@ -149,11 +253,19 @@ const NodeIcon = (props: { name: string; apiHost?: string; size?: number; border
   if (props.apiHost) {
     const [failed, setFailed] = createSignal(false);
     return (
-      <div style={{
-        'flex-shrink': '0', display: 'flex', 'align-items': 'center', 'justify-content': 'center',
-        width: `${sz}px`, height: `${sz}px`, 'border-radius': props.borderRadius ?? '50%',
-        background: props.bgColor ?? (failed() ? '#9e9e9e' : '#f5f5f5'), overflow: 'hidden',
-      }}>
+      <div
+        style={{
+          'flex-shrink': '0',
+          display: 'flex',
+          'align-items': 'center',
+          'justify-content': 'center',
+          width: `${sz}px`,
+          height: `${sz}px`,
+          'border-radius': props.borderRadius ?? '50%',
+          background: props.bgColor ?? (failed() ? '#9e9e9e' : '#f5f5f5'),
+          overflow: 'hidden',
+        }}
+      >
         <Show when={!failed()} fallback={<DefaultNodeIcon size={Math.round(sz * 0.6)} />}>
           <img
             src={`${props.apiHost}/api/v1/node-icon/${props.name}`}
@@ -167,11 +279,18 @@ const NodeIcon = (props: { name: string; apiHost?: string; size?: number; border
   }
 
   return (
-    <div style={{
-      'flex-shrink': '0', display: 'flex', 'align-items': 'center', 'justify-content': 'center',
-      width: `${sz}px`, height: `${sz}px`, 'border-radius': props.borderRadius ?? '50%',
-      background: '#9e9e9e',
-    }}>
+    <div
+      style={{
+        'flex-shrink': '0',
+        display: 'flex',
+        'align-items': 'center',
+        'justify-content': 'center',
+        width: `${sz}px`,
+        height: `${sz}px`,
+        'border-radius': props.borderRadius ?? '50%',
+        background: '#9e9e9e',
+      }}
+    >
       <DefaultNodeIcon size={Math.round(sz * 0.6)} />
     </div>
   );
@@ -190,7 +309,17 @@ const getStatusIcon = (status: string): JSXElement => {
   switch (status) {
     case 'FINISHED':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#4CAF50"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
@@ -198,7 +327,17 @@ const getStatusIcon = (status: string): JSXElement => {
     case 'ERROR':
     case 'TIMEOUT':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#F44336"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -207,7 +346,18 @@ const getStatusIcon = (status: string): JSXElement => {
     case 'INPROGRESS':
     case 'RUNNING':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ndd-spin">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#2196F3"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="ndd-spin"
+        >
           <circle cx="12" cy="12" r="10" />
           <path d="M12 16l4-4-4-4" />
           <path d="M8 12h8" />
@@ -215,14 +365,34 @@ const getStatusIcon = (status: string): JSXElement => {
       );
     case 'STOPPED':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#FF9800"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10" />
           <rect x="9" y="9" width="6" height="6" />
         </svg>
       );
     default:
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#FFC107"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10" />
           <polyline points="12 6 12 12 16 14" />
         </svg>
@@ -252,25 +422,52 @@ const getRoleBadgeStyle = (role: string): { background: string; color: string } 
 
 // --- Collapsible component ---
 
-const Collapsible = (props: {
-  header: JSXElement;
-  children: JSXElement;
-  borderColor?: string;
-  bgColor?: string;
-  defaultOpen?: boolean;
-}) => {
+const Collapsible = (props: { header: JSXElement; children: JSXElement; borderColor?: string; bgColor?: string; defaultOpen?: boolean }) => {
   const [isOpen, setIsOpen] = createSignal(props.defaultOpen ?? false);
   const toggle = () => setIsOpen(!isOpen());
   return (
-    <div style={{ border: `1px solid ${props.borderColor || 'rgba(0,0,0,0.1)'}`, 'border-radius': '8px', 'margin-bottom': '6px', overflow: 'hidden', background: props.bgColor || 'transparent' }}>
+    <div
+      style={{
+        border: `1px solid ${props.borderColor || 'rgba(0,0,0,0.1)'}`,
+        'border-radius': '8px',
+        'margin-bottom': '6px',
+        overflow: 'hidden',
+        background: props.bgColor || 'transparent',
+      }}
+    >
       <button
         type="button"
-        style={{ display: 'flex', 'align-items': 'center', width: '100%', padding: '10px 12px', cursor: 'pointer', 'user-select': 'none', gap: '8px', 'font-size': '0.85rem', 'font-family': 'inherit', color: 'inherit', 'text-align': 'left', border: 'none', background: 'transparent' }}
+        style={{
+          display: 'flex',
+          'align-items': 'center',
+          width: '100%',
+          padding: '10px 12px',
+          cursor: 'pointer',
+          'user-select': 'none',
+          gap: '8px',
+          'font-size': '0.85rem',
+          'font-family': 'inherit',
+          color: 'inherit',
+          'text-align': 'left',
+          border: 'none',
+          background: 'transparent',
+        }}
         onClick={toggle}
         aria-expanded={isOpen()}
       >
         <span style={{ flex: '1', display: 'flex', 'align-items': 'center', gap: '8px', 'text-align': 'left' }}>{props.header}</span>
-        <span style={{ display: 'flex', 'align-items': 'center', 'justify-content': 'center', 'flex-shrink': '0', transition: 'transform 0.2s ease', transform: isOpen() ? 'rotate(180deg)' : 'rotate(0deg)', opacity: '0.5' }} aria-hidden="true">
+        <span
+          style={{
+            display: 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            'flex-shrink': '0',
+            transition: 'transform 0.2s ease',
+            transform: isOpen() ? 'rotate(180deg)' : 'rotate(0deg)',
+            opacity: '0.5',
+          }}
+          aria-hidden="true"
+        >
           <ChevronDownSmall />
         </span>
       </button>
@@ -315,11 +512,18 @@ const SmartContent = (props: { content: string }) => {
   };
 
   return (
-    <Show when={parsed()} fallback={
-      <Show when={props.content} fallback={<div style={{ 'font-size': '0.85rem', opacity: '0.5' }}>*No data*</div>}>
-        <div class="ndd-markdown" style={{ 'word-break': 'break-word', 'font-size': '0.85rem', 'line-height': '1.6' }} innerHTML={Marked.parse(props.content)} />
-      </Show>
-    }>
+    <Show
+      when={parsed()}
+      fallback={
+        <Show when={props.content} fallback={<div style={{ 'font-size': '0.85rem', opacity: '0.5' }}>*No data*</div>}>
+          <div
+            class="ndd-markdown"
+            style={{ 'word-break': 'break-word', 'font-size': '0.85rem', 'line-height': '1.6' }}
+            innerHTML={Marked.parse(props.content)}
+          />
+        </Show>
+      }
+    >
       <JsonBlock data={parsed()} />
     </Show>
   );
@@ -347,7 +551,11 @@ const ArtifactBlock = (props: { artifact: any; index: number; apiHost?: string; 
     const src = resolveFileUrl(data, props.apiHost, props.chatflowid, props.chatId);
     return (
       <div style={{ ...artifactBoxStyle, display: 'flex', 'justify-content': 'center' }}>
-        <img src={src} alt={`artifact-${props.index}`} style={{ 'max-height': '400px', 'max-width': '100%', 'object-fit': 'contain', display: 'block' }} />
+        <img
+          src={src}
+          alt={`artifact-${props.index}`}
+          style={{ 'max-height': '400px', 'max-width': '100%', 'object-fit': 'contain', display: 'block' }}
+        />
       </div>
     );
   }
@@ -393,7 +601,22 @@ const FileAnnotationLink = (props: { annotation: any; apiHost?: string; chatflow
   };
 
   return (
-    <button style={{ display: 'inline-flex', 'align-items': 'center', gap: '6px', padding: '4px 12px', border: '1px solid rgba(0,0,0,0.2)', 'border-radius': '6px', background: 'transparent', cursor: 'pointer', 'font-size': '0.8rem', color: 'inherit' }} onClick={handleDownload} title={`Download ${props.annotation.fileName}`}>
+    <button
+      style={{
+        display: 'inline-flex',
+        'align-items': 'center',
+        gap: '6px',
+        padding: '4px 12px',
+        border: '1px solid rgba(0,0,0,0.2)',
+        'border-radius': '6px',
+        background: 'transparent',
+        cursor: 'pointer',
+        'font-size': '0.8rem',
+        color: 'inherit',
+      }}
+      onClick={handleDownload}
+      title={`Download ${props.annotation.fileName}`}
+    >
       <span>{props.annotation.fileName}</span>
       <DownloadIcon />
     </button>
@@ -458,7 +681,23 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
     const role = msg.role || 'unknown';
     const bs = getRoleBadgeStyle(role);
     const roleBadge = (bg: string, fg: string, text: string, extra?: any) => (
-      <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '3px 10px', 'border-radius': '12px', 'font-size': '0.75rem', 'font-weight': '500', background: bg, color: fg, border: `1px solid ${fg}33`, ...extra }}>{text}</span>
+      <span
+        style={{
+          display: 'inline-flex',
+          'align-items': 'center',
+          gap: '4px',
+          padding: '3px 10px',
+          'border-radius': '12px',
+          'font-size': '0.75rem',
+          'font-weight': '500',
+          background: bg,
+          color: fg,
+          border: `1px solid ${fg}33`,
+          ...extra,
+        }}
+      >
+        {text}
+      </span>
     );
 
     return (
@@ -467,9 +706,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
         {roleBadge(bs.background, bs.color, role)}
 
         {/* Name badge (alongside role) */}
-        <Show when={msg.name}>
-          {roleBadge(bs.background, bs.color, msg.name, { 'margin-left': '4px' })}
-        </Show>
+        <Show when={msg.name}>{roleBadge(bs.background, bs.color, msg.name, { 'margin-left': '4px' })}</Show>
 
         {/* Tool calls as collapsible sections */}
         <Show when={msg.tool_calls && Array.isArray(msg.tool_calls) && msg.tool_calls.length > 0}>
@@ -497,9 +734,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
           <div style={{ display: 'flex', 'align-items': 'center', gap: '8px', 'margin-top': '4px' }}>
             <ToolIcon />
             <span style={{ 'font-size': '0.85rem' }}>{msg.name}</span>
-            <Show when={msg.tool_call_id}>
-              {roleBadge('#F5F5F5', '#616161', msg.tool_call_id)}
-            </Show>
+            <Show when={msg.tool_call_id}>{roleBadge('#F5F5F5', '#616161', msg.tool_call_id)}</Show>
           </div>
         </Show>
 
@@ -510,10 +745,24 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
               {(tool: any) => (
                 <Show when={tool}>
                   <span
-                    style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '3px 10px', 'border-radius': '12px', 'font-size': '0.75rem', 'font-weight': '500', background: tool.error ? '#FFEBEE' : '#F3E5F5', color: tool.error ? '#C62828' : '#7B1FA2', border: `1px solid ${tool.error ? '#C6282833' : '#7B1FA233'}`, cursor: 'pointer', transition: 'filter 0.15s ease' }}
+                    style={{
+                      display: 'inline-flex',
+                      'align-items': 'center',
+                      gap: '4px',
+                      padding: '3px 10px',
+                      'border-radius': '12px',
+                      'font-size': '0.75rem',
+                      'font-weight': '500',
+                      background: tool.error ? '#FFEBEE' : '#F3E5F5',
+                      color: tool.error ? '#C62828' : '#7B1FA2',
+                      border: `1px solid ${tool.error ? '#C6282833' : '#7B1FA233'}`,
+                      cursor: 'pointer',
+                      transition: 'filter 0.15s ease',
+                    }}
                     onClick={() => setToolDetailData(tool)}
                   >
-                    <NodeIcon name={getToolIconName(tool.tool, data?.output?.availableTools)} apiHost={props.apiHost} size={16} borderRadius="4px" /> {tool.tool}
+                    <NodeIcon name={getToolIconName(tool.tool, data?.output?.availableTools)} apiHost={props.apiHost} size={16} borderRadius="4px" />{' '}
+                    {tool.tool}
                   </span>
                 </Show>
               )}
@@ -526,13 +775,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
           <div style={{ 'margin-top': '8px', display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
             <For each={msg.additional_kwargs.artifacts}>
               {(artifact: any, idx) => (
-                <ArtifactBlock
-                  artifact={artifact}
-                  index={idx()}
-                  apiHost={props.apiHost}
-                  chatflowid={props.chatflowid}
-                  chatId={props.chatId}
-                />
+                <ArtifactBlock artifact={artifact} index={idx()} apiHost={props.apiHost} chatflowid={props.chatflowid} chatId={props.chatId} />
               )}
             </For>
           </div>
@@ -543,11 +786,21 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
           <div style={{ 'margin-top': '8px', display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
             <For each={msg.content}>
               {(content: any, idx) => {
-                const src = content.type === 'stored-file' && props.apiHost
-                  ? `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${content.name}`
-                  : content.name;
+                const src =
+                  content.type === 'stored-file' && props.apiHost
+                    ? `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${content.name}`
+                    : content.name;
                 return (
-                  <div style={{ border: '1px solid rgba(0,0,0,0.12)', 'border-radius': '6px', overflow: 'hidden', display: 'flex', 'justify-content': 'center', background: 'rgba(0,0,0,0.02)' }}>
+                  <div
+                    style={{
+                      border: '1px solid rgba(0,0,0,0.12)',
+                      'border-radius': '6px',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      'justify-content': 'center',
+                      background: 'rgba(0,0,0,0.02)',
+                    }}
+                  >
                     <img
                       src={src}
                       alt={`file-upload-${idx()}`}
@@ -574,14 +827,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
         <Show when={msg.additional_kwargs?.fileAnnotations?.length}>
           <div style={{ 'margin-top': '8px', display: 'flex', gap: '6px', 'flex-wrap': 'wrap' }}>
             <For each={msg.additional_kwargs.fileAnnotations}>
-              {(fa: any) => (
-                <FileAnnotationLink
-                  annotation={fa}
-                  apiHost={props.apiHost}
-                  chatflowid={props.chatflowid}
-                  chatId={props.chatId}
-                />
-              )}
+              {(fa: any) => <FileAnnotationLink annotation={fa} apiHost={props.apiHost} chatflowid={props.chatflowid} chatId={props.chatId} />}
             </For>
           </div>
         </Show>
@@ -602,7 +848,22 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
                   ? 'Else condition fulfilled'
                   : `Condition ${index()}`}
               </span>
-              <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '3px 10px', 'border-radius': '12px', 'font-size': '0.75rem', 'font-weight': '500', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #2E7D3233' }}>Fulfilled</span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  'align-items': 'center',
+                  gap: '4px',
+                  padding: '3px 10px',
+                  'border-radius': '12px',
+                  'font-size': '0.75rem',
+                  'font-weight': '500',
+                  background: '#E8F5E9',
+                  color: '#2E7D32',
+                  border: '1px solid #2E7D3233',
+                }}
+              >
+                Fulfilled
+              </span>
             </div>
             <Show when={!(condition.type === 'string' && condition.operation === 'equal' && !condition.value1 && !condition.value2)}>
               <div style={{ 'margin-top': '4px' }}>
@@ -618,7 +879,18 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
   const sectionStyle = { 'margin-bottom': '16px' };
   const sectionTitleStyle = { 'font-weight': '700', 'font-size': '0.9rem', 'margin-bottom': '8px' };
   const sectionBoxStyle = { border: '1px solid rgba(0,0,0,0.1)', 'border-radius': '10px', padding: '14px 16px', background: 'rgba(0,0,0,0.015)' };
-  const badgeBaseStyle = (bg: string, fg: string) => ({ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '3px 10px', 'border-radius': '12px', 'font-size': '0.75rem', 'font-weight': '500', background: bg, color: fg, border: `1px solid ${fg}33` });
+  const badgeBaseStyle = (bg: string, fg: string) => ({
+    display: 'inline-flex',
+    'align-items': 'center',
+    gap: '4px',
+    padding: '3px 10px',
+    'border-radius': '12px',
+    'font-size': '0.75rem',
+    'font-weight': '500',
+    background: bg,
+    color: fg,
+    border: `1px solid ${fg}33`,
+  });
 
   // Rendered view - matching NodeExecutionDetails.jsx structure
   const renderRenderedView = () => {
@@ -663,34 +935,34 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
         <div style={sectionStyle}>
           <div style={sectionTitleStyle}>Input</div>
           <div style={sectionBoxStyle}>
-          <Show
-            when={data.input?.messages && Array.isArray(data.input.messages) && data.input.messages.length > 0}
-            fallback={
-              <Show
-                when={data.input?.form || data.input?.http || data.input?.conditions}
-                fallback={
-                  <Show
-                    when={data.input?.code}
-                    fallback={
-                      <Show when={data.input} fallback={<div style={{ 'font-size': '0.85rem', opacity: '0.5' }}>*No data*</div>}>
-                        <Show when={data.input?.question} fallback={<JsonBlock data={data.input} />}>
-                          <SmartContent content={data.input.question} />
+            <Show
+              when={data.input?.messages && Array.isArray(data.input.messages) && data.input.messages.length > 0}
+              fallback={
+                <Show
+                  when={data.input?.form || data.input?.http || data.input?.conditions}
+                  fallback={
+                    <Show
+                      when={data.input?.code}
+                      fallback={
+                        <Show when={data.input} fallback={<div style={{ 'font-size': '0.85rem', opacity: '0.5' }}>*No data*</div>}>
+                          <Show when={data.input?.question} fallback={<JsonBlock data={data.input} />}>
+                            <SmartContent content={data.input.question} />
+                          </Show>
                         </Show>
-                      </Show>
-                    }
-                  >
-                    <pre style={jsonBlockStyle}>{data.input.code}</pre>
-                  </Show>
-                }
-              >
-                <JsonBlock data={data.input.form || data.input.http || data.input.conditions} />
-              </Show>
-            }
-          >
-            <div style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
-              <For each={data.input.messages}>{(msg: any) => renderMessage(msg, data)}</For>
-            </div>
-          </Show>
+                      }
+                    >
+                      <pre style={jsonBlockStyle}>{data.input.code}</pre>
+                    </Show>
+                  }
+                >
+                  <JsonBlock data={data.input.form || data.input.http || data.input.conditions} />
+                </Show>
+              }
+            >
+              <div style={{ display: 'flex', 'flex-direction': 'column', gap: '4px' }}>
+                <For each={data.input.messages}>{(msg: any) => renderMessage(msg, data)}</For>
+              </div>
+            </Show>
           </div>
         </div>
 
@@ -698,74 +970,74 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
         <div style={sectionStyle}>
           <div style={sectionTitleStyle}>Output</div>
           <div style={sectionBoxStyle}>
-          <Show
-            when={!(data.output?.form || data.output?.http) && !data.output?.conditions}
-            fallback={
-              <Show when={data.output?.conditions} fallback={<JsonBlock data={data.output?.form || data.output?.http} />}>
-                {renderConditions(data.output.conditions)}
+            <Show
+              when={!(data.output?.form || data.output?.http) && !data.output?.conditions}
+              fallback={
+                <Show when={data.output?.conditions} fallback={<JsonBlock data={data.output?.form || data.output?.http} />}>
+                  {renderConditions(data.output.conditions)}
+                </Show>
+              }
+            >
+              {/* Used tools in output */}
+              <Show when={data.output?.usedTools?.length}>
+                <div style={{ display: 'flex', gap: '4px', 'flex-wrap': 'wrap', 'margin-bottom': '8px' }}>
+                  <For each={data.output.usedTools}>
+                    {(tool: any) => (
+                      <Show when={tool}>
+                        <span
+                          style={{
+                            ...badgeBaseStyle(tool.error ? '#FFEBEE' : '#F3E5F5', tool.error ? '#C62828' : '#7B1FA2'),
+                            cursor: 'pointer',
+                            transition: 'filter 0.15s ease',
+                          }}
+                          onClick={() => setToolDetailData(tool)}
+                        >
+                          <NodeIcon
+                            name={getToolIconName(tool.tool, data.output?.availableTools)}
+                            apiHost={props.apiHost}
+                            size={16}
+                            borderRadius="4px"
+                          />{' '}
+                          {tool.tool}
+                        </span>
+                      </Show>
+                    )}
+                  </For>
+                </div>
               </Show>
-            }
-          >
-            {/* Used tools in output */}
-            <Show when={data.output?.usedTools?.length}>
-              <div style={{ display: 'flex', gap: '4px', 'flex-wrap': 'wrap', 'margin-bottom': '8px' }}>
-                <For each={data.output.usedTools}>
-                  {(tool: any) => (
-                    <Show when={tool}>
-                      <span
-                        style={{ ...badgeBaseStyle(tool.error ? '#FFEBEE' : '#F3E5F5', tool.error ? '#C62828' : '#7B1FA2'), cursor: 'pointer', transition: 'filter 0.15s ease' }}
-                        onClick={() => setToolDetailData(tool)}
-                      >
-                        <NodeIcon name={getToolIconName(tool.tool, data.output?.availableTools)} apiHost={props.apiHost} size={16} borderRadius="4px" /> {tool.tool}
-                      </span>
-                    </Show>
-                  )}
-                </For>
-              </div>
-            </Show>
 
-            {/* Artifacts in output (images, HTML, text) */}
-            <Show when={data.output?.artifacts?.length}>
-              <div style={{ display: 'flex', 'flex-direction': 'column', gap: '8px', 'margin-bottom': '8px' }}>
-                <For each={data.output.artifacts}>
-                  {(artifact: any, idx) => (
-                    <ArtifactBlock
-                      artifact={artifact}
-                      index={idx()}
-                      apiHost={props.apiHost}
-                      chatflowid={props.chatflowid}
-                      chatId={props.chatId}
-                    />
-                  )}
-                </For>
-              </div>
-            </Show>
-
-            {/* Output content */}
-            <Show when={data.output?.content} fallback={
-              <Show when={data.output}>
-                <div style={{ 'font-size': '0.85rem', opacity: '0.5' }}>*No data*</div>
+              {/* Artifacts in output (images, HTML, text) */}
+              <Show when={data.output?.artifacts?.length}>
+                <div style={{ display: 'flex', 'flex-direction': 'column', gap: '8px', 'margin-bottom': '8px' }}>
+                  <For each={data.output.artifacts}>
+                    {(artifact: any, idx) => (
+                      <ArtifactBlock artifact={artifact} index={idx()} apiHost={props.apiHost} chatflowid={props.chatflowid} chatId={props.chatId} />
+                    )}
+                  </For>
+                </div>
               </Show>
-            }>
-              <SmartContent content={data.output.content} />
-            </Show>
 
-            {/* File annotations in output */}
-            <Show when={data.output?.fileAnnotations?.length}>
-              <div style={{ 'margin-top': '8px', display: 'flex', gap: '6px', 'flex-wrap': 'wrap' }}>
-                <For each={data.output.fileAnnotations}>
-                  {(fa: any) => (
-                    <FileAnnotationLink
-                      annotation={fa}
-                      apiHost={props.apiHost}
-                      chatflowid={props.chatflowid}
-                      chatId={props.chatId}
-                    />
-                  )}
-                </For>
-              </div>
+              {/* Output content */}
+              <Show
+                when={data.output?.content}
+                fallback={
+                  <Show when={data.output}>
+                    <div style={{ 'font-size': '0.85rem', opacity: '0.5' }}>*No data*</div>
+                  </Show>
+                }
+              >
+                <SmartContent content={data.output.content} />
+              </Show>
+
+              {/* File annotations in output */}
+              <Show when={data.output?.fileAnnotations?.length}>
+                <div style={{ 'margin-top': '8px', display: 'flex', gap: '6px', 'flex-wrap': 'wrap' }}>
+                  <For each={data.output.fileAnnotations}>
+                    {(fa: any) => <FileAnnotationLink annotation={fa} apiHost={props.apiHost} chatflowid={props.chatflowid} chatId={props.chatId} />}
+                  </For>
+                </div>
+              </Show>
             </Show>
-          </Show>
           </div>
         </div>
 
@@ -774,7 +1046,18 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
           <div style={sectionStyle}>
             <div style={{ ...sectionTitleStyle, color: '#C62828' }}>Error</div>
             <div style={{ ...sectionBoxStyle, 'border-color': 'rgba(244,67,54,0.4)', background: 'rgba(244,67,54,0.04)' }}>
-              <div style={{ padding: '8px 12px', 'border-radius': '6px', border: '1px solid #F44336', background: 'rgba(244,67,54,0.08)', color: '#C62828', 'font-size': '0.85rem', 'white-space': 'pre-wrap', 'word-break': 'break-word' }}>
+              <div
+                style={{
+                  padding: '8px 12px',
+                  'border-radius': '6px',
+                  border: '1px solid #F44336',
+                  background: 'rgba(244,67,54,0.08)',
+                  color: '#C62828',
+                  'font-size': '0.85rem',
+                  'white-space': 'pre-wrap',
+                  'word-break': 'break-word',
+                }}
+              >
                 {typeof data.error === 'object' ? JSON.stringify(data.error, null, 2) : data.error}
               </div>
             </div>
@@ -858,90 +1141,133 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-            {/* Header */}
-            <div class="node-dialog-header" style={{ display: 'flex', 'align-items': 'center', 'justify-content': 'space-between', padding: '16px 20px', 'border-bottom': '1px solid rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', 'align-items': 'center', gap: '10px', 'min-width': '0' }}>
-                <NodeIcon name={props.node!.name} apiHost={props.apiHost} size={36} />
-                <div style={{ 'font-weight': '600', 'font-size': '1.05rem' }}>
-                  {props.node!.label}
-                </div>
-              </div>
-              <div style={{ display: 'flex', 'align-items': 'center', gap: '8px', 'flex-shrink': '0' }}>
-                <Show when={getMetrics()}>
-                  {(metrics) => (
-                    <>
-                      <Show when={metrics().time}>
-                        <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '4px 12px', 'border-radius': '14px', 'font-size': '0.75rem', 'font-weight': '600', 'white-space': 'nowrap', background: '#4caf50', color: '#fff' }}>
-                          <ClockIcon /> {metrics().time}
-                        </span>
-                      </Show>
-                      <Show when={metrics().tokens}>
-                        <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '4px 12px', 'border-radius': '14px', 'font-size': '0.75rem', 'font-weight': '600', 'white-space': 'nowrap', background: '#7c4dff', color: '#fff' }}>
-                          <TokenIcon /> {metrics().tokens}
-                        </span>
-                      </Show>
-                      <Show when={metrics().cost}>
-                        <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '4px 12px', 'border-radius': '14px', 'font-size': '0.75rem', 'font-weight': '600', 'white-space': 'nowrap', background: '#ff9800', color: '#fff' }}>
-                          <CoinIcon /> {metrics().cost}
-                        </span>
-                      </Show>
-                    </>
-                  )}
-                </Show>
-              </div>
+          {/* Header */}
+          <div
+            class="node-dialog-header"
+            style={{
+              display: 'flex',
+              'align-items': 'center',
+              'justify-content': 'space-between',
+              padding: '16px 20px',
+              'border-bottom': '1px solid rgba(0,0,0,0.1)',
+            }}
+          >
+            <div style={{ display: 'flex', 'align-items': 'center', gap: '10px', 'min-width': '0' }}>
+              <NodeIcon name={props.node!.name} apiHost={props.apiHost} size={36} />
+              <div style={{ 'font-weight': '600', 'font-size': '1.05rem' }}>{props.node!.label}</div>
             </div>
-
-            {/* Rendered / Raw tab toggle */}
-            <div style={{ display: 'flex', gap: '0', padding: '0 20px', 'border-bottom': '1px solid rgba(0,0,0,0.1)' }}>
-              <button
-                type="button"
-                style={{
-                  padding: '10px 16px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  'font-size': '0.875rem',
-                  'font-weight': '500',
-                  'font-family': 'inherit',
-                  color: viewMode() === 'rendered' ? '#1976d2' : 'inherit',
-                  opacity: viewMode() === 'rendered' ? 1 : 0.6,
-                  'border-bottom': viewMode() === 'rendered' ? '2px solid #1976d2' : '2px solid transparent',
-                  'margin-bottom': '-1px',
-                }}
-                onClick={() => setViewMode('rendered')}
-              >
-                Rendered
-              </button>
-              <button
-                type="button"
-                style={{
-                  padding: '10px 16px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  'font-size': '0.875rem',
-                  'font-weight': '500',
-                  'font-family': 'inherit',
-                  color: viewMode() === 'raw' ? '#1976d2' : 'inherit',
-                  opacity: viewMode() === 'raw' ? 1 : 0.6,
-                  'border-bottom': viewMode() === 'raw' ? '2px solid #1976d2' : '2px solid transparent',
-                  'margin-bottom': '-1px',
-                }}
-                onClick={() => setViewMode('raw')}
-              >
-                Raw
-              </button>
-            </div>
-
-            {/* Content */}
-            <div class="node-dialog-body" style={{ padding: '16px 20px', 'overflow-y': 'auto', 'max-height': '60vh' }}>
-              <Show
-                when={viewMode() === 'rendered'}
-                fallback={<pre class="ndd-json" style={jsonBlockStyle} innerHTML={getHighlightedJson()} />}
-              >
-                {renderRenderedView()}
+            <div style={{ display: 'flex', 'align-items': 'center', gap: '8px', 'flex-shrink': '0' }}>
+              <Show when={getMetrics()}>
+                {(metrics) => (
+                  <>
+                    <Show when={metrics().time}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          'align-items': 'center',
+                          gap: '4px',
+                          padding: '4px 12px',
+                          'border-radius': '14px',
+                          'font-size': '0.75rem',
+                          'font-weight': '600',
+                          'white-space': 'nowrap',
+                          background: '#4caf50',
+                          color: '#fff',
+                        }}
+                      >
+                        <ClockIcon /> {metrics().time}
+                      </span>
+                    </Show>
+                    <Show when={metrics().tokens}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          'align-items': 'center',
+                          gap: '4px',
+                          padding: '4px 12px',
+                          'border-radius': '14px',
+                          'font-size': '0.75rem',
+                          'font-weight': '600',
+                          'white-space': 'nowrap',
+                          background: '#7c4dff',
+                          color: '#fff',
+                        }}
+                      >
+                        <TokenIcon /> {metrics().tokens}
+                      </span>
+                    </Show>
+                    <Show when={metrics().cost}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          'align-items': 'center',
+                          gap: '4px',
+                          padding: '4px 12px',
+                          'border-radius': '14px',
+                          'font-size': '0.75rem',
+                          'font-weight': '600',
+                          'white-space': 'nowrap',
+                          background: '#ff9800',
+                          color: '#fff',
+                        }}
+                      >
+                        <CoinIcon /> {metrics().cost}
+                      </span>
+                    </Show>
+                  </>
+                )}
               </Show>
             </div>
+          </div>
+
+          {/* Rendered / Raw tab toggle */}
+          <div style={{ display: 'flex', gap: '0', padding: '0 20px', 'border-bottom': '1px solid rgba(0,0,0,0.1)' }}>
+            <button
+              type="button"
+              style={{
+                padding: '10px 16px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                'font-size': '0.875rem',
+                'font-weight': '500',
+                'font-family': 'inherit',
+                color: viewMode() === 'rendered' ? '#1976d2' : 'inherit',
+                opacity: viewMode() === 'rendered' ? 1 : 0.6,
+                'border-bottom': viewMode() === 'rendered' ? '2px solid #1976d2' : '2px solid transparent',
+                'margin-bottom': '-1px',
+              }}
+              onClick={() => setViewMode('rendered')}
+            >
+              Rendered
+            </button>
+            <button
+              type="button"
+              style={{
+                padding: '10px 16px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                'font-size': '0.875rem',
+                'font-weight': '500',
+                'font-family': 'inherit',
+                color: viewMode() === 'raw' ? '#1976d2' : 'inherit',
+                opacity: viewMode() === 'raw' ? 1 : 0.6,
+                'border-bottom': viewMode() === 'raw' ? '2px solid #1976d2' : '2px solid transparent',
+                'margin-bottom': '-1px',
+              }}
+              onClick={() => setViewMode('raw')}
+            >
+              Raw
+            </button>
+          </div>
+
+          {/* Content */}
+          <div class="node-dialog-body" style={{ padding: '16px 20px', 'overflow-y': 'auto', 'max-height': '60vh' }}>
+            <Show when={viewMode() === 'rendered'} fallback={<pre class="ndd-json" style={jsonBlockStyle} innerHTML={getHighlightedJson()} />}>
+              {renderRenderedView()}
+            </Show>
+          </div>
         </div>
       </div>
       {/* Tool detail overlay modal */}
@@ -968,16 +1294,52 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div style={{ display: 'flex', 'align-items': 'center', 'justify-content': 'space-between', padding: '14px 20px', 'border-bottom': '1px solid rgba(0,0,0,0.1)' }}>
+            <div
+              style={{
+                display: 'flex',
+                'align-items': 'center',
+                'justify-content': 'space-between',
+                padding: '14px 20px',
+                'border-bottom': '1px solid rgba(0,0,0,0.1)',
+              }}
+            >
               <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
-                <NodeIcon name={getToolIconName(toolDetailData()?.tool || '', cleanedData()?.output?.availableTools)} apiHost={props.apiHost} size={24} />
+                <NodeIcon
+                  name={getToolIconName(toolDetailData()?.tool || '', cleanedData()?.output?.availableTools)}
+                  apiHost={props.apiHost}
+                  size={24}
+                />
                 <span style={{ 'font-weight': '600', 'font-size': '0.95rem' }}>{toolDetailData()?.tool || 'Tool Detail'}</span>
                 <Show when={toolDetailData()?.error}>
-                  <span style={{ display: 'inline-flex', 'align-items': 'center', padding: '2px 8px', 'border-radius': '10px', 'font-size': '0.7rem', 'font-weight': '500', background: '#FFEBEE', color: '#C62828', border: '1px solid #C6282833' }}>Error</span>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      'align-items': 'center',
+                      padding: '2px 8px',
+                      'border-radius': '10px',
+                      'font-size': '0.7rem',
+                      'font-weight': '500',
+                      background: '#FFEBEE',
+                      color: '#C62828',
+                      border: '1px solid #C6282833',
+                    }}
+                  >
+                    Error
+                  </span>
                 </Show>
               </div>
               <button
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', 'border-radius': '4px', display: 'flex', 'align-items': 'center', color: 'inherit', opacity: '0.7' }}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  'border-radius': '4px',
+                  display: 'flex',
+                  'align-items': 'center',
+                  color: 'inherit',
+                  opacity: '0.7',
+                }}
                 onClick={() => setToolDetailData(null)}
                 title="Close"
               >
