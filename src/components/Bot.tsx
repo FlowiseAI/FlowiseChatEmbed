@@ -1012,6 +1012,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
+  const hasAgentFlowExecutedData = () => {
+    const msgs = messages();
+    if (msgs.length === 0) return false;
+    const lastMsg = msgs[msgs.length - 1];
+    return lastMsg.type === 'apiMessage' && Array.isArray(lastMsg.agentFlowExecutedData) && lastMsg.agentFlowExecutedData.length > 0;
+  };
+
   const handleFileUploads = async (uploads: IUploads) => {
     if (!uploadedFiles().length) return uploads;
 
@@ -2695,7 +2702,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   enableInputHistory={true}
                   maxHistorySize={10}
                   isLoading={loading()}
-                  showAbortButton={loading()}
+                  showAbortButton={loading() && hasAgentFlowExecutedData()}
                   isMessageStopping={isMessageStopping()}
                   onAbort={handleAbort}
                 />
