@@ -407,7 +407,13 @@ export const BotBubble = (props: Props) => {
             Array.isArray(props.message.agentFlowExecutedData) &&
             props.message.agentFlowExecutedData.length > 0 && (
               <div>
-                <WorkflowTreeView workflowData={props.message.agentFlowExecutedData} indentationLevel={24} />
+                <WorkflowTreeView
+                  workflowData={props.message.agentFlowExecutedData}
+                  indentationLevel={24}
+                  apiHost={props.apiHost}
+                  chatflowid={props.chatflowid}
+                  chatId={props.chatId}
+                />
               </div>
             )}
           {props.showAgentMessages && props.message.agentReasoning && (
