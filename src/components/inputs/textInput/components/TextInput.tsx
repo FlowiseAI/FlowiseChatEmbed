@@ -75,7 +75,9 @@ export const TextInput = (props: TextInputProps) => {
       }
       props.onSubmit(props.inputValue);
       if (props.sendMessageSound && audioRef) {
-        audioRef.play().catch(() => { /* ignore autoplay errors */ });
+        audioRef.play().catch(() => {
+          /* ignore autoplay errors */
+        });
       }
     }
   };

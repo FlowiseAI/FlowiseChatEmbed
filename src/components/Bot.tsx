@@ -35,7 +35,14 @@ import { ChevronDownIcon, CircleDotIcon, SparklesIcon, TrashIcon } from './icons
 import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
-import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow, setCookie, getCookie, getRecordingExtensionForMime } from '@/utils';
+import {
+  removeLocalStorageChatHistory,
+  getLocalStorageChatflow,
+  setLocalStorageChatflow,
+  setCookie,
+  getCookie,
+  getRecordingExtensionForMime,
+} from '@/utils';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 
@@ -585,7 +592,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       isProgrammaticScroll = true;
       if (guardTimeout) clearTimeout(guardTimeout);
       fn();
-      guardTimeout = setTimeout(() => { isProgrammaticScroll = false; }, 500);
+      guardTimeout = setTimeout(() => {
+        isProgrammaticScroll = false;
+      }, 500);
     };
   });
 
@@ -655,7 +664,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         audioRef.currentTime = 0;
       }
       audioRef = new Audio(audioSrc);
-      audioRef.play().catch(() => { /* ignore autoplay errors */ });
+      audioRef.play().catch(() => {
+        /* ignore autoplay errors */
+      });
     }
   };
 
@@ -1000,7 +1011,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       console.error('Error aborting message:', error);
     }
   };
-
 
   const handleFileUploads = async (uploads: IUploads) => {
     if (!uploadedFiles().length) return uploads;
@@ -1583,7 +1593,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     } else {
       mimeType = blob.type.substring(0, pos);
     }
-    const ext = getRecordingExtensionForMime(mimeType)
+    const ext = getRecordingExtensionForMime(mimeType);
     // read blob and add to previews
     const reader = new FileReader();
     reader.readAsDataURL(blob);

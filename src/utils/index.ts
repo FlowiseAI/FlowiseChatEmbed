@@ -155,19 +155,19 @@ export const getCookie = (cname: string): string => {
 
 export const getRecordingExtensionForMime = (mime: string) => {
   const mimeToExt: Record<string, string> = {
-      'audio/webm': 'webm',
-      'audio/mp4': 'm4a',
-      'audio/x-m4a': 'm4a',
-      'audio/ogg': 'ogg',
-      'audio/oga': 'ogg',
-      'audio/wav': 'wav',
-      'audio/wave': 'wav',
-      'audio/x-wav': 'wav'
-  }
-  const extension = mimeToExt[mime]
+    'audio/webm': 'webm',
+    'audio/mp4': 'm4a',
+    'audio/x-m4a': 'm4a',
+    'audio/ogg': 'ogg',
+    'audio/oga': 'ogg',
+    'audio/wav': 'wav',
+    'audio/wave': 'wav',
+    'audio/x-wav': 'wav',
+  };
+  const extension = mimeToExt[mime];
   if (extension) {
-      return extension
+    return extension;
   }
-  console.warn(`Unsupported audio MIME type: ${mime}. Defaulting to 'webm'.`)
-  return 'webm'
-}
+  console.warn(`Unsupported audio MIME type: ${mime}. Defaulting to 'webm'.`);
+  return 'webm';
+};
