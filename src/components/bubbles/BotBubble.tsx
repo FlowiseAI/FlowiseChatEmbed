@@ -11,6 +11,7 @@ import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
 import { WorkflowTreeView } from '../treeview/WorkflowTreeView';
+import { ThinkingCard } from './ThinkingBubble';
 
 type Props = {
   message: MessageType;
@@ -446,6 +447,17 @@ export const BotBubble = (props: Props) => {
                   return item !== null ? <>{renderArtifacts(item)}</> : null;
                 }}
               </For>
+            </div>
+          )}
+          {props.message.thinking && (
+            <div class="ml-2 mb-1 max-w-full">
+              <ThinkingCard
+                thinking={props.message.thinking}
+                thinkingDuration={props.message.thinkingDuration}
+                isThinking={props.message.isThinking}
+                backgroundColor={props.backgroundColor ?? defaultBackgroundColor}
+                textColor={props.textColor ?? defaultTextColor}
+              />
             </div>
           )}
           {props.message.message && (

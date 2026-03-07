@@ -133,6 +133,9 @@ export type MessageType = {
   id?: string;
   followUpPrompts?: string;
   dateTime?: string;
+  thinking?: string;
+  thinkingDuration?: number;
+  isThinking?: boolean;
 };
 
 type IUploads = {
@@ -495,6 +498,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isLeadSaved, setIsLeadSaved] = createSignal(false);
   const [leadEmail, setLeadEmail] = createSignal('');
   const [disclaimerPopupOpen, setDisclaimerPopupOpen] = createSignal(false);
+  const [isThinking, setIsThinking] = createSignal(false);
 
   const [openFeedbackDialog, setOpenFeedbackDialog] = createSignal(false);
   const [feedback, setFeedback] = createSignal('');
@@ -788,6 +792,41 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
+  const handleThinkingEvent = (data: string, duration?: number) => {
+    if (data && duration === undefined) {
+      setIsThinking(true);
+      setMessages((prevMessages) => {
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        if (lastMsg.type === 'userMessage') return prevMessages;
+        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinking: (lastMsg.thinking || '') + data, isThinking: true }];
+        addChatMessage(allMessages);
+        return allMessages;
+      });
+    } else if (data === '' && duration !== undefined) {
+      setIsThinking(false);
+      setMessages((prevMessages) => {
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        if (lastMsg.type === 'userMessage') return prevMessages;
+        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinkingDuration: duration, isThinking: false }];
+        addChatMessage(allMessages);
+        return allMessages;
+      });
+    }
+  };
+
+  const finalizeThinking = () => {
+    if (isThinking()) {
+      setIsThinking(false);
+      setMessages((prevMessages) => {
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        if (lastMsg.type === 'userMessage') return prevMessages;
+        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
+        addChatMessage(allMessages);
+        return allMessages;
+      });
+    }
+  };
+
   const clearPreviews = () => {
     // Revoke the data uris to avoid memory leaks
     previews().forEach((file) => URL.revokeObjectURL(file.preview));
@@ -918,6 +957,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           case 'agentReasoning':
             updateLastMessageAgentReasoning(payload.data);
             break;
+          case 'thinking':
+            handleThinkingEvent(payload.data, payload.duration);
+            break;
           case 'agentFlowEvent':
             updateAgentFlowEvent(payload.data);
             break;
@@ -941,6 +983,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             closeResponse();
             break;
           case 'end':
+            finalizeThinking();
             setLocalStorageChatflow(chatflowid, chatId);
             closeResponse();
             break;
@@ -1193,6 +1236,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             agentFlowExecutedData: data?.agentFlowExecutedData,
             action: data?.action,
             artifacts: data?.artifacts,
+            thinking: data?.reasonContent?.thinking,
+            thinkingDuration: data?.reasonContent?.thinkingDuration,
             type: 'apiMessage' as messageType,
             feedback: null,
             dateTime: new Date().toISOString(),
@@ -1314,6 +1359,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         messages.push({ message: '', type: 'leadCaptureMessage' });
       }
       setMessages(messages);
+      setShowScrollButton(false);
     } catch (error: any) {
       const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
       console.error(`error: ${errorData}`);
@@ -1397,6 +1443,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
               if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
               if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+              if ((message as any).reasonContent && typeof (message as any).reasonContent === 'object') {
+                chatHistory.thinking = (message as any).reasonContent.thinking;
+                chatHistory.thinkingDuration = (message as any).reasonContent.thinkingDuration;
+              }
+              if (message.thinking) chatHistory.thinking = message.thinking;
+              if (message.thinkingDuration !== undefined) chatHistory.thinkingDuration = message.thinkingDuration;
               if (message.action) chatHistory.action = message.action;
               if (message.artifacts) chatHistory.artifacts = message.artifacts;
               if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
