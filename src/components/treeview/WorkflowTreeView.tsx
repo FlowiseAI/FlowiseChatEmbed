@@ -25,6 +25,7 @@ type WorkflowTreeViewProps = {
   apiHost?: string;
   chatflowid?: string;
   chatId?: string;
+  isFullPage?: boolean;
 };
 
 // Default styling values consistent with BotBubble
@@ -594,6 +595,7 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
         apiHost={props.apiHost}
         chatflowid={props.chatflowid}
         chatId={props.chatId}
+        isFullPage={props.isFullPage}
       />
     </div>
   );

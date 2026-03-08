@@ -2544,6 +2544,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           isTTSPlaying={isTTSPlaying()}
                           handleTTSClick={handleTTSClick}
                           handleTTSStop={handleTTSStop}
+                          isFullPage={props.isFullPage}
                         />
                       )}
                       {message.type === 'leadCaptureMessage' && leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead && (

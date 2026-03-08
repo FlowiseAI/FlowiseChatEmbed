@@ -26,6 +26,7 @@ type Props = {
     isTTSPlaying?: Record<string, boolean>;
     handleTTSClick?: (messageId: string, messageText: string) => void;
     handleTTSStop?: (messageId: string) => void;
+    isFullPage?: boolean;
 };
 export declare const BotBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

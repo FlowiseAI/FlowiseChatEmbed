@@ -17,6 +17,7 @@ type WorkflowTreeViewProps = {
     apiHost?: string;
     chatflowid?: string;
     chatId?: string;
+    isFullPage?: boolean;
 };
 export declare const WorkflowTreeView: (props: WorkflowTreeViewProps) => import("solid-js").JSX.Element;
 export {};

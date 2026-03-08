@@ -1,4 +1,5 @@
 import { createSignal, Show, For, JSXElement } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import { Marked } from '@ts-stack/markdown';
 import DOMPurify from 'dompurify';
 import { getAgentflowIcon } from './AgentflowIcons';
@@ -17,6 +18,7 @@ type NodeDetailsDialogProps = {
   apiHost?: string;
   chatflowid?: string;
   chatId?: string;
+  isFullPage?: boolean;
 };
 
 const FLOWISE_CREDENTIAL_ID = 'FLOWISE_CREDENTIAL_ID';
@@ -50,41 +52,6 @@ function syntaxHighlight(json: string): string {
     return '<span class="' + cls + '">' + match + '</span>';
   });
 }
-
-// --- SVG Icons ---
-
-const CopyIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
 
 const CloseIcon = () => (
   <svg
@@ -304,101 +271,6 @@ const getToolIconName = (toolName: string, availableTools?: any[]): string => {
     if (match?.toolNode?.name) return match.toolNode.name;
   }
   return toolName;
-};
-
-const getStatusIcon = (status: string): JSXElement => {
-  switch (status) {
-    case 'FINISHED':
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#4CAF50"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-      );
-    case 'ERROR':
-    case 'TIMEOUT':
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#F44336"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-      );
-    case 'INPROGRESS':
-    case 'RUNNING':
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#2196F3"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="ndd-spin"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 16l4-4-4-4" />
-          <path d="M8 12h8" />
-        </svg>
-      );
-    case 'STOPPED':
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#FF9800"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <rect x="9" y="9" width="6" height="6" />
-        </svg>
-      );
-    default:
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#FFC107"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-      );
-  }
 };
 
 const getRoleBadgeStyle = (role: string): { background: string; color: string } => {
@@ -628,22 +500,11 @@ const FileAnnotationLink = (props: { annotation: any; apiHost?: string; chatflow
 
 export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
   const [viewMode, setViewMode] = createSignal<'rendered' | 'raw'>('rendered');
-  const [copied, setCopied] = createSignal(false);
   const [toolDetailData, setToolDetailData] = createSignal<any | null>(null);
 
   const cleanedData = () => {
     if (!props.node?.data) return {};
     return removeFlowiseCredentialId(props.node.data);
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(cleanedData(), null, 2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
   };
 
   const getHighlightedJson = () => syntaxHighlight(JSON.stringify(cleanedData(), null, 2));
@@ -1079,6 +940,14 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
   };
 
   const dialogStyles = `
+    .node-details-dialog-root, .node-details-dialog-root * {
+      box-sizing: border-box;
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+    .node-details-dialog-root button, .node-details-dialog-root input {
+      font-family: inherit;
+    }
     .ndd-json .string { color: #7ac35c; }
     .ndd-json .number { color: #e08331; }
     .ndd-json .boolean { color: #326dc3; }
@@ -1105,7 +974,9 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
     .ndd-markdown strong { font-weight: 600; }
   `;
 
-  return (
+  const zBase = props.isFullPage ? 1001 : 42424241;
+
+  const dialogContent = (
     <Show when={props.isOpen && props.node}>
       <style>{dialogStyles}</style>
       <div
@@ -1113,7 +984,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
         style={{
           position: 'fixed',
           inset: '0',
-          'z-index': 1002,
+          'z-index': zBase + 1,
           display: 'flex',
           'align-items': 'center',
           'justify-content': 'center',
@@ -1274,7 +1145,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
       {/* Tool detail overlay modal */}
       <Show when={toolDetailData()}>
         <div
-          style={{ position: 'fixed', inset: '0', 'z-index': 1004, display: 'flex', 'align-items': 'center', 'justify-content': 'center' }}
+          style={{ position: 'fixed', inset: '0', 'z-index': zBase + 3, display: 'flex', 'align-items': 'center', 'justify-content': 'center' }}
           onClick={() => setToolDetailData(null)}
         >
           <div
@@ -1354,15 +1225,21 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
           </div>
         </div>
         <div
-          style={{ position: 'fixed', inset: '0', 'z-index': 1003, 'background-color': 'rgba(0,0,0,0.35)' }}
+          style={{ position: 'fixed', inset: '0', 'z-index': zBase + 2, 'background-color': 'rgba(0,0,0,0.35)' }}
           onClick={() => setToolDetailData(null)}
         />
       </Show>
 
       <div
-        style={{ position: 'fixed', inset: '0', 'z-index': 1001, 'background-color': 'rgba(0,0,0,0.25)', 'pointer-events': 'auto' }}
+        style={{ position: 'fixed', inset: '0', 'z-index': zBase, 'background-color': 'rgba(0,0,0,0.25)', 'pointer-events': 'auto' }}
         onClick={() => props.onClose()}
       />
+    </Show>
+  );
+
+  return (
+    <Show when={!props.isFullPage} fallback={dialogContent}>
+      <Portal mount={document.body}>{dialogContent}</Portal>
     </Show>
   );
 };

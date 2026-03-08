@@ -40,6 +40,7 @@ type Props = {
   isTTSPlaying?: Record<string, boolean>;
   handleTTSClick?: (messageId: string, messageText: string) => void;
   handleTTSStop?: (messageId: string) => void;
+  isFullPage?: boolean;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -414,6 +415,7 @@ export const BotBubble = (props: Props) => {
                   apiHost={props.apiHost}
                   chatflowid={props.chatflowid}
                   chatId={props.chatId}
+                  isFullPage={props.isFullPage}
                 />
               </div>
             )}
