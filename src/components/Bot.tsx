@@ -2579,7 +2579,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 <button
                   class="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-md border border-gray-200 text-gray-500 hover:text-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
                   onClick={forceScrollToBottom}
-                  title="Scroll to bottom"
+                  title="一番下へ"
                   type="button"
                 >
                   <ChevronDownIcon class="w-5 h-5" />
