@@ -1010,8 +1010,8 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
             class="node-dialog-header"
             style={{
               display: 'flex',
-              'align-items': 'center',
-              'justify-content': 'space-between',
+              'flex-direction': 'column',
+              gap: '16px',
               padding: '16px 20px',
               'border-bottom': '1px solid rgba(0,0,0,0.1)',
             }}
@@ -1020,7 +1020,7 @@ export const NodeDetailsDialog = (props: NodeDetailsDialogProps) => {
               <NodeIcon name={props.node!.name} apiHost={props.apiHost} size={36} />
               <div style={{ 'font-weight': '600', 'font-size': '1.05rem' }}>{props.node!.label}</div>
             </div>
-            <div style={{ display: 'flex', 'justify-content': 'flex-end', 'align-items': 'center', gap: '8px', 'flex-wrap': 'wrap', flex: '1' }}>
+            <div style={{ display: 'flex', 'flex-wrap': 'wrap', 'align-items': 'center', gap: '8px', flex: '1' }}>
               <Show when={getMetrics()}>
                 {(metrics) => (
                   <>

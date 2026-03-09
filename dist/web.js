@@ -25261,8 +25261,8 @@ const NodeDetailsDialog = props => {
         _el$78.style.setProperty("overflow-y", "auto");
         _el$78.style.setProperty("outline", "none");
         _el$79.style.setProperty("display", "flex");
-        _el$79.style.setProperty("align-items", "center");
-        _el$79.style.setProperty("justify-content", "space-between");
+        _el$79.style.setProperty("flex-direction", "column");
+        _el$79.style.setProperty("gap", "16px");
         _el$79.style.setProperty("padding", "16px 20px");
         _el$79.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
         _el$80.style.setProperty("display", "flex");
@@ -25282,10 +25282,9 @@ const NodeDetailsDialog = props => {
         _el$81.style.setProperty("font-size", "1.05rem");
         insert(_el$81, () => props.node.label);
         _el$82.style.setProperty("display", "flex");
-        _el$82.style.setProperty("justify-content", "flex-end");
+        _el$82.style.setProperty("flex-wrap", "wrap");
         _el$82.style.setProperty("align-items", "center");
         _el$82.style.setProperty("gap", "8px");
-        _el$82.style.setProperty("flex-wrap", "wrap");
         _el$82.style.setProperty("flex", "1");
         insert(_el$82, createComponent(Show, {
           get when() {
