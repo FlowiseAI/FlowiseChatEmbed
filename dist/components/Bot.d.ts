@@ -80,6 +80,7 @@ export type MessageType = {
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+export declare const CHAT_HEADER_HEIGHT = 50;
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;

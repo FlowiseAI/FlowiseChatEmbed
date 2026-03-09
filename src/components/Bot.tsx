@@ -145,6 +145,8 @@ type IUploads = {
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
 
+export const CHAT_HEADER_HEIGHT = 50;
+
 export type BotProps = {
   chatflowid: string;
   apiHost?: string;
@@ -2463,7 +2465,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              class={`flex flex-row items-center w-full h-[${CHAT_HEADER_HEIGHT}px] absolute top-0 left-0 z-10`}
               style={{
                 background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
                 color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
