@@ -2,7 +2,7 @@ import { createSignal, Show, For, JSXElement } from 'solid-js';
 import { Marked } from '@ts-stack/markdown';
 import DOMPurify from 'dompurify';
 import { getAgentflowIcon } from './AgentflowIcons';
-import { CHAT_HEADER_HEIGHT } from '../Bot';
+import { CHAT_HEADER_HEIGHT } from '@/constants';
 
 type NodeDetailsDialogProps = {
   isOpen: boolean;
