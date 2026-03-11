@@ -102,7 +102,10 @@ export const TextInput = (props: TextInputProps) => {
       }
     }
 
-    if (imageFiles.length > 0 && (props.uploadsConfig?.isImageUploadAllowed || props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload)) {
+    if (
+      imageFiles.length > 0 &&
+      (props.uploadsConfig?.isImageUploadAllowed || props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload)
+    ) {
       e.preventDefault();
       const dataTransfer = new DataTransfer();
       imageFiles.forEach((file) => dataTransfer.items.add(file));
