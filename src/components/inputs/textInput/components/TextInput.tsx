@@ -108,7 +108,14 @@ export const TextInput = (props: TextInputProps) => {
     ) {
       e.preventDefault();
       const dataTransfer = new DataTransfer();
-      imageFiles.forEach((file) => dataTransfer.items.add(file));
+      const timestamp = Date.now();
+      imageFiles.forEach((file, index) => {
+        const ext = file.name.split('.').pop() || 'png';
+        const baseName = file.name.replace(/\.[^/.]+$/, '');
+        const uniqueName = `${baseName}_${timestamp}_${index}.${ext}`;
+        const renamedFile = new File([file], uniqueName, { type: file.type });
+        dataTransfer.items.add(renamedFile);
+      });
       const syntheticEvent = { target: { files: dataTransfer.files } } as FileEvent<HTMLInputElement>;
       props.handleFileChange(syntheticEvent);
     }
