@@ -2446,6 +2446,28 @@
     const handleFileUploadClick = () => {
       if (fileUploadRef) fileUploadRef.click();
     };
+    const handlePaste = e => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const imageFiles = [];
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) imageFiles.push(file);
+        }
+      }
+      if (imageFiles.length > 0 && (props.uploadsConfig?.isImageUploadAllowed || props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload)) {
+        e.preventDefault();
+        const dataTransfer = new DataTransfer();
+        imageFiles.forEach(file => dataTransfer.items.add(file));
+        const syntheticEvent = {
+          target: {
+            files: dataTransfer.files
+          }
+        };
+        props.handleFileChange(syntheticEvent);
+      }
+    };
     const handleKeyDown = e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         const isIMEComposition = e.isComposing || e.keyCode === 229;
@@ -2495,6 +2517,7 @@
     return (() => {
       const _el$ = _tmpl$3$d(),
         _el$3 = _el$.firstChild;
+      _el$.addEventListener("paste", handlePaste);
       _el$.$$keydown = handleKeyDown;
       _el$.style.setProperty("margin", "auto");
       insert(_el$, createComponent(Show, {
