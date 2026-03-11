@@ -45,6 +45,7 @@ import {
 } from '@/utils';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { CHAT_HEADER_HEIGHT } from '@/constants';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -144,8 +145,6 @@ type IUploads = {
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
-
-export const CHAT_HEADER_HEIGHT = 50;
 
 export type BotProps = {
   chatflowid: string;
