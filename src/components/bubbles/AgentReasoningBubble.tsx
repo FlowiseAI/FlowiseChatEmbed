@@ -1,5 +1,6 @@
 import { For, onMount } from 'solid-js';
 import { Marked } from '@ts-stack/markdown';
+import DOMPurify from 'dompurify';
 import { FileUpload } from '../Bot';
 import { cloneDeep } from 'lodash';
 
@@ -60,7 +61,7 @@ export const AgentReasoningBubble = (props: Props) => {
       const src = item.data as string;
       return (
         <div class="mt-2">
-          <div innerHTML={src} />
+          <div innerHTML={DOMPurify.sanitize(src)} />
         </div>
       );
     } else {

@@ -1,7 +1,6 @@
 import { createContext, useContext, JSXElement, Show, For, createEffect, mergeProps } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Dynamic } from 'solid-js/web';
-import './TreeView.css';
 
 // TreeView Context Type
 type TreeViewContextType = {
@@ -192,10 +191,48 @@ export const RichTreeView = (props: RichTreeViewProps) => {
     isHighlighted,
   };
 
-  // Add a style block for dynamic indentation
+  // Add a style block for dynamic indentation and hover effects
   const treeViewStyle = `
     .tree-item-children {
       padding-left: ${mergedProps.indentationLevel}px !important;
+    }
+    .tree-item-content {
+      border-left: 3px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .tree-item-content:hover {
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+    .tree-item-content.selected {
+      background-color: rgba(25, 118, 210, 0.12);
+      border-left-color: #1976d2;
+    }
+    .tree-item-content.selected:hover {
+      background-color: rgba(25, 118, 210, 0.2);
+    }
+    .tree-item-content.highlighted {
+      background-color: rgba(255, 193, 7, 0.1);
+    }
+    .expand-detail-btn {
+      padding: 4px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      opacity: 0.4;
+      transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+    }
+    .expand-detail-btn:hover {
+      opacity: 1;
+      background-color: rgba(0, 0, 0, 0.08);
+      transform: scale(1.15);
+    }
+    .status-icon {
+      display: flex;
+      align-items: center;
     }
   `;
 
@@ -216,6 +253,7 @@ type TreeItemProps = {
   expandedIcon?: JSXElement;
   endIcon?: JSXElement;
   isLeaf?: boolean;
+  borderColor?: string;
 };
 
 // TreeItem component
@@ -264,7 +302,20 @@ export const TreeItem = (props: TreeItemProps) => {
       </div>
 
       <Show when={hasChildren && context.isExpanded(props.itemId)}>
-        <div class="tree-item-children">{props.children}</div>
+        <div
+          class="tree-item-children"
+          style={
+            props.borderColor
+              ? {
+                  'border-left': `3px solid ${props.borderColor}`,
+                  'margin-left': '13px',
+                  'padding-left': '8px',
+                }
+              : undefined
+          }
+        >
+          {props.children}
+        </div>
       </Show>
     </div>
   );

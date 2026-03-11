@@ -14,6 +14,9 @@ type WorkflowTreeViewProps = {
     backgroundColor?: string;
     textColor?: string;
     fontSize?: number;
+    apiHost?: string;
+    chatflowid?: string;
+    chatId?: string;
 };
 export declare const WorkflowTreeView: (props: WorkflowTreeViewProps) => import("solid-js").JSX.Element;
 export {};

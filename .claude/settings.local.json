@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"export.*RichTreeView\\\\|export.*TreeItem\\\\|export.*WorkflowTreeView\" /c/Users/Henry/Codes/FlowiseChatEmbed/src/components/treeview/*.tsx)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(grep:*)",
+      "Bash(node:*)"
+    ]
+  }
+}

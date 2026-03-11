@@ -1,6 +1,7 @@
 import { createEffect, Show, createSignal, onMount, For } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
+import DOMPurify from 'dompurify';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
 import { FileUpload, IAction, MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
@@ -332,7 +333,7 @@ export const BotBubble = (props: Props) => {
         </Show>
         <Show when={item.type === 'html'}>
           <div class="mt-2">
-            <div innerHTML={item.data as string} />
+            <div innerHTML={DOMPurify.sanitize(item.data as string)} />
           </div>
         </Show>
         <Show when={item.type !== 'png' && item.type !== 'jpeg' && item.type !== 'html'}>
@@ -407,7 +408,13 @@ export const BotBubble = (props: Props) => {
             Array.isArray(props.message.agentFlowExecutedData) &&
             props.message.agentFlowExecutedData.length > 0 && (
               <div>
-                <WorkflowTreeView workflowData={props.message.agentFlowExecutedData} indentationLevel={24} />
+                <WorkflowTreeView
+                  workflowData={props.message.agentFlowExecutedData}
+                  indentationLevel={24}
+                  apiHost={props.apiHost}
+                  chatflowid={props.chatflowid}
+                  chatId={props.chatId}
+                />
               </div>
             )}
           {props.showAgentMessages && props.message.agentReasoning && (
