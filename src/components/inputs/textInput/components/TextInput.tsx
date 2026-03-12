@@ -90,6 +90,37 @@ export const TextInput = (props: TextInputProps) => {
     if (fileUploadRef) fileUploadRef.click();
   };
 
+  const handlePaste = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) imageFiles.push(file);
+      }
+    }
+
+    if (
+      imageFiles.length > 0 &&
+      (props.uploadsConfig?.isImageUploadAllowed || props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload)
+    ) {
+      e.preventDefault();
+      const dataTransfer = new DataTransfer();
+      const timestamp = Date.now();
+      imageFiles.forEach((file, index) => {
+        const ext = file.name.split('.').pop() || 'png';
+        const baseName = file.name.replace(/\.[^/.]+$/, '');
+        const uniqueName = `${baseName}_${timestamp}_${index}.${ext}`;
+        const renamedFile = new File([file], uniqueName, { type: file.type });
+        dataTransfer.items.add(renamedFile);
+      });
+      const syntheticEvent = { target: { files: dataTransfer.files } } as FileEvent<HTMLInputElement>;
+      props.handleFileChange(syntheticEvent);
+    }
+  };
+
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       const isIMEComposition = e.isComposing || e.keyCode === 229;
@@ -155,6 +186,7 @@ export const TextInput = (props: TextInputProps) => {
         color: props.textColor ?? defaultTextColor,
       }}
       onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
     >
       <Show when={warningMessage() !== ''}>
         <div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">

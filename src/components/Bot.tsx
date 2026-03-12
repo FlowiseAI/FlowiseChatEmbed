@@ -45,6 +45,7 @@ import {
 } from '@/utils';
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { CHAT_HEADER_HEIGHT } from '@/constants';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -2515,7 +2516,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              class={`flex flex-row items-center w-full h-[${CHAT_HEADER_HEIGHT}px] absolute top-0 left-0 z-10`}
               style={{
                 background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
                 color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
