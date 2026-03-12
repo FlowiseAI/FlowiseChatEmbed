@@ -1,0 +1,1 @@
+{"version":3,"file":"ThinkingBubble.d.ts","sourceRoot":"","sources":["../../../src/components/bubbles/ThinkingBubble.tsx"],"names":[],"mappings":"AAEA,KAAK,KAAK,GAAG;IACX,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,gBAAgB,CAAC,EAAE,MAAM,CAAC;IAC1B,UAAU,CAAC,EAAE,OAAO,CAAC;IACrB,eAAe,CAAC,EAAE,MAAM,CAAC;IACzB,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB,CAAC;AAmCF,eAAO,MAAM,YAAY,UAAW,KAAK,mCAgKxC,CAAC"}
