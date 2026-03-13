@@ -170,6 +170,7 @@ You can also customize chatbot with different configuration
         clearChatOnReload: false, // If set to true, the chat will be cleared when the page reloads
         sourceDocsTitle: 'Sources:',
         renderHTML: true,
+        headerHtml: '<div style="padding: 10px; background: #f0f0f0;"><h3>My Custom Header</h3></div>', // Optional HTML rendered at the top of the chat window
         botMessage: {
           backgroundColor: '#f7f8ff',
           textColor: '#303235',

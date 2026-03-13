@@ -106,6 +106,9 @@ export const Bubble = (props: BubbleProps) => {
         }
       >
         <Show when={isBotStarted()}>
+          <Show when={bubbleProps.theme?.chatWindow?.headerHtml}>
+            <div innerHTML={bubbleProps.theme?.chatWindow?.headerHtml ?? ''} />
+          </Show>
           <div class="relative h-full">
             <Show when={isBotOpened()}>
               {/* Cross button For only mobile screen use this <Show when={isBotOpened() && window.innerWidth <= 640}>  */}
