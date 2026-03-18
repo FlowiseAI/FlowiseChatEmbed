@@ -64,7 +64,7 @@ yarn build
 <flowise-fullchatbot></flowise-fullchatbot>
 ```
 
-To enable full screen, add `margin: 0` to <code>body</code> style, and confirm you don't set height and width
+To enable full screen, add `margin: 0` to <code>body</code> style. The default height is `100dvh` (full viewport height), so omitting `height` is recommended for true full-screen mode.
 
 ```html
 <body style="margin: 0">
@@ -73,16 +73,24 @@ To enable full screen, add `margin: 0` to <code>body</code> style, and confirm y
     Chatbot.initFull({
       chatflowid: '<chatflowid>',
       apiHost: 'http://localhost:3000',
-      theme: {
-        chatWindow: {
-          // height: 700, don't set height
-          // width: 400, don't set width
-        },
-      },
     });
   </script>
 </body>
 ```
+
+#### Responsive height and width
+
+`height` and `width` accept a **number** (pixels) or a **CSS string**:
+
+| Value | Behaviour |
+|---|---|
+| `height: 700` | Fixed 700px, automatically shrinks on smaller screens |
+| `height: '700px'` | Same as above via string |
+| `height: '80dvh'` | Responsive — 80% of viewport height on all screen sizes |
+| `height: 'min(700px, 80dvh)'` | Caps at 700px on large screens, shrinks proportionally on small screens |
+| `height: '100%'` | Relative to the `<flowise-fullchatbot>` host element — only works if the host has an explicit height set (e.g. via CSS). Use `'100dvh'` or omit `height` for full-viewport behaviour instead. |
+
+The same options apply to `width`.
 
 ## Configuration
 
@@ -162,8 +170,8 @@ You can also customize chatbot with different configuration
         errorMessage: 'This is a custom error message',
         backgroundColor: '#ffffff',
         backgroundImage: 'enter image path or link', // If set, this will overlap the background color of the chat window.
-        height: 700,
-        width: 400,
+        height: 700, // number (px) or CSS string e.g. '80dvh', 'min(700px, 80dvh)'
+        width: 400,  // number (px) or CSS string e.g. '400px', '50vw'
         fontSize: 16,
         starterPrompts: ['What is a bot?', 'Who are you?'], // It overrides the starter prompts set by the chat flow passed
         starterPromptFontSize: 15,

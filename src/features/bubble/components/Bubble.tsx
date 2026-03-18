@@ -1,4 +1,4 @@
-import { createSignal, Show, splitProps, onCleanup, createEffect } from 'solid-js';
+import { createSignal, Show, splitProps, onCleanup, createEffect, onMount } from 'solid-js';
 import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
@@ -15,9 +15,14 @@ export type BubbleProps = BotProps & BubbleParams;
 export const Bubble = (props: BubbleProps) => {
   const [bubbleProps] = splitProps(props, ['theme']);
   const [bubbleContainerRef, setBubbleContainerRef] = createSignal<HTMLDivElement | undefined>(undefined);
+  const hasWindow = typeof window !== 'undefined';
 
   const [isBotOpened, setIsBotOpened] = createSignal(false);
   const [isBotStarted, setIsBotStarted] = createSignal(false);
+  const [viewport, setViewport] = createSignal({
+    height: hasWindow ? window.innerHeight : 0,
+    width: hasWindow ? window.innerWidth : 0,
+  });
   const [buttonPosition, setButtonPosition] = createSignal({
     bottom: bubbleProps.theme?.button?.bottom ?? 20,
     right: bubbleProps.theme?.button?.right ?? 20,
@@ -36,6 +41,12 @@ export const Bubble = (props: BubbleProps) => {
     isBotOpened() ? closeBot() : openBot();
   };
 
+  onMount(() => {
+    const handleResize = () => setViewport({ height: window.innerHeight, width: window.innerWidth });
+    window.addEventListener('resize', handleResize);
+    onCleanup(() => window.removeEventListener('resize', handleResize));
+  });
+
   onCleanup(() => {
     setIsBotStarted(false);
   });
@@ -43,6 +54,38 @@ export const Bubble = (props: BubbleProps) => {
   const buttonSize = getBubbleButtonSize(props.theme?.button?.size); // Default to 48px if size is not provided
   const buttonBottom = props.theme?.button?.bottom ?? 20;
   const chatWindowBottom = buttonBottom + buttonSize + 10; // Adjust the offset here for slight shift
+
+  const getChatWindowHeight = () => {
+    const rawHeight = bubbleProps.theme?.chatWindow?.height;
+    if (rawHeight === undefined) return `min(calc(100dvh - ${chatWindowBottom + 16}px), calc(100% - 150px))`;
+    if (typeof rawHeight === 'string') return rawHeight;
+    return `min(${rawHeight}px, calc(100dvh - ${chatWindowBottom + 16}px))`;
+  };
+
+  const getChatWindowMaxHeight = () => {
+    return `calc(100dvh - ${chatWindowBottom + 16}px)`;
+  };
+
+  const getChatWindowWidth = () => {
+    const rawWidth = bubbleProps.theme?.chatWindow?.width;
+    if (rawWidth === undefined) return undefined;
+    if (typeof rawWidth === 'string') return rawWidth;
+    return `${rawWidth}px`;
+  };
+
+  const hasCustomChatWindowWidth = () => {
+    return bubbleProps.theme?.chatWindow?.width !== undefined;
+  };
+
+  const getChatWindowWidthForPositioning = () => {
+    const rawWidth = bubbleProps.theme?.chatWindow?.width;
+    if (typeof rawWidth === 'number') return rawWidth;
+    if (typeof rawWidth === 'string') {
+      const pxMatch = rawWidth.trim().match(/^(\d+(?:\.\d+)?)px$/i);
+      if (pxMatch) return Number(pxMatch[1]);
+    }
+    return 410;
+  };
 
   // Add viewport meta tag dynamically
   createEffect(() => {
@@ -90,8 +133,9 @@ export const Bubble = (props: BubbleProps) => {
           display: 'flex',
           'flex-direction': 'column',
           overflow: 'hidden',
-          height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 150px)',
-          width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : undefined,
+          height: getChatWindowHeight(),
+          'max-height': getChatWindowMaxHeight(),
+          width: getChatWindowWidth(),
           transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
           'transform-origin': 'bottom right',
           transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
@@ -102,11 +146,11 @@ export const Bubble = (props: BubbleProps) => {
           'background-position': 'center',
           'background-repeat': 'no-repeat',
           'z-index': 42424242,
-          bottom: `${Math.min(buttonPosition().bottom + buttonSize + 10, window.innerHeight - chatWindowBottom)}px`,
-          right: `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
+          bottom: `${Math.min(buttonPosition().bottom + buttonSize + 10, viewport().height - chatWindowBottom)}px`,
+          right: `${Math.max(0, Math.min(buttonPosition().right, viewport().width - getChatWindowWidthForPositioning() - 10))}px`,
         }}
         class={
-          `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
+          `fixed sm:right-5 rounded-lg ${hasCustomChatWindowWidth() ? '' : 'w-full sm:w-[400px]'}` +
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
           ` bottom-${chatWindowBottom}px`
         }
