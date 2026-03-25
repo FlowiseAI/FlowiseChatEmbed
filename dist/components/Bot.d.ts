@@ -59,6 +59,23 @@ export type AgentFlowExecutedData = {
     previousNodeIds: string[];
     status?: ExecutionState;
 };
+export type MessageResponseVersion = {
+    message?: string;
+    messageId?: string;
+    id?: string;
+    sourceDocuments?: any;
+    fileAnnotations?: any;
+    agentReasoning?: IAgentReasoning[];
+    agentFlowExecutedData?: any;
+    usedTools?: any[];
+    action?: IAction | null;
+    artifacts?: Partial<FileUpload>[];
+    thinking?: string;
+    thinkingDuration?: number;
+    isThinking?: boolean;
+    rating?: FeedbackRatingType;
+    dateTime?: string;
+};
 export type MessageType = {
     messageId?: string;
     message: string;
@@ -80,6 +97,8 @@ export type MessageType = {
     thinking?: string;
     thinkingDuration?: number;
     isThinking?: boolean;
+    responseVersions?: MessageResponseVersion[];
+    responseVersionIndex?: number;
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;

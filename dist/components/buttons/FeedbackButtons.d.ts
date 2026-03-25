@@ -9,5 +9,6 @@ type RatingButtonProps = {
 export declare const CopyToClipboardButton: (props: RatingButtonProps) => JSX.Element;
 export declare const ThumbsUpButton: (props: RatingButtonProps) => JSX.Element;
 export declare const ThumbsDownButton: (props: RatingButtonProps) => JSX.Element;
+export declare const RegenerateResponseButton: (props: RatingButtonProps) => JSX.Element;
 export {};
 //# sourceMappingURL=FeedbackButtons.d.ts.map

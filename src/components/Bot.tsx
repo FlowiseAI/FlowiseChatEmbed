@@ -493,6 +493,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
+  const [chatFeedbackRegenerateResponseStatus, setChatFeedbackRegenerateResponseStatus] = createSignal<boolean>(false);
   const [fullFileUpload, setFullFileUpload] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
   const [leadsConfig, setLeadsConfig] = createSignal<LeadsConfig>();
@@ -865,6 +866,50 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     handleSubmit(prompt);
   };
 
+  const parseConfigBoolean = (value: unknown, defaultValue: boolean) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true') return true;
+      if (normalized === 'false') return false;
+    }
+    return defaultValue;
+  };
+
+  const getLastApiMessageIndex = () => {
+    const currentMessages = messages();
+    for (let i = currentMessages.length - 1; i >= 0; i--) {
+      if (currentMessages[i].type === 'apiMessage') return i;
+    }
+    return -1;
+  };
+
+  const canRegenerateResponse = (messageIndex: number) => {
+    if (!chatFeedbackStatus() || !chatFeedbackRegenerateResponseStatus() || loading()) return false;
+    if (messageIndex !== getLastApiMessageIndex()) return false;
+    const previousMessage = messages()[messageIndex - 1];
+    if (!previousMessage || previousMessage.type !== 'userMessage') return false;
+    if (previousMessage.fileUploads?.length) return false;
+    return true;
+  };
+
+  const handleRegenerateResponse = async (messageIndex: number) => {
+    if (!canRegenerateResponse(messageIndex)) return;
+
+    const currentMessages = messages();
+    const previousMessage = currentMessages[messageIndex - 1];
+    if (!previousMessage || previousMessage.type !== 'userMessage') return;
+
+    setFollowUpPrompts([]);
+    setMessages((prevMessages) => {
+      const updatedMessages = prevMessages.slice(0, messageIndex);
+      addChatMessage(updatedMessages);
+      return updatedMessages;
+    });
+
+    await handleSubmit(previousMessage.message, undefined, undefined, { skipAddUserMessage: true });
+  };
+
   const updateMetadata = (data: any, input: string) => {
     if (data.chatId) {
       setChatId(data.chatId);
@@ -1141,7 +1186,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (value: string | object, action?: IAction | undefined | null, humanInput?: any) => {
+  const handleSubmit = async (
+    value: string | object,
+    action?: IAction | undefined | null,
+    humanInput?: any,
+    options?: { skipAddUserMessage?: boolean },
+  ) => {
     if (typeof value === 'string' && value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
@@ -1178,11 +1228,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     clearPreviews();
 
-    setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
-      addChatMessage(messages);
-      return messages;
-    });
+    if (!options?.skipAddUserMessage) {
+      setMessages((prevMessages) => {
+        const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
+        addChatMessage(messages);
+        return messages;
+      });
+    }
 
     const body: IncomingInput = {
       question: value,
@@ -1556,7 +1608,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
       if (chatbotConfig.chatFeedback) {
         const chatFeedbackStatus = chatbotConfig.chatFeedback.status;
-        setChatFeedbackStatus(chatFeedbackStatus);
+        const chatFeedbackRegenerateResponseStatus = chatbotConfig.chatFeedback.regenerateResponse;
+        const parsedChatFeedbackStatus = parseConfigBoolean(chatFeedbackStatus, false);
+        // Default regenerate to enabled when feedback is enabled unless Flowise explicitly turns it off.
+        const parsedRegenerateStatus = parseConfigBoolean(chatFeedbackRegenerateResponseStatus, parsedChatFeedbackStatus);
+        setChatFeedbackStatus(parsedChatFeedbackStatus);
+        setChatFeedbackRegenerateResponseStatus(parsedRegenerateStatus);
       }
       if (chatbotConfig.uploads) {
         setUploadsConfig(chatbotConfig.uploads);
@@ -2581,6 +2638,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           showAvatar={props.botMessage?.showAvatar}
                           avatarSrc={props.botMessage?.avatarSrc}
                           chatFeedbackStatus={chatFeedbackStatus()}
+                          showRegenerateResponseButton={canRegenerateResponse(index())}
+                          onRegenerateResponse={() => handleRegenerateResponse(index())}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
                           showAgentMessages={props.showAgentMessages}
