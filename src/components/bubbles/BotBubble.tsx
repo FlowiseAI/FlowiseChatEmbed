@@ -1,4 +1,4 @@
-import { createEffect, Show, createSignal, onMount, For } from 'solid-js';
+import { createEffect, createMemo, Show, createSignal, onMount, For } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import DOMPurify from 'dompurify';
@@ -38,6 +38,7 @@ type Props = {
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
   onRegenerateResponse?: () => void;
+  showRegenerateResponseButton?: boolean;
   // TTS props
   isTTSEnabled?: boolean;
   isTTSLoading?: Record<string, boolean>;
@@ -65,13 +66,62 @@ export const BotBubble = (props: Props) => {
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [isTracesDialogOpen, setIsTracesDialogOpen] = createSignal(false);
+  const [responseVersionIndex, setResponseVersionIndex] = createSignal(0);
+  const [ratingByMessageId, setRatingByMessageId] = createSignal<Record<string, FeedbackRatingType>>({});
 
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
 
+  const responseVersions = createMemo(() => {
+    if (props.message.responseVersions && props.message.responseVersions.length > 0) return props.message.responseVersions;
+    return [props.message];
+  });
+
+  const totalResponseVersions = createMemo(() => responseVersions().length);
+  const hasMultipleResponseVersions = createMemo(() => totalResponseVersions() > 1);
+  console.log('hasMultipleResponseVersions', hasMultipleResponseVersions());
+
+  const activeMessage = createMemo(() => {
+    const versions = responseVersions();
+    const safeIndex = Math.min(Math.max(responseVersionIndex(), 0), versions.length - 1);
+    const selectedVersion = versions[safeIndex] ?? props.message;
+    const isLatestVersion = safeIndex === versions.length - 1;
+    if (isLatestVersion) {
+      // Keep the newest version in sync with streaming updates stored in top-level message fields.
+      return { ...selectedVersion, ...props.message };
+    }
+    return selectedVersion;
+  });
+
+  const currentRating = () => {
+    const active = activeMessage();
+    const activeMessageId = active.messageId;
+    if (activeMessageId && ratingByMessageId()[activeMessageId]) return ratingByMessageId()[activeMessageId];
+    return active.rating ?? '';
+  };
+
   const setBotMessageRef = (el: HTMLSpanElement) => {
     if (el) {
-      el.innerHTML = Marked.parse(props.message.message);
+      setBotMessageElement(el);
+    }
+  };
+
+  createEffect(() => {
+    const versions = responseVersions();
+    if (versions.length === 0) {
+      setResponseVersionIndex(0);
+      return;
+    }
+    const defaultIndex = props.message.responseVersionIndex ?? versions.length - 1;
+    const safeIndex = Math.min(Math.max(defaultIndex, 0), versions.length - 1);
+    setResponseVersionIndex(safeIndex);
+  });
+
+  createEffect(() => {
+    const el = botMessageElement();
+    const messageData = activeMessage();
+    if (el) {
+      el.innerHTML = Marked.parse(messageData.message ?? '');
 
       // Apply textColor to all links, headings, and other markdown elements except code
       const textColor = props.textColor ?? defaultTextColor;
@@ -98,19 +148,21 @@ export const BotBubble = (props: Props) => {
         link.target = '_blank';
       });
 
-      // Store the element ref for the copy function
-      setBotMessageElement(el);
-
-      if (props.message.rating) {
-        setRating(props.message.rating);
-        if (props.message.rating === 'THUMBS_UP') {
-          setThumbsUpColor('#006400');
-        } else if (props.message.rating === 'THUMBS_DOWN') {
-          setThumbsDownColor('#8B0000');
-        }
+      const activeRating = currentRating();
+      setRating(activeRating);
+      if (activeRating === 'THUMBS_UP') {
+        setThumbsUpColor('#006400');
+        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
+      } else if (activeRating === 'THUMBS_DOWN') {
+        setThumbsDownColor('#8B0000');
+        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
+      } else {
+        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
+        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
       }
-      if (props.fileAnnotations && props.fileAnnotations.length) {
-        for (const annotations of props.fileAnnotations) {
+      const fileAnnotations = messageData.fileAnnotations ?? props.fileAnnotations;
+      if (fileAnnotations && fileAnnotations.length) {
+        for (const annotations of fileAnnotations) {
           const button = document.createElement('button');
           button.textContent = annotations.fileName;
           button.className =
@@ -127,7 +179,7 @@ export const BotBubble = (props: Props) => {
         }
       }
     }
-  };
+  });
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -163,14 +215,30 @@ export const BotBubble = (props: Props) => {
   };
 
   const saveToLocalStorage = (rating: FeedbackRatingType) => {
+    const activeMessageId = activeMessage().messageId;
+    if (!activeMessageId) return;
     const chatDetails = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
     if (!chatDetails) return;
     try {
       const parsedDetails = JSON.parse(chatDetails);
       const messages: MessageType[] = parsedDetails.chatHistory || [];
-      const message = messages.find((msg) => msg.messageId === props.message.messageId);
-      if (!message) return;
-      message.rating = rating;
+      let hasUpdate = false;
+      for (const message of messages) {
+        if (message.messageId === activeMessageId) {
+          message.rating = rating;
+          hasUpdate = true;
+          continue;
+        }
+        if (message.responseVersions && message.responseVersions.length > 0) {
+          for (const version of message.responseVersions) {
+            if (version.messageId === activeMessageId) {
+              version.rating = rating;
+              hasUpdate = true;
+            }
+          }
+        }
+      }
+      if (!hasUpdate) return;
       localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedDetails, chatHistory: messages }));
     } catch (e) {
       return;
@@ -202,10 +270,12 @@ export const BotBubble = (props: Props) => {
 
   const onThumbsUpClick = async () => {
     if (rating() === '') {
+      const activeMessageId = activeMessage().messageId;
+      if (!activeMessageId) return;
       const body = {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
-        messageId: props.message?.messageId as string,
+        messageId: activeMessageId,
         rating: 'THUMBS_UP' as FeedbackRatingType,
         content: '',
       };
@@ -221,6 +291,7 @@ export const BotBubble = (props: Props) => {
         let id = '';
         if (data && data.id) id = data.id;
         setRating('THUMBS_UP');
+        setRatingByMessageId((prev) => ({ ...prev, [activeMessageId]: 'THUMBS_UP' }));
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
         // update the thumbs up color state
@@ -232,10 +303,12 @@ export const BotBubble = (props: Props) => {
 
   const onThumbsDownClick = async () => {
     if (rating() === '') {
+      const activeMessageId = activeMessage().messageId;
+      if (!activeMessageId) return;
       const body = {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
-        messageId: props.message?.messageId as string,
+        messageId: activeMessageId,
         rating: 'THUMBS_DOWN' as FeedbackRatingType,
         content: '',
       };
@@ -251,6 +324,7 @@ export const BotBubble = (props: Props) => {
         let id = '';
         if (data && data.id) id = data.id;
         setRating('THUMBS_DOWN');
+        setRatingByMessageId((prev) => ({ ...prev, [activeMessageId]: 'THUMBS_DOWN' }));
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
         // update the thumbs down color state
@@ -403,6 +477,9 @@ export const BotBubble = (props: Props) => {
     }
   };
 
+  const activeArtifacts = createMemo(() => activeMessage().artifacts ?? []);
+  const activeSourceDocuments = createMemo(() => activeMessage().sourceDocuments ?? []);
+
   return (
     <div>
       <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
@@ -410,13 +487,29 @@ export const BotBubble = (props: Props) => {
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
         <div class="flex flex-col justify-start">
-          {props.showAgentMessages && props.message.agentReasoning && (
+          {props.showAgentMessages &&
+            activeMessage().agentFlowExecutedData &&
+            Array.isArray(activeMessage().agentFlowExecutedData) &&
+            activeMessage().agentFlowExecutedData.length > 0 && (
+              <div>
+                <WorkflowTreeView
+                  workflowData={activeMessage().agentFlowExecutedData}
+                  indentationLevel={24}
+                  apiHost={props.apiHost}
+                  chatflowid={props.chatflowid}
+                  chatId={props.chatId}
+                  hasCustomHeader={props.hasCustomHeader}
+                  dialogContainer={props.dialogContainer}
+                />
+              </div>
+            )}
+          {props.showAgentMessages && activeMessage().agentReasoning && (
             <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
               <summary class="cursor-pointer">
                 <span class="italic">Agent Messages</span>
               </summary>
               <br />
-              <For each={props.message.agentReasoning}>
+              <For each={activeMessage().agentReasoning}>
                 {(agent) => {
                   const agentMessages = agent.messages ?? [];
                   let msgContent = agent.instructions || (agentMessages.length > 1 ? agentMessages.join('\\n') : agentMessages[0]);
@@ -439,27 +532,27 @@ export const BotBubble = (props: Props) => {
               </For>
             </details>
           )}
-          {props.message.artifacts && props.message.artifacts.length > 0 && (
+          {activeArtifacts().length > 0 && (
             <div class="flex flex-row items-start flex-wrap w-full gap-2">
-              <For each={props.message.artifacts}>
+              <For each={activeArtifacts()}>
                 {(item) => {
                   return item !== null ? <>{renderArtifacts(item)}</> : null;
                 }}
               </For>
             </div>
           )}
-          {props.message.thinking && (
+          {activeMessage().thinking && (
             <div class="ml-2 mb-1 max-w-full">
               <ThinkingCard
-                thinking={props.message.thinking}
-                thinkingDuration={props.message.thinkingDuration}
-                isThinking={props.message.isThinking}
+                thinking={activeMessage().thinking}
+                thinkingDuration={activeMessage().thinkingDuration}
+                isThinking={activeMessage().isThinking}
                 backgroundColor={props.backgroundColor ?? defaultBackgroundColor}
                 textColor={props.textColor ?? defaultTextColor}
               />
             </div>
           )}
-          {props.message.message && (
+          {activeMessage().message && (
             <span
               ref={setBotMessageRef}
               class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
@@ -472,9 +565,9 @@ export const BotBubble = (props: Props) => {
               }}
             />
           )}
-          {props.message.action && (
+          {activeMessage().action && (
             <div class="px-4 py-2 flex flex-row justify-start space-x-2">
-              <For each={props.message.action.elements || []}>
+              <For each={activeMessage().action?.elements || []}>
                 {(action) => {
                   return (
                     <>
@@ -482,7 +575,7 @@ export const BotBubble = (props: Props) => {
                         <button
                           type="button"
                           class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-                          onClick={() => props.handleActionClick(action, props.message.action)}
+                          onClick={() => props.handleActionClick(action, activeMessage().action)}
                         >
                           <TickIcon />
                           &nbsp;
@@ -492,7 +585,7 @@ export const BotBubble = (props: Props) => {
                         <button
                           type="button"
                           class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-                          onClick={() => props.handleActionClick(action, props.message.action)}
+                          onClick={() => props.handleActionClick(action, activeMessage().action)}
                         >
                           <XIcon isCurrentColor={true} />
                           &nbsp;
@@ -510,13 +603,13 @@ export const BotBubble = (props: Props) => {
         </div>
       </div>
       <div>
-        {props.message.sourceDocuments && props.message.sourceDocuments.length && (
+        {activeSourceDocuments().length > 0 && (
           <>
             <Show when={props.sourceDocsTitle}>
               <span class="px-2 py-[10px] font-semibold">{props.sourceDocsTitle}</span>
             </Show>
             <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap' }}>
-              <For each={[...removeDuplicateURL(props.message)]}>
+              <For each={[...removeDuplicateURL({ ...activeMessage(), sourceDocuments: activeSourceDocuments() } as MessageType)]}>
                 {(src) => {
                   const URL = isValidURL(src.metadata.source);
                   return (
@@ -540,22 +633,22 @@ export const BotBubble = (props: Props) => {
       </div>
       <div>
         <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
-          <Show when={props.isTTSEnabled && (props.message.id || props.message.messageId)}>
+          <Show when={props.isTTSEnabled && (activeMessage().id || activeMessage().messageId)}>
             <TTSButton
               feedbackColor={props.feedbackColor}
               isLoading={(() => {
-                const messageId = props.message.id || props.message.messageId;
+                const messageId = activeMessage().id || activeMessage().messageId;
                 return !!(messageId && props.isTTSLoading?.[messageId]);
               })()}
               isPlaying={(() => {
-                const messageId = props.message.id || props.message.messageId;
+                const messageId = activeMessage().id || activeMessage().messageId;
                 return !!(messageId && props.isTTSPlaying?.[messageId]);
               })()}
               onClick={() => {
-                const messageId = props.message.id || props.message.messageId;
+                const messageId = activeMessage().id || activeMessage().messageId;
                 if (!messageId) return; // Don't allow TTS for messages without valid IDs
 
-                const messageText = props.message.message || '';
+                const messageText = activeMessage().message || '';
                 if (props.isTTSLoading?.[messageId]) {
                   return; // Prevent multiple clicks while loading
                 }
@@ -567,13 +660,38 @@ export const BotBubble = (props: Props) => {
               }}
             />
           </Show>
-          {props.chatFeedbackStatus && props.message.messageId && (
+          {props.chatFeedbackStatus && activeMessage().messageId && (
             <>
               <RegenerateResponseButton
                 class="regenerate-response-button"
                 feedbackColor={props.feedbackColor}
                 onClick={() => props.onRegenerateResponse?.()}
               />
+              <Show when={hasMultipleResponseVersions()}>
+                <div class="text-sm text-gray-500 mr-2 flex items-center">
+                  <button
+                    type="button"
+                    class="px-1"
+                    disabled={responseVersionIndex() === 0}
+                    onClick={() => setResponseVersionIndex((prev) => Math.max(0, prev - 1))}
+                    title="Previous response"
+                    style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
+                  >
+                    {'<'}
+                  </button>
+                  <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${responseVersionIndex() + 1}/${totalResponseVersions()}`}</span>
+                  <button
+                    type="button"
+                    class="px-1"
+                    disabled={responseVersionIndex() === totalResponseVersions() - 1}
+                    onClick={() => setResponseVersionIndex((prev) => Math.min(totalResponseVersions() - 1, prev + 1))}
+                    title="Next response"
+                    style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
+                  >
+                    {'>'}
+                  </button>
+                </div>
+              </Show>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
@@ -591,9 +709,9 @@ export const BotBubble = (props: Props) => {
                   onClick={onThumbsDownClick}
                 />
               ) : null}
-              <Show when={props.message.dateTime}>
+              <Show when={activeMessage().dateTime}>
                 <div class="text-sm text-gray-500 ml-2">
-                  {formatDateTime(props.message.dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time)}
+                  {formatDateTime(activeMessage().dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time)}
                 </div>
               </Show>
             </>
