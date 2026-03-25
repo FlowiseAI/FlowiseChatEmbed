@@ -102,6 +102,7 @@ You can also customize chatbot with different configuration
   Chatbot.init({
     chatflowid: '91e9c803-5169-4db9-8207-3c0915d71c5f',
     apiHost: 'http://localhost:3000',
+    pageTitle: 'Flowise Chatbot Widget', // Optional: browser tab title. Empty string falls back to "Flowise Chatbot Widget"
     chatflowConfig: {
       // topK: 2
     },

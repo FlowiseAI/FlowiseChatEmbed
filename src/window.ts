@@ -5,6 +5,7 @@ import { BubbleTheme } from './features/bubble/types';
 type BotProps = {
   chatflowid: string;
   apiHost?: string;
+  pageTitle?: string;
   onRequest?: (request: RequestInit) => Promise<void>;
   chatflowConfig?: Record<string, unknown>;
   observersConfig?: observersConfigType;
@@ -12,9 +13,16 @@ type BotProps = {
 };
 
 let elementUsed: Element | undefined;
+const defaultPageTitle = 'Flowise Chatbot Widget';
+
+const applyPageTitle = (pageTitle?: string) => {
+  if (typeof document === 'undefined' || pageTitle === undefined) return;
+  document.title = pageTitle.trim() || defaultPageTitle;
+};
 
 export const initFull = (props: BotProps & { id?: string }) => {
   destroy();
+  applyPageTitle(props.pageTitle);
   let fullElement = props.id ? document.getElementById(props.id) : document.querySelector('flowise-fullchatbot');
   if (!fullElement) {
     fullElement = document.createElement('flowise-fullchatbot');
@@ -28,6 +36,7 @@ export const initFull = (props: BotProps & { id?: string }) => {
 
 export const init = (props: BotProps) => {
   destroy();
+  applyPageTitle(props.pageTitle);
   const element = document.createElement('flowise-chatbot');
   Object.assign(element, props);
   document.body.appendChild(element);

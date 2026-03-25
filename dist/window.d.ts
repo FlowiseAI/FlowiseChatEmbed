@@ -3,6 +3,7 @@ import { BubbleTheme } from './features/bubble/types';
 type BotProps = {
     chatflowid: string;
     apiHost?: string;
+    pageTitle?: string;
     onRequest?: (request: RequestInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
     observersConfig?: observersConfigType;

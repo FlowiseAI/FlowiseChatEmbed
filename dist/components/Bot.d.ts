@@ -86,6 +86,7 @@ export type observersConfigType = Record<'observeUserInput' | 'observeLoading' |
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;
+    pageTitle?: string;
     onRequest?: (request: RequestInit) => Promise<void>;
     chatflowConfig?: Record<string, unknown>;
     backgroundColor?: string;
@@ -121,8 +122,6 @@ export type BotProps = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     closeBot?: () => void;
-    hasCustomHeader?: boolean;
-    dialogContainer?: HTMLElement;
 };
 export type LeadsConfig = {
     status: boolean;
