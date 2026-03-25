@@ -21,6 +21,7 @@ type Props = {
     renderHTML?: boolean;
     handleActionClick: (elem: any, action: IAction | undefined | null) => void;
     handleSourceDocumentsClick: (src: any) => void;
+    onRegenerateResponse?: () => void;
     isTTSEnabled?: boolean;
     isTTSLoading?: Record<string, boolean>;
     isTTSPlaying?: Record<string, boolean>;

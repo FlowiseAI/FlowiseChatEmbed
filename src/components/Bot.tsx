@@ -881,6 +881,28 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     handleSubmit(prompt);
   };
 
+  const handleRegenerateResponse = async (messageIndex: number) => {
+    if (loading()) return;
+    if (previews().length) return;
+    if (startInputType() === 'formInput') return;
+
+    const currentMessages = messages();
+    const targetMessage = currentMessages[messageIndex];
+    if (!targetMessage || targetMessage.type !== 'apiMessage') return;
+
+    const previousMessage = currentMessages[messageIndex - 1];
+    if (!previousMessage || previousMessage.type !== 'userMessage' || previousMessage.fileUploads?.length) return;
+
+    setFollowUpPrompts([]);
+    const updatedMessages = currentMessages.slice(0, messageIndex);
+    addChatMessage(updatedMessages);
+    setMessages(updatedMessages);
+
+    // Note: chatId is kept so the server retains conversation context up to this point.
+    // The server's history will still include messages that were removed client-side
+    await handleSubmit(previousMessage.message, undefined, undefined, { skipAddUserMessage: true });
+  };
+
   const updateMetadata = (data: any, input: string) => {
     if (data.chatId) {
       setChatId(data.chatId);
@@ -1166,7 +1188,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (value: string | object, action?: IAction | undefined | null, humanInput?: any) => {
+  const handleSubmit = async (
+    value: string | object,
+    action?: IAction | undefined | null,
+    humanInput?: any,
+    options?: { skipAddUserMessage?: boolean },
+  ) => {
     if (typeof value === 'string' && value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
       if (!previews().length || (previews().length && containsFile)) {
@@ -1203,11 +1230,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     clearPreviews();
 
-    setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
-      addChatMessage(messages);
-      return messages;
-    });
+    if (!options?.skipAddUserMessage) {
+      setMessages((prevMessages) => {
+        const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
+        addChatMessage(messages);
+        return messages;
+      });
+    }
 
     const body: IncomingInput = {
       question: value,
@@ -2603,6 +2632,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           showAvatar={props.botMessage?.showAvatar}
                           avatarSrc={props.botMessage?.avatarSrc}
                           chatFeedbackStatus={chatFeedbackStatus()}
+                          onRegenerateResponse={() => handleRegenerateResponse(index())}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
                           showAgentMessages={props.showAgentMessages}

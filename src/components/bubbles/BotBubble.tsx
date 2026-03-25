@@ -5,6 +5,7 @@ import DOMPurify from 'dompurify';
 import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFeedbackQuery } from '@/queries/sendMessageQuery';
 import { FileUpload, IAction, MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
+import { RegenerateResponseButton } from '../buttons/RegenerateResponseButton';
 import { TTSButton } from '../buttons/TTSButton';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
@@ -35,6 +36,7 @@ type Props = {
   renderHTML?: boolean;
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
+  onRegenerateResponse?: () => void;
   // TTS props
   isTTSEnabled?: boolean;
   isTTSLoading?: Record<string, boolean>;
@@ -581,6 +583,7 @@ export const BotBubble = (props: Props) => {
           </Show>
           {props.chatFeedbackStatus && props.message.messageId && (
             <>
+              <RegenerateResponseButton class="regenerate-response-button" feedbackColor={props.feedbackColor} onClick={() => props.onRegenerateResponse?.()} />
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>

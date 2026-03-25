@@ -272,6 +272,11 @@ textarea {
   stroke: var(--chatbot-button-color);
 }
 
+.regenerate-response-button > .icon-tabler-refresh {
+  width: 16px;
+  height: 16px;
+}
+
 .chatbot-chat-view {
   max-width: 800px;
 }
