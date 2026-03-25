@@ -116,6 +116,24 @@ export type AgentFlowExecutedData = {
   status?: ExecutionState;
 };
 
+export type MessageResponseVersion = {
+  message?: string;
+  messageId?: string;
+  id?: string;
+  sourceDocuments?: any;
+  fileAnnotations?: any;
+  agentReasoning?: IAgentReasoning[];
+  agentFlowExecutedData?: any;
+  usedTools?: any[];
+  action?: IAction | null;
+  artifacts?: Partial<FileUpload>[];
+  thinking?: string;
+  thinkingDuration?: number;
+  isThinking?: boolean;
+  rating?: FeedbackRatingType;
+  dateTime?: string;
+};
+
 export type MessageType = {
   messageId?: string;
   message: string;
@@ -137,6 +155,8 @@ export type MessageType = {
   thinking?: string;
   thinkingDuration?: number;
   isThinking?: boolean;
+  responseVersions?: MessageResponseVersion[];
+  responseVersionIndex?: number;
 };
 
 type IUploads = {
@@ -866,6 +886,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     handleSubmit(prompt);
   };
 
+  const createResponseVersion = (message: Partial<MessageType>): MessageResponseVersion => ({
+    message: message.message ?? '',
+    messageId: message.messageId,
+    id: message.id,
+    sourceDocuments: message.sourceDocuments,
+    fileAnnotations: message.fileAnnotations,
+    agentReasoning: message.agentReasoning,
+    agentFlowExecutedData: message.agentFlowExecutedData,
+    usedTools: message.usedTools,
+    action: message.action,
+    artifacts: message.artifacts,
+    thinking: message.thinking,
+    thinkingDuration: message.thinkingDuration,
+    isThinking: message.isThinking,
+    rating: message.rating,
+    dateTime: message.dateTime,
+  });
+
   const parseConfigBoolean = (value: unknown, defaultValue: boolean) => {
     if (typeof value === 'boolean') return value;
     if (typeof value === 'string') {
@@ -897,8 +935,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (!canRegenerateResponse(messageIndex)) return;
 
     const currentMessages = messages();
+    const targetMessage = currentMessages[messageIndex];
     const previousMessage = currentMessages[messageIndex - 1];
-    if (!previousMessage || previousMessage.type !== 'userMessage') return;
+    if (!previousMessage || previousMessage.type !== 'userMessage' || targetMessage?.type !== 'apiMessage') return;
+
+    const existingResponseVersions =
+      targetMessage.responseVersions && targetMessage.responseVersions.length > 0
+        ? [...targetMessage.responseVersions]
+        : [createResponseVersion(targetMessage)];
 
     setFollowUpPrompts([]);
     setMessages((prevMessages) => {
@@ -907,7 +951,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return updatedMessages;
     });
 
-    await handleSubmit(previousMessage.message, undefined, undefined, { skipAddUserMessage: true });
+    await handleSubmit(previousMessage.message, undefined, undefined, {
+      skipAddUserMessage: true,
+      responseVersions: existingResponseVersions,
+    });
   };
 
   const updateMetadata = (data: any, input: string) => {
@@ -952,7 +999,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
   };
 
-  const fetchResponseFromEventStream = async (chatflowid: string, params: any) => {
+  const fetchResponseFromEventStream = async (
+    chatflowid: string,
+    params: any,
+    options?: { skipAddUserMessage?: boolean; responseVersions?: MessageResponseVersion[] },
+  ) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
@@ -986,7 +1037,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const payload = JSON.parse(ev.data);
         switch (payload.event) {
           case 'start':
-            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+            setMessages((prevMessages) => {
+              const newMessage: MessageType = { message: '', type: 'apiMessage' };
+              if (options?.responseVersions && options.responseVersions.length > 0) {
+                const responseVersions = [...options.responseVersions, createResponseVersion(newMessage)];
+                newMessage.responseVersions = responseVersions;
+                newMessage.responseVersionIndex = responseVersions.length - 1;
+              }
+              return [...prevMessages, newMessage];
+            });
             break;
           case 'token':
             updateLastMessage(payload.data);
@@ -1190,7 +1249,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     value: string | object,
     action?: IAction | undefined | null,
     humanInput?: any,
-    options?: { skipAddUserMessage?: boolean },
+    options?: { skipAddUserMessage?: boolean; responseVersions?: MessageResponseVersion[] },
   ) => {
     if (typeof value === 'string' && value.trim() === '') {
       const containsFile = previews().filter((item) => !item.mime.startsWith('image') && item.type !== 'audio').length > 0;
@@ -1257,7 +1316,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (humanInput) body.humanInput = humanInput;
 
     if (isChatFlowAvailableToStream()) {
-      fetchResponseFromEventStream(props.chatflowid, body);
+      fetchResponseFromEventStream(props.chatflowid, body, options);
     } else {
       const result = await sendMessageQuery({
         chatflowid: props.chatflowid,
@@ -1279,7 +1338,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         playReceiveSound();
 
         setMessages((prevMessages) => {
-          const newMessage = {
+          const baseResponseMessage = {
             message: text,
             id: data?.chatMessageId,
             sourceDocuments: data?.sourceDocuments,
@@ -1294,6 +1353,21 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             type: 'apiMessage' as messageType,
             feedback: null,
             dateTime: new Date().toISOString(),
+          };
+
+          const responseVersions =
+            options?.responseVersions && options.responseVersions.length > 0
+              ? [...options.responseVersions, createResponseVersion(baseResponseMessage)]
+              : undefined;
+
+          const newMessage = {
+            ...baseResponseMessage,
+            ...(responseVersions
+              ? {
+                  responseVersions,
+                  responseVersionIndex: responseVersions.length - 1,
+                }
+              : {}),
           };
           const allMessages = [...prevMessages, newMessage];
           addChatMessage(allMessages);
