@@ -95,13 +95,11 @@ export const BotBubble = (props: Props) => {
     return active.rating ?? '';
   };
 
-  const thumbsUpColor = () => currentRating() === 'THUMBS_UP' ? '#006400' : (props.feedbackColor ?? defaultFeedbackColor);
-  const thumbsDownColor = () => currentRating() === 'THUMBS_DOWN' ? '#8B0000' : (props.feedbackColor ?? defaultFeedbackColor);
+  const thumbsUpColor = () => (currentRating() === 'THUMBS_UP' ? '#006400' : props.feedbackColor ?? defaultFeedbackColor);
+  const thumbsDownColor = () => (currentRating() === 'THUMBS_DOWN' ? '#8B0000' : props.feedbackColor ?? defaultFeedbackColor);
 
-  const setBotMessageRef = (el: HTMLSpanElement) => {
-    if (el) {
-      setBotMessageElement(el);
-    }
+  const setBotMessageRef = (el: HTMLSpanElement | null) => {
+    setBotMessageElement(el);
   };
 
   createEffect(() => {
@@ -656,11 +654,13 @@ export const BotBubble = (props: Props) => {
           </Show>
           {props.chatFeedbackStatus && activeMessage().messageId && (
             <>
-              <RegenerateResponseButton
-                class="regenerate-response-button"
-                feedbackColor={props.feedbackColor}
-                onClick={() => props.onRegenerateResponse?.()}
-              />
+              <Show when={props.showRegenerateResponseButton}>
+                <RegenerateResponseButton
+                  class="regenerate-response-button"
+                  feedbackColor={props.feedbackColor}
+                  onClick={() => props.onRegenerateResponse?.()}
+                />
+              </Show>
               <Show when={hasMultipleResponseVersions()}>
                 <div class="text-sm text-gray-500 mr-2 flex items-center">
                   <button
@@ -673,7 +673,9 @@ export const BotBubble = (props: Props) => {
                   >
                     {'<'}
                   </button>
-                  <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${responseVersionIndex() + 1}/${totalResponseVersions()}`}</span>
+                  <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${
+                    responseVersionIndex() + 1
+                  }/${totalResponseVersions()}`}</span>
                   <button
                     type="button"
                     class="px-1"
@@ -693,7 +695,12 @@ export const BotBubble = (props: Props) => {
                 </div>
               </Show>
               {currentRating() === '' || currentRating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={currentRating() === 'THUMBS_UP'} rating={currentRating()} onClick={onThumbsUpClick} />
+                <ThumbsUpButton
+                  feedbackColor={thumbsUpColor()}
+                  isDisabled={currentRating() === 'THUMBS_UP'}
+                  rating={currentRating()}
+                  onClick={onThumbsUpClick}
+                />
               ) : null}
               {currentRating() === '' || currentRating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton

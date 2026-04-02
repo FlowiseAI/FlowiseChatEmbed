@@ -24117,7 +24117,7 @@ ${body}</tbody>
     _tmpl$14$3 = /*#__PURE__*/template(`<div>*No data*`),
     _tmpl$15$2 = /*#__PURE__*/template(`<div><img>`),
     _tmpl$16$2 = /*#__PURE__*/template(`<button><span>`),
-    _tmpl$17$1 = /*#__PURE__*/template(`<span>`),
+    _tmpl$17$2 = /*#__PURE__*/template(`<span>`),
     _tmpl$18$1 = /*#__PURE__*/template(`<div><span>`),
     _tmpl$19$1 = /*#__PURE__*/template(`<span> `),
     _tmpl$20$1 = /*#__PURE__*/template(`<div><div><span></span><span>Fulfilled`),
@@ -24660,7 +24660,7 @@ ${body}</tbody>
       const role = msg.role || 'unknown';
       const bs = getRoleBadgeStyle(role);
       const roleBadge = (bg, fg, text, extra) => (() => {
-        const _el$27 = _tmpl$17$1();
+        const _el$27 = _tmpl$17$2();
         insert(_el$27, text);
         createRenderEffect(_$p => style(_el$27, {
           display: 'inline-flex',
@@ -24708,7 +24708,7 @@ ${body}</tbody>
                 bgColor: "rgba(255,193,7,0.05)",
                 get header() {
                   return [createComponent(ToolIcon, {}), (() => {
-                    const _el$37 = _tmpl$17$1();
+                    const _el$37 = _tmpl$17$2();
                     insert(_el$37, () => tc.function?.name || tc.name || 'Tool Call');
                     return _el$37;
                   })(), createMemo(() => roleBadge('#FFF3E0', '#E65100', 'Called'))];
@@ -25061,7 +25061,7 @@ ${body}</tbody>
                       },
                       size: 22
                     }), (() => {
-                      const _el$69 = _tmpl$17$1();
+                      const _el$69 = _tmpl$17$2();
                       insert(_el$69, () => tool.toolNode?.label || tool.name);
                       return _el$69;
                     })(), createComponent(Show, {
@@ -26406,8 +26406,9 @@ ${body}</tbody>
     _tmpl$12$1 = /*#__PURE__*/template(`<button type="button" class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2">&nbsp;`),
     _tmpl$13$1 = /*#__PURE__*/template(`<button type="button">`),
     _tmpl$14$1 = /*#__PURE__*/template(`<span class="px-2 py-[10px] font-semibold">`),
-    _tmpl$15$1 = /*#__PURE__*/template(`<div class="copied-message">Copied!`),
-    _tmpl$16$1 = /*#__PURE__*/template(`<div class="text-sm text-gray-500 ml-2">`);
+    _tmpl$15$1 = /*#__PURE__*/template(`<div class="text-sm text-gray-500 mr-2 flex items-center"><button type="button" class="px-1" title="Previous response">&lt;</button><span></span><button type="button" class="px-1" title="Next response">>`),
+    _tmpl$16$1 = /*#__PURE__*/template(`<div class="copied-message">Copied!`),
+    _tmpl$17$1 = /*#__PURE__*/template(`<div class="text-sm text-gray-500 ml-2">`);
   const defaultBackgroundColor$2 = '#f7f8ff';
   const defaultTextColor$3 = '#303235';
   const defaultFontSize$1 = 16;
@@ -26418,17 +26419,70 @@ ${body}</tbody>
       isNoP: true,
       sanitize: props.renderHTML !== undefined ? !props.renderHTML : true
     });
-    const [rating, setRating] = createSignal('');
     const [feedbackId, setFeedbackId] = createSignal('');
     const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
     const [copiedMessage, setCopiedMessage] = createSignal(false);
-    const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
-    const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+    const [responseVersionIndex, setResponseVersionIndex] = createSignal(0);
+    const [ratingByMessageId, setRatingByMessageId] = createSignal({});
     // Store a reference to the bot message element for the copyMessageToClipboard function
     const [botMessageElement, setBotMessageElement] = createSignal(null);
+    const responseVersions = createMemo(() => {
+      if (props.message.responseVersions && props.message.responseVersions.length > 0) return props.message.responseVersions;
+      return [props.message];
+    });
+    const totalResponseVersions = createMemo(() => responseVersions().length);
+    const hasMultipleResponseVersions = createMemo(() => totalResponseVersions() > 1);
+    const activeMessage = createMemo(() => {
+      const versions = responseVersions();
+      const safeIndex = Math.min(Math.max(responseVersionIndex(), 0), versions.length - 1);
+      const selectedVersion = versions[safeIndex] ?? props.message;
+      const isLatestVersion = safeIndex === versions.length - 1;
+      if (isLatestVersion) {
+        // Keep the newest version in sync with streaming updates stored in top-level message fields.
+        return {
+          ...selectedVersion,
+          ...props.message
+        };
+      }
+      return selectedVersion;
+    });
+    const currentRating = () => {
+      const active = activeMessage();
+      const activeMessageId = active.messageId;
+      if (activeMessageId && ratingByMessageId()[activeMessageId]) return ratingByMessageId()[activeMessageId];
+      return active.rating ?? '';
+    };
+    const thumbsUpColor = () => currentRating() === 'THUMBS_UP' ? '#006400' : props.feedbackColor ?? defaultFeedbackColor;
+    const thumbsDownColor = () => currentRating() === 'THUMBS_DOWN' ? '#8B0000' : props.feedbackColor ?? defaultFeedbackColor;
     const setBotMessageRef = el => {
+      setBotMessageElement(el);
+    };
+    createEffect(() => {
+      const versions = responseVersions();
+      if (versions.length === 0) {
+        setResponseVersionIndex(0);
+        return;
+      }
+      const defaultIndex = props.message.responseVersionIndex ?? versions.length - 1;
+      const safeIndex = Math.min(Math.max(defaultIndex, 0), versions.length - 1);
+      setResponseVersionIndex(safeIndex);
+    });
+    createEffect(() => {
+      responseVersionIndex(); // subscribe to version switches
+      untrack(() => {
+        responseVersions().forEach(version => {
+          const id = version.id || version.messageId;
+          if (id && (props.isTTSPlaying?.[id] || props.isTTSLoading?.[id])) {
+            props.handleTTSStop?.(id);
+          }
+        });
+      });
+    });
+    createEffect(() => {
+      const el = botMessageElement();
+      const messageData = activeMessage();
       if (el) {
-        el.innerHTML = Marked.parse(props.message.message);
+        el.innerHTML = Marked.parse(messageData.message ?? '');
         // Apply textColor to all links, headings, and other markdown elements except code
         const textColor = props.textColor ?? defaultTextColor$3;
         el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach(element => {
@@ -26450,18 +26504,9 @@ ${body}</tbody>
         el.querySelectorAll('a').forEach(link => {
           link.target = '_blank';
         });
-        // Store the element ref for the copy function
-        setBotMessageElement(el);
-        if (props.message.rating) {
-          setRating(props.message.rating);
-          if (props.message.rating === 'THUMBS_UP') {
-            setThumbsUpColor('#006400');
-          } else if (props.message.rating === 'THUMBS_DOWN') {
-            setThumbsDownColor('#8B0000');
-          }
-        }
-        if (props.fileAnnotations && props.fileAnnotations.length) {
-          for (const annotations of props.fileAnnotations) {
+        const fileAnnotations = messageData.fileAnnotations ?? props.fileAnnotations;
+        if (fileAnnotations && fileAnnotations.length) {
+          for (const annotations of fileAnnotations) {
             const button = document.createElement('button');
             button.textContent = annotations.fileName;
             button.className = 'py-2 px-4 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
@@ -26476,7 +26521,7 @@ ${body}</tbody>
           }
         }
       }
-    };
+    });
     const downloadFile = async fileAnnotation => {
       try {
         const response = await sendFileDownloadQuery({
@@ -26513,14 +26558,30 @@ ${body}</tbody>
       }
     };
     const saveToLocalStorage = rating => {
+      const activeMessageId = activeMessage().messageId;
+      if (!activeMessageId) return;
       const chatDetails = localStorage.getItem(`${props.chatflowid}_EXTERNAL`);
       if (!chatDetails) return;
       try {
         const parsedDetails = JSON.parse(chatDetails);
         const messages = parsedDetails.chatHistory || [];
-        const message = messages.find(msg => msg.messageId === props.message.messageId);
-        if (!message) return;
-        message.rating = rating;
+        let hasUpdate = false;
+        for (const message of messages) {
+          if (message.messageId === activeMessageId) {
+            message.rating = rating;
+            hasUpdate = true;
+            continue;
+          }
+          if (message.responseVersions && message.responseVersions.length > 0) {
+            for (const version of message.responseVersions) {
+              if (version.messageId === activeMessageId) {
+                version.rating = rating;
+                hasUpdate = true;
+              }
+            }
+          }
+        }
+        if (!hasUpdate) return;
         localStorage.setItem(`${props.chatflowid}_EXTERNAL`, JSON.stringify({
           ...parsedDetails,
           chatHistory: messages
@@ -26550,11 +26611,13 @@ ${body}</tbody>
       return newSourceDocuments;
     };
     const onThumbsUpClick = async () => {
-      if (rating() === '') {
+      if (currentRating() === '') {
+        const activeMessageId = activeMessage().messageId;
+        if (!activeMessageId) return;
         const body = {
           chatflowid: props.chatflowid,
           chatId: props.chatId,
-          messageId: props.message?.messageId,
+          messageId: activeMessageId,
           rating: 'THUMBS_UP',
           content: ''
         };
@@ -26568,21 +26631,25 @@ ${body}</tbody>
           const data = result.data;
           let id = '';
           if (data && data.id) id = data.id;
-          setRating('THUMBS_UP');
+          setRatingByMessageId(prev => ({
+            ...prev,
+            [activeMessageId]: 'THUMBS_UP'
+          }));
+          props.onRatingUpdate?.(activeMessageId, 'THUMBS_UP');
           setFeedbackId(id);
           setShowFeedbackContentModal(true);
-          // update the thumbs up color state
-          setThumbsUpColor('#006400');
           saveToLocalStorage('THUMBS_UP');
         }
       }
     };
     const onThumbsDownClick = async () => {
-      if (rating() === '') {
+      if (currentRating() === '') {
+        const activeMessageId = activeMessage().messageId;
+        if (!activeMessageId) return;
         const body = {
           chatflowid: props.chatflowid,
           chatId: props.chatId,
-          messageId: props.message?.messageId,
+          messageId: activeMessageId,
           rating: 'THUMBS_DOWN',
           content: ''
         };
@@ -26596,11 +26663,13 @@ ${body}</tbody>
           const data = result.data;
           let id = '';
           if (data && data.id) id = data.id;
-          setRating('THUMBS_DOWN');
+          setRatingByMessageId(prev => ({
+            ...prev,
+            [activeMessageId]: 'THUMBS_DOWN'
+          }));
+          props.onRatingUpdate?.(activeMessageId, 'THUMBS_DOWN');
           setFeedbackId(id);
           setShowFeedbackContentModal(true);
-          // update the thumbs down color state
-          setThumbsDownColor('#8B0000');
           saveToLocalStorage('THUMBS_DOWN');
         }
       }
@@ -26752,6 +26821,8 @@ ${body}</tbody>
         return '';
       }
     };
+    const activeArtifacts = createMemo(() => activeMessage().artifacts ?? []);
+    const activeSourceDocuments = createMemo(() => activeMessage().sourceDocuments ?? []);
     return (() => {
       const _el$6 = _tmpl$4$3(),
         _el$7 = _el$6.firstChild,
@@ -26773,12 +26844,12 @@ ${body}</tbody>
         }
       }), _el$8);
       insert(_el$8, (() => {
-        const _c$ = createMemo(() => !!(props.showAgentMessages && props.message.agentFlowExecutedData && Array.isArray(props.message.agentFlowExecutedData) && props.message.agentFlowExecutedData.length > 0));
+        const _c$ = createMemo(() => !!(props.showAgentMessages && activeMessage().agentFlowExecutedData && Array.isArray(activeMessage().agentFlowExecutedData) && activeMessage().agentFlowExecutedData.length > 0));
         return () => _c$() && (() => {
           const _el$12 = _tmpl$5$3();
           insert(_el$12, createComponent(WorkflowTreeView, {
             get workflowData() {
-              return props.message.agentFlowExecutedData;
+              return activeMessage().agentFlowExecutedData;
             },
             indentationLevel: 24,
             get apiHost() {
@@ -26801,7 +26872,7 @@ ${body}</tbody>
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$2 = createMemo(() => !!(props.showAgentMessages && props.message.agentReasoning));
+        const _c$2 = createMemo(() => !!(props.showAgentMessages && activeMessage().agentReasoning));
         return () => _c$2() && (() => {
           const _el$13 = _tmpl$6$2(),
             _el$14 = _el$13.firstChild;
@@ -26810,7 +26881,7 @@ ${body}</tbody>
           typeof _ref$ === "function" ? use(_ref$, _el$13) : botDetailsEl = _el$13;
           insert(_el$13, createComponent(For, {
             get each() {
-              return props.message.agentReasoning;
+              return activeMessage().agentReasoning;
             },
             children: agent => {
               const agentMessages = agent.messages ?? [];
@@ -26852,12 +26923,12 @@ ${body}</tbody>
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$3 = createMemo(() => !!(props.message.artifacts && props.message.artifacts.length > 0));
+        const _c$3 = createMemo(() => activeArtifacts().length > 0);
         return () => _c$3() && (() => {
           const _el$16 = _tmpl$7$2();
           insert(_el$16, createComponent(For, {
             get each() {
-              return props.message.artifacts;
+              return activeArtifacts();
             },
             children: item => {
               return item !== null ? createMemo(() => renderArtifacts(item)) : null;
@@ -26867,15 +26938,15 @@ ${body}</tbody>
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$4 = createMemo(() => !!props.message.thinking);
+        const _c$4 = createMemo(() => !!activeMessage().thinking);
         return () => _c$4() && (() => {
           const _el$17 = _tmpl$8$1();
           insert(_el$17, createComponent(ThinkingCard, {
             get thinking() {
-              return props.message.thinking;
+              return activeMessage().thinking;
             },
             get thinkingDuration() {
-              return props.message.thinkingDuration;
+              return activeMessage().thinkingDuration;
             },
             get isThinking() {
               return props.message.isThinking;
@@ -26891,7 +26962,7 @@ ${body}</tbody>
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$5 = createMemo(() => !!props.message.message);
+        const _c$5 = createMemo(() => !!activeMessage().message);
         return () => _c$5() && (() => {
           const _el$18 = _tmpl$9$1();
           use(setBotMessageRef, _el$18);
@@ -26913,12 +26984,12 @@ ${body}</tbody>
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$6 = createMemo(() => !!props.message.action);
+        const _c$6 = createMemo(() => !!activeMessage().action);
         return () => _c$6() && (() => {
           const _el$19 = _tmpl$10$1();
           insert(_el$19, createComponent(For, {
             get each() {
-              return props.message.action.elements || [];
+              return activeMessage().action?.elements || [];
             },
             children: action => {
               return createMemo((() => {
@@ -26926,7 +26997,7 @@ ${body}</tbody>
                 return () => _c$9() ? (() => {
                   const _el$20 = _tmpl$11$1(),
                     _el$21 = _el$20.firstChild;
-                  _el$20.$$click = () => props.handleActionClick(action, props.message.action);
+                  _el$20.$$click = () => props.handleActionClick(action, activeMessage().action);
                   insert(_el$20, createComponent(TickIcon, {}), _el$21);
                   insert(_el$20, () => action.label, null);
                   return _el$20;
@@ -26935,7 +27006,7 @@ ${body}</tbody>
                   return () => _c$10() ? (() => {
                     const _el$22 = _tmpl$12$1(),
                       _el$23 = _el$22.firstChild;
-                    _el$22.$$click = () => props.handleActionClick(action, props.message.action);
+                    _el$22.$$click = () => props.handleActionClick(action, activeMessage().action);
                     insert(_el$22, createComponent(XIcon, {
                       isCurrentColor: true
                     }), _el$23);
@@ -26954,7 +27025,7 @@ ${body}</tbody>
         })();
       })(), null);
       insert(_el$9, (() => {
-        const _c$7 = createMemo(() => !!(props.message.sourceDocuments && props.message.sourceDocuments.length));
+        const _c$7 = createMemo(() => activeSourceDocuments().length > 0);
         return () => _c$7() && [createComponent(Show, {
           get when() {
             return props.sourceDocsTitle;
@@ -26972,7 +27043,10 @@ ${body}</tbody>
           _el$26.style.setProperty("flex-wrap", "wrap");
           insert(_el$26, createComponent(For, {
             get each() {
-              return [...removeDuplicateURL(props.message)];
+              return [...removeDuplicateURL({
+                ...activeMessage(),
+                sourceDocuments: activeSourceDocuments()
+              })];
             },
             children: src => {
               const URL = isValidURL(src.metadata.source);
@@ -26998,7 +27072,7 @@ ${body}</tbody>
       })());
       insert(_el$11, createComponent(Show, {
         get when() {
-          return props.isTTSEnabled && (props.message.id || props.message.messageId);
+          return createMemo(() => !!props.isTTSEnabled)() && (activeMessage().id || activeMessage().messageId);
         },
         get children() {
           return createComponent(TTSButton, {
@@ -27006,17 +27080,17 @@ ${body}</tbody>
               return props.feedbackColor;
             },
             get isLoading() {
-              const messageId = props.message.id || props.message.messageId;
+              const messageId = activeMessage().id || activeMessage().messageId;
               return !!(messageId && props.isTTSLoading?.[messageId]);
             },
             get isPlaying() {
-              const messageId = props.message.id || props.message.messageId;
+              const messageId = activeMessage().id || activeMessage().messageId;
               return !!(messageId && props.isTTSPlaying?.[messageId]);
             },
             onClick: () => {
-              const messageId = props.message.id || props.message.messageId;
+              const messageId = activeMessage().id || activeMessage().messageId;
               if (!messageId) return; // Don't allow TTS for messages without valid IDs
-              const messageText = props.message.message || '';
+              const messageText = activeMessage().message || '';
               if (props.isTTSLoading?.[messageId]) {
                 return; // Prevent multiple clicks while loading
               }
@@ -27031,13 +27105,53 @@ ${body}</tbody>
         }
       }), null);
       insert(_el$11, (() => {
-        const _c$8 = createMemo(() => !!(props.chatFeedbackStatus && props.message.messageId));
-        return () => _c$8() && [createComponent(RegenerateResponseButton, {
-          "class": "regenerate-response-button",
-          get feedbackColor() {
-            return props.feedbackColor;
+        const _c$8 = createMemo(() => !!(props.chatFeedbackStatus && activeMessage().messageId));
+        return () => _c$8() && [createComponent(Show, {
+          get when() {
+            return props.showRegenerateResponseButton;
           },
-          onClick: () => props.onRegenerateResponse?.()
+          get children() {
+            return createComponent(RegenerateResponseButton, {
+              "class": "regenerate-response-button",
+              get feedbackColor() {
+                return props.feedbackColor;
+              },
+              onClick: () => props.onRegenerateResponse?.()
+            });
+          }
+        }), createComponent(Show, {
+          get when() {
+            return hasMultipleResponseVersions();
+          },
+          get children() {
+            const _el$27 = _tmpl$15$1(),
+              _el$28 = _el$27.firstChild,
+              _el$29 = _el$28.nextSibling,
+              _el$30 = _el$29.nextSibling;
+            _el$28.$$click = () => setResponseVersionIndex(prev => Math.max(0, prev - 1));
+            insert(_el$29, () => `${responseVersionIndex() + 1}/${totalResponseVersions()}`);
+            _el$30.$$click = () => setResponseVersionIndex(prev => Math.min(totalResponseVersions() - 1, prev + 1));
+            createRenderEffect(_p$ => {
+              const _v$8 = responseVersionIndex() === 0,
+                _v$9 = props.feedbackColor ?? defaultFeedbackColor,
+                _v$10 = props.feedbackColor ?? defaultFeedbackColor,
+                _v$11 = responseVersionIndex() === totalResponseVersions() - 1,
+                _v$12 = props.feedbackColor ?? defaultFeedbackColor;
+              _v$8 !== _p$._v$8 && (_el$28.disabled = _p$._v$8 = _v$8);
+              _v$9 !== _p$._v$9 && ((_p$._v$9 = _v$9) != null ? _el$28.style.setProperty("color", _v$9) : _el$28.style.removeProperty("color"));
+              _v$10 !== _p$._v$10 && ((_p$._v$10 = _v$10) != null ? _el$29.style.setProperty("color", _v$10) : _el$29.style.removeProperty("color"));
+              _v$11 !== _p$._v$11 && (_el$30.disabled = _p$._v$11 = _v$11);
+              _v$12 !== _p$._v$12 && ((_p$._v$12 = _v$12) != null ? _el$30.style.setProperty("color", _v$12) : _el$30.style.removeProperty("color"));
+              return _p$;
+            }, {
+              _v$8: undefined,
+              _v$9: undefined,
+              _v$10: undefined,
+              _v$11: undefined,
+              _v$12: undefined
+            });
+            return _el$27;
+          }
         }), createComponent(CopyToClipboardButton, {
           get feedbackColor() {
             return props.feedbackColor;
@@ -27048,46 +27162,46 @@ ${body}</tbody>
             return copiedMessage();
           },
           get children() {
-            const _el$27 = _tmpl$15$1();
-            createRenderEffect(() => (props.feedbackColor ?? defaultFeedbackColor) != null ? _el$27.style.setProperty("color", props.feedbackColor ?? defaultFeedbackColor) : _el$27.style.removeProperty("color"));
-            return _el$27;
+            const _el$31 = _tmpl$16$1();
+            createRenderEffect(() => (props.feedbackColor ?? defaultFeedbackColor) != null ? _el$31.style.setProperty("color", props.feedbackColor ?? defaultFeedbackColor) : _el$31.style.removeProperty("color"));
+            return _el$31;
           }
         }), createMemo((() => {
-          const _c$11 = createMemo(() => !!(rating() === '' || rating() === 'THUMBS_UP'));
+          const _c$11 = createMemo(() => !!(currentRating() === '' || currentRating() === 'THUMBS_UP'));
           return () => _c$11() ? createComponent(ThumbsUpButton, {
             get feedbackColor() {
               return thumbsUpColor();
             },
             get isDisabled() {
-              return rating() === 'THUMBS_UP';
+              return currentRating() === 'THUMBS_UP';
             },
             get rating() {
-              return rating();
+              return currentRating();
             },
             onClick: onThumbsUpClick
           }) : null;
         })()), createMemo((() => {
-          const _c$12 = createMemo(() => !!(rating() === '' || rating() === 'THUMBS_DOWN'));
+          const _c$12 = createMemo(() => !!(currentRating() === '' || currentRating() === 'THUMBS_DOWN'));
           return () => _c$12() ? createComponent(ThumbsDownButton, {
             get feedbackColor() {
               return thumbsDownColor();
             },
             get isDisabled() {
-              return rating() === 'THUMBS_DOWN';
+              return currentRating() === 'THUMBS_DOWN';
             },
             get rating() {
-              return rating();
+              return currentRating();
             },
             onClick: onThumbsDownClick
           }) : null;
         })()), createComponent(Show, {
           get when() {
-            return props.message.dateTime;
+            return activeMessage().dateTime;
           },
           get children() {
-            const _el$28 = _tmpl$16$1();
-            insert(_el$28, () => formatDateTime(props.message.dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time));
-            return _el$28;
+            const _el$32 = _tmpl$17$1();
+            insert(_el$32, () => formatDateTime(activeMessage().dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time));
+            return _el$32;
           }
         })];
       })(), null);
