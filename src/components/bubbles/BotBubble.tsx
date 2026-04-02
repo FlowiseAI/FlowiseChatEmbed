@@ -1,4 +1,4 @@
-import { createEffect, createMemo, Show, createSignal, onMount, For } from 'solid-js';
+import { createEffect, createMemo, Show, createSignal, onMount, For, untrack } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import DOMPurify from 'dompurify';
@@ -38,6 +38,7 @@ type Props = {
   handleSourceDocumentsClick: (src: any) => void;
   onRegenerateResponse?: () => void;
   showRegenerateResponseButton?: boolean;
+  onRatingUpdate?: (messageId: string, rating: FeedbackRatingType) => void;
   // TTS props
   isTTSEnabled?: boolean;
   isTTSLoading?: Record<string, boolean>;
@@ -58,12 +59,9 @@ export const BotBubble = (props: Props) => {
 
   Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
-  const [rating, setRating] = createSignal('');
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
   const [copiedMessage, setCopiedMessage] = createSignal(false);
-  const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
-  const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [responseVersionIndex, setResponseVersionIndex] = createSignal(0);
   const [ratingByMessageId, setRatingByMessageId] = createSignal<Record<string, FeedbackRatingType>>({});
 
@@ -77,7 +75,6 @@ export const BotBubble = (props: Props) => {
 
   const totalResponseVersions = createMemo(() => responseVersions().length);
   const hasMultipleResponseVersions = createMemo(() => totalResponseVersions() > 1);
-  console.log('hasMultipleResponseVersions', hasMultipleResponseVersions());
 
   const activeMessage = createMemo(() => {
     const versions = responseVersions();
@@ -98,6 +95,9 @@ export const BotBubble = (props: Props) => {
     return active.rating ?? '';
   };
 
+  const thumbsUpColor = () => currentRating() === 'THUMBS_UP' ? '#006400' : (props.feedbackColor ?? defaultFeedbackColor);
+  const thumbsDownColor = () => currentRating() === 'THUMBS_DOWN' ? '#8B0000' : (props.feedbackColor ?? defaultFeedbackColor);
+
   const setBotMessageRef = (el: HTMLSpanElement) => {
     if (el) {
       setBotMessageElement(el);
@@ -113,6 +113,18 @@ export const BotBubble = (props: Props) => {
     const defaultIndex = props.message.responseVersionIndex ?? versions.length - 1;
     const safeIndex = Math.min(Math.max(defaultIndex, 0), versions.length - 1);
     setResponseVersionIndex(safeIndex);
+  });
+
+  createEffect(() => {
+    responseVersionIndex(); // subscribe to version switches
+    untrack(() => {
+      responseVersions().forEach((version) => {
+        const id = version.id || version.messageId;
+        if (id && (props.isTTSPlaying?.[id] || props.isTTSLoading?.[id])) {
+          props.handleTTSStop?.(id);
+        }
+      });
+    });
   });
 
   createEffect(() => {
@@ -146,18 +158,6 @@ export const BotBubble = (props: Props) => {
         link.target = '_blank';
       });
 
-      const activeRating = currentRating();
-      setRating(activeRating);
-      if (activeRating === 'THUMBS_UP') {
-        setThumbsUpColor('#006400');
-        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
-      } else if (activeRating === 'THUMBS_DOWN') {
-        setThumbsDownColor('#8B0000');
-        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
-      } else {
-        setThumbsUpColor(props.feedbackColor ?? defaultFeedbackColor);
-        setThumbsDownColor(props.feedbackColor ?? defaultFeedbackColor);
-      }
       const fileAnnotations = messageData.fileAnnotations ?? props.fileAnnotations;
       if (fileAnnotations && fileAnnotations.length) {
         for (const annotations of fileAnnotations) {
@@ -267,7 +267,7 @@ export const BotBubble = (props: Props) => {
   };
 
   const onThumbsUpClick = async () => {
-    if (rating() === '') {
+    if (currentRating() === '') {
       const activeMessageId = activeMessage().messageId;
       if (!activeMessageId) return;
       const body = {
@@ -288,19 +288,17 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRating('THUMBS_UP');
         setRatingByMessageId((prev) => ({ ...prev, [activeMessageId]: 'THUMBS_UP' }));
+        props.onRatingUpdate?.(activeMessageId, 'THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
-        // update the thumbs up color state
-        setThumbsUpColor('#006400');
         saveToLocalStorage('THUMBS_UP');
       }
     }
   };
 
   const onThumbsDownClick = async () => {
-    if (rating() === '') {
+    if (currentRating() === '') {
       const activeMessageId = activeMessage().messageId;
       if (!activeMessageId) return;
       const body = {
@@ -321,12 +319,10 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRating('THUMBS_DOWN');
         setRatingByMessageId((prev) => ({ ...prev, [activeMessageId]: 'THUMBS_DOWN' }));
+        props.onRatingUpdate?.(activeMessageId, 'THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
-        // update the thumbs down color state
-        setThumbsDownColor('#8B0000');
         saveToLocalStorage('THUMBS_DOWN');
       }
     }
@@ -544,7 +540,7 @@ export const BotBubble = (props: Props) => {
               <ThinkingCard
                 thinking={activeMessage().thinking}
                 thinkingDuration={activeMessage().thinkingDuration}
-                isThinking={activeMessage().isThinking}
+                isThinking={props.message.isThinking}
                 backgroundColor={props.backgroundColor ?? defaultBackgroundColor}
                 textColor={props.textColor ?? defaultTextColor}
               />
@@ -696,14 +692,14 @@ export const BotBubble = (props: Props) => {
                   Copied!
                 </div>
               </Show>
-              {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
+              {currentRating() === '' || currentRating() === 'THUMBS_UP' ? (
+                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={currentRating() === 'THUMBS_UP'} rating={currentRating()} onClick={onThumbsUpClick} />
               ) : null}
-              {rating() === '' || rating() === 'THUMBS_DOWN' ? (
+              {currentRating() === '' || currentRating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton
                   feedbackColor={thumbsDownColor()}
-                  isDisabled={rating() === 'THUMBS_DOWN'}
-                  rating={rating()}
+                  isDisabled={currentRating() === 'THUMBS_DOWN'}
+                  rating={currentRating()}
                   onClick={onThumbsDownClick}
                 />
               ) : null}

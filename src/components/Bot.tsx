@@ -129,7 +129,6 @@ export type MessageResponseVersion = {
   artifacts?: Partial<FileUpload>[];
   thinking?: string;
   thinkingDuration?: number;
-  isThinking?: boolean;
   rating?: FeedbackRatingType;
   dateTime?: string;
 };
@@ -516,7 +515,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
-  const [chatFeedbackRegenerateResponseStatus, setChatFeedbackRegenerateResponseStatus] = createSignal<boolean>(false);
+  const [messageRatings, setMessageRatings] = createSignal<Record<string, FeedbackRatingType>>({});
   const [fullFileUpload, setFullFileUpload] = createSignal<boolean>(false);
   const [uploadsConfig, setUploadsConfig] = createSignal<UploadsConfig>();
   const [leadsConfig, setLeadsConfig] = createSignal<LeadsConfig>();
@@ -915,20 +914,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     artifacts: message.artifacts,
     thinking: message.thinking,
     thinkingDuration: message.thinkingDuration,
-    isThinking: message.isThinking,
     rating: message.rating,
     dateTime: message.dateTime,
   });
-
-  const parseConfigBoolean = (value: unknown, defaultValue: boolean) => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') {
-      const normalized = value.trim().toLowerCase();
-      if (normalized === 'true') return true;
-      if (normalized === 'false') return false;
-    }
-    return defaultValue;
-  };
 
   const getLastApiMessageIndex = () => {
     const currentMessages = messages();
@@ -939,12 +927,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const canRegenerateResponse = (messageIndex: number) => {
-    if (!chatFeedbackStatus() || !chatFeedbackRegenerateResponseStatus() || loading()) return false;
+    if (!chatFeedbackStatus() || loading()) return false;
     if (messageIndex !== getLastApiMessageIndex()) return false;
     const previousMessage = messages()[messageIndex - 1];
     if (!previousMessage || previousMessage.type !== 'userMessage') return false;
     if (previousMessage.fileUploads?.length) return false;
     return true;
+  };
+
+  const handleRatingUpdate = (messageId: string, rating: FeedbackRatingType) => {
+    setMessageRatings((prev) => ({ ...prev, [messageId]: rating }));
   };
 
   const handleRegenerateResponse = async (messageIndex: number) => {
@@ -954,15 +946,25 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const currentMessages = messages();
     const targetMessage = currentMessages[messageIndex];
-    if (!targetMessage || targetMessage.type !== 'apiMessage') return;
-
     const previousMessage = currentMessages[messageIndex - 1];
-    if (!previousMessage || previousMessage.type !== 'userMessage' || previousMessage.fileUploads?.length) return;
 
-    const existingResponseVersions =
-      targetMessage.responseVersions && targetMessage.responseVersions.length > 0
-        ? [...targetMessage.responseVersions]
-        : [createResponseVersion(targetMessage)];
+    const ratings = messageRatings();
+    const withRating = (v: MessageResponseVersion): MessageResponseVersion =>
+      v.messageId && ratings[v.messageId] ? { ...v, rating: ratings[v.messageId] } : v;
+
+    const existingResponseVersions = (() => {
+      if (targetMessage.responseVersions && targetMessage.responseVersions.length > 0) {
+        const versions = [...targetMessage.responseVersions].map(withRating);
+        // The latest slot may have message:'' if it was loaded from localStorage before
+        // the end-event persist ran. Overwrite it with the actual content on the top-level message.
+        const last = versions.length - 1;
+        if (!versions[last].message) {
+          versions[last] = withRating(createResponseVersion(targetMessage));
+        }
+        return versions;
+      }
+      return [withRating(createResponseVersion(targetMessage))];
+    })();
 
     setFollowUpPrompts([]);
     const updatedMessages = currentMessages.slice(0, messageIndex);
@@ -1118,6 +1120,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             break;
           case 'end':
             finalizeThinking();
+            if (options?.responseVersions && options.responseVersions.length > 0) {
+              setMessages((prevMessages) => {
+                const lastMsg = prevMessages[prevMessages.length - 1];
+                if (lastMsg.type === 'userMessage' || !lastMsg.responseVersions?.length) return prevMessages;
+                const versions = [...lastMsg.responseVersions];
+                versions[versions.length - 1] = createResponseVersion(lastMsg);
+                const updatedMessages = [...prevMessages.slice(0, -1), { ...lastMsg, responseVersions: versions }];
+                addChatMessage(updatedMessages);
+                return updatedMessages;
+              });
+            }
             setLocalStorageChatflow(chatflowid, chatId);
             closeResponse();
             break;
@@ -2743,6 +2756,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           chatFeedbackStatus={chatFeedbackStatus()}
                           onRegenerateResponse={() => handleRegenerateResponse(index())}
                           showRegenerateResponseButton={canRegenerateResponse(index())}
+                          onRatingUpdate={handleRatingUpdate}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
                           showAgentMessages={props.showAgentMessages}
