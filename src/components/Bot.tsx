@@ -940,9 +940,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleRegenerateResponse = async (messageIndex: number) => {
-    if (loading()) return;
-    if (previews().length) return;
-    if (startInputType() === 'formInput') return;
+    if (previews().length || startInputType() === 'formInput' || !canRegenerateResponse(messageIndex)) return;
 
     const currentMessages = messages();
     const targetMessage = currentMessages[messageIndex];
@@ -1606,11 +1604,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 dateTime: message.dateTime,
               };
               if (message.responseVersionIndex !== undefined) chatHistory.responseVersionIndex = message.responseVersionIndex;
-              if ((message as any).responseVersions) {
-                const responseVersions =
-                  typeof (message as any).responseVersions === 'string'
-                    ? JSON.parse((message as any).responseVersions)
-                    : (message as any).responseVersions;
+              if (message.responseVersions) {
+                let responseVersions = message.responseVersions;
+                if (typeof responseVersions === 'string') {
+                  try {
+                    responseVersions = JSON.parse(responseVersions);
+                  } catch (e) {
+                    responseVersions = [];
+                  }
+                }
                 if (Array.isArray(responseVersions)) chatHistory.responseVersions = responseVersions;
               }
               if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
