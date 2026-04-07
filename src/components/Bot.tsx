@@ -154,6 +154,7 @@ export type MessageType = {
   thinking?: string;
   thinkingDuration?: number;
   isThinking?: boolean;
+  isError?: boolean;
   responseVersions?: MessageResponseVersion[];
   responseVersionIndex?: number;
 };
@@ -732,7 +733,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const updateErrorMessage = (errorMessage: string) => {
     const cleanedMessage = errorMessage.replace(/^Error:\s*\S+\s*-\s*/, '');
     setMessages((prevMessages) => {
-      const allMessages = [...prevMessages, { message: props.errorMessage || cleanedMessage, type: 'apiMessage' as messageType }];
+      const lastMsg = prevMessages[prevMessages.length - 1];
+      // A valid response was already streamed — ignore the trailing error event.
+      if (lastMsg?.type === 'apiMessage' && lastMsg.message && !lastMsg.isError) {
+        return prevMessages;
+      }
+      // Empty bot placeholder exists (stream started but no tokens) — update it in place.
+      if (lastMsg?.type === 'apiMessage') {
+        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, message: props.errorMessage || cleanedMessage, isError: true }];
+        addChatMessage(allMessages);
+        return allMessages;
+      }
+      // No bot message yet — add a new one.
+      const allMessages = [...prevMessages, { message: props.errorMessage || cleanedMessage, type: 'apiMessage' as messageType, isError: true }];
       addChatMessage(allMessages);
       return allMessages;
     });
@@ -877,7 +890,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       errMessage = props.errorMessage;
     }
     setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: errMessage, type: 'apiMessage' }];
+      const messages: MessageType[] = [...prevMessages, { message: errMessage, type: 'apiMessage', isError: true }];
       addChatMessage(messages);
       return messages;
     });
@@ -1111,6 +1124,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             break;
           case 'error':
             updateErrorMessage(payload.data);
+            closeResponse();
             break;
           case 'abort':
             abortMessage();
