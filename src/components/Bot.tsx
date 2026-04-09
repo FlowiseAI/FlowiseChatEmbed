@@ -472,6 +472,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
   const props = mergeProps({ showTitle: true }, botProps);
   let chatContainer: HTMLDivElement | undefined;
+  let chatEndAnchor: HTMLDivElement | undefined;
+  const setChatEndAnchorRef = (el: HTMLDivElement | null) => {
+    chatEndAnchor = el ?? undefined;
+  };
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
   const [showScrollButton, setShowScrollButton] = createSignal(false);
@@ -580,16 +584,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      scrollToBottom();
     }, 50);
 
     let isProgrammaticScroll = false;
+    let lastScrollTop = chatContainer?.scrollTop ?? 0;
     const handleScroll = () => {
       if (!chatContainer || isProgrammaticScroll) return;
       const threshold = 80;
       const nearBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight <= threshold;
-      stickyToBottom = nearBottom;
-      setShowScrollButton(!nearBottom);
+      const scrolledUp = chatContainer.scrollTop < lastScrollTop;
+      lastScrollTop = chatContainer.scrollTop;
+      if (nearBottom) {
+        stickyToBottom = true;
+        setShowScrollButton(false);
+      } else if (scrolledUp) {
+        stickyToBottom = false;
+        setShowScrollButton(true);
+      }
     };
     chatContainer?.addEventListener('scroll', handleScroll, { passive: true });
     onCleanup(() => chatContainer?.removeEventListener('scroll', handleScroll));
@@ -621,18 +633,54 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   let programmaticScrollGuard: (fn: () => void) => void = (fn) => fn();
 
-  const scrollToBottom = () => {
-    if (!stickyToBottom) return;
-    setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-    }, 50);
+  let messagesResizeObserver: ResizeObserver | null = null;
+  let scrollToEndRaf = 0;
+
+  const scrollChatViewportToEnd = () => {
+    if (!chatContainer) return;
+    chatEndAnchor?.scrollIntoView({ block: 'end', inline: 'nearest' });
+    const maxTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+    chatContainer.scrollTop = Math.max(0, maxTop);
   };
+
+  const scrollChatToEnd = () => {
+    if (!stickyToBottom || !chatContainer || isTTSActionRef) return;
+    if (scrollToEndRaf) cancelAnimationFrame(scrollToEndRaf);
+    scrollToEndRaf = requestAnimationFrame(() => {
+      scrollToEndRaf = 0;
+      if (!stickyToBottom || !chatContainer || isTTSActionRef) return;
+      scrollChatViewportToEnd();
+    });
+  };
+
+  const bindMessagesContentResize = (el: HTMLDivElement | null) => {
+    if (messagesResizeObserver) {
+      messagesResizeObserver.disconnect();
+      messagesResizeObserver = null;
+    }
+    if (!el) return;
+    messagesResizeObserver = new ResizeObserver(() => {
+      if (!stickyToBottom || !chatContainer || isTTSActionRef) return;
+      scrollChatToEnd();
+    });
+    messagesResizeObserver.observe(el);
+  };
+
+  onCleanup(() => {
+    if (messagesResizeObserver) {
+      messagesResizeObserver.disconnect();
+      messagesResizeObserver = null;
+    }
+    if (scrollToEndRaf) cancelAnimationFrame(scrollToEndRaf);
+  });
+
+  const scrollToBottom = () => scrollChatToEnd();
 
   const forceScrollToBottom = () => {
     stickyToBottom = true;
     setShowScrollButton(false);
     programmaticScrollGuard(() => {
-      chatContainer?.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+      chatEndAnchor?.scrollIntoView({ block: 'end', behavior: 'smooth', inline: 'nearest' });
     });
   };
 
@@ -692,6 +740,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   let hasSoundPlayed = false;
+  let isStreaming = false;
 
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
@@ -704,9 +753,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         hasSoundPlayed = true;
       }
       const allMessages = [...prevMessages.slice(0, -1), updatedMsg];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
+    scrollToBottom();
   };
 
   const updateErrorMessage = (errorMessage: string) => {
@@ -726,7 +776,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -736,7 +786,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, usedTools }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -746,7 +796,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, fileAnnotations }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -759,7 +809,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -781,7 +831,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowExecutedData }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -791,7 +841,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, artifacts }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -804,7 +854,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -816,7 +866,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinking: (lastMsg.thinking || '') + data, isThinking: true }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     } else if (data === '' && duration !== undefined) {
@@ -825,7 +875,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinkingDuration: duration, isThinking: false }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     }
@@ -837,9 +887,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       setMessages((prevMessages) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
-        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
-        addChatMessage(allMessages);
-        return allMessages;
+        return [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
       });
     }
   };
@@ -985,9 +1033,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onmessage(ev) {
-        const payload = JSON.parse(ev.data);
+        let payload: any;
+        try {
+          payload = JSON.parse(ev.data);
+        } catch {
+          return;
+        }
         switch (payload.event) {
           case 'start':
+            isStreaming = true;
             setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
             break;
           case 'token':
@@ -1027,11 +1081,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             updateErrorMessage(payload.data);
             break;
           case 'abort':
+            isStreaming = false;
             abortMessage();
             closeResponse();
             break;
           case 'end':
+            isStreaming = false;
             finalizeThinking();
+            setMessages((prev) => {
+              addChatMessage(prev);
+              return prev;
+            });
             setLocalStorageChatflow(chatflowid, chatId);
             closeResponse();
             break;
@@ -1065,6 +1125,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
+    isStreaming = false;
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -1210,6 +1271,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setLoading(true);
+    stickyToBottom = true;
+    setShowScrollButton(false);
     scrollToBottom();
 
     let uploads: IUploads = previews().map((item) => {
@@ -1442,18 +1505,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
       // Filter out any empty prompts
       return setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
-    }
-  });
-
-  // Auto scroll chat to bottom (but not during TTS actions or when user has scrolled up)
-  createEffect(() => {
-    if (messages()) {
-      if (messages().length > 1 && !isTTSActionRef && stickyToBottom) {
-        setTimeout(() => {
-          if (!stickyToBottom) return;
-          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-        }, 400);
-      }
     }
   });
 
@@ -2601,6 +2652,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               ref={chatContainer}
               class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view"
             >
+              <div ref={bindMessagesContentResize} class="flex flex-col w-full">
               <For each={[...messages()]}>
                 {(message, index) => {
                   return (
@@ -2633,6 +2685,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           avatarSrc={props.botMessage?.avatarSrc}
                           chatFeedbackStatus={chatFeedbackStatus()}
                           onRegenerateResponse={() => handleRegenerateResponse(index())}
+                          onMessageRendered={scrollChatToEnd}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
                           showAgentMessages={props.showAgentMessages}
@@ -2680,6 +2733,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               <Show when={loading()}>
                 <div ref={bottomSpacer} style={{ 'flex-grow': '1' }} />
               </Show>
+              <div ref={setChatEndAnchorRef} class="w-full shrink-0 pointer-events-none" style={{ height: '1px' }} aria-hidden="true" />
+              </div>
             </div>
             <Show when={showScrollButton()}>
               <div class="absolute bottom-[140px] left-1/2 -translate-x-1/2 z-10">
