@@ -580,7 +580,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setTimeout(() => {
-      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      scrollToBottom();
     }, 50);
 
     let isProgrammaticScroll = false;
@@ -692,6 +692,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   let hasSoundPlayed = false;
+  let isStreaming = false;
 
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
@@ -704,7 +705,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         hasSoundPlayed = true;
       }
       const allMessages = [...prevMessages.slice(0, -1), updatedMsg];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -726,7 +727,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -736,7 +737,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, usedTools }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -746,7 +747,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, fileAnnotations }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -759,7 +760,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -781,7 +782,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowExecutedData }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -791,7 +792,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, artifacts }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -804,7 +805,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -816,7 +817,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinking: (lastMsg.thinking || '') + data, isThinking: true }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     } else if (data === '' && duration !== undefined) {
@@ -825,7 +826,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinkingDuration: duration, isThinking: false }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     }
@@ -837,9 +838,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       setMessages((prevMessages) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
-        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
-        addChatMessage(allMessages);
-        return allMessages;
+        return [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
       });
     }
   };
@@ -985,9 +984,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onmessage(ev) {
-        const payload = JSON.parse(ev.data);
+        let payload: any;
+        try {
+          payload = JSON.parse(ev.data);
+        } catch {
+          return;
+        }
         switch (payload.event) {
           case 'start':
+            isStreaming = true;
             setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
             break;
           case 'token':
@@ -1024,14 +1029,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             updateMetadata(payload.data, input);
             break;
           case 'error':
+            isStreaming = false;
             updateErrorMessage(payload.data);
+            closeResponse();
             break;
           case 'abort':
+            isStreaming = false;
             abortMessage();
             closeResponse();
             break;
           case 'end':
+            isStreaming = false;
             finalizeThinking();
+            setMessages((prev) => {
+              addChatMessage(prev);
+              return prev;
+            });
             setLocalStorageChatflow(chatflowid, chatId);
             closeResponse();
             break;
@@ -1050,10 +1063,30 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onclose() {
+        isStreaming = false;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.type === 'apiMessage' && !last.message) {
+            const cleaned = prev.slice(0, -1);
+            addChatMessage(cleaned);
+            return cleaned;
+          }
+          return prev;
+        });
         closeResponse();
       },
       onerror(err) {
         console.error('EventSource Error: ', err);
+        isStreaming = false;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.type === 'apiMessage' && !last.message) {
+            const cleaned = prev.slice(0, -1);
+            addChatMessage(cleaned);
+            return cleaned;
+          }
+          return prev;
+        });
         closeResponse();
         throw err;
       },
@@ -1065,6 +1098,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
+    isStreaming = false;
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -1210,6 +1244,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     setLoading(true);
+    stickyToBottom = true;
+    setShowScrollButton(false);
     scrollToBottom();
 
     let uploads: IUploads = previews().map((item) => {
@@ -1446,10 +1482,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   // Auto scroll chat to bottom (but not during TTS actions or when user has scrolled up)
+  let autoScrollTimer: ReturnType<typeof setTimeout> | null = null;
   createEffect(() => {
     if (messages()) {
       if (messages().length > 1 && !isTTSActionRef && stickyToBottom) {
-        setTimeout(() => {
+        if (autoScrollTimer) clearTimeout(autoScrollTimer);
+        autoScrollTimer = setTimeout(() => {
+          autoScrollTimer = null;
           if (!stickyToBottom) return;
           chatContainer?.scrollTo(0, chatContainer.scrollHeight);
         }, 400);
@@ -2633,6 +2672,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           avatarSrc={props.botMessage?.avatarSrc}
                           chatFeedbackStatus={chatFeedbackStatus()}
                           onRegenerateResponse={() => handleRegenerateResponse(index())}
+                          onMessageRendered={scrollToBottom}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
                           showAgentMessages={props.showAgentMessages}

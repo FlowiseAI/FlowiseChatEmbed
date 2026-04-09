@@ -38,6 +38,7 @@ type Props = {
   handleActionClick: (elem: any, action: IAction | undefined | null) => void;
   handleSourceDocumentsClick: (src: any) => void;
   onRegenerateResponse?: () => void;
+  onMessageRendered?: () => void;
   // TTS props
   isTTSEnabled?: boolean;
   isTTSLoading?: Record<string, boolean>;
@@ -56,6 +57,26 @@ const defaultFeedbackColor = '#3B81F6';
 export const BotBubble = (props: Props) => {
   let botDetailsEl: HTMLDetailsElement | undefined;
 
+  const DownloadFileIcon = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="icon icon-tabler icon-tabler-download"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      stroke-width="2"
+      stroke="#ffffff"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+      <path d="M7 11l5 5l5 -5" />
+      <path d="M12 4l0 12" />
+    </svg>
+  );
+
   Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
   const [rating, setRating] = createSignal('');
@@ -69,65 +90,66 @@ export const BotBubble = (props: Props) => {
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
 
-  const setBotMessageRef = (el: HTMLSpanElement) => {
-    if (el) {
-      el.innerHTML = Marked.parse(props.message.message);
-
-      // Apply textColor to all links, headings, and other markdown elements except code
-      const textColor = props.textColor ?? defaultTextColor;
-      el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
-        (element as HTMLElement).style.color = textColor;
+  const applyStyles = (el: HTMLElement) => {
+    const textColor = props.textColor ?? defaultTextColor;
+    el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
+      (element as HTMLElement).style.color = textColor;
+    });
+    el.querySelectorAll('pre').forEach((element) => {
+      (element as HTMLElement).style.color = '#FFFFFF';
+      element.querySelectorAll('code').forEach((codeElement) => {
+        (codeElement as HTMLElement).style.color = '#FFFFFF';
       });
-
-      // Code blocks (with pre) get white text
-      el.querySelectorAll('pre').forEach((element) => {
-        (element as HTMLElement).style.color = '#FFFFFF';
-        // Also ensure any code elements inside pre have white text
-        element.querySelectorAll('code').forEach((codeElement) => {
-          (codeElement as HTMLElement).style.color = '#FFFFFF';
-        });
-      });
-
-      // Inline code (not in pre) gets green text
-      el.querySelectorAll('code:not(pre code)').forEach((element) => {
-        (element as HTMLElement).style.color = '#4CAF50'; // Green color
-      });
-
-      // Set target="_blank" for links
-      el.querySelectorAll('a').forEach((link) => {
-        link.target = '_blank';
-      });
-
-      // Store the element ref for the copy function
-      setBotMessageElement(el);
-
-      if (props.message.rating) {
-        setRating(props.message.rating);
-        if (props.message.rating === 'THUMBS_UP') {
-          setThumbsUpColor('#006400');
-        } else if (props.message.rating === 'THUMBS_DOWN') {
-          setThumbsDownColor('#8B0000');
-        }
-      }
-      if (props.fileAnnotations && props.fileAnnotations.length) {
-        for (const annotations of props.fileAnnotations) {
-          const button = document.createElement('button');
-          button.textContent = annotations.fileName;
-          button.className =
-            'py-2 px-4 mb-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button';
-          button.addEventListener('click', function () {
-            downloadFile(annotations);
-          });
-          const svgContainer = document.createElement('div');
-          svgContainer.className = 'ml-2';
-          svgContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>`;
-
-          button.appendChild(svgContainer);
-          el.appendChild(button);
-        }
-      }
-    }
+    });
+    el.querySelectorAll('code:not(pre code)').forEach((element) => {
+      (element as HTMLElement).style.color = '#4CAF50';
+    });
+    el.querySelectorAll('a').forEach((link) => {
+      link.target = '_blank';
+    });
   };
+
+  const setBotMessageRef = (el: HTMLSpanElement | null) => {
+    setBotMessageElement(el);
+  };
+
+  createEffect(() => {
+    const el = botMessageElement();
+    const message = props.message.message ?? '';
+    if (!el) return;
+
+    // Update innerHTML synchronously so the DOM reflects the correct height
+    // before any scroll logic runs — avoids async mismatch that causes jumping.
+    el.innerHTML = Marked.parse(message);
+    applyStyles(el);
+
+    // Only wire image callbacks and notify after streaming ends.
+    if (!props.isLoading) {
+      el.querySelectorAll('img').forEach((img) => {
+        if ((img as HTMLImageElement).complete) return;
+        img.addEventListener('load', () => props.onMessageRendered?.(), { once: true });
+        img.addEventListener('error', () => props.onMessageRendered?.(), { once: true });
+      });
+      props.onMessageRendered?.();
+    }
+  });
+
+  createEffect(() => {
+    const nextRating = props.message.rating;
+    if (!nextRating) return;
+    setRating(nextRating);
+    if (nextRating === 'THUMBS_UP') {
+      setThumbsUpColor('#006400');
+      return;
+    }
+    if (nextRating === 'THUMBS_DOWN') {
+      setThumbsDownColor('#8B0000');
+    }
+  });
+
+  createEffect(() => {
+    if (props.fileAnnotations?.length) props.onMessageRendered?.();
+  });
 
   const downloadFile = async (fileAnnotation: any) => {
     try {
@@ -296,31 +318,7 @@ export const BotBubble = (props: Props) => {
   const renderArtifacts = (item: Partial<FileUpload>) => {
     // Instead of onMount, we'll use a callback ref to apply styles
     const setArtifactRef = (el: HTMLSpanElement) => {
-      if (el) {
-        const textColor = props.textColor ?? defaultTextColor;
-        // Apply textColor to all elements except code blocks
-        el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
-          (element as HTMLElement).style.color = textColor;
-        });
-
-        // Code blocks (with pre) get white text
-        el.querySelectorAll('pre').forEach((element) => {
-          (element as HTMLElement).style.color = '#FFFFFF';
-          // Also ensure any code elements inside pre have white text
-          element.querySelectorAll('code').forEach((codeElement) => {
-            (codeElement as HTMLElement).style.color = '#FFFFFF';
-          });
-        });
-
-        // Inline code (not in pre) gets green text
-        el.querySelectorAll('code:not(pre code)').forEach((element) => {
-          (element as HTMLElement).style.color = '#4CAF50'; // Green color
-        });
-
-        el.querySelectorAll('a').forEach((link) => {
-          link.target = '_blank';
-        });
-      }
+      if (el) applyStyles(el);
     };
 
     return (
@@ -329,6 +327,7 @@ export const BotBubble = (props: Props) => {
           <div class="flex items-center justify-center p-0 m-0">
             <img
               class="w-full h-full bg-cover"
+              decoding="async"
               src={(() => {
                 const isFileStorage = typeof item.data === 'string' && item.data.startsWith('FILE-STORAGE::');
                 return isFileStorage
@@ -337,6 +336,8 @@ export const BotBubble = (props: Props) => {
                     ).replace('FILE-STORAGE::', '')}`
                   : (item.data as string);
               })()}
+              onLoad={() => props.onMessageRendered?.()}
+              onError={() => props.onMessageRendered?.()}
             />
           </div>
         </Show>
@@ -462,17 +463,33 @@ export const BotBubble = (props: Props) => {
             </div>
           )}
           {props.message.message && (
-            <span
-              ref={setBotMessageRef}
-              class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
-              data-testid="host-bubble"
-              style={{
-                'background-color': props.backgroundColor ?? defaultBackgroundColor,
-                color: props.textColor ?? defaultTextColor,
-                'border-radius': '6px',
-                'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
-              }}
-            />
+            <>
+              <span
+                ref={setBotMessageRef}
+                class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
+                data-testid="host-bubble"
+                style={{
+                  'background-color': props.backgroundColor ?? defaultBackgroundColor,
+                  color: props.textColor ?? defaultTextColor,
+                  'border-radius': '6px',
+                  'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+                }}
+              />
+              <For each={props.fileAnnotations || []}>
+                {(annotations) => (
+                  <button
+                    type="button"
+                    class="py-2 px-4 mb-2 ml-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button"
+                    onClick={() => downloadFile(annotations)}
+                  >
+                    {annotations.fileName}
+                    <div class="ml-2">
+                      <DownloadFileIcon />
+                    </div>
+                  </button>
+                )}
+              </For>
+            </>
           )}
           {props.message.action && (
             <div class="px-4 py-2 flex flex-row justify-start space-x-2">
