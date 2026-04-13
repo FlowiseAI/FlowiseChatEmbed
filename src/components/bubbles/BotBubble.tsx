@@ -39,6 +39,7 @@ type Props = {
   onRegenerateResponse?: () => void;
   showRegenerateResponseButton?: boolean;
   onRatingUpdate?: (messageId: string, rating: FeedbackRatingType) => void;
+  messageRatings?: Record<string, FeedbackRatingType>;
   // TTS props
   isTTSEnabled?: boolean;
   isTTSLoading?: Record<string, boolean>;
@@ -63,7 +64,6 @@ export const BotBubble = (props: Props) => {
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [responseVersionIndex, setResponseVersionIndex] = createSignal(0);
-  const [ratingByMessageId, setRatingByMessageId] = createSignal<Record<string, FeedbackRatingType>>({});
 
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
@@ -91,7 +91,7 @@ export const BotBubble = (props: Props) => {
   const currentRating = () => {
     const active = activeMessage();
     const activeMessageId = active.messageId;
-    if (activeMessageId && ratingByMessageId()[activeMessageId]) return ratingByMessageId()[activeMessageId];
+    if (activeMessageId && props.messageRatings?.[activeMessageId]) return props.messageRatings[activeMessageId];
     return active.rating ?? '';
   };
 
@@ -286,7 +286,6 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRatingByMessageId((prev) => ({ ...prev, [activeMessageId]: 'THUMBS_UP' }));
         props.onRatingUpdate?.(activeMessageId, 'THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
@@ -317,7 +316,6 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRatingByMessageId((prev) => ({ ...prev, [activeMessageId]: 'THUMBS_DOWN' }));
         props.onRatingUpdate?.(activeMessageId, 'THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
@@ -669,6 +667,7 @@ export const BotBubble = (props: Props) => {
                     disabled={responseVersionIndex() === 0}
                     onClick={() => setResponseVersionIndex((prev) => Math.max(0, prev - 1))}
                     title="Previous response"
+                    aria-label="Previous version"
                     style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
                   >
                     {'<'}
@@ -682,6 +681,7 @@ export const BotBubble = (props: Props) => {
                     disabled={responseVersionIndex() === totalResponseVersions() - 1}
                     onClick={() => setResponseVersionIndex((prev) => Math.min(totalResponseVersions() - 1, prev + 1))}
                     title="Next response"
+                    aria-label="Next version"
                     style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
                   >
                     {'>'}

@@ -713,6 +713,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   let hasSoundPlayed = false;
+  let isStreaming = false;
 
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
@@ -725,9 +726,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         hasSoundPlayed = true;
       }
       const allMessages = [...prevMessages.slice(0, -1), updatedMsg];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
+    scrollToBottom();
   };
 
   const updateErrorMessage = (errorMessage: string) => {
@@ -741,12 +743,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       // Empty bot placeholder exists (stream started but no tokens) — update it in place.
       if (lastMsg?.type === 'apiMessage') {
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, message: props.errorMessage || cleanedMessage, isError: true }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       }
       // No bot message yet — add a new one.
       const allMessages = [...prevMessages, { message: props.errorMessage || cleanedMessage, type: 'apiMessage' as messageType, isError: true }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -759,7 +761,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -769,7 +771,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, usedTools }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -779,7 +781,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, fileAnnotations }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -792,7 +794,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -814,7 +816,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowExecutedData }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -824,7 +826,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const lastMsg = prevMessages[prevMessages.length - 1];
       if (lastMsg.type === 'userMessage') return prevMessages;
       const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, artifacts }];
-      addChatMessage(allMessages);
+      if (!isStreaming) addChatMessage(allMessages);
       return allMessages;
     });
   };
@@ -837,7 +839,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
         return item;
       });
-      addChatMessage(updated);
+      if (!isStreaming) addChatMessage(updated);
       return [...updated];
     });
   };
@@ -849,7 +851,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinking: (lastMsg.thinking || '') + data, isThinking: true }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     } else if (data === '' && duration !== undefined) {
@@ -858,7 +860,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinkingDuration: duration, isThinking: false }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     }
@@ -871,7 +873,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
         if (lastMsg.type === 'userMessage') return prevMessages;
         const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
-        addChatMessage(allMessages);
+        if (!isStreaming) addChatMessage(allMessages);
         return allMessages;
       });
     }
@@ -931,17 +933,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     dateTime: message.dateTime,
   });
 
-  const getLastApiMessageIndex = () => {
+  const lastApiMessageIndex = createMemo(() => {
     const currentMessages = messages();
     for (let i = currentMessages.length - 1; i >= 0; i--) {
       if (currentMessages[i].type === 'apiMessage') return i;
     }
     return -1;
-  };
+  });
 
   const canRegenerateResponse = (messageIndex: number) => {
     if (!chatFeedbackStatus() || loading()) return false;
-    if (messageIndex !== getLastApiMessageIndex()) return false;
+    if (messageIndex !== lastApiMessageIndex()) return false;
     const previousMessage = messages()[messageIndex - 1];
     if (!previousMessage || previousMessage.type !== 'userMessage') return false;
     if (previousMessage.fileUploads?.length) return false;
@@ -1076,9 +1078,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onmessage(ev) {
-        const payload = JSON.parse(ev.data);
+        let payload: any;
+        try {
+          payload = JSON.parse(ev.data);
+        } catch {
+          return;
+        }
         switch (payload.event) {
           case 'start':
+            isStreaming = true;
             setMessages((prevMessages) => {
               const newMessage: MessageType = { message: '', type: 'apiMessage' };
               if (options?.responseVersions && options.responseVersions.length > 0) {
@@ -1123,14 +1131,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             updateMetadata(payload.data, input);
             break;
           case 'error':
+            isStreaming = false;
             updateErrorMessage(payload.data);
             closeResponse();
             break;
           case 'abort':
+            isStreaming = false;
             abortMessage();
             closeResponse();
             break;
           case 'end':
+            isStreaming = false;
             finalizeThinking();
             if (options?.responseVersions && options.responseVersions.length > 0) {
               setMessages((prevMessages) => {
@@ -1141,6 +1152,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 const updatedMessages = [...prevMessages.slice(0, -1), { ...lastMsg, responseVersions: versions }];
                 addChatMessage(updatedMessages);
                 return updatedMessages;
+              });
+            } else {
+              setMessages((prevMessages) => {
+                addChatMessage(prevMessages);
+                return prevMessages;
               });
             }
             setLocalStorageChatflow(chatflowid, chatId);
@@ -1161,10 +1177,30 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onclose() {
+        isStreaming = false;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.type === 'apiMessage' && !last.message) {
+            const cleaned = prev.slice(0, -1);
+            addChatMessage(cleaned);
+            return cleaned;
+          }
+          return prev;
+        });
         closeResponse();
       },
       onerror(err) {
         console.error('EventSource Error: ', err);
+        isStreaming = false;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.type === 'apiMessage' && !last.message) {
+            const cleaned = prev.slice(0, -1);
+            addChatMessage(cleaned);
+            return cleaned;
+          }
+          return prev;
+        });
         closeResponse();
         throw err;
       },
@@ -1176,6 +1212,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     hasSoundPlayed = false;
+    isStreaming = false; // safety net to ensure that the streaming is not left on
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -2773,6 +2810,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                           onRegenerateResponse={() => handleRegenerateResponse(index())}
                           showRegenerateResponseButton={canRegenerateResponse(index())}
                           onRatingUpdate={handleRatingUpdate}
+                          messageRatings={messageRatings()}
                           fontSize={props.fontSize}
                           isLoading={loading() && index() === messages().length - 1}
                           showAgentMessages={props.showAgentMessages}
