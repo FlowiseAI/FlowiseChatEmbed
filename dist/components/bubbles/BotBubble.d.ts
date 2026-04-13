@@ -25,6 +25,7 @@ type Props = {
     onRegenerateResponse?: () => void;
     showRegenerateResponseButton?: boolean;
     onRatingUpdate?: (messageId: string, rating: FeedbackRatingType) => void;
+    messageRatings?: Record<string, FeedbackRatingType>;
     isTTSEnabled?: boolean;
     isTTSLoading?: Record<string, boolean>;
     isTTSPlaying?: Record<string, boolean>;
