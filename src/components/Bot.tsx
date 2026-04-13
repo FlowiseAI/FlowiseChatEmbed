@@ -1242,7 +1242,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n');
     }
-
     setLoading(true);
     stickyToBottom = true;
     setShowScrollButton(false);
@@ -1478,21 +1477,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
       // Filter out any empty prompts
       return setStarterPrompts(prompts.filter((prompt) => prompt !== ''));
-    }
-  });
-
-  // Auto scroll chat to bottom (but not during TTS actions or when user has scrolled up)
-  let autoScrollTimer: ReturnType<typeof setTimeout> | null = null;
-  createEffect(() => {
-    if (messages()) {
-      if (messages().length > 1 && !isTTSActionRef && stickyToBottom) {
-        if (autoScrollTimer) clearTimeout(autoScrollTimer);
-        autoScrollTimer = setTimeout(() => {
-          autoScrollTimer = null;
-          if (!stickyToBottom) return;
-          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-        }, 400);
-      }
     }
   });
 
