@@ -231,6 +231,19 @@ textarea {
   white-space: normal;
 }
 
+.bot-markdown-content :is(a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li) {
+  color: var(--bot-markdown-text-color, var(--chatbot-host-bubble-color));
+}
+
+.bot-markdown-content pre,
+.bot-markdown-content pre code {
+  color: var(--bot-markdown-code-color, #ffffff);
+}
+
+.bot-markdown-content code:not(pre code) {
+  color: var(--bot-markdown-inline-code-color, #4caf50);
+}
+
 .chatbot-host-bubble > .bubble-typing {
   background-color: #f7f8ff;
   border: var(--chatbot-host-bubble-border);

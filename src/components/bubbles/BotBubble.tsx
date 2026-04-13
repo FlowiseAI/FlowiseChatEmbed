@@ -10,7 +10,7 @@ import { TracesButton } from '../buttons/TracesButton';
 import { TTSButton } from '../buttons/TTSButton';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
-import { TickIcon, XIcon } from '../icons';
+import { DownloadFileIcon, TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
 import { TracesDialog } from '../treeview/TracesDialog';
@@ -39,6 +39,8 @@ type Props = {
   handleSourceDocumentsClick: (src: any) => void;
   onRegenerateResponse?: () => void;
   onMessageRendered?: () => void;
+  messageRatings?: Record<string, FeedbackRatingType>;
+  onMessageRatingChange?: (messageId: string, rating: FeedbackRatingType) => void;
   // TTS props
   isTTSEnabled?: boolean;
   isTTSLoading?: Record<string, boolean>;
@@ -57,60 +59,36 @@ const defaultFeedbackColor = '#3B81F6';
 export const BotBubble = (props: Props) => {
   let botDetailsEl: HTMLDetailsElement | undefined;
 
-  const DownloadFileIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="icon icon-tabler icon-tabler-download"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      stroke-width="2"
-      stroke="#ffffff"
-      fill="none"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-      <path d="M7 11l5 5l5 -5" />
-      <path d="M12 4l0 12" />
-    </svg>
-  );
-
   Marked.setOptions({ isNoP: true, sanitize: props.renderHTML !== undefined ? !props.renderHTML : true });
 
-  const [rating, setRating] = createSignal('');
   const [feedbackId, setFeedbackId] = createSignal('');
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
   const [copiedMessage, setCopiedMessage] = createSignal(false);
-  const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
-  const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [isTracesDialogOpen, setIsTracesDialogOpen] = createSignal(false);
 
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
 
-  const applyStyles = (el: HTMLElement) => {
-    const textColor = props.textColor ?? defaultTextColor;
-    el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach((element) => {
-      (element as HTMLElement).style.color = textColor;
-    });
-    el.querySelectorAll('pre').forEach((element) => {
-      (element as HTMLElement).style.color = '#FFFFFF';
-      element.querySelectorAll('code').forEach((codeElement) => {
-        (codeElement as HTMLElement).style.color = '#FFFFFF';
-      });
-    });
-    el.querySelectorAll('code:not(pre code)').forEach((element) => {
-      (element as HTMLElement).style.color = '#4CAF50';
-    });
-    el.querySelectorAll('a').forEach((link) => {
-      link.target = '_blank';
-    });
+  const currentRating = () => {
+    const messageId = props.message.messageId;
+    if (!messageId) return props.message.rating ?? '';
+    return props.messageRatings?.[messageId] ?? props.message.rating ?? '';
+  };
+
+  const thumbsUpColor = () => (currentRating() === 'THUMBS_UP' ? '#006400' : props.feedbackColor ?? defaultFeedbackColor);
+  const thumbsDownColor = () => (currentRating() === 'THUMBS_DOWN' ? '#8B0000' : props.feedbackColor ?? defaultFeedbackColor);
+
+  const renderMarkdownHtml = (content: string) => {
+    const html = Marked.parse(content);
+    return html.replace(/<a(?![^>]*\btarget=)([^>]*)>/g, '<a target="_blank" rel="noopener noreferrer"$1>');
   };
 
   const setBotMessageRef = (el: HTMLSpanElement | null) => {
     setBotMessageElement(el);
+  };
+
+  const notifyMessageRendered = () => {
+    props.onMessageRendered?.();
   };
 
   createEffect(() => {
@@ -120,31 +98,14 @@ export const BotBubble = (props: Props) => {
 
     // Update innerHTML synchronously so the DOM reflects the correct height
     // before any scroll logic runs — avoids async mismatch that causes jumping.
-    el.innerHTML = Marked.parse(message);
-    applyStyles(el);
+    el.innerHTML = renderMarkdownHtml(message);
 
-    // Only wire image callbacks and notify after streaming ends.
-    if (!props.isLoading) {
-      el.querySelectorAll('img').forEach((img) => {
-        if ((img as HTMLImageElement).complete) return;
-        img.addEventListener('load', () => props.onMessageRendered?.(), { once: true });
-        img.addEventListener('error', () => props.onMessageRendered?.(), { once: true });
-      });
-      props.onMessageRendered?.();
-    }
-  });
-
-  createEffect(() => {
-    const nextRating = props.message.rating;
-    if (!nextRating) return;
-    setRating(nextRating);
-    if (nextRating === 'THUMBS_UP') {
-      setThumbsUpColor('#006400');
-      return;
-    }
-    if (nextRating === 'THUMBS_DOWN') {
-      setThumbsDownColor('#8B0000');
-    }
+    el.querySelectorAll('img').forEach((img) => {
+      if ((img as HTMLImageElement).complete) return;
+      img.addEventListener('load', notifyMessageRendered, { once: true });
+      img.addEventListener('error', notifyMessageRendered, { once: true });
+    });
+    notifyMessageRendered();
   });
 
   createEffect(() => {
@@ -225,11 +186,13 @@ export const BotBubble = (props: Props) => {
   };
 
   const onThumbsUpClick = async () => {
-    if (rating() === '') {
+    if (currentRating() === '') {
+      const messageId = props.message?.messageId;
+      if (!messageId) return;
       const body = {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
-        messageId: props.message?.messageId as string,
+        messageId,
         rating: 'THUMBS_UP' as FeedbackRatingType,
         content: '',
       };
@@ -244,22 +207,22 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRating('THUMBS_UP');
+        props.onMessageRatingChange?.(messageId, 'THUMBS_UP');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
-        // update the thumbs up color state
-        setThumbsUpColor('#006400');
         saveToLocalStorage('THUMBS_UP');
       }
     }
   };
 
   const onThumbsDownClick = async () => {
-    if (rating() === '') {
+    if (currentRating() === '') {
+      const messageId = props.message?.messageId;
+      if (!messageId) return;
       const body = {
         chatflowid: props.chatflowid,
         chatId: props.chatId,
-        messageId: props.message?.messageId as string,
+        messageId,
         rating: 'THUMBS_DOWN' as FeedbackRatingType,
         content: '',
       };
@@ -274,11 +237,9 @@ export const BotBubble = (props: Props) => {
         const data = result.data as any;
         let id = '';
         if (data && data.id) id = data.id;
-        setRating('THUMBS_DOWN');
+        props.onMessageRatingChange?.(messageId, 'THUMBS_DOWN');
         setFeedbackId(id);
         setShowFeedbackContentModal(true);
-        // update the thumbs down color state
-        setThumbsDownColor('#8B0000');
         saveToLocalStorage('THUMBS_DOWN');
       }
     }
@@ -316,11 +277,6 @@ export const BotBubble = (props: Props) => {
   });
 
   const renderArtifacts = (item: Partial<FileUpload>) => {
-    // Instead of onMount, we'll use a callback ref to apply styles
-    const setArtifactRef = (el: HTMLSpanElement) => {
-      if (el) applyStyles(el);
-    };
-
     return (
       <>
         <Show when={item.type === 'png' || item.type === 'jpeg'}>
@@ -348,14 +304,16 @@ export const BotBubble = (props: Props) => {
         </Show>
         <Show when={item.type !== 'png' && item.type !== 'jpeg' && item.type !== 'html'}>
           <span
-            ref={setArtifactRef}
-            innerHTML={Marked.parse(item.data as string)}
-            class="chatbot-host-bubble prose"
+            innerHTML={renderMarkdownHtml(item.data as string)}
+            class="chatbot-host-bubble prose bot-markdown-content"
             style={{
               'background-color': props.backgroundColor ?? defaultBackgroundColor,
               color: props.textColor ?? defaultTextColor,
               'border-radius': '6px',
               'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+              '--bot-markdown-text-color': props.textColor ?? defaultTextColor,
+              '--bot-markdown-code-color': '#FFFFFF',
+              '--bot-markdown-inline-code-color': '#4CAF50',
             }}
           />
         </Show>
@@ -466,13 +424,16 @@ export const BotBubble = (props: Props) => {
             <>
               <span
                 ref={setBotMessageRef}
-                class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose"
+                class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose bot-markdown-content"
                 data-testid="host-bubble"
                 style={{
                   'background-color': props.backgroundColor ?? defaultBackgroundColor,
                   color: props.textColor ?? defaultTextColor,
                   'border-radius': '6px',
                   'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
+                  '--bot-markdown-text-color': props.textColor ?? defaultTextColor,
+                  '--bot-markdown-code-color': '#FFFFFF',
+                  '--bot-markdown-inline-code-color': '#4CAF50',
                 }}
               />
               <For each={props.fileAnnotations || []}>
@@ -610,14 +571,19 @@ export const BotBubble = (props: Props) => {
                   Copied!
                 </div>
               </Show>
-              {rating() === '' || rating() === 'THUMBS_UP' ? (
-                <ThumbsUpButton feedbackColor={thumbsUpColor()} isDisabled={rating() === 'THUMBS_UP'} rating={rating()} onClick={onThumbsUpClick} />
+              {currentRating() === '' || currentRating() === 'THUMBS_UP' ? (
+                <ThumbsUpButton
+                  feedbackColor={thumbsUpColor()}
+                  isDisabled={currentRating() === 'THUMBS_UP'}
+                  rating={currentRating()}
+                  onClick={onThumbsUpClick}
+                />
               ) : null}
-              {rating() === '' || rating() === 'THUMBS_DOWN' ? (
+              {currentRating() === '' || currentRating() === 'THUMBS_DOWN' ? (
                 <ThumbsDownButton
                   feedbackColor={thumbsDownColor()}
-                  isDisabled={rating() === 'THUMBS_DOWN'}
-                  rating={rating()}
+                  isDisabled={currentRating() === 'THUMBS_DOWN'}
+                  rating={currentRating()}
                   onClick={onThumbsDownClick}
                 />
               ) : null}

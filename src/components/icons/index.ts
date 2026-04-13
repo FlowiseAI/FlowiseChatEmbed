@@ -17,3 +17,4 @@ export * from './ChevronDownIcon';
 export * from './TracesIcon';
 export * from './FileIcon';
 export * from './GlobeIcon';
+export * from './DownloadFileIcon';
