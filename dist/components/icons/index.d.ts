@@ -15,10 +15,7 @@ export * from './VolumeIcon';
 export * from './SquareStopIcon';
 export * from './ChevronDownIcon';
 export * from './TracesIcon';
-<<<<<<< HEAD
 export * from './FileIcon';
 export * from './GlobeIcon';
-=======
 export * from './DownloadFileIcon';
->>>>>>> d5efefa (pr)
 //# sourceMappingURL=index.d.ts.map

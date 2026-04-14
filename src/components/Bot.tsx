@@ -579,9 +579,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         });
     }
 
-    setTimeout(() => {
-      scrollToBottom();
-    }, 50);
+    scrollToBottom()
 
     let isProgrammaticScroll = false;
     const handleScroll = () => {
@@ -949,6 +947,29 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const input = params.question;
     params.streaming = true;
 
+    const isEmptyValue = (value: unknown) => {
+      if (value == null) return true;
+      if (typeof value === 'string') return value.trim() === '';
+      if (Array.isArray(value)) return value.length === 0;
+      if (typeof value === 'object') return Object.keys(value as Record<string, unknown>).length === 0;
+      return false;
+    };
+    
+    const shouldRemoveEmptyApiMessage = (message?: MessageType) => {
+      if (!message || message.type !== 'apiMessage') return false;
+      const payload = {
+        sourceDocuments: message.sourceDocuments,
+        usedTools: message.usedTools,
+        artifacts: message.artifacts,
+        fileAnnotations: message.fileAnnotations,
+        agentReasoning: message.agentReasoning,
+        agentFlowExecutedData: message.agentFlowExecutedData,
+        action: message.action,
+        thinking: message.thinking,
+      };
+      return isEmptyValue(message.message) && Object.values(payload).every(isEmptyValue);
+    };
+
     const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       if (props.onRequest && init) {
         await props.onRequest(init);
@@ -1066,7 +1087,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         isStreaming = false;
         setMessages((prev) => {
           const last = prev[prev.length - 1];
-          if (last?.type === 'apiMessage' && !last.message) {
+          if (shouldRemoveEmptyApiMessage(last)) {
             const cleaned = prev.slice(0, -1);
             addChatMessage(cleaned);
             return cleaned;
@@ -1080,7 +1101,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         isStreaming = false;
         setMessages((prev) => {
           const last = prev[prev.length - 1];
-          if (last?.type === 'apiMessage' && !last.message) {
+          if (shouldRemoveEmptyApiMessage(last)) {
             const cleaned = prev.slice(0, -1);
             addChatMessage(cleaned);
             return cleaned;
