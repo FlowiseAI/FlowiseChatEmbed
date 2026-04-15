@@ -13,6 +13,7 @@ import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
+import { WorkflowTreeView } from '../treeview/WorkflowTreeView';
 import { TracesDialog } from '../treeview/TracesDialog';
 import { ThinkingCard } from './ThinkingBubble';
 
@@ -661,7 +662,7 @@ export const BotBubble = (props: Props) => {
                   onClick={() => props.onRegenerateResponse?.()}
                 />
               </Show>
-              <Show when={hasMultipleResponseVersions()}>
+              <Show when={hasMultipleResponseVersions() && !props.isLoading}>
                 <div class="text-sm text-gray-500 mr-2 flex items-center">
                   <button
                     type="button"
@@ -674,9 +675,7 @@ export const BotBubble = (props: Props) => {
                   >
                     {'<'}
                   </button>
-                  <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${
-                    responseVersionIndex() + 1
-                  }/${totalResponseVersions()}`}</span>
+                  <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${responseVersionIndex() + 1}/${totalResponseVersions()}`}</span>
                   <button
                     type="button"
                     class="px-1"
