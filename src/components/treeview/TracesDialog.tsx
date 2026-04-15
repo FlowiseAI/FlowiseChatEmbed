@@ -21,13 +21,35 @@ type TracesDialogProps = {
 
 // Chevron icons for the tree panel
 const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="transition-transform duration-200"
+  >
     <path d="m6 9 6 6 6-6" />
   </svg>
 );
 
 const ChevronRightIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="transition-transform duration-200"
+  >
     <path d="m9 18 6-6-6-6" />
   </svg>
 );
@@ -160,21 +182,20 @@ export const TracesDialog = (props: TracesDialogProps) => {
   const renderNode = (node: any) => {
     const foundIcon = getAgentflowIcon(node.name);
 
-    const nodeLabel = (
-      <div class="flex items-center">
-        {foundIcon && (
-          <div class="mr-1" style={{ display: 'flex', 'align-items': 'center' }}>
-            {foundIcon.icon({ size: 20, color: foundIcon.color })}
-          </div>
-        )}
-        <span>{node.label}</span>
+    const nodeLabel = <span>{node.label}</span>;
+
+    const nodeIcon = foundIcon ? (
+      <div style={{ display: 'flex', 'align-items': 'center' }}>
+        {foundIcon.icon({ size: 18, color: foundIcon.color })}
       </div>
+    ) : (
+      <span />
     );
 
     const statusIcon = <div class="status-icon">{getStatusIcon(node.status)}</div>;
 
     return (
-      <TreeItem itemId={node.id} label={nodeLabel} icon={statusIcon} borderColor={foundIcon?.color}>
+      <TreeItem itemId={node.id} label={nodeLabel} icon={nodeIcon} endIcon={statusIcon} borderColor={foundIcon?.color}>
         {node.children && node.children.length > 0 && node.children.map((childNode: any) => renderNode(childNode))}
       </TreeItem>
     );
@@ -285,12 +306,19 @@ export const TracesDialog = (props: TracesDialogProps) => {
               >
                 <div class="flex-shrink-0">{isPanelExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}</div>
                 <Show when={isPanelExpanded()}>
-                  <span class="font-semibold text-xs" style={{ 'white-space': 'nowrap' }}>Process Flow</span>
+                  <span class="font-semibold text-xs" style={{ 'white-space': 'nowrap' }}>
+                    Process Flow
+                  </span>
                 </Show>
               </div>
               <Show when={isPanelExpanded()}>
                 <div class="p-2" style={{ 'font-size': '0.85rem' }}>
-                  <RichTreeView defaultExpanded={expandedNodes()} defaultSelected={selectedNodeId()} indentationLevel={16} onNodeSelect={handleNodeSelect}>
+                  <RichTreeView
+                    defaultExpanded={expandedNodes()}
+                    defaultSelected={selectedNodeId()}
+                    indentationLevel={16}
+                    onNodeSelect={handleNodeSelect}
+                  >
                     <For each={treeData()}>{(rootNode) => renderNode(rootNode)}</For>
                   </RichTreeView>
                 </div>

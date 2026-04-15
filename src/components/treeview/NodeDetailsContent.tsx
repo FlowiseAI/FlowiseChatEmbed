@@ -74,14 +74,34 @@ const ChevronDownSmall = () => (
 );
 
 export const ClockIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 export const CoinIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <circle cx="12" cy="12" r="9" />
     <path d="M14.8 9A2 2 0 0 0 13 8h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1-1.8-1" />
     <path d="M12 6v2m0 8v2" />
@@ -89,7 +109,17 @@ export const CoinIcon = () => (
 );
 
 export const TokenIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M5 5l14 14" />
     <path d="M19 5l-14 14" />
     <path d="M3 12h18" />
@@ -98,14 +128,34 @@ export const TokenIcon = () => (
 );
 
 const ToolIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" />
     <path d="M14.5 5.5l4 4" />
   </svg>
 );
 
 const DownloadIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="7 10 12 15 17 10" />
     <line x1="12" y1="15" x2="12" y2="3" />
@@ -115,7 +165,17 @@ const DownloadIcon = () => (
 // --- Node icon ---
 
 const DefaultNodeIcon = (props: { size: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={props.size} height={props.size} viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size}
+    height={props.size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
     <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -351,7 +411,11 @@ const ArtifactBlock = (props: { artifact: any; index: number; apiHost?: string; 
     const src = resolveFileUrl(data, props.apiHost, props.chatflowid, props.chatId);
     return (
       <div style={{ ...artifactBoxStyle, display: 'flex', 'justify-content': 'center' }}>
-        <img src={src} alt={`artifact-${props.index}`} style={{ 'max-height': '400px', 'max-width': '100%', 'object-fit': 'contain', display: 'block' }} />
+        <img
+          src={src}
+          alt={`artifact-${props.index}`}
+          style={{ 'max-height': '400px', 'max-width': '100%', 'object-fit': 'contain', display: 'block' }}
+        />
       </div>
     );
   }
@@ -622,7 +686,11 @@ export const NodeDetailsContent = (props: NodeDetailsContentProps) => {
                       background: 'rgba(0,0,0,0.02)',
                     }}
                   >
-                    <img src={src} alt={`file-upload-${idx()}`} style={{ 'max-height': '400px', 'max-width': '100%', 'object-fit': 'contain', display: 'block' }} />
+                    <img
+                      src={src}
+                      alt={`file-upload-${idx()}`}
+                      style={{ 'max-height': '400px', 'max-width': '100%', 'object-fit': 'contain', display: 'block' }}
+                    />
                   </div>
                 );
               }}
@@ -778,7 +846,12 @@ export const NodeDetailsContent = (props: NodeDetailsContentProps) => {
                           }}
                           onClick={() => setToolDetailData(tool)}
                         >
-                          <NodeIcon name={getToolIconName(tool.tool, data.output?.availableTools)} apiHost={props.apiHost} size={16} borderRadius="4px" />{' '}
+                          <NodeIcon
+                            name={getToolIconName(tool.tool, data.output?.availableTools)}
+                            apiHost={props.apiHost}
+                            size={16}
+                            borderRadius="4px"
+                          />{' '}
                           {tool.tool}
                         </span>
                       </Show>
@@ -876,17 +949,56 @@ export const NodeDetailsContent = (props: NodeDetailsContentProps) => {
             {(m) => (
               <>
                 <Show when={m().time}>
-                  <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '4px 12px', 'border-radius': '14px', 'font-size': '0.75rem', 'font-weight': '600', 'white-space': 'nowrap', background: '#4caf50', color: '#fff' }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      'align-items': 'center',
+                      gap: '4px',
+                      padding: '4px 12px',
+                      'border-radius': '14px',
+                      'font-size': '0.75rem',
+                      'font-weight': '600',
+                      'white-space': 'nowrap',
+                      background: '#4caf50',
+                      color: '#fff',
+                    }}
+                  >
                     <ClockIcon /> {m().time}
                   </span>
                 </Show>
                 <Show when={m().tokens}>
-                  <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '4px 12px', 'border-radius': '14px', 'font-size': '0.75rem', 'font-weight': '600', 'white-space': 'nowrap', background: '#7c4dff', color: '#fff' }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      'align-items': 'center',
+                      gap: '4px',
+                      padding: '4px 12px',
+                      'border-radius': '14px',
+                      'font-size': '0.75rem',
+                      'font-weight': '600',
+                      'white-space': 'nowrap',
+                      background: '#7c4dff',
+                      color: '#fff',
+                    }}
+                  >
                     <TokenIcon /> {m().tokens}
                   </span>
                 </Show>
                 <Show when={m().cost}>
-                  <span style={{ display: 'inline-flex', 'align-items': 'center', gap: '4px', padding: '4px 12px', 'border-radius': '14px', 'font-size': '0.75rem', 'font-weight': '600', 'white-space': 'nowrap', background: '#ff9800', color: '#fff' }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      'align-items': 'center',
+                      gap: '4px',
+                      padding: '4px 12px',
+                      'border-radius': '14px',
+                      'font-size': '0.75rem',
+                      'font-weight': '600',
+                      'white-space': 'nowrap',
+                      background: '#ff9800',
+                      color: '#fff',
+                    }}
+                  >
                     <CoinIcon /> {m().cost}
                   </span>
                 </Show>
@@ -968,18 +1080,52 @@ export const NodeDetailsContent = (props: NodeDetailsContentProps) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', 'align-items': 'center', 'justify-content': 'space-between', padding: '14px 20px', 'border-bottom': '1px solid rgba(0,0,0,0.1)' }}>
+            <div
+              style={{
+                display: 'flex',
+                'align-items': 'center',
+                'justify-content': 'space-between',
+                padding: '14px 20px',
+                'border-bottom': '1px solid rgba(0,0,0,0.1)',
+              }}
+            >
               <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
-                <NodeIcon name={getToolIconName(toolDetailData()?.tool || '', cleanedData()?.output?.availableTools)} apiHost={props.apiHost} size={24} />
+                <NodeIcon
+                  name={getToolIconName(toolDetailData()?.tool || '', cleanedData()?.output?.availableTools)}
+                  apiHost={props.apiHost}
+                  size={24}
+                />
                 <span style={{ 'font-weight': '600', 'font-size': '0.95rem' }}>{toolDetailData()?.tool || 'Tool Detail'}</span>
                 <Show when={toolDetailData()?.error}>
-                  <span style={{ display: 'inline-flex', 'align-items': 'center', padding: '2px 8px', 'border-radius': '10px', 'font-size': '0.7rem', 'font-weight': '500', background: '#FFEBEE', color: '#C62828', border: '1px solid #C6282833' }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      'align-items': 'center',
+                      padding: '2px 8px',
+                      'border-radius': '10px',
+                      'font-size': '0.7rem',
+                      'font-weight': '500',
+                      background: '#FFEBEE',
+                      color: '#C62828',
+                      border: '1px solid #C6282833',
+                    }}
+                  >
                     Error
                   </span>
                 </Show>
               </div>
               <button
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', 'border-radius': '4px', display: 'flex', 'align-items': 'center', color: 'inherit', opacity: '0.7' }}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  'border-radius': '4px',
+                  display: 'flex',
+                  'align-items': 'center',
+                  color: 'inherit',
+                  opacity: '0.7',
+                }}
                 onClick={() => setToolDetailData(null)}
                 title="Close"
               >
@@ -993,7 +1139,10 @@ export const NodeDetailsContent = (props: NodeDetailsContentProps) => {
         </div>
         <div
           style={{ position: 'fixed', inset: '0', 'z-index': 1003, 'background-color': 'rgba(0,0,0,0.35)' }}
-          onClick={(e) => { e.stopPropagation(); setToolDetailData(null); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setToolDetailData(null);
+          }}
         />
       </Show>
     </>

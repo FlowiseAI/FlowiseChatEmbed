@@ -569,7 +569,11 @@ export const BotBubble = (props: Props) => {
           </Show>
           {props.chatFeedbackStatus && props.message.messageId && (
             <>
-              <RegenerateResponseButton class="regenerate-response-button" feedbackColor={props.feedbackColor} onClick={() => props.onRegenerateResponse?.()} />
+              <RegenerateResponseButton
+                class="regenerate-response-button"
+                feedbackColor={props.feedbackColor}
+                onClick={() => props.onRegenerateResponse?.()}
+              />
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>

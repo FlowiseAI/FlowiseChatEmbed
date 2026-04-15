@@ -9,91 +9,40 @@ export type WorkflowNode = {
 
 export const FLOWISE_CREDENTIAL_ID = 'FLOWISE_CREDENTIAL_ID';
 
-// Status icon components
+// Status icon components — filled style
 export const FinishedIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#4CAF50"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#4CAF50" />
+    <polyline points="8 12 11 15 16 9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 );
 
 export const PendingIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#FFC107"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#FFC107" />
+    <polyline points="12 7 12 12 15 14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 );
 
 export const RunningIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#2196F3"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 16l4-4-4-4" />
-    <path d="M8 12h8" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#2196F3" />
+    <path d="M10 8l6 4-6 4z" fill="#fff" />
   </svg>
 );
 
 export const ErrorIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#F44336"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#F44336" />
+    <rect x="11" y="7" width="2" height="6" rx="1" fill="#fff" />
+    <rect x="11" y="15" width="2" height="2" rx="1" fill="#fff" />
   </svg>
 );
 
 export const StoppedIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#FF9800"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <rect x="9" y="9" width="6" height="6" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#FF9800" />
+    <rect x="8.5" y="8.5" width="7" height="7" rx="1" fill="#fff" />
   </svg>
 );
 

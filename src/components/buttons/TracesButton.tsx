@@ -26,7 +26,9 @@ export const TracesButton = (props: TracesButtonProps) => {
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
         <TracesIcon color={props.feedbackColor ?? defaultFeedbackColor} class={'send-icon flex ' + (props.disableIcon ? 'hidden' : '')} />
-        <span class="ml-1 text-sm leading-4" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>Traces</span>
+        <span class="ml-1 text-sm leading-4" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
+          Traces
+        </span>
       </Show>
     </button>
   );
