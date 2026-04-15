@@ -14,4 +14,5 @@ export * from './SparklesIcon';
 export * from './VolumeIcon';
 export * from './SquareStopIcon';
 export * from './ChevronDownIcon';
+export * from './TracesIcon';
 //# sourceMappingURL=index.d.ts.map

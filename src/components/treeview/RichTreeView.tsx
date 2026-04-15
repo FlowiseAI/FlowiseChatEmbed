@@ -117,6 +117,7 @@ const FileIcon = () => (
 type RichTreeViewProps = {
   children: JSXElement;
   defaultExpanded?: string[];
+  defaultSelected?: string;
   onNodeSelect?: (itemId: string) => void;
   highlightItems?: string[];
   multiSelect?: boolean;
@@ -143,7 +144,7 @@ export const RichTreeView = (props: RichTreeViewProps) => {
 
   const [state, setState] = createStore<TreeViewState>({
     expandedItems: mergedProps.defaultExpanded,
-    selectedItem: null,
+    selectedItem: props.defaultSelected ?? null,
     highlightedItems: props.highlightItems || [],
   });
 

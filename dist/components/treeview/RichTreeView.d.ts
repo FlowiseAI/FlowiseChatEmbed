@@ -2,6 +2,7 @@ import { JSXElement } from 'solid-js';
 type RichTreeViewProps = {
     children: JSXElement;
     defaultExpanded?: string[];
+    defaultSelected?: string;
     onNodeSelect?: (itemId: string) => void;
     highlightItems?: string[];
     multiSelect?: boolean;

@@ -1393,7 +1393,7 @@
   };
   const CHAT_HEADER_HEIGHT = 50;
 
-  var css_248z = "/*\n! tailwindcss v3.3.1 | MIT License | https://tailwindcss.com\n*//*\n1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)\n2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)\n*/\n\n*,\n::before,\n::after {\n  box-sizing: border-box; /* 1 */\n  border-width: 0; /* 2 */\n  border-style: solid; /* 2 */\n  border-color: #e5e7eb; /* 2 */\n}\n\n::before,\n::after {\n  --tw-content: '';\n}\n\n/*\n1. Use a consistent sensible line-height in all browsers.\n2. Prevent adjustments of font size after orientation changes in iOS.\n3. Use a more readable tab size.\n4. Use the user's configured `sans` font-family by default.\n5. Use the user's configured `sans` font-feature-settings by default.\n6. Use the user's configured `sans` font-variation-settings by default.\n*/\n\nhtml {\n  line-height: 1.5; /* 1 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n  -moz-tab-size: 4; /* 3 */\n  -o-tab-size: 4;\n     tab-size: 4; /* 3 */\n  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; /* 4 */\n  font-feature-settings: normal; /* 5 */\n  font-variation-settings: normal; /* 6 */\n}\n\n/*\n1. Remove the margin in all browsers.\n2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.\n*/\n\nbody {\n  margin: 0; /* 1 */\n  line-height: inherit; /* 2 */\n}\n\n/*\n1. Add the correct height in Firefox.\n2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)\n3. Ensure horizontal rules are visible by default.\n*/\n\nhr {\n  height: 0; /* 1 */\n  color: inherit; /* 2 */\n  border-top-width: 1px; /* 3 */\n}\n\n/*\nAdd the correct text decoration in Chrome, Edge, and Safari.\n*/\n\nabbr:where([title]) {\n  -webkit-text-decoration: underline dotted;\n          text-decoration: underline dotted;\n}\n\n/*\nRemove the default font size and weight for headings.\n*/\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: inherit;\n  font-weight: inherit;\n}\n\n/*\nReset links to optimize for opt-in styling instead of opt-out.\n*/\n\na {\n  color: inherit;\n  text-decoration: inherit;\n}\n\n/*\nAdd the correct font weight in Edge and Safari.\n*/\n\nb,\nstrong {\n  font-weight: bolder;\n}\n\n/*\n1. Use the user's configured `mono` font family by default.\n2. Correct the odd `em` font sizing in all browsers.\n*/\n\ncode,\nkbd,\nsamp,\npre {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; /* 1 */\n  font-size: 1em; /* 2 */\n}\n\n/*\nAdd the correct font size in all browsers.\n*/\n\nsmall {\n  font-size: 80%;\n}\n\n/*\nPrevent `sub` and `sup` elements from affecting the line height in all browsers.\n*/\n\nsub,\nsup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/*\n1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)\n2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)\n3. Remove gaps between table borders by default.\n*/\n\ntable {\n  text-indent: 0; /* 1 */\n  border-color: inherit; /* 2 */\n  border-collapse: collapse; /* 3 */\n}\n\n/*\n1. Change the font styles in all browsers.\n2. Remove the margin in Firefox and Safari.\n3. Remove default padding in all browsers.\n*/\n\nbutton,\ninput,\noptgroup,\nselect,\ntextarea {\n  font-family: inherit; /* 1 */\n  font-size: 100%; /* 1 */\n  font-weight: inherit; /* 1 */\n  line-height: inherit; /* 1 */\n  color: inherit; /* 1 */\n  margin: 0; /* 2 */\n  padding: 0; /* 3 */\n}\n\n/*\nRemove the inheritance of text transform in Edge and Firefox.\n*/\n\nbutton,\nselect {\n  text-transform: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Remove default button styles.\n*/\n\nbutton,\n[type='button'],\n[type='reset'],\n[type='submit'] {\n  -webkit-appearance: button; /* 1 */\n  background-color: transparent; /* 2 */\n  background-image: none; /* 2 */\n}\n\n/*\nUse the modern Firefox focus style for all focusable elements.\n*/\n\n:-moz-focusring {\n  outline: auto;\n}\n\n/*\nRemove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)\n*/\n\n:-moz-ui-invalid {\n  box-shadow: none;\n}\n\n/*\nAdd the correct vertical alignment in Chrome and Firefox.\n*/\n\nprogress {\n  vertical-align: baseline;\n}\n\n/*\nCorrect the cursor style of increment and decrement buttons in Safari.\n*/\n\n::-webkit-inner-spin-button,\n::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/*\n1. Correct the odd appearance in Chrome and Safari.\n2. Correct the outline style in Safari.\n*/\n\n[type='search'] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/*\nRemove the inner padding in Chrome and Safari on macOS.\n*/\n\n::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Change font properties to `inherit` in Safari.\n*/\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\n/*\nAdd the correct display in Chrome and Safari.\n*/\n\nsummary {\n  display: list-item;\n}\n\n/*\nRemoves the default spacing and border for appropriate elements.\n*/\n\nblockquote,\ndl,\ndd,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\nfigure,\np,\npre {\n  margin: 0;\n}\n\nfieldset {\n  margin: 0;\n  padding: 0;\n}\n\nlegend {\n  padding: 0;\n}\n\nol,\nul,\nmenu {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n/*\nPrevent resizing textareas horizontally by default.\n*/\n\ntextarea {\n  resize: vertical;\n}\n\n/*\n1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)\n2. Set the default placeholder color to the user's configured gray 400 color.\n*/\n\ninput::-moz-placeholder, textarea::-moz-placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\ninput::placeholder,\ntextarea::placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\n/*\nSet the default cursor for buttons.\n*/\n\nbutton,\n[role=\"button\"] {\n  cursor: pointer;\n}\n\n/*\nMake sure disabled buttons don't get the pointer cursor.\n*/\n:disabled {\n  cursor: default;\n}\n\n/*\n1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)\n2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)\n   This can trigger a poorly considered lint error in some tools but is included by design.\n*/\n\nimg,\nsvg,\nvideo,\ncanvas,\naudio,\niframe,\nembed,\nobject {\n  display: block; /* 1 */\n  vertical-align: middle; /* 2 */\n}\n\n/*\nConstrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)\n*/\n\nimg,\nvideo {\n  max-width: 100%;\n  height: auto;\n}\n\n/* Make elements with the HTML hidden attribute stay hidden by default */\n[hidden] {\n  display: none;\n}\n\n*, ::before, ::after {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}\n\n::backdrop {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}\n.container {\n  width: 100%;\n}\n@media (min-width: 640px) {\n\n  .container {\n    max-width: 640px;\n  }\n}\n@media (min-width: 768px) {\n\n  .container {\n    max-width: 768px;\n  }\n}\n@media (min-width: 1024px) {\n\n  .container {\n    max-width: 1024px;\n  }\n}\n@media (min-width: 1280px) {\n\n  .container {\n    max-width: 1280px;\n  }\n}\n@media (min-width: 1536px) {\n\n  .container {\n    max-width: 1536px;\n  }\n}\n.prose {\n  color: var(--tw-prose-body);\n  max-width: 65ch;\n}\n.prose :where(p):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n}\n.prose :where([class~=\"lead\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-lead);\n  font-size: 1.25em;\n  line-height: 1.6;\n  margin-top: 1.2em;\n  margin-bottom: 1.2em;\n}\n.prose :where(a):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-links);\n  text-decoration: underline;\n  font-weight: 500;\n}\n.prose :where(strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-bold);\n  font-weight: 600;\n}\n.prose :where(a strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(blockquote strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(thead th strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(ol):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: decimal;\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n  padding-left: 1.625em;\n}\n.prose :where(ol[type=\"A\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-alpha;\n}\n.prose :where(ol[type=\"a\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-alpha;\n}\n.prose :where(ol[type=\"A\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-alpha;\n}\n.prose :where(ol[type=\"a\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-alpha;\n}\n.prose :where(ol[type=\"I\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-roman;\n}\n.prose :where(ol[type=\"i\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-roman;\n}\n.prose :where(ol[type=\"I\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-roman;\n}\n.prose :where(ol[type=\"i\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-roman;\n}\n.prose :where(ol[type=\"1\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: decimal;\n}\n.prose :where(ul):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: disc;\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n  padding-left: 1.625em;\n}\n.prose :where(ol > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::marker {\n  font-weight: 400;\n  color: var(--tw-prose-counters);\n}\n.prose :where(ul > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::marker {\n  color: var(--tw-prose-bullets);\n}\n.prose :where(dt):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  margin-top: 1.25em;\n}\n.prose :where(hr):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-color: var(--tw-prose-hr);\n  border-top-width: 1px;\n  margin-top: 3em;\n  margin-bottom: 3em;\n}\n.prose :where(blockquote):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 500;\n  font-style: italic;\n  color: var(--tw-prose-quotes);\n  border-left-width: 0.25rem;\n  border-left-color: var(--tw-prose-quote-borders);\n  quotes: \"\\201C\"\"\\201D\"\"\\2018\"\"\\2019\";\n  margin-top: 1.6em;\n  margin-bottom: 1.6em;\n  padding-left: 1em;\n}\n.prose :where(blockquote p:first-of-type):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::before {\n  content: open-quote;\n}\n.prose :where(blockquote p:last-of-type):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::after {\n  content: close-quote;\n}\n.prose :where(h1):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 800;\n  font-size: 2.25em;\n  margin-top: 0;\n  margin-bottom: 0.8888889em;\n  line-height: 1.1111111;\n}\n.prose :where(h1 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 900;\n  color: inherit;\n}\n.prose :where(h2):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 700;\n  font-size: 1.5em;\n  margin-top: 2em;\n  margin-bottom: 1em;\n  line-height: 1.3333333;\n}\n.prose :where(h2 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 800;\n  color: inherit;\n}\n.prose :where(h3):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  font-size: 1.25em;\n  margin-top: 1.6em;\n  margin-bottom: 0.6em;\n  line-height: 1.6;\n}\n.prose :where(h3 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 700;\n  color: inherit;\n}\n.prose :where(h4):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  margin-top: 1.5em;\n  margin-bottom: 0.5em;\n  line-height: 1.5;\n}\n.prose :where(h4 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 700;\n  color: inherit;\n}\n.prose :where(img):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\n.prose :where(picture):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  display: block;\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\n.prose :where(kbd):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 500;\n  font-family: inherit;\n  color: var(--tw-prose-kbd);\n  box-shadow: 0 0 0 1px rgb(var(--tw-prose-kbd-shadows) / 10%), 0 3px 0 rgb(var(--tw-prose-kbd-shadows) / 10%);\n  font-size: 0.875em;\n  border-radius: 0.3125rem;\n  padding-top: 0.1875em;\n  padding-right: 0.375em;\n  padding-bottom: 0.1875em;\n  padding-left: 0.375em;\n}\n.prose :where(code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-code);\n  font-weight: 600;\n  font-size: 0.875em;\n}\n.prose :where(code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::before {\n  content: \"`\";\n}\n.prose :where(code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::after {\n  content: \"`\";\n}\n.prose :where(a code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(h1 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(h2 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n  font-size: 0.875em;\n}\n.prose :where(h3 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n  font-size: 0.9em;\n}\n.prose :where(h4 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(blockquote code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(thead th code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\n.prose :where(pre):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-pre-code);\n  background-color: var(--tw-prose-pre-bg);\n  overflow-x: auto;\n  font-weight: 400;\n  font-size: 0.875em;\n  line-height: 1.7142857;\n  margin-top: 1.7142857em;\n  margin-bottom: 1.7142857em;\n  border-radius: 0.375rem;\n  padding-top: 0.8571429em;\n  padding-right: 1.1428571em;\n  padding-bottom: 0.8571429em;\n  padding-left: 1.1428571em;\n}\n.prose :where(pre code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  background-color: transparent;\n  border-width: 0;\n  border-radius: 0;\n  padding: 0;\n  font-weight: inherit;\n  color: inherit;\n  font-size: inherit;\n  font-family: inherit;\n  line-height: inherit;\n}\n.prose :where(pre code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::before {\n  content: none;\n}\n.prose :where(pre code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::after {\n  content: none;\n}\n.prose :where(table):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  width: 100%;\n  table-layout: auto;\n  text-align: left;\n  margin-top: 2em;\n  margin-bottom: 2em;\n  font-size: 0.875em;\n  line-height: 1.7142857;\n}\n.prose :where(thead):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-bottom-width: 1px;\n  border-bottom-color: var(--tw-prose-th-borders);\n}\n.prose :where(thead th):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  vertical-align: bottom;\n  padding-right: 0.5714286em;\n  padding-bottom: 0.5714286em;\n  padding-left: 0.5714286em;\n}\n.prose :where(tbody tr):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-bottom-width: 1px;\n  border-bottom-color: var(--tw-prose-td-borders);\n}\n.prose :where(tbody tr:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-bottom-width: 0;\n}\n.prose :where(tbody td):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  vertical-align: baseline;\n}\n.prose :where(tfoot):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-top-width: 1px;\n  border-top-color: var(--tw-prose-th-borders);\n}\n.prose :where(tfoot td):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  vertical-align: top;\n}\n.prose :where(figure > *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n  margin-bottom: 0;\n}\n.prose :where(figcaption):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-captions);\n  font-size: 0.875em;\n  line-height: 1.4285714;\n  margin-top: 0.8571429em;\n}\n.prose {\n  --tw-prose-body: #374151;\n  --tw-prose-headings: #111827;\n  --tw-prose-lead: #4b5563;\n  --tw-prose-links: #111827;\n  --tw-prose-bold: #111827;\n  --tw-prose-counters: #6b7280;\n  --tw-prose-bullets: #d1d5db;\n  --tw-prose-hr: #e5e7eb;\n  --tw-prose-quotes: #111827;\n  --tw-prose-quote-borders: #e5e7eb;\n  --tw-prose-captions: #6b7280;\n  --tw-prose-kbd: #111827;\n  --tw-prose-kbd-shadows: 17 24 39;\n  --tw-prose-code: #111827;\n  --tw-prose-pre-code: #e5e7eb;\n  --tw-prose-pre-bg: #1f2937;\n  --tw-prose-th-borders: #d1d5db;\n  --tw-prose-td-borders: #e5e7eb;\n  --tw-prose-invert-body: #d1d5db;\n  --tw-prose-invert-headings: #fff;\n  --tw-prose-invert-lead: #9ca3af;\n  --tw-prose-invert-links: #fff;\n  --tw-prose-invert-bold: #fff;\n  --tw-prose-invert-counters: #9ca3af;\n  --tw-prose-invert-bullets: #4b5563;\n  --tw-prose-invert-hr: #374151;\n  --tw-prose-invert-quotes: #f3f4f6;\n  --tw-prose-invert-quote-borders: #374151;\n  --tw-prose-invert-captions: #9ca3af;\n  --tw-prose-invert-kbd: #fff;\n  --tw-prose-invert-kbd-shadows: 255 255 255;\n  --tw-prose-invert-code: #fff;\n  --tw-prose-invert-pre-code: #d1d5db;\n  --tw-prose-invert-pre-bg: rgb(0 0 0 / 50%);\n  --tw-prose-invert-th-borders: #4b5563;\n  --tw-prose-invert-td-borders: #374151;\n  font-size: 1rem;\n  line-height: 1.75;\n}\n.prose :where(picture > img):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n  margin-bottom: 0;\n}\n.prose :where(video):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\n.prose :where(li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.5em;\n  margin-bottom: 0.5em;\n}\n.prose :where(ol > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0.375em;\n}\n.prose :where(ul > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0.375em;\n}\n.prose :where(.prose > ul > li p):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.75em;\n  margin-bottom: 0.75em;\n}\n.prose :where(.prose > ul > li > *:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n}\n.prose :where(.prose > ul > li > *:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-bottom: 1.25em;\n}\n.prose :where(.prose > ol > li > *:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n}\n.prose :where(.prose > ol > li > *:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-bottom: 1.25em;\n}\n.prose :where(ul ul, ul ol, ol ul, ol ol):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.75em;\n  margin-bottom: 0.75em;\n}\n.prose :where(dl):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n}\n.prose :where(dd):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.5em;\n  padding-left: 1.625em;\n}\n.prose :where(hr + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\n.prose :where(h2 + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\n.prose :where(h3 + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\n.prose :where(h4 + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\n.prose :where(thead th:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0;\n}\n.prose :where(thead th:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-right: 0;\n}\n.prose :where(tbody td, tfoot td):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-top: 0.5714286em;\n  padding-right: 0.5714286em;\n  padding-bottom: 0.5714286em;\n  padding-left: 0.5714286em;\n}\n.prose :where(tbody td:first-child, tfoot td:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0;\n}\n.prose :where(tbody td:last-child, tfoot td:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-right: 0;\n}\n.prose :where(figure):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\n.prose :where(.prose > :first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\n.prose :where(.prose > :last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-bottom: 0;\n}\n.pointer-events-none {\n  pointer-events: none;\n}\n.visible {\n  visibility: visible;\n}\n.collapse {\n  visibility: collapse;\n}\n.fixed {\n  position: fixed;\n}\n.absolute {\n  position: absolute;\n}\n.relative {\n  position: relative;\n}\n.inset-0 {\n  inset: 0px;\n}\n.bottom-0 {\n  bottom: 0px;\n}\n.bottom-\\[140px\\] {\n  bottom: 140px;\n}\n.left-0 {\n  left: 0px;\n}\n.left-1\\/2 {\n  left: 50%;\n}\n.right-0 {\n  right: 0px;\n}\n.right-\\[-8px\\] {\n  right: -8px;\n}\n.top-0 {\n  top: 0px;\n}\n.z-0 {\n  z-index: 0;\n}\n.z-10 {\n  z-index: 10;\n}\n.z-40 {\n  z-index: 40;\n}\n.z-50 {\n  z-index: 50;\n}\n.z-\\[1001\\] {\n  z-index: 1001;\n}\n.z-\\[1002\\] {\n  z-index: 1002;\n}\n.float-right {\n  float: right;\n}\n.m-0 {\n  margin: 0px;\n}\n.m-\\[6px\\] {\n  margin: 6px;\n}\n.m-auto {\n  margin: auto;\n}\n.mx-4 {\n  margin-left: 16px;\n  margin-right: 16px;\n}\n.my-2 {\n  margin-top: 8px;\n  margin-bottom: 8px;\n}\n.my-6 {\n  margin-top: 24px;\n  margin-bottom: 24px;\n}\n.-ml-1 {\n  margin-left: -4px;\n}\n.mb-1 {\n  margin-bottom: 4px;\n}\n.mb-2 {\n  margin-bottom: 8px;\n}\n.mb-4 {\n  margin-bottom: 16px;\n}\n.mb-6 {\n  margin-bottom: 24px;\n}\n.ml-1 {\n  margin-left: 4px;\n}\n.ml-1\\.5 {\n  margin-left: 6px;\n}\n.ml-10 {\n  margin-left: 40px;\n}\n.ml-2 {\n  margin-left: 8px;\n}\n.ml-auto {\n  margin-left: auto;\n}\n.mr-1 {\n  margin-right: 4px;\n}\n.mr-2 {\n  margin-right: 8px;\n}\n.mr-3 {\n  margin-right: 12px;\n}\n.mr-\\[10px\\] {\n  margin-right: 10px;\n}\n.mt-2 {\n  margin-top: 8px;\n}\n.block {\n  display: block;\n}\n.inline-block {\n  display: inline-block;\n}\n.inline {\n  display: inline;\n}\n.flex {\n  display: flex;\n}\n.inline-flex {\n  display: inline-flex;\n}\n.table {\n  display: table;\n}\n.hidden {\n  display: none;\n}\n.h-10 {\n  height: 40px;\n}\n.h-12 {\n  height: 48px;\n}\n.h-14 {\n  height: 56px;\n}\n.h-2 {\n  height: 8px;\n}\n.h-4 {\n  height: 16px;\n}\n.h-5 {\n  height: 20px;\n}\n.h-6 {\n  height: 24px;\n}\n.h-7 {\n  height: 28px;\n}\n.h-8 {\n  height: 32px;\n}\n.h-\\[58px\\] {\n  height: 58px;\n}\n.h-auto {\n  height: auto;\n}\n.h-full {\n  height: 100%;\n}\n.max-h-\\[128px\\] {\n  max-height: 128px;\n}\n.max-h-\\[192px\\] {\n  max-height: 192px;\n}\n.min-h-0 {\n  min-height: 0px;\n}\n.min-h-\\[56px\\] {\n  min-height: 56px;\n}\n.min-h-full {\n  min-height: 100%;\n}\n.w-10 {\n  width: 40px;\n}\n.w-12 {\n  width: 48px;\n}\n.w-2 {\n  width: 8px;\n}\n.w-4 {\n  width: 16px;\n}\n.w-5 {\n  width: 20px;\n}\n.w-6 {\n  width: 24px;\n}\n.w-64 {\n  width: 256px;\n}\n.w-7 {\n  width: 28px;\n}\n.w-8 {\n  width: 32px;\n}\n.w-\\[200px\\] {\n  width: 200px;\n}\n.w-full {\n  width: 100%;\n}\n.min-w-full {\n  min-width: 100%;\n}\n.max-w-3xl {\n  max-width: 768px;\n}\n.max-w-\\[128px\\] {\n  max-width: 128px;\n}\n.max-w-full {\n  max-width: 100%;\n}\n.max-w-max {\n  max-width: -moz-max-content;\n  max-width: max-content;\n}\n.max-w-md {\n  max-width: 448px;\n}\n.flex-1 {\n  flex: 1 1 0%;\n}\n.flex-auto {\n  flex: 1 1 auto;\n}\n.flex-none {\n  flex: none;\n}\n.flex-shrink {\n  flex-shrink: 1;\n}\n.flex-shrink-0 {\n  flex-shrink: 0;\n}\n.flex-grow {\n  flex-grow: 1;\n}\n.flex-grow-0 {\n  flex-grow: 0;\n}\n.basis-auto {\n  flex-basis: auto;\n}\n.border-collapse {\n  border-collapse: collapse;\n}\n.-translate-x-1\\/2 {\n  --tw-translate-x: -50%;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n.-rotate-180 {\n  --tw-rotate: -180deg;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n.rotate-0 {\n  --tw-rotate: 0deg;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n.scale-0 {\n  --tw-scale-x: 0;\n  --tw-scale-y: 0;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n.scale-100 {\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n.transform {\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n@keyframes fade-in {\n\n  0% {\n    opacity: 0;\n  }\n\n  100% {\n    opacity: 1;\n  }\n}\n.animate-fade-in {\n  animation: fade-in 0.3s ease-out;\n}\n@keyframes spin {\n\n  to {\n    transform: rotate(360deg);\n  }\n}\n.animate-spin {\n  animation: spin 1s linear infinite;\n}\n.cursor-pointer {\n  cursor: pointer;\n}\n.resize {\n  resize: both;\n}\n.flex-row {\n  flex-direction: row;\n}\n.flex-col {\n  flex-direction: column;\n}\n.flex-wrap {\n  flex-wrap: wrap;\n}\n.items-start {\n  align-items: flex-start;\n}\n.items-end {\n  align-items: flex-end;\n}\n.items-center {\n  align-items: center;\n}\n.justify-start {\n  justify-content: flex-start;\n}\n.justify-end {\n  justify-content: flex-end;\n}\n.justify-center {\n  justify-content: center;\n}\n.justify-between {\n  justify-content: space-between;\n}\n.gap-1 {\n  gap: 4px;\n}\n.gap-2 {\n  gap: 8px;\n}\n.gap-3 {\n  gap: 12px;\n}\n.space-x-2 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-x-reverse: 0;\n  margin-right: calc(8px * var(--tw-space-x-reverse));\n  margin-left: calc(8px * calc(1 - var(--tw-space-x-reverse)));\n}\n.space-x-4 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-x-reverse: 0;\n  margin-right: calc(16px * var(--tw-space-x-reverse));\n  margin-left: calc(16px * calc(1 - var(--tw-space-x-reverse)));\n}\n.space-y-2 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-y-reverse: 0;\n  margin-top: calc(8px * calc(1 - var(--tw-space-y-reverse)));\n  margin-bottom: calc(8px * var(--tw-space-y-reverse));\n}\n.space-y-4 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-y-reverse: 0;\n  margin-top: calc(16px * calc(1 - var(--tw-space-y-reverse)));\n  margin-bottom: calc(16px * var(--tw-space-y-reverse));\n}\n.overflow-hidden {\n  overflow: hidden;\n}\n.overflow-y-auto {\n  overflow-y: auto;\n}\n.overflow-x-hidden {\n  overflow-x: hidden;\n}\n.overflow-y-scroll {\n  overflow-y: scroll;\n}\n.whitespace-pre-wrap {\n  white-space: pre-wrap;\n}\n.rounded {\n  border-radius: 4px;\n}\n.rounded-\\[10px\\] {\n  border-radius: 10px;\n}\n.rounded-\\[6px\\] {\n  border-radius: 6px;\n}\n.rounded-full {\n  border-radius: 9999px;\n}\n.rounded-lg {\n  border-radius: 8px;\n}\n.rounded-md {\n  border-radius: 6px;\n}\n.rounded-none {\n  border-radius: 0px;\n}\n.rounded-xl {\n  border-radius: 12px;\n}\n.rounded-b {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n}\n.rounded-t {\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px;\n}\n.border {\n  border-width: 1px;\n}\n.border-0 {\n  border-width: 0px;\n}\n.border-2 {\n  border-width: 2px;\n}\n.border-4 {\n  border-width: 4px;\n}\n.border-b {\n  border-bottom-width: 1px;\n}\n.border-t {\n  border-top-width: 1px;\n}\n.border-t-4 {\n  border-top-width: 4px;\n}\n.border-solid {\n  border-style: solid;\n}\n.border-dashed {\n  border-style: dashed;\n}\n.border-\\[\\#eeeeee\\] {\n  --tw-border-opacity: 1;\n  border-color: rgb(238 238 238 / var(--tw-border-opacity));\n}\n.border-current {\n  border-color: currentColor;\n}\n.border-gray-200 {\n  --tw-border-opacity: 1;\n  border-color: rgb(229 231 235 / var(--tw-border-opacity));\n}\n.border-gray-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(209 213 219 / var(--tw-border-opacity));\n}\n.border-green-600 {\n  --tw-border-opacity: 1;\n  border-color: rgb(22 163 74 / var(--tw-border-opacity));\n}\n.border-red-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(252 165 165 / var(--tw-border-opacity));\n}\n.border-red-600 {\n  --tw-border-opacity: 1;\n  border-color: rgb(220 38 38 / var(--tw-border-opacity));\n}\n.border-yellow-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(253 224 71 / var(--tw-border-opacity));\n}\n.border-t-transparent {\n  border-top-color: transparent;\n}\n.border-t-white {\n  --tw-border-opacity: 1;\n  border-top-color: rgb(255 255 255 / var(--tw-border-opacity));\n}\n.bg-\\[rgba\\(0\\2c 0\\2c 0\\2c 0\\.3\\)\\] {\n  background-color: rgba(0,0,0,0.3);\n}\n.bg-\\[rgba\\(0\\2c 0\\2c 0\\2c 0\\.4\\)\\] {\n  background-color: rgba(0,0,0,0.4);\n}\n.bg-black {\n  --tw-bg-opacity: 1;\n  background-color: rgb(0 0 0 / var(--tw-bg-opacity));\n}\n.bg-black\\/10 {\n  background-color: rgb(0 0 0 / 0.1);\n}\n.bg-black\\/60 {\n  background-color: rgb(0 0 0 / 0.6);\n}\n.bg-emerald-500 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(16 185 129 / var(--tw-bg-opacity));\n}\n.bg-gray-500 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(107 114 128 / var(--tw-bg-opacity));\n}\n.bg-red-100 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(254 226 226 / var(--tw-bg-opacity));\n}\n.bg-red-500 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(239 68 68 / var(--tw-bg-opacity));\n}\n.bg-transparent {\n  background-color: transparent;\n}\n.bg-white {\n  --tw-bg-opacity: 1;\n  background-color: rgb(255 255 255 / var(--tw-bg-opacity));\n}\n.bg-yellow-100 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(254 249 195 / var(--tw-bg-opacity));\n}\n.bg-opacity-50 {\n  --tw-bg-opacity: 0.5;\n}\n.bg-cover {\n  background-size: cover;\n}\n.bg-center {\n  background-position: center;\n}\n.fill-transparent {\n  fill: transparent;\n}\n.stroke-2 {\n  stroke-width: 2;\n}\n.object-cover {\n  -o-object-fit: cover;\n     object-fit: cover;\n}\n.p-0 {\n  padding: 0px;\n}\n.p-1 {\n  padding: 4px;\n}\n.p-10 {\n  padding: 40px;\n}\n.p-2 {\n  padding: 8px;\n}\n.p-2\\.5 {\n  padding: 10px;\n}\n.p-3 {\n  padding: 12px;\n}\n.p-4 {\n  padding: 16px;\n}\n.p-5 {\n  padding: 20px;\n}\n.p-6 {\n  padding: 24px;\n}\n.px-1 {\n  padding-left: 4px;\n  padding-right: 4px;\n}\n.px-12 {\n  padding-left: 48px;\n  padding-right: 48px;\n}\n.px-2 {\n  padding-left: 8px;\n  padding-right: 8px;\n}\n.px-3 {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.px-4 {\n  padding-left: 16px;\n  padding-right: 16px;\n}\n.px-5 {\n  padding-left: 20px;\n  padding-right: 20px;\n}\n.px-6 {\n  padding-left: 24px;\n  padding-right: 24px;\n}\n.px-\\[10px\\] {\n  padding-left: 10px;\n  padding-right: 10px;\n}\n.py-1 {\n  padding-top: 4px;\n  padding-bottom: 4px;\n}\n.py-2 {\n  padding-top: 8px;\n  padding-bottom: 8px;\n}\n.py-4 {\n  padding-top: 16px;\n  padding-bottom: 16px;\n}\n.py-8 {\n  padding-top: 32px;\n  padding-bottom: 32px;\n}\n.py-\\[10px\\] {\n  padding-top: 10px;\n  padding-bottom: 10px;\n}\n.pb-1 {\n  padding-bottom: 4px;\n}\n.pb-2 {\n  padding-bottom: 8px;\n}\n.pb-\\[10px\\] {\n  padding-bottom: 10px;\n}\n.pl-4 {\n  padding-left: 16px;\n}\n.pr-0 {\n  padding-right: 0px;\n}\n.pr-3 {\n  padding-right: 12px;\n}\n.pt-2 {\n  padding-top: 8px;\n}\n.pt-4 {\n  padding-top: 16px;\n}\n.pt-\\[6px\\] {\n  padding-top: 6px;\n}\n.pt-\\[70px\\] {\n  padding-top: 70px;\n}\n.text-left {\n  text-align: left;\n}\n.text-center {\n  text-align: center;\n}\n.font-sans {\n  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n}\n.text-2xl {\n  font-size: 24px;\n  line-height: 32px;\n}\n.text-\\[13px\\] {\n  font-size: 13px;\n}\n.text-base {\n  font-size: 16px;\n  line-height: 24px;\n}\n.text-sm {\n  font-size: 14px;\n  line-height: 20px;\n}\n.text-xl {\n  font-size: 20px;\n  line-height: 28px;\n}\n.font-bold {\n  font-weight: 700;\n}\n.font-medium {\n  font-weight: 500;\n}\n.font-normal {\n  font-weight: 400;\n}\n.font-semibold {\n  font-weight: 600;\n}\n.italic {\n  font-style: italic;\n}\n.leading-none {\n  line-height: 1;\n}\n.text-black {\n  --tw-text-opacity: 1;\n  color: rgb(0 0 0 / var(--tw-text-opacity));\n}\n.text-blue-600 {\n  --tw-text-opacity: 1;\n  color: rgb(37 99 235 / var(--tw-text-opacity));\n}\n.text-gray-500 {\n  --tw-text-opacity: 1;\n  color: rgb(107 114 128 / var(--tw-text-opacity));\n}\n.text-gray-600 {\n  --tw-text-opacity: 1;\n  color: rgb(75 85 99 / var(--tw-text-opacity));\n}\n.text-gray-700 {\n  --tw-text-opacity: 1;\n  color: rgb(55 65 81 / var(--tw-text-opacity));\n}\n.text-green-600 {\n  --tw-text-opacity: 1;\n  color: rgb(22 163 74 / var(--tw-text-opacity));\n}\n.text-inherit {\n  color: inherit;\n}\n.text-red-500 {\n  --tw-text-opacity: 1;\n  color: rgb(239 68 68 / var(--tw-text-opacity));\n}\n.text-red-600 {\n  --tw-text-opacity: 1;\n  color: rgb(220 38 38 / var(--tw-text-opacity));\n}\n.text-red-700 {\n  --tw-text-opacity: 1;\n  color: rgb(185 28 28 / var(--tw-text-opacity));\n}\n.text-transparent {\n  color: transparent;\n}\n.text-white {\n  --tw-text-opacity: 1;\n  color: rgb(255 255 255 / var(--tw-text-opacity));\n}\n.text-yellow-700 {\n  --tw-text-opacity: 1;\n  color: rgb(161 98 7 / var(--tw-text-opacity));\n}\n.underline {\n  text-decoration-line: underline;\n}\n.opacity-0 {\n  opacity: 0;\n}\n.opacity-100 {\n  opacity: 1;\n}\n.opacity-25 {\n  opacity: 0.25;\n}\n.opacity-75 {\n  opacity: 0.75;\n}\n.shadow {\n  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\n.shadow-lg {\n  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\n.shadow-md {\n  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\n.shadow-sm {\n  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);\n  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\n.shadow-xl {\n  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\n.outline-none {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\n.outline {\n  outline-style: solid;\n}\n.blur-\\[2px\\] {\n  --tw-blur: blur(2px);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\n.blur-none {\n  --tw-blur: blur(0);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\n.filter {\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\n.backdrop-blur-sm {\n  --tw-backdrop-blur: blur(4px);\n  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);\n          backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);\n}\n.transition {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\n.transition-all {\n  transition-property: all;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\n.transition-colors {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\n.transition-opacity {\n  transition-property: opacity;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\n.transition-transform {\n  transition-property: transform;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\n.duration-150 {\n  transition-duration: 150ms;\n}\n.duration-200 {\n  transition-duration: 200ms;\n}\n.duration-300 {\n  transition-duration: 300ms;\n}\n.ease-in-out {\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n}\n.ease-linear {\n  transition-timing-function: linear;\n}\n.ease-out {\n  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);\n}\n\n:host {\n  --chatbot-container-bg-image: none;\n  --chatbot-container-bg-color: transparent;\n  --chatbot-container-font-family: 'Open Sans';\n\n  --chatbot-button-bg-color: #0042da;\n  --chatbot-button-color: #ffffff;\n\n  --chatbot-host-bubble-bg-color: #f7f8ff;\n  --chatbot-host-bubble-color: #303235;\n\n  --chatbot-guest-bubble-bg-color: #3b81f6;\n  --chatbot-guest-bubble-color: #ffffff;\n\n  --chatbot-input-bg-color: #ffffff;\n  --chatbot-input-color: #303235;\n  --chatbot-input-placeholder-color: #9095a0;\n\n  --chatbot-header-bg-color: #ffffff;\n  --chatbot-header-color: #303235;\n\n  --chatbot-border-radius: 6px;\n\n  /* Phone input */\n  --PhoneInputCountryFlag-borderColor: transparent;\n  --PhoneInput-color--focus: transparent;\n}\n\na {\n  color: #16bed7;\n  font-weight: 500;\n}\n\na:hover {\n  text-decoration: underline;\n}\n\npre {\n  padding: 5px;\n  font-size: 13px;\n  margin: 5px;\n  width: auto;\n  overflow: auto;\n  white-space: pre-wrap; /* css-3 */\n  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\n  white-space: -pre-wrap; /* Opera 4-6 */\n  white-space: -o-pre-wrap; /* Opera 7 */\n  word-wrap: break-word; /* Internet Explorer 5.5+ */\n}\n.string {\n  color: green;\n}\n.number {\n  color: darkorange;\n}\n.boolean {\n  color: blue;\n}\n.null {\n  color: magenta;\n}\n.key {\n  color: rgb(0, 43, 54);\n}\n\n/* Thin scrollbar for Firefox */\n.scrollable-container {\n  scrollbar-width: thin;\n  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;\n}\n\n/* Thin scrollbar for Chrome, Safari and Opera */\n.scrollable-container::-webkit-scrollbar {\n  width: 4px;\n}\n\n.scrollable-container::-webkit-scrollbar-track {\n  background: transparent;\n}\n\n.scrollable-container::-webkit-scrollbar-thumb {\n  background-color: rgba(0, 0, 0, 0.2);\n  border-radius: 4px;\n}\n\n.scrollable-container::-webkit-scrollbar-thumb:hover {\n  background-color: rgba(0, 0, 0, 0.35);\n}\n\n/* Auto-hide scrollbar on touch devices */\n@media (hover: none) and (pointer: coarse) {\n  .scrollable-container {\n    scrollbar-width: none;\n  }\n  .scrollable-container::-webkit-scrollbar {\n    display: none;\n  }\n}\n\n.text-fade-in {\n  transition: opacity 400ms ease-in 200ms;\n}\n\n.bubble-typing {\n  transition:\n    width 400ms ease-out,\n    height 400ms ease-out;\n}\n\n.bubble1,\n.bubble2,\n.bubble3 {\n  background-color: var(--chatbot-host-bubble-color);\n  opacity: 0.5;\n}\n\n.bubble1 {\n  animation: chatBubbles 1s ease-in-out infinite;\n}\n\n.bubble2 {\n  animation: chatBubbles 1s ease-in-out infinite;\n  animation-delay: 0.3s;\n}\n\n.bubble3 {\n  animation: chatBubbles 1s ease-in-out infinite;\n  animation-delay: 0.5s;\n}\n\n@keyframes chatBubbles {\n  0% {\n    transform: translateY(0);\n  }\n  50% {\n    transform: translateY(-5px);\n  }\n  100% {\n    transform: translateY(0);\n  }\n}\n\nbutton,\ninput,\ntextarea {\n  font-weight: 300;\n}\n\n.slate-a {\n  text-decoration: underline;\n}\n\n.slate-html-container > div {\n  min-height: 24px;\n}\n\n.slate-bold {\n  font-weight: bold;\n}\n\n.slate-italic {\n  font-style: oblique;\n}\n\n.slate-underline {\n  text-decoration: underline;\n}\n.text-input::-moz-placeholder {\n  color: #9095a0 !important;\n  opacity: 1 !important;\n}\n.text-input::placeholder {\n  color: #9095a0 !important;\n  opacity: 1 !important;\n}\n\n.chatbot-container {\n  background-image: var(--chatbot-container-bg-image);\n  background-color: var(--chatbot-container-bg-color);\n  font-family:\n    'Open Sans',\n    -apple-system,\n    BlinkMacSystemFont,\n    'Segoe UI',\n    Roboto,\n    Helvetica,\n    Arial,\n    sans-serif,\n    'Apple Color Emoji',\n    'Segoe UI Emoji',\n    'Segoe UI Symbol';\n}\n\n.file-annotation-button {\n  color: var(--chatbot-button-color);\n  background-color: #02a0a0c2;\n  border: 1px solid #02a0a0c2;\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-button {\n  color: var(--chatbot-button-color);\n  background-color: #0042da;\n  border: 1px solid #0042da;\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-button.selectable {\n  color: var(--chatbot-host-bubble-color);\n  background-color: #f7f8ff;\n  border: 1px solid #0042da;\n}\n\n.chatbot-host-bubble {\n  color: var(--chatbot-host-bubble-color);\n  background-color: #f7f8ff;\n  /* force wrapping of long text or links */\n  overflow-wrap: break-word;\n  word-wrap: break-word;\n  word-break: break-word;\n  /* ensure it actually wraps instead of running off the screen */\n  white-space: normal;\n}\n\n.chatbot-host-bubble > .bubble-typing {\n  background-color: #f7f8ff;\n  border: var(--chatbot-host-bubble-border);\n  border-radius: 6px;\n}\n\n.chatbot-host-bubble img,\n.chatbot-host-bubble iframe,\n.chatbot-host-bubble video {\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-guest-bubble {\n  color: var(--chatbot-guest-bubble-color);\n  background-color: #3b81f6;\n  border-radius: 6px;\n  /* force wrapping of long text or links */\n  overflow-wrap: break-word;\n  word-wrap: break-word;\n  word-break: break-word;\n  /* ensure it actually wraps instead of running off the screen */\n  white-space: normal;\n}\n\n.chatbot-input,\n.feedback-input {\n  color: #303235;\n  background-color: #ffffff;\n  box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1);\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-input-error-message {\n  color: #303235;\n}\n\n.chatbot-button > .send-icon {\n  fill: var(--chatbot-button-color);\n  stroke: var(--chatbot-button-color);\n}\n\n.regenerate-response-button > .icon-tabler-refresh {\n  width: 16px;\n  height: 16px;\n}\n\n.chatbot-chat-view {\n  max-width: 800px;\n}\n\n.ping span {\n  background-color: #0042da;\n}\n\n.rating-icon-container svg {\n  width: 42px;\n  height: 42px;\n  stroke: #0042da;\n  fill: #f7f8ff;\n  transition: fill 100ms ease-out;\n}\n\n.rating-icon-container.selected svg {\n  fill: #0042da;\n}\n\n.rating-icon-container:hover svg {\n  filter: brightness(0.9);\n}\n\n.rating-icon-container:active svg {\n  filter: brightness(0.75);\n}\n\n.upload-progress-bar {\n  background-color: #0042da;\n  border-radius: var(--chatbot-border-radius);\n}\n\n.total-files-indicator {\n  background-color: #0042da;\n  color: var(--chatbot-button-color);\n  font-size: 10px;\n}\n\n.chatbot-upload-input {\n  transition: border-color 100ms ease-out;\n}\n\n.chatbot-upload-input.dragging-over {\n  border-color: #0042da;\n}\n\n.secondary-button {\n  background-color: #f7f8ff;\n  color: var(--chatbot-host-bubble-color);\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-country-select {\n  color: #303235;\n  background-color: #ffffff;\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-date-input {\n  color-scheme: light;\n  color: #303235;\n  background-color: #ffffff;\n  border-radius: var(--chatbot-border-radius);\n}\n\n.chatbot-popup-blocked-toast {\n  border-radius: var(--chatbot-border-radius);\n}\n\n.messagelist {\n  width: 100%;\n  height: 100%;\n  overflow-y: scroll;\n  border-radius: 0.5rem;\n}\n\n.messagelistloading {\n  display: flex;\n  width: 100%;\n  justify-content: center;\n  margin-top: 1rem;\n}\n\n.usermessage {\n  padding: 1rem 1.5rem 1rem 1.5rem;\n}\n\n.usermessagewaiting-light {\n  padding: 1rem 1.5rem 1rem 1.5rem;\n  background: linear-gradient(to left, #ede7f6, #e3f2fd, #ede7f6);\n  background-size: 200% 200%;\n  background-position: -100% 0;\n  animation: loading-gradient 2s ease-in-out infinite;\n  animation-direction: alternate;\n  animation-name: loading-gradient;\n}\n\n.usermessagewaiting-dark {\n  padding: 1rem 1.5rem 1rem 1.5rem;\n  color: #ececf1;\n  background: linear-gradient(to left, #2e2352, #1d3d60, #2e2352);\n  background-size: 200% 200%;\n  background-position: -100% 0;\n  animation: loading-gradient 2s ease-in-out infinite;\n  animation-direction: alternate;\n  animation-name: loading-gradient;\n}\n\n@keyframes loading-gradient {\n  0% {\n    background-position: -100% 0;\n  }\n  100% {\n    background-position: 100% 0;\n  }\n}\n\n.apimessage {\n  padding: 1rem 1.5rem 1rem 1.5rem;\n  animation: fadein 0.5s;\n}\n\n@keyframes fadein {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n\n.apimessage,\n.usermessage,\n.usermessagewaiting {\n  display: flex;\n}\n\n.markdownanswer {\n  line-height: 1.75;\n}\n\n.markdownanswer a:hover {\n  opacity: 0.8;\n}\n\n.markdownanswer a {\n  color: #16bed7;\n  font-weight: 500;\n}\n\n.markdownanswer code {\n  color: #15cb19;\n  font-weight: 500;\n  white-space: pre-wrap !important;\n}\n\n.markdownanswer ol,\n.markdownanswer ul {\n  margin: 1rem;\n}\n\n.boticon,\n.usericon {\n  margin-right: 1rem;\n  border-radius: 1rem;\n}\n\n.markdownanswer h1,\n.markdownanswer h2,\n.markdownanswer h3 {\n  font-size: inherit;\n}\n\n.center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  flex-direction: column;\n  padding: 10px;\n}\n\n.cloud {\n  width: 400px;\n  height: calc(100% - 50px);\n  border-radius: 0.5rem;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\ninput,\ntextarea {\n  background-color: transparent;\n  border: none;\n  padding: 10px 10px;\n  font-family: 'Poppins', sans-serif;\n}\n@media (max-width: 640px) {\n  div[part='bot'] {\n    width: 100% !important;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    max-width: unset !important;\n    max-height: unset !important;\n    height: 100% !important;\n    overflow: auto; \n    overflow-x: hidden; /* Prevent horizontal scrolling */\n  }\n\n    div[part='button'], div[class='flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10'], .chatbot-container, .rounded-lg {\n    border-radius: 0px !important;\n  }\n\nbutton {\n  cursor: default !important;\n}\n\n}\n.tooltip {\n  position: fixed;\n  background: var(--tooltip-background-color, black);\n  color: var(--tooltip-text-color, white);\n  padding: 5px 10px;\n  border-radius: 5px;\n  z-index: 42424242;\n  white-space: pre-wrap;\n  word-break: break-word;\n  max-width: calc(100vw - 20px);\n  font-size: var(--tooltip-font-size, 12px);\n  transition: opacity 0.3s ease-in-out;\n}\n\n@keyframes spin {\n  0% {\n    transform: rotate(0deg);\n  }\n  100% {\n    transform: rotate(360deg);\n  }\n}\n\n.spinner {\n  border: 4px solid rgba(255, 255, 255, 0.3); /* Light gray border */\n  border-top: 4px solid white; /* White spinner */\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  animation: spin 1s linear infinite;\n}\n\n.hover\\:scale-110:hover {\n  --tw-scale-x: 1.1;\n  --tw-scale-y: 1.1;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n\n.hover\\:bg-gray-100:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(243 244 246 / var(--tw-bg-opacity));\n}\n\n.hover\\:bg-green-600:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(22 163 74 / var(--tw-bg-opacity));\n}\n\n.hover\\:bg-red-600:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(220 38 38 / var(--tw-bg-opacity));\n}\n\n.hover\\:bg-transparent:hover {\n  background-color: transparent;\n}\n\n.hover\\:text-gray-700:hover {\n  --tw-text-opacity: 1;\n  color: rgb(55 65 81 / var(--tw-text-opacity));\n}\n\n.hover\\:text-white:hover {\n  --tw-text-opacity: 1;\n  color: rgb(255 255 255 / var(--tw-text-opacity));\n}\n\n.hover\\:shadow-lg:hover {\n  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\n\n.hover\\:brightness-90:hover {\n  --tw-brightness: brightness(.9);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\n\n.focus\\:border-blue-500:focus {\n  --tw-border-opacity: 1;\n  border-color: rgb(59 130 246 / var(--tw-border-opacity));\n}\n\n.focus\\:outline-none:focus {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\n\n.focus\\:ring-blue-500:focus {\n  --tw-ring-opacity: 1;\n  --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity));\n}\n\n.active\\:scale-95:active {\n  --tw-scale-x: .95;\n  --tw-scale-y: .95;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\n\n.active\\:bg-emerald-600:active {\n  --tw-bg-opacity: 1;\n  background-color: rgb(5 150 105 / var(--tw-bg-opacity));\n}\n\n.active\\:brightness-75:active {\n  --tw-brightness: brightness(.75);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\n\n.disabled\\:cursor-not-allowed:disabled {\n  cursor: not-allowed;\n}\n\n.disabled\\:opacity-50:disabled {\n  opacity: 0.5;\n}\n\n.disabled\\:brightness-100:disabled {\n  --tw-brightness: brightness(1);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\n\n.group:hover .group-hover\\:flex {\n  display: flex;\n}\n\n@media (min-width: 640px) {\n\n  .sm\\:right-5 {\n    right: 20px;\n  }\n\n  .sm\\:my-8 {\n    margin-top: 32px;\n    margin-bottom: 32px;\n  }\n\n  .sm\\:w-\\[400px\\] {\n    width: 400px;\n  }\n\n  .sm\\:w-full {\n    width: 100%;\n  }\n\n  .sm\\:max-w-lg {\n    max-width: 512px;\n  }\n\n  .sm\\:p-0 {\n    padding: 0px;\n  }\n}";
+  var css_248z = "/*\n! tailwindcss v3.3.1 | MIT License | https://tailwindcss.com\n*//*\n1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)\n2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)\n*/\n\n*,\n::before,\n::after {\n  box-sizing: border-box; /* 1 */\n  border-width: 0; /* 2 */\n  border-style: solid; /* 2 */\n  border-color: #e5e7eb; /* 2 */\n}\n\n::before,\n::after {\n  --tw-content: '';\n}\n\n/*\n1. Use a consistent sensible line-height in all browsers.\n2. Prevent adjustments of font size after orientation changes in iOS.\n3. Use a more readable tab size.\n4. Use the user's configured `sans` font-family by default.\n5. Use the user's configured `sans` font-feature-settings by default.\n6. Use the user's configured `sans` font-variation-settings by default.\n*/\n\nhtml {\n  line-height: 1.5; /* 1 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n  -moz-tab-size: 4; /* 3 */\n  -o-tab-size: 4;\n     tab-size: 4; /* 3 */\n  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; /* 4 */\n  font-feature-settings: normal; /* 5 */\n  font-variation-settings: normal; /* 6 */\n}\n\n/*\n1. Remove the margin in all browsers.\n2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.\n*/\n\nbody {\n  margin: 0; /* 1 */\n  line-height: inherit; /* 2 */\n}\n\n/*\n1. Add the correct height in Firefox.\n2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)\n3. Ensure horizontal rules are visible by default.\n*/\n\nhr {\n  height: 0; /* 1 */\n  color: inherit; /* 2 */\n  border-top-width: 1px; /* 3 */\n}\n\n/*\nAdd the correct text decoration in Chrome, Edge, and Safari.\n*/\n\nabbr:where([title]) {\n  -webkit-text-decoration: underline dotted;\n          text-decoration: underline dotted;\n}\n\n/*\nRemove the default font size and weight for headings.\n*/\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: inherit;\n  font-weight: inherit;\n}\n\n/*\nReset links to optimize for opt-in styling instead of opt-out.\n*/\n\na {\n  color: inherit;\n  text-decoration: inherit;\n}\n\n/*\nAdd the correct font weight in Edge and Safari.\n*/\n\nb,\nstrong {\n  font-weight: bolder;\n}\n\n/*\n1. Use the user's configured `mono` font family by default.\n2. Correct the odd `em` font sizing in all browsers.\n*/\n\ncode,\nkbd,\nsamp,\npre {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; /* 1 */\n  font-size: 1em; /* 2 */\n}\n\n/*\nAdd the correct font size in all browsers.\n*/\n\nsmall {\n  font-size: 80%;\n}\n\n/*\nPrevent `sub` and `sup` elements from affecting the line height in all browsers.\n*/\n\nsub,\nsup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/*\n1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)\n2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)\n3. Remove gaps between table borders by default.\n*/\n\ntable {\n  text-indent: 0; /* 1 */\n  border-color: inherit; /* 2 */\n  border-collapse: collapse; /* 3 */\n}\n\n/*\n1. Change the font styles in all browsers.\n2. Remove the margin in Firefox and Safari.\n3. Remove default padding in all browsers.\n*/\n\nbutton,\ninput,\noptgroup,\nselect,\ntextarea {\n  font-family: inherit; /* 1 */\n  font-size: 100%; /* 1 */\n  font-weight: inherit; /* 1 */\n  line-height: inherit; /* 1 */\n  color: inherit; /* 1 */\n  margin: 0; /* 2 */\n  padding: 0; /* 3 */\n}\n\n/*\nRemove the inheritance of text transform in Edge and Firefox.\n*/\n\nbutton,\nselect {\n  text-transform: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Remove default button styles.\n*/\n\nbutton,\n[type='button'],\n[type='reset'],\n[type='submit'] {\n  -webkit-appearance: button; /* 1 */\n  background-color: transparent; /* 2 */\n  background-image: none; /* 2 */\n}\n\n/*\nUse the modern Firefox focus style for all focusable elements.\n*/\n\n:-moz-focusring {\n  outline: auto;\n}\n\n/*\nRemove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)\n*/\n\n:-moz-ui-invalid {\n  box-shadow: none;\n}\n\n/*\nAdd the correct vertical alignment in Chrome and Firefox.\n*/\n\nprogress {\n  vertical-align: baseline;\n}\n\n/*\nCorrect the cursor style of increment and decrement buttons in Safari.\n*/\n\n::-webkit-inner-spin-button,\n::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/*\n1. Correct the odd appearance in Chrome and Safari.\n2. Correct the outline style in Safari.\n*/\n\n[type='search'] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/*\nRemove the inner padding in Chrome and Safari on macOS.\n*/\n\n::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Change font properties to `inherit` in Safari.\n*/\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\n/*\nAdd the correct display in Chrome and Safari.\n*/\n\nsummary {\n  display: list-item;\n}\n\n/*\nRemoves the default spacing and border for appropriate elements.\n*/\n\nblockquote,\ndl,\ndd,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\nfigure,\np,\npre {\n  margin: 0;\n}\n\nfieldset {\n  margin: 0;\n  padding: 0;\n}\n\nlegend {\n  padding: 0;\n}\n\nol,\nul,\nmenu {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n/*\nPrevent resizing textareas horizontally by default.\n*/\n\ntextarea {\n  resize: vertical;\n}\n\n/*\n1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)\n2. Set the default placeholder color to the user's configured gray 400 color.\n*/\n\ninput::-moz-placeholder, textarea::-moz-placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\ninput::placeholder,\ntextarea::placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\n/*\nSet the default cursor for buttons.\n*/\n\nbutton,\n[role=\"button\"] {\n  cursor: pointer;\n}\n\n/*\nMake sure disabled buttons don't get the pointer cursor.\n*/\n:disabled {\n  cursor: default;\n}\n\n/*\n1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)\n2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)\n   This can trigger a poorly considered lint error in some tools but is included by design.\n*/\n\nimg,\nsvg,\nvideo,\ncanvas,\naudio,\niframe,\nembed,\nobject {\n  display: block; /* 1 */\n  vertical-align: middle; /* 2 */\n}\n\n/*\nConstrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)\n*/\n\nimg,\nvideo {\n  max-width: 100%;\n  height: auto;\n}\n\n/* Make elements with the HTML hidden attribute stay hidden by default */\n[hidden] {\n  display: none;\n}\n\n*, ::before, ::after {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}\n\n::backdrop {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}\r\n.container {\n  width: 100%;\n}\r\n@media (min-width: 640px) {\n\n  .container {\n    max-width: 640px;\n  }\n}\r\n@media (min-width: 768px) {\n\n  .container {\n    max-width: 768px;\n  }\n}\r\n@media (min-width: 1024px) {\n\n  .container {\n    max-width: 1024px;\n  }\n}\r\n@media (min-width: 1280px) {\n\n  .container {\n    max-width: 1280px;\n  }\n}\r\n@media (min-width: 1536px) {\n\n  .container {\n    max-width: 1536px;\n  }\n}\r\n.prose {\n  color: var(--tw-prose-body);\n  max-width: 65ch;\n}\r\n.prose :where(p):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n}\r\n.prose :where([class~=\"lead\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-lead);\n  font-size: 1.25em;\n  line-height: 1.6;\n  margin-top: 1.2em;\n  margin-bottom: 1.2em;\n}\r\n.prose :where(a):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-links);\n  text-decoration: underline;\n  font-weight: 500;\n}\r\n.prose :where(strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-bold);\n  font-weight: 600;\n}\r\n.prose :where(a strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(blockquote strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(thead th strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(ol):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: decimal;\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n  padding-left: 1.625em;\n}\r\n.prose :where(ol[type=\"A\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-alpha;\n}\r\n.prose :where(ol[type=\"a\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-alpha;\n}\r\n.prose :where(ol[type=\"A\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-alpha;\n}\r\n.prose :where(ol[type=\"a\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-alpha;\n}\r\n.prose :where(ol[type=\"I\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-roman;\n}\r\n.prose :where(ol[type=\"i\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-roman;\n}\r\n.prose :where(ol[type=\"I\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: upper-roman;\n}\r\n.prose :where(ol[type=\"i\" s]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: lower-roman;\n}\r\n.prose :where(ol[type=\"1\"]):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: decimal;\n}\r\n.prose :where(ul):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  list-style-type: disc;\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n  padding-left: 1.625em;\n}\r\n.prose :where(ol > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::marker {\n  font-weight: 400;\n  color: var(--tw-prose-counters);\n}\r\n.prose :where(ul > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::marker {\n  color: var(--tw-prose-bullets);\n}\r\n.prose :where(dt):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  margin-top: 1.25em;\n}\r\n.prose :where(hr):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-color: var(--tw-prose-hr);\n  border-top-width: 1px;\n  margin-top: 3em;\n  margin-bottom: 3em;\n}\r\n.prose :where(blockquote):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 500;\n  font-style: italic;\n  color: var(--tw-prose-quotes);\n  border-left-width: 0.25rem;\n  border-left-color: var(--tw-prose-quote-borders);\n  quotes: \"\\201C\"\"\\201D\"\"\\2018\"\"\\2019\";\n  margin-top: 1.6em;\n  margin-bottom: 1.6em;\n  padding-left: 1em;\n}\r\n.prose :where(blockquote p:first-of-type):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::before {\n  content: open-quote;\n}\r\n.prose :where(blockquote p:last-of-type):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::after {\n  content: close-quote;\n}\r\n.prose :where(h1):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 800;\n  font-size: 2.25em;\n  margin-top: 0;\n  margin-bottom: 0.8888889em;\n  line-height: 1.1111111;\n}\r\n.prose :where(h1 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 900;\n  color: inherit;\n}\r\n.prose :where(h2):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 700;\n  font-size: 1.5em;\n  margin-top: 2em;\n  margin-bottom: 1em;\n  line-height: 1.3333333;\n}\r\n.prose :where(h2 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 800;\n  color: inherit;\n}\r\n.prose :where(h3):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  font-size: 1.25em;\n  margin-top: 1.6em;\n  margin-bottom: 0.6em;\n  line-height: 1.6;\n}\r\n.prose :where(h3 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 700;\n  color: inherit;\n}\r\n.prose :where(h4):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  margin-top: 1.5em;\n  margin-bottom: 0.5em;\n  line-height: 1.5;\n}\r\n.prose :where(h4 strong):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 700;\n  color: inherit;\n}\r\n.prose :where(img):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\r\n.prose :where(picture):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  display: block;\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\r\n.prose :where(kbd):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  font-weight: 500;\n  font-family: inherit;\n  color: var(--tw-prose-kbd);\n  box-shadow: 0 0 0 1px rgb(var(--tw-prose-kbd-shadows) / 10%), 0 3px 0 rgb(var(--tw-prose-kbd-shadows) / 10%);\n  font-size: 0.875em;\n  border-radius: 0.3125rem;\n  padding-top: 0.1875em;\n  padding-right: 0.375em;\n  padding-bottom: 0.1875em;\n  padding-left: 0.375em;\n}\r\n.prose :where(code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-code);\n  font-weight: 600;\n  font-size: 0.875em;\n}\r\n.prose :where(code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::before {\n  content: \"`\";\n}\r\n.prose :where(code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::after {\n  content: \"`\";\n}\r\n.prose :where(a code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(h1 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(h2 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n  font-size: 0.875em;\n}\r\n.prose :where(h3 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n  font-size: 0.9em;\n}\r\n.prose :where(h4 code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(blockquote code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(thead th code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: inherit;\n}\r\n.prose :where(pre):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-pre-code);\n  background-color: var(--tw-prose-pre-bg);\n  overflow-x: auto;\n  font-weight: 400;\n  font-size: 0.875em;\n  line-height: 1.7142857;\n  margin-top: 1.7142857em;\n  margin-bottom: 1.7142857em;\n  border-radius: 0.375rem;\n  padding-top: 0.8571429em;\n  padding-right: 1.1428571em;\n  padding-bottom: 0.8571429em;\n  padding-left: 1.1428571em;\n}\r\n.prose :where(pre code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  background-color: transparent;\n  border-width: 0;\n  border-radius: 0;\n  padding: 0;\n  font-weight: inherit;\n  color: inherit;\n  font-size: inherit;\n  font-family: inherit;\n  line-height: inherit;\n}\r\n.prose :where(pre code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::before {\n  content: none;\n}\r\n.prose :where(pre code):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *))::after {\n  content: none;\n}\r\n.prose :where(table):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  width: 100%;\n  table-layout: auto;\n  text-align: left;\n  margin-top: 2em;\n  margin-bottom: 2em;\n  font-size: 0.875em;\n  line-height: 1.7142857;\n}\r\n.prose :where(thead):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-bottom-width: 1px;\n  border-bottom-color: var(--tw-prose-th-borders);\n}\r\n.prose :where(thead th):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-headings);\n  font-weight: 600;\n  vertical-align: bottom;\n  padding-right: 0.5714286em;\n  padding-bottom: 0.5714286em;\n  padding-left: 0.5714286em;\n}\r\n.prose :where(tbody tr):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-bottom-width: 1px;\n  border-bottom-color: var(--tw-prose-td-borders);\n}\r\n.prose :where(tbody tr:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-bottom-width: 0;\n}\r\n.prose :where(tbody td):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  vertical-align: baseline;\n}\r\n.prose :where(tfoot):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  border-top-width: 1px;\n  border-top-color: var(--tw-prose-th-borders);\n}\r\n.prose :where(tfoot td):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  vertical-align: top;\n}\r\n.prose :where(figure > *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n  margin-bottom: 0;\n}\r\n.prose :where(figcaption):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  color: var(--tw-prose-captions);\n  font-size: 0.875em;\n  line-height: 1.4285714;\n  margin-top: 0.8571429em;\n}\r\n.prose {\n  --tw-prose-body: #374151;\n  --tw-prose-headings: #111827;\n  --tw-prose-lead: #4b5563;\n  --tw-prose-links: #111827;\n  --tw-prose-bold: #111827;\n  --tw-prose-counters: #6b7280;\n  --tw-prose-bullets: #d1d5db;\n  --tw-prose-hr: #e5e7eb;\n  --tw-prose-quotes: #111827;\n  --tw-prose-quote-borders: #e5e7eb;\n  --tw-prose-captions: #6b7280;\n  --tw-prose-kbd: #111827;\n  --tw-prose-kbd-shadows: 17 24 39;\n  --tw-prose-code: #111827;\n  --tw-prose-pre-code: #e5e7eb;\n  --tw-prose-pre-bg: #1f2937;\n  --tw-prose-th-borders: #d1d5db;\n  --tw-prose-td-borders: #e5e7eb;\n  --tw-prose-invert-body: #d1d5db;\n  --tw-prose-invert-headings: #fff;\n  --tw-prose-invert-lead: #9ca3af;\n  --tw-prose-invert-links: #fff;\n  --tw-prose-invert-bold: #fff;\n  --tw-prose-invert-counters: #9ca3af;\n  --tw-prose-invert-bullets: #4b5563;\n  --tw-prose-invert-hr: #374151;\n  --tw-prose-invert-quotes: #f3f4f6;\n  --tw-prose-invert-quote-borders: #374151;\n  --tw-prose-invert-captions: #9ca3af;\n  --tw-prose-invert-kbd: #fff;\n  --tw-prose-invert-kbd-shadows: 255 255 255;\n  --tw-prose-invert-code: #fff;\n  --tw-prose-invert-pre-code: #d1d5db;\n  --tw-prose-invert-pre-bg: rgb(0 0 0 / 50%);\n  --tw-prose-invert-th-borders: #4b5563;\n  --tw-prose-invert-td-borders: #374151;\n  font-size: 1rem;\n  line-height: 1.75;\n}\r\n.prose :where(picture > img):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n  margin-bottom: 0;\n}\r\n.prose :where(video):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\r\n.prose :where(li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.5em;\n  margin-bottom: 0.5em;\n}\r\n.prose :where(ol > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0.375em;\n}\r\n.prose :where(ul > li):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0.375em;\n}\r\n.prose :where(.prose > ul > li p):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.75em;\n  margin-bottom: 0.75em;\n}\r\n.prose :where(.prose > ul > li > *:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n}\r\n.prose :where(.prose > ul > li > *:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-bottom: 1.25em;\n}\r\n.prose :where(.prose > ol > li > *:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n}\r\n.prose :where(.prose > ol > li > *:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-bottom: 1.25em;\n}\r\n.prose :where(ul ul, ul ol, ol ul, ol ol):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.75em;\n  margin-bottom: 0.75em;\n}\r\n.prose :where(dl):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 1.25em;\n  margin-bottom: 1.25em;\n}\r\n.prose :where(dd):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0.5em;\n  padding-left: 1.625em;\n}\r\n.prose :where(hr + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\r\n.prose :where(h2 + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\r\n.prose :where(h3 + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\r\n.prose :where(h4 + *):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\r\n.prose :where(thead th:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0;\n}\r\n.prose :where(thead th:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-right: 0;\n}\r\n.prose :where(tbody td, tfoot td):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-top: 0.5714286em;\n  padding-right: 0.5714286em;\n  padding-bottom: 0.5714286em;\n  padding-left: 0.5714286em;\n}\r\n.prose :where(tbody td:first-child, tfoot td:first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-left: 0;\n}\r\n.prose :where(tbody td:last-child, tfoot td:last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  padding-right: 0;\n}\r\n.prose :where(figure):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 2em;\n  margin-bottom: 2em;\n}\r\n.prose :where(.prose > :first-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-top: 0;\n}\r\n.prose :where(.prose > :last-child):not(:where([class~=\"not-prose\"],[class~=\"not-prose\"] *)) {\n  margin-bottom: 0;\n}\r\n.pointer-events-none {\n  pointer-events: none;\n}\r\n.visible {\n  visibility: visible;\n}\r\n.collapse {\n  visibility: collapse;\n}\r\n.fixed {\n  position: fixed;\n}\r\n.absolute {\n  position: absolute;\n}\r\n.relative {\n  position: relative;\n}\r\n.inset-0 {\n  inset: 0px;\n}\r\n.bottom-0 {\n  bottom: 0px;\n}\r\n.bottom-\\[140px\\] {\n  bottom: 140px;\n}\r\n.left-0 {\n  left: 0px;\n}\r\n.left-1\\/2 {\n  left: 50%;\n}\r\n.right-0 {\n  right: 0px;\n}\r\n.right-\\[-8px\\] {\n  right: -8px;\n}\r\n.top-0 {\n  top: 0px;\n}\r\n.z-0 {\n  z-index: 0;\n}\r\n.z-10 {\n  z-index: 10;\n}\r\n.z-40 {\n  z-index: 40;\n}\r\n.z-50 {\n  z-index: 50;\n}\r\n.z-\\[1001\\] {\n  z-index: 1001;\n}\r\n.z-\\[1002\\] {\n  z-index: 1002;\n}\r\n.float-right {\n  float: right;\n}\r\n.m-0 {\n  margin: 0px;\n}\r\n.m-\\[6px\\] {\n  margin: 6px;\n}\r\n.m-auto {\n  margin: auto;\n}\r\n.mx-4 {\n  margin-left: 16px;\n  margin-right: 16px;\n}\r\n.my-2 {\n  margin-top: 8px;\n  margin-bottom: 8px;\n}\r\n.my-6 {\n  margin-top: 24px;\n  margin-bottom: 24px;\n}\r\n.-ml-1 {\n  margin-left: -4px;\n}\r\n.mb-1 {\n  margin-bottom: 4px;\n}\r\n.mb-2 {\n  margin-bottom: 8px;\n}\r\n.mb-4 {\n  margin-bottom: 16px;\n}\r\n.mb-6 {\n  margin-bottom: 24px;\n}\r\n.ml-1 {\n  margin-left: 4px;\n}\r\n.ml-1\\.5 {\n  margin-left: 6px;\n}\r\n.ml-10 {\n  margin-left: 40px;\n}\r\n.ml-2 {\n  margin-left: 8px;\n}\r\n.ml-auto {\n  margin-left: auto;\n}\r\n.mr-1 {\n  margin-right: 4px;\n}\r\n.mr-2 {\n  margin-right: 8px;\n}\r\n.mr-3 {\n  margin-right: 12px;\n}\r\n.mr-\\[10px\\] {\n  margin-right: 10px;\n}\r\n.mt-2 {\n  margin-top: 8px;\n}\r\n.block {\n  display: block;\n}\r\n.inline-block {\n  display: inline-block;\n}\r\n.inline {\n  display: inline;\n}\r\n.flex {\n  display: flex;\n}\r\n.inline-flex {\n  display: inline-flex;\n}\r\n.table {\n  display: table;\n}\r\n.hidden {\n  display: none;\n}\r\n.h-10 {\n  height: 40px;\n}\r\n.h-12 {\n  height: 48px;\n}\r\n.h-14 {\n  height: 56px;\n}\r\n.h-2 {\n  height: 8px;\n}\r\n.h-4 {\n  height: 16px;\n}\r\n.h-5 {\n  height: 20px;\n}\r\n.h-6 {\n  height: 24px;\n}\r\n.h-7 {\n  height: 28px;\n}\r\n.h-8 {\n  height: 32px;\n}\r\n.h-\\[58px\\] {\n  height: 58px;\n}\r\n.h-auto {\n  height: auto;\n}\r\n.h-full {\n  height: 100%;\n}\r\n.max-h-\\[128px\\] {\n  max-height: 128px;\n}\r\n.max-h-\\[192px\\] {\n  max-height: 192px;\n}\r\n.min-h-0 {\n  min-height: 0px;\n}\r\n.min-h-\\[56px\\] {\n  min-height: 56px;\n}\r\n.min-h-full {\n  min-height: 100%;\n}\r\n.w-10 {\n  width: 40px;\n}\r\n.w-12 {\n  width: 48px;\n}\r\n.w-2 {\n  width: 8px;\n}\r\n.w-4 {\n  width: 16px;\n}\r\n.w-5 {\n  width: 20px;\n}\r\n.w-6 {\n  width: 24px;\n}\r\n.w-64 {\n  width: 256px;\n}\r\n.w-7 {\n  width: 28px;\n}\r\n.w-8 {\n  width: 32px;\n}\r\n.w-\\[200px\\] {\n  width: 200px;\n}\r\n.w-full {\n  width: 100%;\n}\r\n.min-w-full {\n  min-width: 100%;\n}\r\n.max-w-3xl {\n  max-width: 768px;\n}\r\n.max-w-\\[128px\\] {\n  max-width: 128px;\n}\r\n.max-w-full {\n  max-width: 100%;\n}\r\n.max-w-max {\n  max-width: -moz-max-content;\n  max-width: max-content;\n}\r\n.max-w-md {\n  max-width: 448px;\n}\r\n.flex-1 {\n  flex: 1 1 0%;\n}\r\n.flex-auto {\n  flex: 1 1 auto;\n}\r\n.flex-none {\n  flex: none;\n}\r\n.flex-shrink {\n  flex-shrink: 1;\n}\r\n.flex-shrink-0 {\n  flex-shrink: 0;\n}\r\n.flex-grow {\n  flex-grow: 1;\n}\r\n.flex-grow-0 {\n  flex-grow: 0;\n}\r\n.basis-auto {\n  flex-basis: auto;\n}\r\n.border-collapse {\n  border-collapse: collapse;\n}\r\n.-translate-x-1\\/2 {\n  --tw-translate-x: -50%;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n.-rotate-180 {\n  --tw-rotate: -180deg;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n.rotate-0 {\n  --tw-rotate: 0deg;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n.scale-0 {\n  --tw-scale-x: 0;\n  --tw-scale-y: 0;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n.scale-100 {\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n.transform {\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n@keyframes fade-in {\n\n  0% {\n    opacity: 0;\n  }\n\n  100% {\n    opacity: 1;\n  }\n}\r\n.animate-fade-in {\n  animation: fade-in 0.3s ease-out;\n}\r\n@keyframes spin {\n\n  to {\n    transform: rotate(360deg);\n  }\n}\r\n.animate-spin {\n  animation: spin 1s linear infinite;\n}\r\n.cursor-pointer {\n  cursor: pointer;\n}\r\n.resize {\n  resize: both;\n}\r\n.flex-row {\n  flex-direction: row;\n}\r\n.flex-col {\n  flex-direction: column;\n}\r\n.flex-wrap {\n  flex-wrap: wrap;\n}\r\n.items-start {\n  align-items: flex-start;\n}\r\n.items-end {\n  align-items: flex-end;\n}\r\n.items-center {\n  align-items: center;\n}\r\n.justify-start {\n  justify-content: flex-start;\n}\r\n.justify-end {\n  justify-content: flex-end;\n}\r\n.justify-center {\n  justify-content: center;\n}\r\n.justify-between {\n  justify-content: space-between;\n}\r\n.gap-1 {\n  gap: 4px;\n}\r\n.gap-2 {\n  gap: 8px;\n}\r\n.gap-3 {\n  gap: 12px;\n}\r\n.space-x-2 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-x-reverse: 0;\n  margin-right: calc(8px * var(--tw-space-x-reverse));\n  margin-left: calc(8px * calc(1 - var(--tw-space-x-reverse)));\n}\r\n.space-x-4 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-x-reverse: 0;\n  margin-right: calc(16px * var(--tw-space-x-reverse));\n  margin-left: calc(16px * calc(1 - var(--tw-space-x-reverse)));\n}\r\n.space-y-2 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-y-reverse: 0;\n  margin-top: calc(8px * calc(1 - var(--tw-space-y-reverse)));\n  margin-bottom: calc(8px * var(--tw-space-y-reverse));\n}\r\n.space-y-4 > :not([hidden]) ~ :not([hidden]) {\n  --tw-space-y-reverse: 0;\n  margin-top: calc(16px * calc(1 - var(--tw-space-y-reverse)));\n  margin-bottom: calc(16px * var(--tw-space-y-reverse));\n}\r\n.overflow-hidden {\n  overflow: hidden;\n}\r\n.overflow-y-auto {\n  overflow-y: auto;\n}\r\n.overflow-x-hidden {\n  overflow-x: hidden;\n}\r\n.overflow-y-scroll {\n  overflow-y: scroll;\n}\r\n.whitespace-pre-wrap {\n  white-space: pre-wrap;\n}\r\n.rounded {\n  border-radius: 4px;\n}\r\n.rounded-\\[10px\\] {\n  border-radius: 10px;\n}\r\n.rounded-\\[6px\\] {\n  border-radius: 6px;\n}\r\n.rounded-full {\n  border-radius: 9999px;\n}\r\n.rounded-lg {\n  border-radius: 8px;\n}\r\n.rounded-md {\n  border-radius: 6px;\n}\r\n.rounded-none {\n  border-radius: 0px;\n}\r\n.rounded-xl {\n  border-radius: 12px;\n}\r\n.rounded-b {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n}\r\n.rounded-t {\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px;\n}\r\n.border {\n  border-width: 1px;\n}\r\n.border-0 {\n  border-width: 0px;\n}\r\n.border-2 {\n  border-width: 2px;\n}\r\n.border-4 {\n  border-width: 4px;\n}\r\n.border-b {\n  border-bottom-width: 1px;\n}\r\n.border-t {\n  border-top-width: 1px;\n}\r\n.border-t-4 {\n  border-top-width: 4px;\n}\r\n.border-solid {\n  border-style: solid;\n}\r\n.border-dashed {\n  border-style: dashed;\n}\r\n.border-\\[\\#eeeeee\\] {\n  --tw-border-opacity: 1;\n  border-color: rgb(238 238 238 / var(--tw-border-opacity));\n}\r\n.border-current {\n  border-color: currentColor;\n}\r\n.border-gray-200 {\n  --tw-border-opacity: 1;\n  border-color: rgb(229 231 235 / var(--tw-border-opacity));\n}\r\n.border-gray-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(209 213 219 / var(--tw-border-opacity));\n}\r\n.border-green-600 {\n  --tw-border-opacity: 1;\n  border-color: rgb(22 163 74 / var(--tw-border-opacity));\n}\r\n.border-red-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(252 165 165 / var(--tw-border-opacity));\n}\r\n.border-red-600 {\n  --tw-border-opacity: 1;\n  border-color: rgb(220 38 38 / var(--tw-border-opacity));\n}\r\n.border-yellow-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(253 224 71 / var(--tw-border-opacity));\n}\r\n.border-t-transparent {\n  border-top-color: transparent;\n}\r\n.border-t-white {\n  --tw-border-opacity: 1;\n  border-top-color: rgb(255 255 255 / var(--tw-border-opacity));\n}\r\n.bg-\\[rgba\\(0\\2c 0\\2c 0\\2c 0\\.3\\)\\] {\n  background-color: rgba(0,0,0,0.3);\n}\r\n.bg-\\[rgba\\(0\\2c 0\\2c 0\\2c 0\\.4\\)\\] {\n  background-color: rgba(0,0,0,0.4);\n}\r\n.bg-black {\n  --tw-bg-opacity: 1;\n  background-color: rgb(0 0 0 / var(--tw-bg-opacity));\n}\r\n.bg-black\\/10 {\n  background-color: rgb(0 0 0 / 0.1);\n}\r\n.bg-black\\/60 {\n  background-color: rgb(0 0 0 / 0.6);\n}\r\n.bg-emerald-500 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(16 185 129 / var(--tw-bg-opacity));\n}\r\n.bg-gray-500 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(107 114 128 / var(--tw-bg-opacity));\n}\r\n.bg-red-100 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(254 226 226 / var(--tw-bg-opacity));\n}\r\n.bg-red-500 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(239 68 68 / var(--tw-bg-opacity));\n}\r\n.bg-transparent {\n  background-color: transparent;\n}\r\n.bg-white {\n  --tw-bg-opacity: 1;\n  background-color: rgb(255 255 255 / var(--tw-bg-opacity));\n}\r\n.bg-yellow-100 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(254 249 195 / var(--tw-bg-opacity));\n}\r\n.bg-opacity-50 {\n  --tw-bg-opacity: 0.5;\n}\r\n.bg-cover {\n  background-size: cover;\n}\r\n.bg-center {\n  background-position: center;\n}\r\n.fill-transparent {\n  fill: transparent;\n}\r\n.stroke-2 {\n  stroke-width: 2;\n}\r\n.object-cover {\n  -o-object-fit: cover;\n     object-fit: cover;\n}\r\n.p-0 {\n  padding: 0px;\n}\r\n.p-1 {\n  padding: 4px;\n}\r\n.p-10 {\n  padding: 40px;\n}\r\n.p-2 {\n  padding: 8px;\n}\r\n.p-2\\.5 {\n  padding: 10px;\n}\r\n.p-3 {\n  padding: 12px;\n}\r\n.p-4 {\n  padding: 16px;\n}\r\n.p-5 {\n  padding: 20px;\n}\r\n.p-6 {\n  padding: 24px;\n}\r\n.px-1 {\n  padding-left: 4px;\n  padding-right: 4px;\n}\r\n.px-12 {\n  padding-left: 48px;\n  padding-right: 48px;\n}\r\n.px-2 {\n  padding-left: 8px;\n  padding-right: 8px;\n}\r\n.px-3 {\n  padding-left: 12px;\n  padding-right: 12px;\n}\r\n.px-4 {\n  padding-left: 16px;\n  padding-right: 16px;\n}\r\n.px-5 {\n  padding-left: 20px;\n  padding-right: 20px;\n}\r\n.px-6 {\n  padding-left: 24px;\n  padding-right: 24px;\n}\r\n.px-\\[10px\\] {\n  padding-left: 10px;\n  padding-right: 10px;\n}\r\n.py-1 {\n  padding-top: 4px;\n  padding-bottom: 4px;\n}\r\n.py-2 {\n  padding-top: 8px;\n  padding-bottom: 8px;\n}\r\n.py-4 {\n  padding-top: 16px;\n  padding-bottom: 16px;\n}\r\n.py-8 {\n  padding-top: 32px;\n  padding-bottom: 32px;\n}\r\n.py-\\[10px\\] {\n  padding-top: 10px;\n  padding-bottom: 10px;\n}\r\n.pb-1 {\n  padding-bottom: 4px;\n}\r\n.pb-2 {\n  padding-bottom: 8px;\n}\r\n.pb-\\[10px\\] {\n  padding-bottom: 10px;\n}\r\n.pl-4 {\n  padding-left: 16px;\n}\r\n.pr-0 {\n  padding-right: 0px;\n}\r\n.pr-3 {\n  padding-right: 12px;\n}\r\n.pt-2 {\n  padding-top: 8px;\n}\r\n.pt-4 {\n  padding-top: 16px;\n}\r\n.pt-\\[6px\\] {\n  padding-top: 6px;\n}\r\n.pt-\\[70px\\] {\n  padding-top: 70px;\n}\r\n.text-left {\n  text-align: left;\n}\r\n.text-center {\n  text-align: center;\n}\r\n.font-sans {\n  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n}\r\n.text-2xl {\n  font-size: 24px;\n  line-height: 32px;\n}\r\n.text-\\[13px\\] {\n  font-size: 13px;\n}\r\n.text-base {\n  font-size: 16px;\n  line-height: 24px;\n}\r\n.text-sm {\n  font-size: 14px;\n  line-height: 20px;\n}\r\n.text-xl {\n  font-size: 20px;\n  line-height: 28px;\n}\r\n.text-xs {\n  font-size: 12px;\n  line-height: 16px;\n}\r\n.font-bold {\n  font-weight: 700;\n}\r\n.font-medium {\n  font-weight: 500;\n}\r\n.font-normal {\n  font-weight: 400;\n}\r\n.font-semibold {\n  font-weight: 600;\n}\r\n.italic {\n  font-style: italic;\n}\r\n.leading-4 {\n  line-height: 16px;\n}\r\n.leading-none {\n  line-height: 1;\n}\r\n.text-black {\n  --tw-text-opacity: 1;\n  color: rgb(0 0 0 / var(--tw-text-opacity));\n}\r\n.text-blue-600 {\n  --tw-text-opacity: 1;\n  color: rgb(37 99 235 / var(--tw-text-opacity));\n}\r\n.text-gray-500 {\n  --tw-text-opacity: 1;\n  color: rgb(107 114 128 / var(--tw-text-opacity));\n}\r\n.text-gray-600 {\n  --tw-text-opacity: 1;\n  color: rgb(75 85 99 / var(--tw-text-opacity));\n}\r\n.text-gray-700 {\n  --tw-text-opacity: 1;\n  color: rgb(55 65 81 / var(--tw-text-opacity));\n}\r\n.text-green-600 {\n  --tw-text-opacity: 1;\n  color: rgb(22 163 74 / var(--tw-text-opacity));\n}\r\n.text-inherit {\n  color: inherit;\n}\r\n.text-red-500 {\n  --tw-text-opacity: 1;\n  color: rgb(239 68 68 / var(--tw-text-opacity));\n}\r\n.text-red-600 {\n  --tw-text-opacity: 1;\n  color: rgb(220 38 38 / var(--tw-text-opacity));\n}\r\n.text-red-700 {\n  --tw-text-opacity: 1;\n  color: rgb(185 28 28 / var(--tw-text-opacity));\n}\r\n.text-transparent {\n  color: transparent;\n}\r\n.text-white {\n  --tw-text-opacity: 1;\n  color: rgb(255 255 255 / var(--tw-text-opacity));\n}\r\n.text-yellow-700 {\n  --tw-text-opacity: 1;\n  color: rgb(161 98 7 / var(--tw-text-opacity));\n}\r\n.underline {\n  text-decoration-line: underline;\n}\r\n.opacity-0 {\n  opacity: 0;\n}\r\n.opacity-100 {\n  opacity: 1;\n}\r\n.opacity-25 {\n  opacity: 0.25;\n}\r\n.opacity-75 {\n  opacity: 0.75;\n}\r\n.shadow {\n  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.shadow-lg {\n  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.shadow-md {\n  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.shadow-sm {\n  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);\n  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.shadow-xl {\n  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.outline-none {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\r\n.outline {\n  outline-style: solid;\n}\r\n.blur-\\[2px\\] {\n  --tw-blur: blur(2px);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n.blur-none {\n  --tw-blur: blur(0);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n.filter {\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n.backdrop-blur-sm {\n  --tw-backdrop-blur: blur(4px);\n  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);\n          backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);\n}\r\n.transition {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.transition-all {\n  transition-property: all;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.transition-colors {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.transition-opacity {\n  transition-property: opacity;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.transition-transform {\n  transition-property: transform;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.duration-150 {\n  transition-duration: 150ms;\n}\r\n.duration-200 {\n  transition-duration: 200ms;\n}\r\n.duration-300 {\n  transition-duration: 300ms;\n}\r\n.ease-in-out {\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n}\r\n.ease-linear {\n  transition-timing-function: linear;\n}\r\n.ease-out {\n  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);\n}\r\n\r\n:host {\r\n  --chatbot-container-bg-image: none;\r\n  --chatbot-container-bg-color: transparent;\r\n  --chatbot-container-font-family: 'Open Sans';\r\n\r\n  --chatbot-button-bg-color: #0042da;\r\n  --chatbot-button-color: #ffffff;\r\n\r\n  --chatbot-host-bubble-bg-color: #f7f8ff;\r\n  --chatbot-host-bubble-color: #303235;\r\n\r\n  --chatbot-guest-bubble-bg-color: #3b81f6;\r\n  --chatbot-guest-bubble-color: #ffffff;\r\n\r\n  --chatbot-input-bg-color: #ffffff;\r\n  --chatbot-input-color: #303235;\r\n  --chatbot-input-placeholder-color: #9095a0;\r\n\r\n  --chatbot-header-bg-color: #ffffff;\r\n  --chatbot-header-color: #303235;\r\n\r\n  --chatbot-border-radius: 6px;\r\n\r\n  /* Phone input */\r\n  --PhoneInputCountryFlag-borderColor: transparent;\r\n  --PhoneInput-color--focus: transparent;\r\n}\r\n\r\na {\r\n  color: #16bed7;\r\n  font-weight: 500;\r\n}\r\n\r\na:hover {\r\n  text-decoration: underline;\r\n}\r\n\r\npre {\r\n  padding: 5px;\r\n  font-size: 13px;\r\n  margin: 5px;\r\n  width: auto;\r\n  overflow: auto;\r\n  white-space: pre-wrap; /* css-3 */\r\n  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\r\n  white-space: -pre-wrap; /* Opera 4-6 */\r\n  white-space: -o-pre-wrap; /* Opera 7 */\r\n  word-wrap: break-word; /* Internet Explorer 5.5+ */\r\n}\r\n.string {\r\n  color: green;\r\n}\r\n.number {\r\n  color: darkorange;\r\n}\r\n.boolean {\r\n  color: blue;\r\n}\r\n.null {\r\n  color: magenta;\r\n}\r\n.key {\r\n  color: rgb(0, 43, 54);\r\n}\r\n\r\n/* Thin scrollbar for Firefox */\r\n.scrollable-container {\r\n  scrollbar-width: thin;\r\n  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;\r\n}\r\n\r\n/* Thin scrollbar for Chrome, Safari and Opera */\r\n.scrollable-container::-webkit-scrollbar {\r\n  width: 4px;\r\n}\r\n\r\n.scrollable-container::-webkit-scrollbar-track {\r\n  background: transparent;\r\n}\r\n\r\n.scrollable-container::-webkit-scrollbar-thumb {\r\n  background-color: rgba(0, 0, 0, 0.2);\r\n  border-radius: 4px;\r\n}\r\n\r\n.scrollable-container::-webkit-scrollbar-thumb:hover {\r\n  background-color: rgba(0, 0, 0, 0.35);\r\n}\r\n\r\n/* Auto-hide scrollbar on touch devices */\r\n@media (hover: none) and (pointer: coarse) {\r\n  .scrollable-container {\r\n    scrollbar-width: none;\r\n  }\r\n  .scrollable-container::-webkit-scrollbar {\r\n    display: none;\r\n  }\r\n}\r\n\r\n.text-fade-in {\r\n  transition: opacity 400ms ease-in 200ms;\r\n}\r\n\r\n.bubble-typing {\r\n  transition:\r\n    width 400ms ease-out,\r\n    height 400ms ease-out;\r\n}\r\n\r\n.bubble1,\r\n.bubble2,\r\n.bubble3 {\r\n  background-color: var(--chatbot-host-bubble-color);\r\n  opacity: 0.5;\r\n}\r\n\r\n.bubble1 {\r\n  animation: chatBubbles 1s ease-in-out infinite;\r\n}\r\n\r\n.bubble2 {\r\n  animation: chatBubbles 1s ease-in-out infinite;\r\n  animation-delay: 0.3s;\r\n}\r\n\r\n.bubble3 {\r\n  animation: chatBubbles 1s ease-in-out infinite;\r\n  animation-delay: 0.5s;\r\n}\r\n\r\n@keyframes chatBubbles {\r\n  0% {\r\n    transform: translateY(0);\r\n  }\r\n  50% {\r\n    transform: translateY(-5px);\r\n  }\r\n  100% {\r\n    transform: translateY(0);\r\n  }\r\n}\r\n\r\nbutton,\r\ninput,\r\ntextarea {\r\n  font-weight: 300;\r\n}\r\n\r\n.slate-a {\r\n  text-decoration: underline;\r\n}\r\n\r\n.slate-html-container > div {\r\n  min-height: 24px;\r\n}\r\n\r\n.slate-bold {\r\n  font-weight: bold;\r\n}\r\n\r\n.slate-italic {\r\n  font-style: oblique;\r\n}\r\n\r\n.slate-underline {\r\n  text-decoration: underline;\r\n}\r\n.text-input::-moz-placeholder {\r\n  color: #9095a0 !important;\r\n  opacity: 1 !important;\r\n}\r\n.text-input::placeholder {\r\n  color: #9095a0 !important;\r\n  opacity: 1 !important;\r\n}\r\n\r\n.chatbot-container {\r\n  background-image: var(--chatbot-container-bg-image);\r\n  background-color: var(--chatbot-container-bg-color);\r\n  font-family:\r\n    'Open Sans',\r\n    -apple-system,\r\n    BlinkMacSystemFont,\r\n    'Segoe UI',\r\n    Roboto,\r\n    Helvetica,\r\n    Arial,\r\n    sans-serif,\r\n    'Apple Color Emoji',\r\n    'Segoe UI Emoji',\r\n    'Segoe UI Symbol';\r\n}\r\n\r\n.file-annotation-button {\r\n  color: var(--chatbot-button-color);\r\n  background-color: #02a0a0c2;\r\n  border: 1px solid #02a0a0c2;\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-button {\r\n  color: var(--chatbot-button-color);\r\n  background-color: #0042da;\r\n  border: 1px solid #0042da;\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-button.selectable {\r\n  color: var(--chatbot-host-bubble-color);\r\n  background-color: #f7f8ff;\r\n  border: 1px solid #0042da;\r\n}\r\n\r\n.chatbot-host-bubble {\r\n  color: var(--chatbot-host-bubble-color);\r\n  background-color: #f7f8ff;\r\n  /* force wrapping of long text or links */\r\n  overflow-wrap: break-word;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  /* ensure it actually wraps instead of running off the screen */\r\n  white-space: normal;\r\n}\r\n\r\n.chatbot-host-bubble > .bubble-typing {\r\n  background-color: #f7f8ff;\r\n  border: var(--chatbot-host-bubble-border);\r\n  border-radius: 6px;\r\n}\r\n\r\n.chatbot-host-bubble img,\r\n.chatbot-host-bubble iframe,\r\n.chatbot-host-bubble video {\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-guest-bubble {\r\n  color: var(--chatbot-guest-bubble-color);\r\n  background-color: #3b81f6;\r\n  border-radius: 6px;\r\n  /* force wrapping of long text or links */\r\n  overflow-wrap: break-word;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  /* ensure it actually wraps instead of running off the screen */\r\n  white-space: normal;\r\n}\r\n\r\n.chatbot-input,\r\n.feedback-input {\r\n  color: #303235;\r\n  background-color: #ffffff;\r\n  box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1);\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-input-error-message {\r\n  color: #303235;\r\n}\r\n\r\n.chatbot-button > .send-icon {\r\n  fill: var(--chatbot-button-color);\r\n  stroke: var(--chatbot-button-color);\r\n}\r\n\r\n.regenerate-response-button > .icon-tabler-refresh {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.chatbot-chat-view {\r\n  max-width: 800px;\r\n}\r\n\r\n.ping span {\r\n  background-color: #0042da;\r\n}\r\n\r\n.rating-icon-container svg {\r\n  width: 42px;\r\n  height: 42px;\r\n  stroke: #0042da;\r\n  fill: #f7f8ff;\r\n  transition: fill 100ms ease-out;\r\n}\r\n\r\n.rating-icon-container.selected svg {\r\n  fill: #0042da;\r\n}\r\n\r\n.rating-icon-container:hover svg {\r\n  filter: brightness(0.9);\r\n}\r\n\r\n.rating-icon-container:active svg {\r\n  filter: brightness(0.75);\r\n}\r\n\r\n.upload-progress-bar {\r\n  background-color: #0042da;\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.total-files-indicator {\r\n  background-color: #0042da;\r\n  color: var(--chatbot-button-color);\r\n  font-size: 10px;\r\n}\r\n\r\n.chatbot-upload-input {\r\n  transition: border-color 100ms ease-out;\r\n}\r\n\r\n.chatbot-upload-input.dragging-over {\r\n  border-color: #0042da;\r\n}\r\n\r\n.secondary-button {\r\n  background-color: #f7f8ff;\r\n  color: var(--chatbot-host-bubble-color);\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-country-select {\r\n  color: #303235;\r\n  background-color: #ffffff;\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-date-input {\r\n  color-scheme: light;\r\n  color: #303235;\r\n  background-color: #ffffff;\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.chatbot-popup-blocked-toast {\r\n  border-radius: var(--chatbot-border-radius);\r\n}\r\n\r\n.messagelist {\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow-y: scroll;\r\n  border-radius: 0.5rem;\r\n}\r\n\r\n.messagelistloading {\r\n  display: flex;\r\n  width: 100%;\r\n  justify-content: center;\r\n  margin-top: 1rem;\r\n}\r\n\r\n.usermessage {\r\n  padding: 1rem 1.5rem 1rem 1.5rem;\r\n}\r\n\r\n.usermessagewaiting-light {\r\n  padding: 1rem 1.5rem 1rem 1.5rem;\r\n  background: linear-gradient(to left, #ede7f6, #e3f2fd, #ede7f6);\r\n  background-size: 200% 200%;\r\n  background-position: -100% 0;\r\n  animation: loading-gradient 2s ease-in-out infinite;\r\n  animation-direction: alternate;\r\n  animation-name: loading-gradient;\r\n}\r\n\r\n.usermessagewaiting-dark {\r\n  padding: 1rem 1.5rem 1rem 1.5rem;\r\n  color: #ececf1;\r\n  background: linear-gradient(to left, #2e2352, #1d3d60, #2e2352);\r\n  background-size: 200% 200%;\r\n  background-position: -100% 0;\r\n  animation: loading-gradient 2s ease-in-out infinite;\r\n  animation-direction: alternate;\r\n  animation-name: loading-gradient;\r\n}\r\n\r\n@keyframes loading-gradient {\r\n  0% {\r\n    background-position: -100% 0;\r\n  }\r\n  100% {\r\n    background-position: 100% 0;\r\n  }\r\n}\r\n\r\n.apimessage {\r\n  padding: 1rem 1.5rem 1rem 1.5rem;\r\n  animation: fadein 0.5s;\r\n}\r\n\r\n@keyframes fadein {\r\n  from {\r\n    opacity: 0;\r\n  }\r\n  to {\r\n    opacity: 1;\r\n  }\r\n}\r\n\r\n.apimessage,\r\n.usermessage,\r\n.usermessagewaiting {\r\n  display: flex;\r\n}\r\n\r\n.markdownanswer {\r\n  line-height: 1.75;\r\n}\r\n\r\n.markdownanswer a:hover {\r\n  opacity: 0.8;\r\n}\r\n\r\n.markdownanswer a {\r\n  color: #16bed7;\r\n  font-weight: 500;\r\n}\r\n\r\n.markdownanswer code {\r\n  color: #15cb19;\r\n  font-weight: 500;\r\n  white-space: pre-wrap !important;\r\n}\r\n\r\n.markdownanswer ol,\r\n.markdownanswer ul {\r\n  margin: 1rem;\r\n}\r\n\r\n.boticon,\r\n.usericon {\r\n  margin-right: 1rem;\r\n  border-radius: 1rem;\r\n}\r\n\r\n.markdownanswer h1,\r\n.markdownanswer h2,\r\n.markdownanswer h3 {\r\n  font-size: inherit;\r\n}\r\n\r\n.center {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  flex-direction: column;\r\n  padding: 10px;\r\n}\r\n\r\n.cloud {\r\n  width: 400px;\r\n  height: calc(100% - 50px);\r\n  border-radius: 0.5rem;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\ninput,\r\ntextarea {\r\n  background-color: transparent;\r\n  border: none;\r\n  padding: 10px 10px;\r\n  font-family: 'Poppins', sans-serif;\r\n}\r\n@media (max-width: 640px) {\r\n  div[part='bot'] {\r\n    width: 100% !important;\r\n    position: fixed !important;\r\n    top: 0 !important;\r\n    left: 0 !important;\r\n    max-width: unset !important;\r\n    max-height: unset !important;\r\n    height: 100% !important;\r\n    overflow: auto; \r\n    overflow-x: hidden; /* Prevent horizontal scrolling */\r\n  }\r\n\r\n    div[part='button'], div[class='flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10'], .chatbot-container, .rounded-lg {\r\n    border-radius: 0px !important;\r\n  }\r\n\r\nbutton {\r\n  cursor: default !important;\r\n}\r\n\r\n}\r\n.tooltip {\r\n  position: fixed;\r\n  background: var(--tooltip-background-color, black);\r\n  color: var(--tooltip-text-color, white);\r\n  padding: 5px 10px;\r\n  border-radius: 5px;\r\n  z-index: 42424242;\r\n  white-space: pre-wrap;\r\n  word-break: break-word;\r\n  max-width: calc(100vw - 20px);\r\n  font-size: var(--tooltip-font-size, 12px);\r\n  transition: opacity 0.3s ease-in-out;\r\n}\r\n\r\n@keyframes spin {\r\n  0% {\r\n    transform: rotate(0deg);\r\n  }\r\n  100% {\r\n    transform: rotate(360deg);\r\n  }\r\n}\r\n\r\n.spinner {\r\n  border: 4px solid rgba(255, 255, 255, 0.3); /* Light gray border */\r\n  border-top: 4px solid white; /* White spinner */\r\n  border-radius: 50%;\r\n  width: 24px;\r\n  height: 24px;\r\n  animation: spin 1s linear infinite;\r\n}\r\n\r\n.hover\\:scale-110:hover {\n  --tw-scale-x: 1.1;\n  --tw-scale-y: 1.1;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n\r\n.hover\\:bg-gray-100:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(243 244 246 / var(--tw-bg-opacity));\n}\r\n\r\n.hover\\:bg-green-600:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(22 163 74 / var(--tw-bg-opacity));\n}\r\n\r\n.hover\\:bg-red-600:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(220 38 38 / var(--tw-bg-opacity));\n}\r\n\r\n.hover\\:bg-transparent:hover {\n  background-color: transparent;\n}\r\n\r\n.hover\\:text-gray-700:hover {\n  --tw-text-opacity: 1;\n  color: rgb(55 65 81 / var(--tw-text-opacity));\n}\r\n\r\n.hover\\:text-white:hover {\n  --tw-text-opacity: 1;\n  color: rgb(255 255 255 / var(--tw-text-opacity));\n}\r\n\r\n.hover\\:shadow-lg:hover {\n  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);\n  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n\r\n.hover\\:brightness-90:hover {\n  --tw-brightness: brightness(.9);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n\r\n.focus\\:border-blue-500:focus {\n  --tw-border-opacity: 1;\n  border-color: rgb(59 130 246 / var(--tw-border-opacity));\n}\r\n\r\n.focus\\:outline-none:focus {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\r\n\r\n.focus\\:ring-blue-500:focus {\n  --tw-ring-opacity: 1;\n  --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity));\n}\r\n\r\n.active\\:scale-95:active {\n  --tw-scale-x: .95;\n  --tw-scale-y: .95;\n  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));\n}\r\n\r\n.active\\:bg-emerald-600:active {\n  --tw-bg-opacity: 1;\n  background-color: rgb(5 150 105 / var(--tw-bg-opacity));\n}\r\n\r\n.active\\:brightness-75:active {\n  --tw-brightness: brightness(.75);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n\r\n.disabled\\:cursor-not-allowed:disabled {\n  cursor: not-allowed;\n}\r\n\r\n.disabled\\:opacity-50:disabled {\n  opacity: 0.5;\n}\r\n\r\n.disabled\\:brightness-100:disabled {\n  --tw-brightness: brightness(1);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n\r\n.group:hover .group-hover\\:flex {\n  display: flex;\n}\r\n\r\n@media (min-width: 640px) {\n\n  .sm\\:right-5 {\n    right: 20px;\n  }\n\n  .sm\\:my-8 {\n    margin-top: 32px;\n    margin-bottom: 32px;\n  }\n\n  .sm\\:w-\\[400px\\] {\n    width: 400px;\n  }\n\n  .sm\\:w-full {\n    width: 100%;\n  }\n\n  .sm\\:max-w-lg {\n    max-width: 512px;\n  }\n\n  .sm\\:p-0 {\n    padding: 0px;\n  }\n}";
 
   const isNotDefined = value => value === undefined || value === null;
   const isDefined = value => value !== undefined && value !== null;
@@ -1560,10 +1560,10 @@
     return 'webm';
   };
 
-  const _tmpl$$P = /*#__PURE__*/template(`<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">`),
-    _tmpl$2$q = /*#__PURE__*/template(`<img alt="Bubble button icon">`),
-    _tmpl$3$f = /*#__PURE__*/template(`<button part="button" class="fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M18.601 8.39897C18.269 8.06702 17.7309 8.06702 17.3989 8.39897L12 13.7979L6.60099 8.39897C6.26904 8.06702 5.73086 8.06702 5.39891 8.39897C5.06696 8.73091 5.06696 9.2691 5.39891 9.60105L11.3989 15.601C11.7309 15.933 12.269 15.933 12.601 15.601L18.601 9.60105C18.9329 9.2691 18.9329 8.73091 18.601 8.39897Z">`);
-  const defaultButtonColor$g = '#3B81F6';
+  const _tmpl$$S = /*#__PURE__*/template(`<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">`),
+    _tmpl$2$s = /*#__PURE__*/template(`<img alt="Bubble button icon">`),
+    _tmpl$3$g = /*#__PURE__*/template(`<button part="button" class="fixed shadow-md rounded-full hover:scale-110 active:scale-95 transition-transform duration-200 flex justify-center items-center animate-fade-in"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M18.601 8.39897C18.269 8.06702 17.7309 8.06702 17.3989 8.39897L12 13.7979L6.60099 8.39897C6.26904 8.06702 5.73086 8.06702 5.39891 8.39897C5.06696 8.73091 5.06696 9.2691 5.39891 9.60105L11.3989 15.601C11.7309 15.933 12.269 15.933 12.601 15.601L18.601 9.60105C18.9329 9.2691 18.9329 8.73091 18.601 8.39897Z">`);
+  const defaultButtonColor$h = '#3B81F6';
   const defaultIconColor$2 = 'white';
   const defaultBottom = 20;
   const defaultRight = 20;
@@ -1626,7 +1626,7 @@
       },
       keyed: true,
       get children() {
-        const _el$ = _tmpl$3$f(),
+        const _el$ = _tmpl$3$g(),
           _el$4 = _el$.firstChild;
         _el$.$$mousedown = onMouseDown;
         _el$.$$click = handleButtonClick;
@@ -1639,7 +1639,7 @@
           },
           keyed: true,
           get children() {
-            const _el$2 = _tmpl$$P();
+            const _el$2 = _tmpl$$S();
             setAttribute(_el$2, "width", buttonSize * 0.6);
             setAttribute(_el$2, "height", buttonSize * 0.6);
             createRenderEffect(_p$ => {
@@ -1660,7 +1660,7 @@
             return props.customIconSrc;
           },
           get children() {
-            const _el$3 = _tmpl$2$q();
+            const _el$3 = _tmpl$2$s();
             `${buttonSize * 0.6}px` != null ? _el$3.style.setProperty("width", `${buttonSize * 0.6}px`) : _el$3.style.removeProperty("width");
             `${buttonSize * 0.6}px` != null ? _el$3.style.setProperty("height", `${buttonSize * 0.6}px`) : _el$3.style.removeProperty("height");
             createRenderEffect(_p$ => {
@@ -1679,7 +1679,7 @@
         setAttribute(_el$4, "width", buttonSize * 0.6);
         setAttribute(_el$4, "height", buttonSize * 0.6);
         createRenderEffect(_p$ => {
-          const _v$5 = props.backgroundColor ?? defaultButtonColor$g,
+          const _v$5 = props.backgroundColor ?? defaultButtonColor$h,
             _v$6 = `${position().right}px`,
             _v$7 = `${position().bottom}px`,
             _v$8 = props.dragAndDrop ? 'grab' : 'pointer',
@@ -1913,7 +1913,7 @@
     onRequest: onRequest
   });
 
-  const _tmpl$$O = /*#__PURE__*/template(`<textarea class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 ">`);
+  const _tmpl$$R = /*#__PURE__*/template(`<textarea class="focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 ">`);
   const DEFAULT_HEIGHT = 56;
   const ShortTextInput = props => {
     const [local, others] = splitProps(props, ['ref', 'onInput']);
@@ -1942,7 +1942,7 @@
       }
     };
     return (() => {
-      const _el$ = _tmpl$$O();
+      const _el$ = _tmpl$$R();
       _el$.$$keydown = handleKeyDown;
       _el$.$$input = handleInput;
       const _ref$ = props.ref;
@@ -1980,102 +1980,102 @@
     window.addEventListener('resize', handleResize);
   }
 
-  const _tmpl$$N = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2">`);
-  const defaultButtonColor$f = '#3B81F6';
+  const _tmpl$$Q = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2">`);
+  const defaultButtonColor$g = '#3B81F6';
   const ClipboardIcon = props => (() => {
-    const _el$ = _tmpl$$N();
+    const _el$ = _tmpl$$Q();
+    createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$g));
+    return _el$;
+  })();
+
+  const _tmpl$$P = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"></path><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z">`);
+  const defaultButtonColor$f = '#3B81F6';
+  const ThumbsDownIcon = props => (() => {
+    const _el$ = _tmpl$$P();
     createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$f));
     return _el$;
   })();
 
-  const _tmpl$$M = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"></path><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z">`);
+  const _tmpl$$O = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z">`);
   const defaultButtonColor$e = '#3B81F6';
-  const ThumbsDownIcon = props => (() => {
-    const _el$ = _tmpl$$M();
+  const ThumbsUpIcon = props => (() => {
+    const _el$ = _tmpl$$O();
     createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$e));
     return _el$;
   })();
 
-  const _tmpl$$L = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z">`);
+  const _tmpl$$N = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path><line x1="16" x2="22" y1="5" y2="5"></line><line x1="19" x2="19" y1="2" y2="8"></line><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21">`);
   const defaultButtonColor$d = '#3B81F6';
-  const ThumbsUpIcon = props => (() => {
-    const _el$ = _tmpl$$L();
+  const AddImageIcon = props => (() => {
+    const _el$ = _tmpl$$N();
     createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$d));
     return _el$;
   })();
 
-  const _tmpl$$K = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path><line x1="16" x2="22" y1="5" y2="5"></line><line x1="19" x2="19" y1="2" y2="8"></line><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21">`);
+  const _tmpl$$M = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="1">`);
   const defaultButtonColor$c = '#3B81F6';
-  const AddImageIcon = props => (() => {
-    const _el$ = _tmpl$$K();
+  const CircleDotIcon = props => (() => {
+    const _el$ = _tmpl$$M();
     createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$c));
     return _el$;
   })();
 
-  const _tmpl$$J = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="1">`);
+  const _tmpl$$L = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4">`);
   const defaultButtonColor$b = '#3B81F6';
-  const CircleDotIcon = props => (() => {
-    const _el$ = _tmpl$$J();
+  const DeleteIcon = props => (() => {
+    const _el$ = _tmpl$$L();
     createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$b));
     return _el$;
   })();
 
-  const _tmpl$$I = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4">`);
+  const _tmpl$$K = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22">`);
   const defaultButtonColor$a = '#3B81F6';
-  const DeleteIcon = props => (() => {
-    const _el$ = _tmpl$$I();
+  const RecordIcon = props => (() => {
+    const _el$ = _tmpl$$K();
     createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$a));
     return _el$;
   })();
 
-  const _tmpl$$H = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22">`);
+  const _tmpl$$J = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="19px"><path d="M476.59 227.05l-.16-.07L49.35 49.84A23.56 23.56 0 0027.14 52 24.65 24.65 0 0016 72.59v113.29a24 24 0 0019.52 23.57l232.93 43.07a4 4 0 010 7.86L35.53 303.45A24 24 0 0016 327v113.31A23.57 23.57 0 0026.59 460a23.94 23.94 0 0013.22 4 24.55 24.55 0 009.52-1.93L476.4 285.94l.19-.09a32 32 0 000-58.8z">`);
   const defaultButtonColor$9 = '#3B81F6';
-  const RecordIcon = props => (() => {
-    const _el$ = _tmpl$$H();
-    createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$9));
-    return _el$;
-  })();
-
-  const _tmpl$$G = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="19px"><path d="M476.59 227.05l-.16-.07L49.35 49.84A23.56 23.56 0 0027.14 52 24.65 24.65 0 0016 72.59v113.29a24 24 0 0019.52 23.57l232.93 43.07a4 4 0 010 7.86L35.53 303.45A24 24 0 0016 327v113.31A23.57 23.57 0 0026.59 460a23.94 23.94 0 0013.22 4 24.55 24.55 0 009.52-1.93L476.4 285.94l.19-.09a32 32 0 000-58.8z">`);
-  const defaultButtonColor$8 = '#3B81F6';
   const SendIcon = props => (() => {
-    const _el$ = _tmpl$$G();
+    const _el$ = _tmpl$$J();
     spread(_el$, mergeProps({
       get style() {
         return {
-          fill: props.color ?? defaultButtonColor$8
+          fill: props.color ?? defaultButtonColor$9
         };
       }
     }, props), true, true);
     return _el$;
   })();
 
-  const _tmpl$$F = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17">`);
-  const defaultButtonColor$7 = '#3B81F6';
+  const _tmpl$$I = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17">`);
+  const defaultButtonColor$8 = '#3B81F6';
   const TrashIcon = props => (() => {
-    const _el$ = _tmpl$$F();
-    createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$7));
+    const _el$ = _tmpl$$I();
+    createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$8));
     return _el$;
   })();
 
-  const _tmpl$$E = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12">`);
-  const defaultButtonColor$6 = '#3B81F6';
+  const _tmpl$$H = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12">`);
+  const defaultButtonColor$7 = '#3B81F6';
   const XIcon = props => (() => {
-    const _el$ = _tmpl$$E();
-    createRenderEffect(() => setAttribute(_el$, "stroke", props.isCurrentColor ? 'currentColor' : props.color ?? defaultButtonColor$6));
+    const _el$ = _tmpl$$H();
+    createRenderEffect(() => setAttribute(_el$, "stroke", props.isCurrentColor ? 'currentColor' : props.color ?? defaultButtonColor$7));
     return _el$;
   })();
 
-  const _tmpl$$D = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12">`);
-  const TickIcon = () => _tmpl$$D();
+  const _tmpl$$G = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12">`);
+  const TickIcon = () => _tmpl$$G();
 
-  const _tmpl$$C = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5">`);
-  const defaultButtonColor$5 = '#3B81F6';
+  const _tmpl$$F = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5">`);
+  const defaultButtonColor$6 = '#3B81F6';
   const AttachmentIcon = props => (() => {
-    const _el$ = _tmpl$$C();
+    const _el$ = _tmpl$$F();
     createRenderEffect(_p$ => {
       const _v$ = props.class,
-        _v$2 = props.color ?? defaultButtonColor$5;
+        _v$2 = props.color ?? defaultButtonColor$6;
       _v$ !== _p$._v$ && setAttribute(_el$, "class", _p$._v$ = _v$);
       _v$2 !== _p$._v$2 && setAttribute(_el$, "stroke", _p$._v$2 = _v$2);
       return _p$;
@@ -2086,10 +2086,22 @@
     return _el$;
   })();
 
-  const _tmpl$$B = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z">`);
-  const defaultButtonColor$4 = '#3B81F6';
+  const _tmpl$$E = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z">`);
+  const defaultButtonColor$5 = '#3B81F6';
   const SparklesIcon = props => (() => {
-    const _el$ = _tmpl$$B();
+    const _el$ = _tmpl$$E();
+    spread(_el$, mergeProps({
+      get stroke() {
+        return props.color ?? defaultButtonColor$5;
+      }
+    }, props), true, true);
+    return _el$;
+  })();
+
+  const _tmpl$$D = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-volume w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14">`);
+  const defaultButtonColor$4 = '#3B81F6';
+  const VolumeIcon = props => (() => {
+    const _el$ = _tmpl$$D();
     spread(_el$, mergeProps({
       get stroke() {
         return props.color ?? defaultButtonColor$4;
@@ -2098,30 +2110,26 @@
     return _el$;
   })();
 
-  const _tmpl$$A = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-volume w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14">`);
-  const defaultButtonColor$3 = '#3B81F6';
-  const VolumeIcon = props => (() => {
-    const _el$ = _tmpl$$A();
-    spread(_el$, mergeProps({
-      get stroke() {
-        return props.color ?? defaultButtonColor$3;
-      }
-    }, props), true, true);
-    return _el$;
-  })();
-
-  const _tmpl$$z = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6">`);
+  const _tmpl$$C = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6">`);
   const ChevronDownIcon$3 = props => (() => {
-    const _el$ = _tmpl$$z();
+    const _el$ = _tmpl$$C();
     spread(_el$, props, true, true);
     return _el$;
   })();
 
-  const _tmpl$$y = /*#__PURE__*/template(`<button type="submit">`),
-    _tmpl$2$p = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
+  const _tmpl$$B = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-checklist w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path><path d="M11 6h9"></path><path d="M11 12h9"></path><path d="M11 18h9">`);
+  const defaultButtonColor$3 = '#3B81F6';
+  const TracesIcon = props => (() => {
+    const _el$ = _tmpl$$B();
+    createRenderEffect(() => setAttribute(_el$, "stroke", props.color ?? defaultButtonColor$3));
+    return _el$;
+  })();
+
+  const _tmpl$$A = /*#__PURE__*/template(`<button type="submit">`),
+    _tmpl$2$r = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
   const SendButton = props => {
     return (() => {
-      const _el$ = _tmpl$$y();
+      const _el$ = _tmpl$$A();
       spread(_el$, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -2163,7 +2171,7 @@
     const isFullChatbot = document.querySelector('flowise-fullchatbot') !== null;
     const paddingClass = isFullChatbot ? 'px-4' : 'px-12';
     return (() => {
-      const _el$2 = _tmpl$$y();
+      const _el$2 = _tmpl$$A();
       spread(_el$2, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -2202,7 +2210,7 @@
     })();
   };
   const Spinner$3 = props => (() => {
-    const _el$3 = _tmpl$2$p();
+    const _el$3 = _tmpl$2$r();
     spread(_el$3, mergeProps(props, {
       get ["class"]() {
         return 'animate-spin -ml-1 mr-3 h-5 w-5 ' + props.class;
@@ -2215,12 +2223,12 @@
     return _el$3;
   })();
 
-  const _tmpl$$x = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" class="send-icon flex"><circle cx="12" cy="12" r="11" stroke="red" stroke-width="2" fill="none"></circle><rect x="8" y="8" width="8" height="8" rx="1" fill="red">`),
-    _tmpl$2$o = /*#__PURE__*/template(`<button type="button">`);
-  const StopIcon = () => _tmpl$$x();
+  const _tmpl$$z = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" class="send-icon flex"><circle cx="12" cy="12" r="11" stroke="red" stroke-width="2" fill="none"></circle><rect x="8" y="8" width="8" height="8" rx="1" fill="red">`),
+    _tmpl$2$q = /*#__PURE__*/template(`<button type="button">`);
+  const StopIcon = () => _tmpl$$z();
   const StopButton = props => {
     return (() => {
-      const _el$2 = _tmpl$2$o();
+      const _el$2 = _tmpl$2$q();
       spread(_el$2, mergeProps({
         get disabled() {
           return props.isDisabled;
@@ -2254,11 +2262,11 @@
     })();
   };
 
-  const _tmpl$$w = /*#__PURE__*/template(`<button type="submit">`),
-    _tmpl$2$n = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
+  const _tmpl$$y = /*#__PURE__*/template(`<button type="submit">`),
+    _tmpl$2$p = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
   const ImageUploadButton = props => {
     return (() => {
-      const _el$ = _tmpl$$w();
+      const _el$ = _tmpl$$y();
       spread(_el$, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -2293,7 +2301,7 @@
     })();
   };
   const Spinner$2 = props => (() => {
-    const _el$2 = _tmpl$2$n();
+    const _el$2 = _tmpl$2$p();
     spread(_el$2, mergeProps(props, {
       get ["class"]() {
         return 'animate-spin -ml-1 mr-3 h-5 w-5 ' + props.class;
@@ -2306,11 +2314,11 @@
     return _el$2;
   })();
 
-  const _tmpl$$v = /*#__PURE__*/template(`<button type="submit">`),
-    _tmpl$2$m = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
+  const _tmpl$$x = /*#__PURE__*/template(`<button type="submit">`),
+    _tmpl$2$o = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
   const RecordAudioButton = props => {
     return (() => {
-      const _el$ = _tmpl$$v();
+      const _el$ = _tmpl$$x();
       spread(_el$, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -2345,7 +2353,7 @@
     })();
   };
   const Spinner$1 = props => (() => {
-    const _el$2 = _tmpl$2$m();
+    const _el$2 = _tmpl$2$o();
     spread(_el$2, mergeProps(props, {
       get ["class"]() {
         return 'animate-spin -ml-1 mr-3 h-5 w-5 ' + props.class;
@@ -2358,11 +2366,11 @@
     return _el$2;
   })();
 
-  const _tmpl$$u = /*#__PURE__*/template(`<button type="submit">`),
-    _tmpl$2$l = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
+  const _tmpl$$w = /*#__PURE__*/template(`<button type="submit">`),
+    _tmpl$2$n = /*#__PURE__*/template(`<svg><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">`);
   const AttachmentUploadButton = props => {
     return (() => {
-      const _el$ = _tmpl$$u();
+      const _el$ = _tmpl$$w();
       spread(_el$, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -2397,7 +2405,7 @@
     })();
   };
   const Spinner = props => (() => {
-    const _el$2 = _tmpl$2$l();
+    const _el$2 = _tmpl$2$n();
     spread(_el$2, mergeProps(props, {
       get ["class"]() {
         return 'animate-spin -ml-1 mr-3 h-5 w-5 ' + props.class;
@@ -2478,16 +2486,16 @@
     }
   }
 
-  const _tmpl$$t = /*#__PURE__*/template(`<div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">`),
-    _tmpl$2$k = /*#__PURE__*/template(`<span>Stop`),
-    _tmpl$3$e = /*#__PURE__*/template(`<div class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee]" data-testid="input"><div class="w-full flex items-end justify-between">`),
-    _tmpl$4$b = /*#__PURE__*/template(`<span>Image Upload`),
-    _tmpl$5$b = /*#__PURE__*/template(`<input multiple type="file">`),
+  const _tmpl$$v = /*#__PURE__*/template(`<div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">`),
+    _tmpl$2$m = /*#__PURE__*/template(`<span>Stop`),
+    _tmpl$3$f = /*#__PURE__*/template(`<div class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee]" data-testid="input"><div class="w-full flex items-end justify-between">`),
+    _tmpl$4$c = /*#__PURE__*/template(`<span>Image Upload`),
+    _tmpl$5$c = /*#__PURE__*/template(`<input multiple type="file">`),
     _tmpl$6$9 = /*#__PURE__*/template(`<span>File Upload`),
     _tmpl$7$8 = /*#__PURE__*/template(`<span>Record Audio`),
     _tmpl$8$7 = /*#__PURE__*/template(`<span>Send`);
-  const defaultBackgroundColor$7 = '#ffffff';
-  const defaultTextColor$8 = '#303235';
+  const defaultBackgroundColor$6 = '#ffffff';
+  const defaultTextColor$7 = '#303235';
   // CDN link for default send sound
   const defaultSendSound = 'https://cdn.jsdelivr.net/gh/FlowiseAI/FlowiseChatEmbed@latest/src/assets/send_message.mp3';
   const TextInput = props => {
@@ -2607,7 +2615,7 @@
       return '*';
     };
     return (() => {
-      const _el$ = _tmpl$3$e(),
+      const _el$ = _tmpl$3$f(),
         _el$3 = _el$.firstChild;
       _el$.addEventListener("paste", handlePaste);
       _el$.$$keydown = handleKeyDown;
@@ -2617,7 +2625,7 @@
           return warningMessage() !== '';
         },
         get children() {
-          const _el$2 = _tmpl$$t();
+          const _el$2 = _tmpl$$v();
           insert(_el$2, warningMessage);
           return _el$2;
         }
@@ -2635,12 +2643,12 @@
           },
           "on:click": handleImageUploadClick,
           get children() {
-            const _el$5 = _tmpl$4$b();
+            const _el$5 = _tmpl$4$c();
             _el$5.style.setProperty("font-family", "Poppins, sans-serif");
             return _el$5;
           }
         }), (() => {
-          const _el$6 = _tmpl$5$b();
+          const _el$6 = _tmpl$5$c();
           _el$6.addEventListener("change", handleFileChange);
           const _ref$2 = imgUploadRef;
           typeof _ref$2 === "function" ? use(_ref$2, _el$6) : imgUploadRef = _el$6;
@@ -2667,7 +2675,7 @@
             return _el$7;
           }
         }), (() => {
-          const _el$8 = _tmpl$5$b();
+          const _el$8 = _tmpl$5$c();
           _el$8.addEventListener("change", handleFileChange);
           const _ref$3 = fileUploadRef;
           typeof _ref$3 === "function" ? use(_ref$3, _el$8) : fileUploadRef = _el$8;
@@ -2753,7 +2761,7 @@
               return props.isMessageStopping;
             },
             get children() {
-              const _el$4 = _tmpl$2$k();
+              const _el$4 = _tmpl$2$m();
               _el$4.style.setProperty("font-family", "Poppins, sans-serif");
               return _el$4;
             }
@@ -2761,8 +2769,8 @@
         }
       }), null);
       createRenderEffect(_p$ => {
-        const _v$ = props.backgroundColor ?? defaultBackgroundColor$7,
-          _v$2 = props.textColor ?? defaultTextColor$8;
+        const _v$ = props.backgroundColor ?? defaultBackgroundColor$6,
+          _v$2 = props.textColor ?? defaultTextColor$7;
         _v$ !== _p$._v$ && ((_p$._v$ = _v$) != null ? _el$.style.setProperty("background-color", _v$) : _el$.style.removeProperty("background-color"));
         _v$2 !== _p$._v$2 && ((_p$._v$2 = _v$2) != null ? _el$.style.setProperty("color", _v$2) : _el$.style.removeProperty("color"));
         return _p$;
@@ -2775,9 +2783,9 @@
   };
   delegateEvents(["keydown"]);
 
-  const _tmpl$$s = /*#__PURE__*/template(`<div class="relative inline-block"><div><span>`),
-    _tmpl$2$j = /*#__PURE__*/template(`<button class="absolute top-0 left-0 right-0 bottom-0 bg-transparent hover:bg-transparent flex items-center justify-center" title="Remove attachment">`),
-    _tmpl$3$d = /*#__PURE__*/template(`<div class="absolute inset-0 bg-[rgba(0,0,0,0.4)] flex items-center justify-center z-10 rounded-md"><div class="spinner border-4 border-gray-200 border-t-4 border-t-white rounded-full w-6 h-6 animate-spin">`);
+  const _tmpl$$u = /*#__PURE__*/template(`<div class="relative inline-block"><div><span>`),
+    _tmpl$2$l = /*#__PURE__*/template(`<button class="absolute top-0 left-0 right-0 bottom-0 bg-transparent hover:bg-transparent flex items-center justify-center" title="Remove attachment">`),
+    _tmpl$3$e = /*#__PURE__*/template(`<div class="absolute inset-0 bg-[rgba(0,0,0,0.4)] flex items-center justify-center z-10 rounded-md"><div class="spinner border-4 border-gray-200 border-t-4 border-t-white rounded-full w-6 h-6 animate-spin">`);
   const FilePreview = props => {
     const [isHovered, setIsHovered] = createSignal(false);
     const defaultBackgroundColor = 'transparent';
@@ -2790,7 +2798,7 @@
       setIsHovered(false);
     };
     return (() => {
-      const _el$ = _tmpl$$s(),
+      const _el$ = _tmpl$$u(),
         _el$2 = _el$.firstChild,
         _el$3 = _el$2.firstChild;
       _el$.addEventListener("mouseleave", onMouseLeave);
@@ -2805,7 +2813,7 @@
       insert(_el$, (() => {
         const _c$ = createMemo(() => !!(isHovered() && !props.disabled));
         return () => _c$() && (() => {
-          const _el$4 = _tmpl$2$j();
+          const _el$4 = _tmpl$2$l();
           _el$4.$$click = () => props.onDelete(props.item);
           insert(_el$4, createComponent(TrashIcon, {
             color: "white"
@@ -2816,7 +2824,7 @@
       })(), null);
       insert(_el$, (() => {
         const _c$2 = createMemo(() => !!props.disabled);
-        return () => _c$2() && _tmpl$3$d();
+        return () => _c$2() && _tmpl$3$e();
       })(), null);
       createRenderEffect(_p$ => {
         const _v$ = `inline-flex items-center h-12 max-w-max p-2 flex-none transition-opacity duration-300 ${isHovered() ? 'opacity-100' : 'opacity-100'} ${isHovered() ? 'bg-[rgba(0,0,0,0.3)]' : `bg-[${defaultBackgroundColor}]`} border border-gray-300 rounded-md`,
@@ -2833,10 +2841,10 @@
   };
   delegateEvents(["click"]);
 
-  const _tmpl$$r = /*#__PURE__*/template(`<figure data-testid="default-avatar"><svg width="75" height="75" viewBox="0 0 75 75" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="mask0" x="0" y="0" mask-type="alpha"><circle cx="37.5" cy="37.5" r="37.5" fill="#0042DA"></circle></mask><g mask="url(#mask0)"><rect x="-30" y="-43" width="131" height="154" fill="#0042DA"></rect><rect x="2.50413" y="120.333" width="81.5597" height="86.4577" rx="2.5" transform="rotate(-52.6423 2.50413 120.333)" stroke="#FED23D" stroke-width="5"></rect><circle cx="76.5" cy="-1.5" r="29" stroke="#FF8E20" stroke-width="5"></circle><path d="M-49.8224 22L-15.5 -40.7879L18.8224 22H-49.8224Z" stroke="#F7F8FF" stroke-width="5">`);
+  const _tmpl$$t = /*#__PURE__*/template(`<figure data-testid="default-avatar"><svg width="75" height="75" viewBox="0 0 75 75" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="mask0" x="0" y="0" mask-type="alpha"><circle cx="37.5" cy="37.5" r="37.5" fill="#0042DA"></circle></mask><g mask="url(#mask0)"><rect x="-30" y="-43" width="131" height="154" fill="#0042DA"></rect><rect x="2.50413" y="120.333" width="81.5597" height="86.4577" rx="2.5" transform="rotate(-52.6423 2.50413 120.333)" stroke="#FED23D" stroke-width="5"></rect><circle cx="76.5" cy="-1.5" r="29" stroke="#FF8E20" stroke-width="5"></circle><path d="M-49.8224 22L-15.5 -40.7879L18.8224 22H-49.8224Z" stroke="#F7F8FF" stroke-width="5">`);
   const DefaultAvatar = () => {
     return (() => {
-      const _el$ = _tmpl$$r(),
+      const _el$ = _tmpl$$t(),
         _el$2 = _el$.firstChild;
       createRenderEffect(_p$ => {
         const _v$ = 'flex justify-center items-center rounded-full text-white relative flex-shrink-0 ' + (isMobile() ? 'w-6 h-6 text-sm' : 'w-10 h-10 text-xl'),
@@ -2852,7 +2860,7 @@
     })();
   };
 
-  const _tmpl$$q = /*#__PURE__*/template(`<figure><img alt="Bot avatar" class="rounded-full object-cover w-full h-full">`);
+  const _tmpl$$s = /*#__PURE__*/template(`<figure><img alt="Bot avatar" class="rounded-full object-cover w-full h-full">`);
   const Avatar = props => {
     const [avatarSrc, setAvatarSrc] = createSignal(props.initialAvatarSrc);
     createEffect(() => {
@@ -2867,7 +2875,7 @@
         return createComponent(DefaultAvatar, {});
       },
       get children() {
-        const _el$ = _tmpl$$q(),
+        const _el$ = _tmpl$$s(),
           _el$2 = _el$.firstChild;
         createRenderEffect(_p$ => {
           const _v$ = 'flex justify-center items-center rounded-full text-white relative flex-shrink-0 ' + (isMobile() ? 'w-6 h-6 text-sm' : 'w-10 h-10 text-xl'),
@@ -4136,15 +4144,15 @@ ${body}</tbody>
       }
   }
 
-  const _tmpl$$p = /*#__PURE__*/template(`<div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0"><img class="w-full h-full bg-cover">`),
-    _tmpl$2$i = /*#__PURE__*/template(`<audio class="w-[200px] h-10 block bg-cover bg-center rounded-none text-transparent" controls>Your browser does not support the &lt;audio&gt; tag.<source>`),
-    _tmpl$3$c = /*#__PURE__*/template(`<div class="inline-flex items-center h-12 max-w-max p-2 mr-1 flex-none bg-transparent border border-gray-300 rounded-md"><span class="ml-1.5 text-inherit">`),
-    _tmpl$4$a = /*#__PURE__*/template(`<div class="flex justify-end mb-2 items-end guest-container"><div class="max-w-full flex flex-col justify-center items-start chatbot-guest-bubble px-4 py-2 gap-2 mr-2" data-testid="guest-bubble">`),
-    _tmpl$5$a = /*#__PURE__*/template(`<div class="flex flex-col items-start flex-wrap w-full gap-2">`),
+  const _tmpl$$r = /*#__PURE__*/template(`<div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0"><img class="w-full h-full bg-cover">`),
+    _tmpl$2$k = /*#__PURE__*/template(`<audio class="w-[200px] h-10 block bg-cover bg-center rounded-none text-transparent" controls>Your browser does not support the &lt;audio&gt; tag.<source>`),
+    _tmpl$3$d = /*#__PURE__*/template(`<div class="inline-flex items-center h-12 max-w-max p-2 mr-1 flex-none bg-transparent border border-gray-300 rounded-md"><span class="ml-1.5 text-inherit">`),
+    _tmpl$4$b = /*#__PURE__*/template(`<div class="flex justify-end mb-2 items-end guest-container"><div class="max-w-full flex flex-col justify-center items-start chatbot-guest-bubble px-4 py-2 gap-2 mr-2" data-testid="guest-bubble">`),
+    _tmpl$5$b = /*#__PURE__*/template(`<div class="flex flex-col items-start flex-wrap w-full gap-2">`),
     _tmpl$6$8 = /*#__PURE__*/template(`<span class="mr-2 whitespace-pre-wrap">`);
-  const defaultBackgroundColor$6 = '#3B81F6';
-  const defaultTextColor$7 = '#ffffff';
-  const defaultFontSize$4 = 16;
+  const defaultBackgroundColor$5 = '#3B81F6';
+  const defaultTextColor$6 = '#ffffff';
+  const defaultFontSize$3 = 16;
   const GuestBubble = props => {
     Marked.setOptions({
       isNoP: true,
@@ -4155,7 +4163,7 @@ ${body}</tbody>
       if (el) {
         el.innerHTML = Marked.parse(props.message.message);
         // Apply textColor to all links, headings, and other markdown elements
-        const textColor = props.textColor ?? defaultTextColor$7;
+        const textColor = props.textColor ?? defaultTextColor$6;
         el.querySelectorAll('a, h1, h2, h3, h4, h5, h6, strong, em, blockquote, li').forEach(element => {
           element.style.color = textColor;
         });
@@ -4182,7 +4190,7 @@ ${body}</tbody>
         const fileData = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${item.name}`;
         const src = item.data ?? fileData;
         return (() => {
-          const _el$ = _tmpl$$p(),
+          const _el$ = _tmpl$$r(),
             _el$2 = _el$.firstChild;
           setAttribute(_el$2, "src", src);
           return _el$;
@@ -4191,7 +4199,7 @@ ${body}</tbody>
         const fileData = `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${item.name}`;
         const src = item.data ?? fileData;
         return (() => {
-          const _el$3 = _tmpl$2$i(),
+          const _el$3 = _tmpl$2$k(),
             _el$4 = _el$3.firstChild,
             _el$5 = _el$4.nextSibling;
           setAttribute(_el$5, "src", src);
@@ -4200,11 +4208,11 @@ ${body}</tbody>
         })();
       } else {
         return (() => {
-          const _el$6 = _tmpl$3$c(),
+          const _el$6 = _tmpl$3$d(),
             _el$7 = _el$6.firstChild;
           insert(_el$6, createComponent(AttachmentIcon, {
             get color() {
-              return props.textColor ?? defaultTextColor$7;
+              return props.textColor ?? defaultTextColor$6;
             }
           }), _el$7);
           insert(_el$7, () => item.name);
@@ -4213,14 +4221,14 @@ ${body}</tbody>
       }
     };
     return (() => {
-      const _el$8 = _tmpl$4$a(),
+      const _el$8 = _tmpl$4$b(),
         _el$9 = _el$8.firstChild;
       _el$8.style.setProperty("margin-left", "50px");
       _el$9.style.setProperty("border-radius", "6px");
       insert(_el$9, (() => {
         const _c$ = createMemo(() => !!(props.message.fileUploads && props.message.fileUploads.length > 0));
         return () => _c$() && (() => {
-          const _el$10 = _tmpl$5$a();
+          const _el$10 = _tmpl$5$b();
           insert(_el$10, createComponent(For, {
             get each() {
               return props.message.fileUploads;
@@ -4237,7 +4245,7 @@ ${body}</tbody>
         return () => _c$2() && (() => {
           const _el$11 = _tmpl$6$8();
           use(setUserMessageRef, _el$11);
-          createRenderEffect(() => (props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$4}px`) != null ? _el$11.style.setProperty("font-size", props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$4}px`) : _el$11.style.removeProperty("font-size"));
+          createRenderEffect(() => (props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$3}px`) != null ? _el$11.style.setProperty("font-size", props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$3}px`) : _el$11.style.removeProperty("font-size"));
           return _el$11;
         })();
       })(), null);
@@ -4254,8 +4262,8 @@ ${body}</tbody>
         }
       }), null);
       createRenderEffect(_p$ => {
-        const _v$ = props.backgroundColor ?? defaultBackgroundColor$6,
-          _v$2 = props.textColor ?? defaultTextColor$7;
+        const _v$ = props.backgroundColor ?? defaultBackgroundColor$5,
+          _v$2 = props.textColor ?? defaultTextColor$6;
         _v$ !== _p$._v$ && ((_p$._v$ = _v$) != null ? _el$9.style.setProperty("background-color", _v$) : _el$9.style.removeProperty("background-color"));
         _v$2 !== _p$._v$2 && ((_p$._v$2 = _v$2) != null ? _el$9.style.setProperty("color", _v$2) : _el$9.style.removeProperty("color"));
         return _p$;
@@ -5662,12 +5670,12 @@ ${body}</tbody>
   }
   var purify = createDOMPurify();
 
-  const _tmpl$$o = /*#__PURE__*/template(`<button>`),
-    _tmpl$2$h = /*#__PURE__*/template(`<button type="submit">`);
-  const defaultFeedbackColor$2 = '#3B81F6';
+  const _tmpl$$q = /*#__PURE__*/template(`<button>`),
+    _tmpl$2$j = /*#__PURE__*/template(`<button type="submit">`);
+  const defaultFeedbackColor$3 = '#3B81F6';
   const CopyToClipboardButton = props => {
     return (() => {
-      const _el$ = _tmpl$$o();
+      const _el$ = _tmpl$$q();
       spread(_el$, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -5694,7 +5702,7 @@ ${body}</tbody>
         get children() {
           return createComponent(ClipboardIcon, {
             get color() {
-              return props.feedbackColor ?? defaultFeedbackColor$2;
+              return props.feedbackColor ?? defaultFeedbackColor$3;
             },
             get ["class"]() {
               return 'send-icon flex ' + (props.disableIcon ? 'hidden' : '');
@@ -5707,7 +5715,7 @@ ${body}</tbody>
   };
   const ThumbsUpButton = props => {
     return (() => {
-      const _el$2 = _tmpl$2$h();
+      const _el$2 = _tmpl$2$j();
       spread(_el$2, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -5734,7 +5742,7 @@ ${body}</tbody>
         get children() {
           return createComponent(ThumbsUpIcon, {
             get color() {
-              return props.feedbackColor ?? defaultFeedbackColor$2;
+              return props.feedbackColor ?? defaultFeedbackColor$3;
             },
             get ["class"]() {
               return 'send-icon flex ' + (props.disableIcon ? 'hidden' : '');
@@ -5747,7 +5755,7 @@ ${body}</tbody>
   };
   const ThumbsDownButton = props => {
     return (() => {
-      const _el$3 = _tmpl$2$h();
+      const _el$3 = _tmpl$2$j();
       spread(_el$3, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -5774,7 +5782,7 @@ ${body}</tbody>
         get children() {
           return createComponent(ThumbsDownIcon, {
             get color() {
-              return props.feedbackColor ?? defaultFeedbackColor$2;
+              return props.feedbackColor ?? defaultFeedbackColor$3;
             },
             get ["class"]() {
               return 'send-icon flex ' + (props.disableIcon ? 'hidden' : '');
@@ -5786,11 +5794,11 @@ ${body}</tbody>
     })();
   };
 
-  const _tmpl$$n = /*#__PURE__*/template(`<button type="button">`);
-  const defaultFeedbackColor$1 = '#3B81F6';
+  const _tmpl$$p = /*#__PURE__*/template(`<button type="button">`);
+  const defaultFeedbackColor$2 = '#3B81F6';
   const RegenerateResponseButton = props => {
     return (() => {
-      const _el$ = _tmpl$$n();
+      const _el$ = _tmpl$$p();
       spread(_el$, mergeProps({
         get disabled() {
           return props.isDisabled || props.isLoading;
@@ -5817,7 +5825,7 @@ ${body}</tbody>
         get children() {
           return createComponent(DeleteIcon, {
             get color() {
-              return props.feedbackColor ?? defaultFeedbackColor$1;
+              return props.feedbackColor ?? defaultFeedbackColor$2;
             },
             get ["class"]() {
               return 'send-icon flex ' + (props.disableIcon ? 'hidden' : '');
@@ -5829,8 +5837,56 @@ ${body}</tbody>
     })();
   };
 
-  const _tmpl$$m = /*#__PURE__*/template(`<button type="button">`),
-    _tmpl$2$g = /*#__PURE__*/template(`<div class="animate-spin rounded-full border-2 border-current border-t-transparent">`);
+  const _tmpl$$o = /*#__PURE__*/template(`<span class="ml-1 text-sm leading-4">Traces`),
+    _tmpl$2$i = /*#__PURE__*/template(`<button type="button">`);
+  const defaultFeedbackColor$1 = '#3B81F6';
+  const TracesButton = props => {
+    return (() => {
+      const _el$ = _tmpl$2$i();
+      spread(_el$, mergeProps({
+        get disabled() {
+          return props.isDisabled || props.isLoading;
+        }
+      }, props, {
+        get ["class"]() {
+          return 'p-1 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' + props.class;
+        },
+        "style": {
+          background: 'transparent',
+          border: 'none'
+        },
+        "title": "Traces"
+      }), false, true);
+      insert(_el$, createComponent(Show, {
+        get when() {
+          return !props.isLoading;
+        },
+        get fallback() {
+          return createComponent(Spinner$3, {
+            "class": "text-white"
+          });
+        },
+        get children() {
+          return [createComponent(TracesIcon, {
+            get color() {
+              return props.feedbackColor ?? defaultFeedbackColor$1;
+            },
+            get ["class"]() {
+              return 'send-icon flex ' + (props.disableIcon ? 'hidden' : '');
+            }
+          }), (() => {
+            const _el$2 = _tmpl$$o();
+            createRenderEffect(() => (props.feedbackColor ?? defaultFeedbackColor$1) != null ? _el$2.style.setProperty("color", props.feedbackColor ?? defaultFeedbackColor$1) : _el$2.style.removeProperty("color"));
+            return _el$2;
+          })()];
+        }
+      }));
+      return _el$;
+    })();
+  };
+
+  const _tmpl$$n = /*#__PURE__*/template(`<button type="button">`),
+    _tmpl$2$h = /*#__PURE__*/template(`<div class="animate-spin rounded-full border-2 border-current border-t-transparent">`);
   const defaultButtonColor$2 = '#3B81F6';
   const TTSButton = props => {
     const handleClick = event => {
@@ -5860,7 +5916,7 @@ ${body}</tbody>
       return 'Play audio';
     };
     return (() => {
-      const _el$ = _tmpl$$m();
+      const _el$ = _tmpl$$n();
       _el$.$$click = handleClick;
       insert(_el$, createComponent(Show, {
         get when() {
@@ -5868,7 +5924,7 @@ ${body}</tbody>
         },
         get fallback() {
           return (() => {
-            const _el$2 = _tmpl$2$g();
+            const _el$2 = _tmpl$2$h();
             _el$2.style.setProperty("width", "16px");
             _el$2.style.setProperty("height", "16px");
             return _el$2;
@@ -5915,10 +5971,10 @@ ${body}</tbody>
   };
   delegateEvents(["click"]);
 
-  const _tmpl$$l = /*#__PURE__*/template(`<div class="flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[1002] outline-none focus:outline-none justify-center items-center"><div class="relative w-full my-6 max-w-3xl mx-4"><div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"><div class="flex items-center justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"><span class="whitespace-pre-wrap font-semibold max-w-full">Provide additional feedback</span><button class="p-1 ml-auto bg-transparent border-0 text-black float-right text-xl leading-none font-semibold outline-none focus:outline-none" type="button"><span class="bg-transparent block outline-none focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" class="text-black h-6 w-6" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span></button></div><div class="relative p-6 flex-auto"><textarea rows="4" class="block p-2.5 rounded-lg border focus:ring-blue-500 focus:border-blue-500 bg-transparent flex-1 w-full feedback-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 font-normal" placeholder="What do you think of the response?"></textarea></div><div class="flex items-center justify-end p-4 border-t border-solid border-blueGray-200 rounded-b"><button class="bg-emerald-500 text-white active:bg-emerald-600 font-bold text-sm px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">Submit Feedback`),
-    _tmpl$2$f = /*#__PURE__*/template(`<div class="flex opacity-25 fixed inset-0 z-[1001] bg-black">`);
-  const defaultBackgroundColor$5 = '#ffffff';
-  const defaultTextColor$6 = '#303235';
+  const _tmpl$$m = /*#__PURE__*/template(`<div class="flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[1002] outline-none focus:outline-none justify-center items-center"><div class="relative w-full my-6 max-w-3xl mx-4"><div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"><div class="flex items-center justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"><span class="whitespace-pre-wrap font-semibold max-w-full">Provide additional feedback</span><button class="p-1 ml-auto bg-transparent border-0 text-black float-right text-xl leading-none font-semibold outline-none focus:outline-none" type="button"><span class="bg-transparent block outline-none focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" class="text-black h-6 w-6" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span></button></div><div class="relative p-6 flex-auto"><textarea rows="4" class="block p-2.5 rounded-lg border focus:ring-blue-500 focus:border-blue-500 bg-transparent flex-1 w-full feedback-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 font-normal" placeholder="What do you think of the response?"></textarea></div><div class="flex items-center justify-end p-4 border-t border-solid border-blueGray-200 rounded-b"><button class="bg-emerald-500 text-white active:bg-emerald-600 font-bold text-sm px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">Submit Feedback`),
+    _tmpl$2$g = /*#__PURE__*/template(`<div class="flex opacity-25 fixed inset-0 z-[1001] bg-black">`);
+  const defaultBackgroundColor$4 = '#ffffff';
+  const defaultTextColor$5 = '#303235';
   const FeedbackContentDialog = props => {
     const [inputValue, setInputValue] = createSignal('');
     let inputRef;
@@ -5932,7 +5988,7 @@ ${body}</tbody>
       props.onClose();
     };
     return [(() => {
-      const _el$ = _tmpl$$l(),
+      const _el$ = _tmpl$$m(),
         _el$2 = _el$.firstChild,
         _el$3 = _el$2.firstChild,
         _el$4 = _el$3.firstChild,
@@ -5950,9 +6006,9 @@ ${body}</tbody>
       _el$8.style.setProperty("border", "1px solid #eeeeee");
       _el$10.$$click = submit;
       createRenderEffect(_p$ => {
-        const _v$ = props.backgroundColor ?? defaultBackgroundColor$5,
-          _v$2 = props.textColor ?? defaultTextColor$6,
-          _v$3 = props.textColor ?? defaultTextColor$6;
+        const _v$ = props.backgroundColor ?? defaultBackgroundColor$4,
+          _v$2 = props.textColor ?? defaultTextColor$5,
+          _v$3 = props.textColor ?? defaultTextColor$5;
         _v$ !== _p$._v$ && ((_p$._v$ = _v$) != null ? _el$3.style.setProperty("background-color", _v$) : _el$3.style.removeProperty("background-color"));
         _v$2 !== _p$._v$2 && ((_p$._v$2 = _v$2) != null ? _el$3.style.setProperty("color", _v$2) : _el$3.style.removeProperty("color"));
         _v$3 !== _p$._v$3 && ((_p$._v$3 = _v$3) != null ? _el$8.style.setProperty("color", _v$3) : _el$8.style.removeProperty("color"));
@@ -5964,7 +6020,7 @@ ${body}</tbody>
       });
       createRenderEffect(() => _el$8.value = inputValue());
       return _el$;
-    })(), _tmpl$2$f()];
+    })(), _tmpl$2$g()];
   };
   delegateEvents(["click", "input"]);
 
@@ -23178,14 +23234,14 @@ ${body}</tbody>
 
   var lodashExports = lodash.exports;
 
-  const _tmpl$$k = /*#__PURE__*/template(`<div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0"><img class="w-full h-full bg-cover">`),
-    _tmpl$2$e = /*#__PURE__*/template(`<div class="mt-2"><div>`),
-    _tmpl$3$b = /*#__PURE__*/template(`<span class="prose">`),
-    _tmpl$4$9 = /*#__PURE__*/template(`<div class="mb-6">`),
-    _tmpl$5$9 = /*#__PURE__*/template(`<div class="flex flex-row items-start flex-wrap w-full gap-2">`);
-  const defaultBackgroundColor$4 = '#f7f8ff';
-  const defaultTextColor$5 = '#303235';
-  const defaultFontSize$3 = 16;
+  const _tmpl$$l = /*#__PURE__*/template(`<div class="flex items-center justify-center max-w-[128px] mr-[10px] p-0 m-0"><img class="w-full h-full bg-cover">`),
+    _tmpl$2$f = /*#__PURE__*/template(`<div class="mt-2"><div>`),
+    _tmpl$3$c = /*#__PURE__*/template(`<span class="prose">`),
+    _tmpl$4$a = /*#__PURE__*/template(`<div class="mb-6">`),
+    _tmpl$5$a = /*#__PURE__*/template(`<div class="flex flex-row items-start flex-wrap w-full gap-2">`);
+  const defaultBackgroundColor$3 = '#f7f8ff';
+  const defaultTextColor$4 = '#303235';
+  const defaultFontSize$2 = 16;
   const AgentReasoningBubble = props => {
     let botMessageEl;
     Marked.setOptions({
@@ -23215,7 +23271,7 @@ ${body}</tbody>
       if (item.type === 'png' || item.type === 'jpeg') {
         const src = item.data;
         return (() => {
-          const _el$ = _tmpl$$k(),
+          const _el$ = _tmpl$$l(),
             _el$2 = _el$.firstChild;
           setAttribute(_el$2, "src", src);
           return _el$;
@@ -23223,7 +23279,7 @@ ${body}</tbody>
       } else if (item.type === 'html') {
         const src = item.data;
         return (() => {
-          const _el$3 = _tmpl$2$e(),
+          const _el$3 = _tmpl$2$f(),
             _el$4 = _el$3.firstChild;
           createRenderEffect(() => _el$4.innerHTML = purify.sanitize(src));
           return _el$3;
@@ -23231,13 +23287,13 @@ ${body}</tbody>
       } else {
         const src = item.data;
         return (() => {
-          const _el$5 = _tmpl$3$b();
+          const _el$5 = _tmpl$3$c();
           _el$5.style.setProperty("border-radius", "6px");
           createRenderEffect(_p$ => {
             const _v$ = Marked.parse(src),
-              _v$2 = props.backgroundColor ?? defaultBackgroundColor$4,
-              _v$3 = props.textColor ?? defaultTextColor$5,
-              _v$4 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$3}px`;
+              _v$2 = props.backgroundColor ?? defaultBackgroundColor$3,
+              _v$3 = props.textColor ?? defaultTextColor$4,
+              _v$4 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$2}px`;
             _v$ !== _p$._v$ && (_el$5.innerHTML = _p$._v$ = _v$);
             _v$2 !== _p$._v$2 && ((_p$._v$2 = _v$2) != null ? _el$5.style.setProperty("background-color", _v$2) : _el$5.style.removeProperty("background-color"));
             _v$3 !== _p$._v$3 && ((_p$._v$3 = _v$3) != null ? _el$5.style.setProperty("color", _v$3) : _el$5.style.removeProperty("color"));
@@ -23254,11 +23310,11 @@ ${body}</tbody>
       }
     };
     return (() => {
-      const _el$6 = _tmpl$4$9();
+      const _el$6 = _tmpl$4$a();
       insert(_el$6, (() => {
         const _c$ = createMemo(() => !!props.agentArtifacts);
         return () => _c$() && (() => {
-          const _el$7 = _tmpl$5$9();
+          const _el$7 = _tmpl$5$a();
           insert(_el$7, createComponent(For, {
             get each() {
               return agentReasoningArtifacts(props.agentArtifacts);
@@ -23273,13 +23329,13 @@ ${body}</tbody>
       insert(_el$6, (() => {
         const _c$2 = createMemo(() => !!props.agentMessage);
         return () => _c$2() && (() => {
-          const _el$8 = _tmpl$3$b();
+          const _el$8 = _tmpl$3$c();
           const _ref$ = botMessageEl;
           typeof _ref$ === "function" ? use(_ref$, _el$8) : botMessageEl = _el$8;
           createRenderEffect(_p$ => {
-            const _v$5 = props.backgroundColor ?? defaultBackgroundColor$4,
-              _v$6 = props.textColor ?? defaultTextColor$5,
-              _v$7 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$3}px`;
+            const _v$5 = props.backgroundColor ?? defaultBackgroundColor$3,
+              _v$6 = props.textColor ?? defaultTextColor$4,
+              _v$7 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$2}px`;
             _v$5 !== _p$._v$5 && ((_p$._v$5 = _v$5) != null ? _el$8.style.setProperty("background-color", _v$5) : _el$8.style.removeProperty("background-color"));
             _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$8.style.setProperty("color", _v$6) : _el$8.style.removeProperty("color"));
             _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$8.style.setProperty("font-size", _v$7) : _el$8.style.removeProperty("font-size"));
@@ -23296,9 +23352,9 @@ ${body}</tbody>
     })();
   };
 
-  const _tmpl$$j = /*#__PURE__*/template(`<div data-modal-target="defaultModal" data-modal-toggle="defaultModal" class="flex justify-start mb-2 items-start animate-fade-in host-container hover:brightness-90 active:brightness-75"><span class="px-2 py-1 ml-1 whitespace-pre-wrap max-w-full chatbot-host-bubble" data-testid="host-bubble">`);
+  const _tmpl$$k = /*#__PURE__*/template(`<div data-modal-target="defaultModal" data-modal-toggle="defaultModal" class="flex justify-start mb-2 items-start animate-fade-in host-container hover:brightness-90 active:brightness-75"><span class="px-2 py-1 ml-1 whitespace-pre-wrap max-w-full chatbot-host-bubble" data-testid="host-bubble">`);
   const SourceBubble = props => (() => {
-    const _el$ = _tmpl$$j(),
+    const _el$ = _tmpl$$k(),
       _el$2 = _el$.firstChild;
     _el$.$$click = () => props.onSourceClick?.();
     _el$2.style.setProperty("width", "max-content");
@@ -23522,11 +23578,11 @@ ${body}</tbody>
     return [wrappedStore, setStore];
   }
 
-  const _tmpl$$i = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m9 18 6-6-6-6">`),
-    _tmpl$2$d = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6">`),
-    _tmpl$3$a = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z">`),
-    _tmpl$4$8 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2">`),
-    _tmpl$5$8 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8">`),
+  const _tmpl$$j = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m9 18 6-6-6-6">`),
+    _tmpl$2$e = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6">`),
+    _tmpl$3$b = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z">`),
+    _tmpl$4$9 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2">`),
+    _tmpl$5$9 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8">`),
     _tmpl$6$7 = /*#__PURE__*/template(`<style>`),
     _tmpl$7$7 = /*#__PURE__*/template(`<div>`),
     _tmpl$8$6 = /*#__PURE__*/template(`<div class="tree-item-end-icon">`),
@@ -23546,12 +23602,12 @@ ${body}</tbody>
     isHighlighted: () => false
   });
   // Icons for expanded and collapsed states
-  const ChevronRightIcon$1 = () => _tmpl$$i();
-  const ChevronDownIcon$2 = () => _tmpl$2$d();
+  const ChevronRightIcon$1 = () => _tmpl$$j();
+  const ChevronDownIcon$2 = () => _tmpl$2$e();
   // Default folder icons
-  const FolderIcon = () => _tmpl$3$a();
-  const FolderOpenIcon = () => _tmpl$4$8();
-  const FileIcon = () => _tmpl$5$8();
+  const FolderIcon = () => _tmpl$3$b();
+  const FolderOpenIcon = () => _tmpl$4$9();
+  const FileIcon = () => _tmpl$5$9();
   // RichTreeView component
   const RichTreeView = props => {
     const mergedProps = mergeProps({
@@ -23560,7 +23616,7 @@ ${body}</tbody>
     }, props);
     const [state, setState] = createStore({
       expandedItems: mergedProps.defaultExpanded,
-      selectedItem: null,
+      selectedItem: props.defaultSelected ?? null,
       highlightedItems: props.highlightItems || []
     });
     createEffect(() => {
@@ -23732,11 +23788,11 @@ ${body}</tbody>
   };
   delegateEvents(["click"]);
 
-  const _tmpl$$h = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 17h-8l-3.5 -5h-6.5"></path><path d="M21 7h-8l-3.5 5"></path><path d="M18 4l3 3l-3 3"></path><path d="M18 14l3 3l-3 3">`),
-    _tmpl$2$c = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="none"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z">`),
-    _tmpl$3$9 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z"></path><path d="M2 9a6 6 0 0 1 6 6a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6z">`),
-    _tmpl$4$7 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M12 2v2"></path><path d="M9 12v9"></path><path d="M15 12v9"></path><path d="M5 16l4 -2"></path><path d="M15 14l4 2"></path><path d="M9 18h6"></path><path d="M10 8v.01"></path><path d="M14 8v.01">`),
-    _tmpl$5$7 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path><path d="M6 21v-2a4 4 0 0 1 4 -4h3"></path><path d="M19 17v.01"></path><path d="M19 14a2.5 2.5 0 1 0 -2.5 2.5">`),
+  const _tmpl$$i = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 17h-8l-3.5 -5h-6.5"></path><path d="M21 7h-8l-3.5 5"></path><path d="M18 4l3 3l-3 3"></path><path d="M18 14l3 3l-3 3">`),
+    _tmpl$2$d = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="none"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z">`),
+    _tmpl$3$a = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z"></path><path d="M2 9a6 6 0 0 1 6 6a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6z">`),
+    _tmpl$4$8 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M12 2v2"></path><path d="M9 12v9"></path><path d="M15 12v9"></path><path d="M5 16l4 -2"></path><path d="M15 14l4 2"></path><path d="M9 18h6"></path><path d="M10 8v.01"></path><path d="M14 8v.01">`),
+    _tmpl$5$8 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path><path d="M6 21v-2a4 4 0 0 1 4 -4h3"></path><path d="M19 17v.01"></path><path d="M19 14a2.5 2.5 0 1 0 -2.5 2.5">`),
     _tmpl$6$6 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"></path><path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3">`),
     _tmpl$7$6 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="none"><path d="M5.821 4.91c3.898 -2.765 9.469 -2.539 13.073 .536c3.667 3.127 4.168 8.238 1.152 11.897c-2.842 3.447 -7.965 4.583 -12.231 2.805l-.232 -.101l-4.375 .931l-.075 .013l-.11 .009l-.113 -.004l-.044 -.005l-.11 -.02l-.105 -.034l-.1 -.044l-.076 -.042l-.108 -.077l-.081 -.074l-.073 -.083l-.053 -.075l-.065 -.115l-.042 -.106l-.031 -.113l-.013 -.075l-.009 -.11l.004 -.113l.005 -.044l.02 -.11l.022 -.072l1.15 -3.451l-.022 -.036c-2.21 -3.747 -1.209 -8.392 2.411 -11.118l.23 -.168z">`),
     _tmpl$8$5 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="none"><path d="M4.586 3.586a2 2 0 0 1 2.828 0l2.829 2.828a2 2 0 0 1 0 2.829l-2.829 2.828a2 2 0 0 1 -2.828 0l-2.829 -2.828a2 2 0 0 1 0 -2.829z"></path><path d="M14 12h2v2h2v-2h2v-2h-2v-2h-2v2h-2z"></path><path d="M3 18h7v-2h-7z"></path><path d="M14 18h7v-2h-7z">`),
@@ -23746,11 +23802,10 @@ ${body}</tbody>
     _tmpl$12$4 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 20l7 -7"></path><path d="M13 20v-6a1 1 0 0 1 1 -1h6v-7a2 2 0 0 0 -2 -2h-12a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7">`),
     _tmpl$13$4 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M3.6 9h16.8"></path><path d="M3.6 15h16.8"></path><path d="M11.5 3a17 17 0 0 0 0 18"></path><path d="M12.5 3a17 17 0 0 1 0 18">`),
     _tmpl$14$4 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="none"><path d="M4 4a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z"></path><path d="M15 3a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z"></path><path d="M15 10a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z"></path><path d="M15 17a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z"></path><path d="M9 4h3.5a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-0.5"></path><path d="M12 4h0.5a2 2 0 0 1 2 2v1"></path><path d="M12 4h0.5a2 2 0 0 1 2 2v8.5a2 2 0 0 0 2 2h.5">`),
-    _tmpl$15$3 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M17 10m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M10 3m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M10 18m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M7 12c3 0 4 -3 5 -5"></path><path d="M12 17c1 -2 2 -5 5 -5">`),
-    _tmpl$16$3 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l4 0l0 4"></path><path d="M14 10l6 -6"></path><path d="M8 20l-4 0l0 -4"></path><path d="M4 20l6 -6">`);
+    _tmpl$15$4 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M17 10m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M10 3m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M10 18m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path><path d="M7 12c3 0 4 -3 5 -5"></path><path d="M12 17c1 -2 2 -5 5 -5">`);
   // Condition - forking arrows (IconArrowsSplit)
   const ConditionIcon = props => (() => {
-    const _el$ = _tmpl$$h();
+    const _el$ = _tmpl$$i();
     createRenderEffect(_p$ => {
       const _v$ = props.size ?? 20,
         _v$2 = props.size ?? 20,
@@ -23768,7 +23823,7 @@ ${body}</tbody>
   })();
   // Start - filled play triangle (IconPlayerPlayFilled)
   const StartIcon = props => (() => {
-    const _el$2 = _tmpl$2$c();
+    const _el$2 = _tmpl$2$d();
     createRenderEffect(_p$ => {
       const _v$4 = props.size ?? 20,
         _v$5 = props.size ?? 20,
@@ -23786,7 +23841,7 @@ ${body}</tbody>
   })();
   // LLM - sparkles (IconSparkles)
   const LlmIcon = props => (() => {
-    const _el$3 = _tmpl$3$9();
+    const _el$3 = _tmpl$3$a();
     createRenderEffect(_p$ => {
       const _v$7 = props.size ?? 20,
         _v$8 = props.size ?? 20,
@@ -23804,7 +23859,7 @@ ${body}</tbody>
   })();
   // Agent - robot (IconRobot)
   const AgentIcon = props => (() => {
-    const _el$4 = _tmpl$4$7();
+    const _el$4 = _tmpl$4$8();
     createRenderEffect(_p$ => {
       const _v$10 = props.size ?? 20,
         _v$11 = props.size ?? 20,
@@ -23822,7 +23877,7 @@ ${body}</tbody>
   })();
   // Human Input - person with arrows (IconUserQuestion simplified)
   const HumanInputIcon = props => (() => {
-    const _el$5 = _tmpl$5$7();
+    const _el$5 = _tmpl$5$8();
     createRenderEffect(_p$ => {
       const _v$13 = props.size ?? 20,
         _v$14 = props.size ?? 20,
@@ -24002,7 +24057,7 @@ ${body}</tbody>
   })();
   // Execute Flow - bezier curve (IconVectorBezier2)
   const ExecuteFlowIcon = props => (() => {
-    const _el$15 = _tmpl$15$3();
+    const _el$15 = _tmpl$15$4();
     createRenderEffect(_p$ => {
       const _v$43 = props.size ?? 20,
         _v$44 = props.size ?? 20,
@@ -24017,24 +24072,6 @@ ${body}</tbody>
       _v$45: undefined
     });
     return _el$15;
-  })();
-  // Maximize icon for the detail expand button
-  const MaximizeIcon = props => (() => {
-    const _el$16 = _tmpl$16$3();
-    createRenderEffect(_p$ => {
-      const _v$46 = props.size ?? 15,
-        _v$47 = props.size ?? 15,
-        _v$48 = props.color ?? 'teal';
-      _v$46 !== _p$._v$46 && setAttribute(_el$16, "width", _p$._v$46 = _v$46);
-      _v$47 !== _p$._v$47 && setAttribute(_el$16, "height", _p$._v$47 = _v$47);
-      _v$48 !== _p$._v$48 && setAttribute(_el$16, "stroke", _p$._v$48 = _v$48);
-      return _p$;
-    }, {
-      _v$46: undefined,
-      _v$47: undefined,
-      _v$48: undefined
-    });
-    return _el$16;
   })();
   const AGENTFLOW_ICONS = [{
     name: 'conditionAgentflow',
@@ -24101,6 +24138,304 @@ ${body}</tbody>
     return AGENTFLOW_ICONS.find(entry => entry.name === name) ?? null;
   }
 
+  const _tmpl$$h = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01">`),
+    _tmpl$2$c = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14">`),
+    _tmpl$3$9 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16l4-4-4-4"></path><path d="M8 12h8">`),
+    _tmpl$4$7 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16">`),
+    _tmpl$5$7 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><rect x="9" y="9" width="6" height="6">`);
+  const FLOWISE_CREDENTIAL_ID = 'FLOWISE_CREDENTIAL_ID';
+  // Status icon components
+  const FinishedIcon = () => _tmpl$$h();
+  const PendingIcon = () => _tmpl$2$c();
+  const RunningIcon = () => _tmpl$3$9();
+  const ErrorIcon = () => _tmpl$4$7();
+  const StoppedIcon = () => _tmpl$5$7();
+  // Function to get the appropriate icon based on node status
+  const getStatusIcon = status => {
+    let icon;
+    switch (status) {
+      case 'FINISHED':
+        icon = createComponent(FinishedIcon, {});
+        break;
+      case 'PENDING':
+        icon = createComponent(PendingIcon, {});
+        break;
+      case 'RUNNING':
+      case 'INPROGRESS':
+        icon = createComponent(RunningIcon, {});
+        break;
+      case 'ERROR':
+        icon = createComponent(ErrorIcon, {});
+        break;
+      case 'STOPPED':
+        icon = createComponent(StoppedIcon, {});
+        break;
+      default:
+        icon = createComponent(PendingIcon, {});
+    }
+    return icon;
+  };
+  // Remove FLOWISE_CREDENTIAL_ID from nested data
+  const removeFlowiseCredentialId = data => {
+    if (!data || typeof data !== 'object') return data;
+    if (Array.isArray(data)) return data.map(item => removeFlowiseCredentialId(item));
+    const cleanedData = {
+      ...data
+    };
+    for (const key in cleanedData) {
+      if (key === FLOWISE_CREDENTIAL_ID) {
+        delete cleanedData[key];
+      } else if (typeof cleanedData[key] === 'object' && cleanedData[key] !== null) {
+        cleanedData[key] = removeFlowiseCredentialId(cleanedData[key]);
+      }
+    }
+    return cleanedData;
+  };
+  // Get overall execution status of the workflow
+  const getExecutionStatus = executionTree => {
+    const getAllStatuses = nodes => {
+      let statuses = [];
+      nodes.forEach(node => {
+        if (node.status) statuses.push(node.status);
+        if (node.children && node.children.length > 0) {
+          statuses = [...statuses, ...getAllStatuses(node.children)];
+        }
+      });
+      return statuses;
+    };
+    const statuses = getAllStatuses(executionTree);
+    if (statuses.includes('ERROR')) return 'ERROR';
+    if (statuses.includes('RUNNING') || statuses.includes('INPROGRESS')) return 'INPROGRESS';
+    if (statuses.includes('STOPPED')) return 'STOPPED';
+    if (statuses.every(status => status === 'FINISHED')) return 'FINISHED';
+    return null;
+  };
+  // Transform the execution data into a tree structure
+  const buildTreeData = nodes => {
+    // for each node, loop through each and every nested key of node.data, and remove the key if it is equal to FLOWISE_CREDENTIAL_ID
+    nodes.forEach(node => {
+      const removeCredential = data => {
+        for (const key in data) {
+          if (key === FLOWISE_CREDENTIAL_ID) {
+            delete data[key];
+          }
+          if (typeof data[key] === 'object' && data[key] !== null) {
+            removeCredential(data[key]);
+          }
+        }
+      };
+      if (node.data) removeCredential(node.data);
+    });
+    // Create a map for quick node lookup
+    // Use execution index to make each node instance unique
+    const nodeMap = new Map();
+    nodes.forEach((node, index) => {
+      const uniqueNodeId = `${node.nodeId}_${index}`;
+      nodeMap.set(uniqueNodeId, {
+        ...node,
+        uniqueNodeId,
+        children: [],
+        executionIndex: index
+      });
+    });
+    // Identify iteration nodes and their children
+    const iterationGroups = new Map(); // parentId -> Map of iterationIndex -> nodes
+    // Group iteration child nodes by their parent and iteration index
+    nodes.forEach((node, index) => {
+      if (node.data?.parentNodeId && node.data?.iterationIndex !== undefined) {
+        const parentId = node.data.parentNodeId;
+        const iterationIndex = node.data.iterationIndex;
+        if (!iterationGroups.has(parentId)) {
+          iterationGroups.set(parentId, new Map());
+        }
+        const iterationMap = iterationGroups.get(parentId);
+        if (!iterationMap.has(iterationIndex)) {
+          iterationMap.set(iterationIndex, []);
+        }
+        iterationMap.get(iterationIndex).push(`${node.nodeId}_${index}`);
+      }
+    });
+    // Create virtual iteration container nodes
+    iterationGroups.forEach((iterationMap, parentId) => {
+      iterationMap.forEach((nodeIds, iterationIndex) => {
+        // Find the parent iteration node
+        let parentNode = null;
+        for (let i = 0; i < nodes.length; i++) {
+          if (nodes[i].nodeId === parentId) {
+            parentNode = nodes[i];
+            break;
+          }
+        }
+        if (!parentNode) return;
+        // Get iteration context from first child node
+        const firstChildId = nodeIds[0];
+        const firstChild = nodeMap.get(firstChildId);
+        const iterationContext = firstChild?.data?.iterationContext || {
+          index: iterationIndex
+        };
+        // Create a virtual node for this iteration
+        const iterationNodeId = `${parentId}_${iterationIndex}`;
+        const iterationLabel = `Iteration #${iterationIndex}`;
+        // Determine status based on child nodes
+        const childNodes = nodeIds.map(id => nodeMap.get(id));
+        const iterationStatus = childNodes.some(n => n.status === 'ERROR') ? 'ERROR' : childNodes.some(n => n.status === 'INPROGRESS' || n.status === 'RUNNING') ? 'INPROGRESS' : childNodes.every(n => n.status === 'FINISHED') ? 'FINISHED' : 'PENDING';
+        // Create the virtual node and add to nodeMap
+        const virtualNode = {
+          nodeId: iterationNodeId,
+          nodeLabel: iterationLabel,
+          data: {
+            name: 'iterationAgentflow',
+            iterationIndex,
+            iterationContext,
+            isVirtualNode: true,
+            parentIterationId: parentId
+          },
+          previousNodeIds: [],
+          status: iterationStatus,
+          uniqueNodeId: iterationNodeId,
+          children: [],
+          executionIndex: -1 // Flag as a virtual node
+        };
+
+        nodeMap.set(iterationNodeId, virtualNode);
+        // Set this virtual node as the parent for all nodes in this iteration
+        nodeIds.forEach(childId => {
+          const childNode = nodeMap.get(childId);
+          if (childNode) {
+            childNode.virtualParentId = iterationNodeId;
+          }
+        });
+      });
+    });
+    // Root nodes have no previous nodes
+    const rootNodes = [];
+    const processedNodes = new Set();
+    // First pass: Build the main tree structure (excluding iteration children)
+    nodes.forEach((node, index) => {
+      const uniqueNodeId = `${node.nodeId}_${index}`;
+      const treeNode = nodeMap.get(uniqueNodeId);
+      // Skip nodes that belong to an iteration (they'll be added to their virtual parent)
+      if (node.data?.parentNodeId && node.data?.iterationIndex !== undefined) {
+        return;
+      }
+      if (node.previousNodeIds.length === 0) {
+        rootNodes.push(treeNode);
+      } else {
+        // Find the most recent (latest) parent node among all previous nodes
+        let mostRecentParentIndex = -1;
+        let mostRecentParentId = null;
+        node.previousNodeIds.forEach(parentId => {
+          // Find the most recent instance of this parent node
+          for (let i = 0; i < index; i++) {
+            if (nodes[i].nodeId === parentId && i > mostRecentParentIndex) {
+              mostRecentParentIndex = i;
+              mostRecentParentId = parentId;
+            }
+          }
+        });
+        // Only add to the most recent parent
+        if (mostRecentParentIndex !== -1 && mostRecentParentId) {
+          const parentUniqueId = `${mostRecentParentId}_${mostRecentParentIndex}`;
+          const parentNode = nodeMap.get(parentUniqueId);
+          if (parentNode) {
+            parentNode.children.push(treeNode);
+            processedNodes.add(uniqueNodeId);
+          }
+        }
+      }
+    });
+    // Second pass: Build the iteration sub-trees
+    iterationGroups.forEach((iterationMap, parentId) => {
+      // Find all instances of the parent node
+      const parentInstances = [];
+      nodes.forEach((node, index) => {
+        if (node.nodeId === parentId) {
+          parentInstances.push(`${node.nodeId}_${index}`);
+        }
+      });
+      // Find the latest instance of the parent node that exists in the tree
+      let latestParent = null;
+      for (let i = parentInstances.length - 1; i >= 0; i--) {
+        const pId = parentInstances[i];
+        const parent = nodeMap.get(pId);
+        if (parent) {
+          latestParent = parent;
+          break;
+        }
+      }
+      if (!latestParent) return;
+      // Add all virtual iteration nodes to the parent
+      iterationMap.forEach((nodeIds, iterationIndex) => {
+        const iterationNodeId = `${parentId}_${iterationIndex}`;
+        const virtualNode = nodeMap.get(iterationNodeId);
+        if (virtualNode) {
+          latestParent.children.push(virtualNode);
+        }
+      });
+    });
+    // Third pass: Build the structure inside each virtual iteration node
+    nodeMap.forEach(node => {
+      if (node.virtualParentId) {
+        const virtualParent = nodeMap.get(node.virtualParentId);
+        if (virtualParent) {
+          if (node.previousNodeIds.length === 0) {
+            // This is a root node within the iteration
+            virtualParent.children.push(node);
+          } else {
+            // Find its parent within the same iteration
+            let parentFound = false;
+            for (const prevNodeId of node.previousNodeIds) {
+              // Look for nodes with the same previous node ID in the same iteration
+              nodeMap.forEach(potentialParent => {
+                if (potentialParent.nodeId === prevNodeId && potentialParent.data?.iterationIndex === node.data?.iterationIndex && potentialParent.data?.parentNodeId === node.data?.parentNodeId && !parentFound) {
+                  potentialParent.children.push(node);
+                  parentFound = true;
+                }
+              });
+            }
+            // If no parent was found within the iteration, add directly to virtual parent
+            if (!parentFound) {
+              virtualParent.children.push(node);
+            }
+          }
+        }
+      }
+    });
+    // Final pass: Sort all children arrays to ensure iteration nodes appear first
+    const sortChildrenNodes = node => {
+      if (node.children && node.children.length > 0) {
+        // Sort children: iteration nodes first, then others by their original execution order
+        node.children.sort((a, b) => {
+          // Check if a is an iteration node
+          const aIsIteration = a.data?.name === 'iterationAgentflow' || a.data?.isVirtualNode;
+          // Check if b is an iteration node
+          const bIsIteration = b.data?.name === 'iterationAgentflow' || b.data?.isVirtualNode;
+          // If both are iterations or both are not iterations, preserve original order
+          if (aIsIteration === bIsIteration) {
+            return a.executionIndex - b.executionIndex;
+          }
+          // Otherwise, put iterations first
+          return aIsIteration ? -1 : 1;
+        });
+        // Recursively sort children's children
+        node.children.forEach(sortChildrenNodes);
+      }
+    };
+    // Apply sorting to all root nodes and their children
+    rootNodes.forEach(sortChildrenNodes);
+    // Transform to the required format
+    const transformNode = node => ({
+      id: node.uniqueNodeId,
+      label: node.nodeLabel,
+      name: node.data?.name,
+      status: node.status,
+      data: node.data,
+      children: node.children.map(transformNode)
+    });
+    const transformedNodes = rootNodes.map(transformNode);
+    return transformedNodes;
+  };
+
   const _tmpl$$g = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18">`),
     _tmpl$2$b = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6">`),
     _tmpl$3$8 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14">`),
@@ -24115,7 +24450,7 @@ ${body}</tbody>
     _tmpl$12$3 = /*#__PURE__*/template(`<pre class="ndd-json">`),
     _tmpl$13$3 = /*#__PURE__*/template(`<div class="ndd-markdown">`),
     _tmpl$14$3 = /*#__PURE__*/template(`<div>*No data*`),
-    _tmpl$15$2 = /*#__PURE__*/template(`<div><img>`),
+    _tmpl$15$3 = /*#__PURE__*/template(`<div><img>`),
     _tmpl$16$2 = /*#__PURE__*/template(`<button><span>`),
     _tmpl$17$1 = /*#__PURE__*/template(`<span>`),
     _tmpl$18$1 = /*#__PURE__*/template(`<div><span>`),
@@ -24128,51 +24463,11 @@ ${body}</tbody>
     _tmpl$25$1 = /*#__PURE__*/template(`<div><div><div>Input</div><div></div></div><div><div>Output</div><div>`),
     _tmpl$26$1 = /*#__PURE__*/template(`<span>Used`),
     _tmpl$27$1 = /*#__PURE__*/template(`<pre>`),
-    _tmpl$28$1 = /*#__PURE__*/template(`<style>
-    .ndd-json .string { color: #7ac35c; }
-    .ndd-json .number { color: #e08331; }
-    .ndd-json .boolean { color: #326dc3; }
-    .ndd-json .null { color: #a951ad; }
-    .ndd-json .key { color: #d73e3e; font-weight: bold; }
-    @keyframes ndd-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .ndd-spin { animation: ndd-spin 1.5s linear infinite; }
-    .ndd-markdown p { margin: 0 0 0.5em 0; }
-    .ndd-markdown p:last-child { margin-bottom: 0; }
-    .ndd-markdown code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 3px; font-size: 0.8em; font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
-    .ndd-markdown pre { background: rgba(0,0,0,0.04); padding: 10px 12px; border-radius: 6px; overflow-x: auto; margin: 0.5em 0; }
-    .ndd-markdown pre code { background: none; padding: 0; font-size: 0.8em; }
-    .ndd-markdown a { color: #1976d2; text-decoration: underline; }
-    .ndd-markdown ul, .ndd-markdown ol { margin: 0.4em 0; padding-left: 1.5em; }
-    .ndd-markdown li { margin: 0.2em 0; }
-    .ndd-markdown h1, .ndd-markdown h2, .ndd-markdown h3 { margin: 0.6em 0 0.3em 0; font-weight: 600; }
-    .ndd-markdown h1 { font-size: 1.2em; }
-    .ndd-markdown h2 { font-size: 1.1em; }
-    .ndd-markdown h3 { font-size: 1em; }
-    .ndd-markdown blockquote { border-left: 3px solid rgba(0,0,0,0.15); margin: 0.5em 0; padding: 0.2em 0 0.2em 0.8em; opacity: 0.85; }
-    .ndd-markdown table { border-collapse: collapse; margin: 0.5em 0; font-size: 0.85em; }
-    .ndd-markdown th, .ndd-markdown td { border: 1px solid rgba(0,0,0,0.12); padding: 4px 8px; }
-    .ndd-markdown th { background: rgba(0,0,0,0.04); font-weight: 600; }
-    .ndd-markdown strong { font-weight: 600; }
-  `),
-    _tmpl$29 = /*#__PURE__*/template(`<div class="node-details-dialog-root"><div class="node-details-dialog-paper"><div class="node-dialog-header"><div><div></div></div><div></div></div><div><button type="button">Rendered</button><button type="button">Raw</button></div><div class="node-dialog-body">`),
+    _tmpl$28$1 = /*#__PURE__*/template(`<div><div><div></div></div><div>`),
+    _tmpl$29 = /*#__PURE__*/template(`<div><button type="button">Rendered</button><button type="button">Raw`),
     _tmpl$30 = /*#__PURE__*/template(`<span>Error`),
     _tmpl$31 = /*#__PURE__*/template(`<div><div><div><div><span></span></div><button title="Close"></button></div><div>`);
-  const FLOWISE_CREDENTIAL_ID$1 = 'FLOWISE_CREDENTIAL_ID';
-  const removeFlowiseCredentialId = data => {
-    if (!data || typeof data !== 'object') return data;
-    if (Array.isArray(data)) return data.map(item => removeFlowiseCredentialId(item));
-    const cleanedData = {
-      ...data
-    };
-    for (const key in cleanedData) {
-      if (key === FLOWISE_CREDENTIAL_ID$1) {
-        delete cleanedData[key];
-      } else if (typeof cleanedData[key] === 'object' && cleanedData[key] !== null) {
-        cleanedData[key] = removeFlowiseCredentialId(cleanedData[key]);
-      }
-    }
-    return cleanedData;
-  };
+  // --- Syntax highlighting ---
   function syntaxHighlight$1(json) {
     if (!json) return '';
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -24196,7 +24491,7 @@ ${body}</tbody>
   const TokenIcon = () => _tmpl$5$6();
   const ToolIcon = () => _tmpl$6$5();
   const DownloadIcon = () => _tmpl$7$5();
-  // --- Node icon: agentflow SVG or API image fallback ---
+  // --- Node icon ---
   const DefaultNodeIcon = props => (() => {
     const _el$8 = _tmpl$8$4();
     createRenderEffect(_p$ => {
@@ -24370,6 +24665,7 @@ ${body}</tbody>
       _el$13.style.setProperty("border-radius", "8px");
       _el$13.style.setProperty("margin-bottom", "6px");
       _el$13.style.setProperty("overflow", "hidden");
+      _el$14.$$click = toggle;
       _el$14.style.setProperty("display", "flex");
       _el$14.style.setProperty("align-items", "center");
       _el$14.style.setProperty("width", "100%");
@@ -24383,7 +24679,6 @@ ${body}</tbody>
       _el$14.style.setProperty("text-align", "left");
       _el$14.style.setProperty("border", "none");
       _el$14.style.setProperty("background", "transparent");
-      _el$14.addEventListener("click", toggle);
       _el$15.style.setProperty("flex", "1");
       _el$15.style.setProperty("display", "flex");
       _el$15.style.setProperty("align-items", "center");
@@ -24429,7 +24724,7 @@ ${body}</tbody>
       return _el$13;
     })();
   };
-  // --- Render JSON content with syntax highlighting ---
+  // --- JSON block styles ---
   const jsonBlockStyle = {
     'font-family': "'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace",
     'font-size': '0.75rem',
@@ -24448,7 +24743,7 @@ ${body}</tbody>
     createRenderEffect(() => _el$18.innerHTML = syntaxHighlight$1(JSON.stringify(props.data, null, 2)));
     return _el$18;
   })();
-  // --- Try to render content as JSON or plain text ---
+  // --- Smart content ---
   const SmartContent = props => {
     Marked.setOptions({
       isNoP: true,
@@ -24519,7 +24814,7 @@ ${body}</tbody>
     if (type === 'png' || type === 'jpeg' || type === 'jpg') {
       const src = resolveFileUrl(data, props.apiHost, props.chatflowid, props.chatId);
       return (() => {
-        const _el$21 = _tmpl$15$2(),
+        const _el$21 = _tmpl$15$3(),
           _el$22 = _el$21.firstChild;
         setAttribute(_el$22, "src", src);
         _el$22.style.setProperty("max-height", "400px");
@@ -24607,6 +24902,7 @@ ${body}</tbody>
     return (() => {
       const _el$25 = _tmpl$16$2(),
         _el$26 = _el$25.firstChild;
+      _el$25.$$click = handleDownload;
       _el$25.style.setProperty("display", "inline-flex");
       _el$25.style.setProperty("align-items", "center");
       _el$25.style.setProperty("gap", "6px");
@@ -24617,15 +24913,58 @@ ${body}</tbody>
       _el$25.style.setProperty("cursor", "pointer");
       _el$25.style.setProperty("font-size", "0.8rem");
       _el$25.style.setProperty("color", "inherit");
-      _el$25.addEventListener("click", handleDownload);
       insert(_el$26, () => props.annotation.fileName);
       insert(_el$25, createComponent(DownloadIcon, {}), null);
       createRenderEffect(() => setAttribute(_el$25, "title", `Download ${props.annotation.fileName}`));
       return _el$25;
     })();
   };
+  // --- CSS Styles ---
+  const nddStyles = `
+  .ndd-json .string { color: #7ac35c; }
+  .ndd-json .number { color: #e08331; }
+  .ndd-json .boolean { color: #326dc3; }
+  .ndd-json .null { color: #a951ad; }
+  .ndd-json .key { color: #d73e3e; font-weight: bold; }
+  @keyframes ndd-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .ndd-spin { animation: ndd-spin 1.5s linear infinite; }
+  .ndd-markdown p { margin: 0 0 0.5em 0; }
+  .ndd-markdown p:last-child { margin-bottom: 0; }
+  .ndd-markdown code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 3px; font-size: 0.8em; font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
+  .ndd-markdown pre { background: rgba(0,0,0,0.04); padding: 10px 12px; border-radius: 6px; overflow-x: auto; margin: 0.5em 0; }
+  .ndd-markdown pre code { background: none; padding: 0; font-size: 0.8em; }
+  .ndd-markdown a { color: #1976d2; text-decoration: underline; }
+  .ndd-markdown ul, .ndd-markdown ol { margin: 0.4em 0; padding-left: 1.5em; }
+  .ndd-markdown li { margin: 0.2em 0; }
+  .ndd-markdown h1, .ndd-markdown h2, .ndd-markdown h3 { margin: 0.6em 0 0.3em 0; font-weight: 600; }
+  .ndd-markdown h1 { font-size: 1.2em; }
+  .ndd-markdown h2 { font-size: 1.1em; }
+  .ndd-markdown h3 { font-size: 1em; }
+  .ndd-markdown blockquote { border-left: 3px solid rgba(0,0,0,0.15); margin: 0.5em 0; padding: 0.2em 0 0.2em 0.8em; opacity: 0.85; }
+  .ndd-markdown table { border-collapse: collapse; margin: 0.5em 0; font-size: 0.85em; }
+  .ndd-markdown th, .ndd-markdown td { border: 1px solid rgba(0,0,0,0.12); padding: 4px 8px; }
+  .ndd-markdown th { background: rgba(0,0,0,0.04); font-weight: 600; }
+  .ndd-markdown strong { font-weight: 600; }
+`;
+  // --- Metrics helper ---
+  const getMetrics = data => {
+    const output = data?.output;
+    if (!output) return null;
+    const metrics = {};
+    if (output.timeMetadata?.delta) {
+      metrics.time = `${(output.timeMetadata.delta / 1000).toFixed(2)} seconds`;
+    }
+    if (output.usageMetadata?.total_tokens) {
+      metrics.tokens = `${output.usageMetadata.total_tokens} tokens`;
+    }
+    if (output.usageMetadata?.total_cost != null && Number(output.usageMetadata.total_cost) >= 0) {
+      const cost = Number(output.usageMetadata.total_cost);
+      metrics.cost = cost >= 0.01 ? `$${cost.toFixed(2)}` : `$${cost.toFixed(6)}`;
+    }
+    return Object.keys(metrics).length > 0 ? metrics : null;
+  };
   // --- Main component ---
-  const NodeDetailsDialog = props => {
+  const NodeDetailsContent = props => {
     const [viewMode, setViewMode] = createSignal('rendered');
     const [toolDetailData, setToolDetailData] = createSignal(null);
     const cleanedData = () => {
@@ -24633,28 +24972,23 @@ ${body}</tbody>
       return removeFlowiseCredentialId(props.node.data);
     };
     const getHighlightedJson = () => syntaxHighlight$1(JSON.stringify(cleanedData(), null, 2));
-    // Metrics: match React's field access patterns
-    const getMetrics = () => {
-      const data = cleanedData();
-      const output = data?.output;
-      if (!output) return null;
-      const metrics = {};
-      if (output.timeMetadata?.delta) {
-        metrics.time = `${(output.timeMetadata.delta / 1000).toFixed(2)} seconds`;
-      }
-      if (output.usageMetadata?.total_tokens) {
-        metrics.tokens = `${output.usageMetadata.total_tokens} tokens`;
-      }
-      if (output.usageMetadata?.total_cost != null && Number(output.usageMetadata.total_cost) >= 0) {
-        const cost = Number(output.usageMetadata.total_cost);
-        metrics.cost = cost >= 0.01 ? `$${cost.toFixed(2)}` : `$${cost.toFixed(6)}`;
-      }
-      return Object.keys(metrics).length > 0 ? metrics : null;
-    };
+    const metrics = () => getMetrics(cleanedData());
     // Check if a tool is used
     const isToolUsed = (toolName, usedTools) => {
       return Array.isArray(usedTools) && usedTools.some(ut => ut.tool === toolName);
     };
+    const badgeBaseStyle = (bg, fg) => ({
+      display: 'inline-flex',
+      'align-items': 'center',
+      gap: '4px',
+      padding: '3px 10px',
+      'border-radius': '12px',
+      'font-size': '0.75rem',
+      'font-weight': '500',
+      background: bg,
+      color: fg,
+      border: `1px solid ${fg}33`
+    });
     // Render a single message
     const renderMessage = (msg, data) => {
       const role = msg.role || 'unknown';
@@ -24767,6 +25101,7 @@ ${body}</tbody>
                 get children() {
                   const _el$38 = _tmpl$19$1(),
                     _el$39 = _el$38.firstChild;
+                  _el$38.$$click = () => setToolDetailData(tool);
                   _el$38.style.setProperty("display", "inline-flex");
                   _el$38.style.setProperty("align-items", "center");
                   _el$38.style.setProperty("gap", "4px");
@@ -24776,7 +25111,6 @@ ${body}</tbody>
                   _el$38.style.setProperty("font-weight", "500");
                   _el$38.style.setProperty("cursor", "pointer");
                   _el$38.style.setProperty("transition", "filter 0.15s ease");
-                  _el$38.addEventListener("click", () => setToolDetailData(tool));
                   insert(_el$38, createComponent(NodeIcon, {
                     get name() {
                       return getToolIconName(tool.tool, data?.output?.availableTools);
@@ -24858,7 +25192,7 @@ ${body}</tbody>
               children: (content, idx) => {
                 const src = content.type === 'stored-file' && props.apiHost ? `${props.apiHost}/api/v1/get-upload-file?chatflowId=${props.chatflowid}&chatId=${props.chatId}&fileName=${content.name}` : content.name;
                 return (() => {
-                  const _el$40 = _tmpl$15$2(),
+                  const _el$40 = _tmpl$15$3(),
                     _el$41 = _el$40.firstChild;
                   _el$40.style.setProperty("border", "1px solid rgba(0,0,0,0.12)");
                   _el$40.style.setProperty("border-radius", "6px");
@@ -24939,7 +25273,7 @@ ${body}</tbody>
         return _el$28;
       })();
     };
-    // Render fulfilled conditions (matching React's renderFullfilledConditions)
+    // Render fulfilled conditions
     const renderConditions = conditions => {
       const fulfilled = conditions.filter(c => c.isFulfilled);
       return createComponent(For, {
@@ -24961,16 +25295,6 @@ ${body}</tbody>
             const _c$ = createMemo(() => !!(condition.type === 'string' && condition.operation === 'equal' && !condition.value1 && !condition.value2));
             return () => _c$() ? 'Else condition fulfilled' : `Condition ${index()}`;
           })());
-          _el$45.style.setProperty("display", "inline-flex");
-          _el$45.style.setProperty("align-items", "center");
-          _el$45.style.setProperty("gap", "4px");
-          _el$45.style.setProperty("padding", "3px 10px");
-          _el$45.style.setProperty("border-radius", "12px");
-          _el$45.style.setProperty("font-size", "0.75rem");
-          _el$45.style.setProperty("font-weight", "500");
-          _el$45.style.setProperty("background", "#E8F5E9");
-          _el$45.style.setProperty("color", "#2E7D32");
-          _el$45.style.setProperty("border", "1px solid #2E7D3233");
           insert(_el$42, createComponent(Show, {
             get when() {
               return !(condition.type === 'string' && condition.operation === 'equal' && !condition.value1 && !condition.value2);
@@ -24984,6 +25308,7 @@ ${body}</tbody>
               return _el$46;
             }
           }), null);
+          createRenderEffect(_$p => style(_el$45, badgeBaseStyle('#E8F5E9', '#2E7D32'), _$p));
           return _el$42;
         })()
       });
@@ -25002,19 +25327,6 @@ ${body}</tbody>
       padding: '14px 16px',
       background: 'rgba(0,0,0,0.015)'
     };
-    const badgeBaseStyle = (bg, fg) => ({
-      display: 'inline-flex',
-      'align-items': 'center',
-      gap: '4px',
-      padding: '3px 10px',
-      'border-radius': '12px',
-      'font-size': '0.75rem',
-      'font-weight': '500',
-      background: bg,
-      color: fg,
-      border: `1px solid ${fg}33`
-    });
-    // Rendered view - matching NodeExecutionDetails.jsx structure
     const renderRenderedView = () => {
       const data = cleanedData();
       if (!data) return (() => {
@@ -25212,7 +25524,7 @@ ${body}</tbody>
                     get children() {
                       const _el$73 = _tmpl$19$1(),
                         _el$74 = _el$73.firstChild;
-                      _el$73.addEventListener("click", () => setToolDetailData(tool));
+                      _el$73.$$click = () => setToolDetailData(tool);
                       insert(_el$73, createComponent(NodeIcon, {
                         get name() {
                           return getToolIconName(tool.tool, data.output?.availableTools);
@@ -25387,52 +25699,21 @@ ${body}</tbody>
         return _el$48;
       })();
     };
-    // In bubble mode with a custom header, the modal should cover the popup including the
-    // chat header — some padding offset is needed. In all other cases (full page or bubble
-    // without a custom header) we offset by CHAT_HEADER_HEIGHT to clear the chat title bar.
-    const dialogPaddingTop = () => props.dialogContainer && props.hasCustomHeader ? 50 : CHAT_HEADER_HEIGHT;
-    const DialogContent = () => [_tmpl$28$1(), (() => {
-      const _el$77 = _tmpl$29(),
+    return [(() => {
+      const _el$76 = _tmpl$28$1(),
+        _el$77 = _el$76.firstChild,
         _el$78 = _el$77.firstChild,
-        _el$79 = _el$78.firstChild,
-        _el$80 = _el$79.firstChild,
-        _el$81 = _el$80.firstChild,
-        _el$82 = _el$80.nextSibling,
-        _el$83 = _el$79.nextSibling,
-        _el$84 = _el$83.firstChild,
-        _el$85 = _el$84.nextSibling,
-        _el$86 = _el$83.nextSibling;
-      _el$77.style.setProperty("position", "fixed");
-      _el$77.style.setProperty("inset", "0");
-      _el$77.style.setProperty("z-index", "1002");
+        _el$79 = _el$77.nextSibling;
+      _el$76.style.setProperty("display", "flex");
+      _el$76.style.setProperty("flex-direction", "column");
+      _el$76.style.setProperty("gap", "16px");
+      _el$76.style.setProperty("padding", "16px 20px");
+      _el$76.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
       _el$77.style.setProperty("display", "flex");
       _el$77.style.setProperty("align-items", "center");
-      _el$77.style.setProperty("justify-content", "center");
-      _el$77.style.setProperty("overflow-x", "hidden");
-      _el$77.style.setProperty("overflow-y", "auto");
-      _el$77.style.setProperty("outline", "none");
-      _el$77.addEventListener("click", () => props.onClose());
-      _el$78.style.setProperty("position", "relative");
-      _el$78.style.setProperty("width", "100%");
-      _el$78.style.setProperty("max-width", "640px");
-      _el$78.style.setProperty("margin", "24px 16px");
-      _el$78.style.setProperty("border-radius", "8px");
-      _el$78.style.setProperty("box-shadow", "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)");
-      _el$78.style.setProperty("display", "flex");
-      _el$78.style.setProperty("flex-direction", "column");
-      _el$78.style.setProperty("overflow-y", "auto");
-      _el$78.style.setProperty("outline", "none");
-      _el$78.addEventListener("click", e => e.stopPropagation());
-      _el$79.style.setProperty("display", "flex");
-      _el$79.style.setProperty("flex-direction", "column");
-      _el$79.style.setProperty("gap", "16px");
-      _el$79.style.setProperty("padding", "16px 20px");
-      _el$79.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
-      _el$80.style.setProperty("display", "flex");
-      _el$80.style.setProperty("align-items", "center");
-      _el$80.style.setProperty("gap", "10px");
-      _el$80.style.setProperty("min-width", "0");
-      insert(_el$80, createComponent(NodeIcon, {
+      _el$77.style.setProperty("gap", "10px");
+      _el$77.style.setProperty("min-width", "0");
+      insert(_el$77, createComponent(NodeIcon, {
         get name() {
           return props.node.name;
         },
@@ -25440,22 +25721,64 @@ ${body}</tbody>
           return props.apiHost;
         },
         size: 36
-      }), _el$81);
-      _el$81.style.setProperty("font-weight", "600");
-      _el$81.style.setProperty("font-size", "1.05rem");
-      insert(_el$81, () => props.node.label);
-      _el$82.style.setProperty("display", "flex");
-      _el$82.style.setProperty("flex-wrap", "wrap");
-      _el$82.style.setProperty("align-items", "center");
-      _el$82.style.setProperty("gap", "8px");
-      _el$82.style.setProperty("flex", "1");
-      insert(_el$82, createComponent(Show, {
+      }), _el$78);
+      _el$78.style.setProperty("font-weight", "600");
+      _el$78.style.setProperty("font-size", "1.05rem");
+      insert(_el$78, () => props.node.label);
+      _el$79.style.setProperty("display", "flex");
+      _el$79.style.setProperty("flex-wrap", "wrap");
+      _el$79.style.setProperty("align-items", "center");
+      _el$79.style.setProperty("gap", "8px");
+      _el$79.style.setProperty("flex", "1");
+      insert(_el$79, createComponent(Show, {
         get when() {
-          return getMetrics();
+          return metrics();
         },
-        children: metrics => [createComponent(Show, {
+        children: m => [createComponent(Show, {
           get when() {
-            return metrics().time;
+            return m().time;
+          },
+          get children() {
+            const _el$93 = _tmpl$19$1(),
+              _el$94 = _el$93.firstChild;
+            _el$93.style.setProperty("display", "inline-flex");
+            _el$93.style.setProperty("align-items", "center");
+            _el$93.style.setProperty("gap", "4px");
+            _el$93.style.setProperty("padding", "4px 12px");
+            _el$93.style.setProperty("border-radius", "14px");
+            _el$93.style.setProperty("font-size", "0.75rem");
+            _el$93.style.setProperty("font-weight", "600");
+            _el$93.style.setProperty("white-space", "nowrap");
+            _el$93.style.setProperty("background", "#4caf50");
+            _el$93.style.setProperty("color", "#fff");
+            insert(_el$93, createComponent(ClockIcon, {}), _el$94);
+            insert(_el$93, () => m().time, null);
+            return _el$93;
+          }
+        }), createComponent(Show, {
+          get when() {
+            return m().tokens;
+          },
+          get children() {
+            const _el$95 = _tmpl$19$1(),
+              _el$96 = _el$95.firstChild;
+            _el$95.style.setProperty("display", "inline-flex");
+            _el$95.style.setProperty("align-items", "center");
+            _el$95.style.setProperty("gap", "4px");
+            _el$95.style.setProperty("padding", "4px 12px");
+            _el$95.style.setProperty("border-radius", "14px");
+            _el$95.style.setProperty("font-size", "0.75rem");
+            _el$95.style.setProperty("font-weight", "600");
+            _el$95.style.setProperty("white-space", "nowrap");
+            _el$95.style.setProperty("background", "#7c4dff");
+            _el$95.style.setProperty("color", "#fff");
+            insert(_el$95, createComponent(TokenIcon, {}), _el$96);
+            insert(_el$95, () => m().tokens, null);
+            return _el$95;
+          }
+        }), createComponent(Show, {
+          get when() {
+            return m().cost;
           },
           get children() {
             const _el$97 = _tmpl$19$1(),
@@ -25468,118 +25791,54 @@ ${body}</tbody>
             _el$97.style.setProperty("font-size", "0.75rem");
             _el$97.style.setProperty("font-weight", "600");
             _el$97.style.setProperty("white-space", "nowrap");
-            _el$97.style.setProperty("background", "#4caf50");
+            _el$97.style.setProperty("background", "#ff9800");
             _el$97.style.setProperty("color", "#fff");
-            insert(_el$97, createComponent(ClockIcon, {}), _el$98);
-            insert(_el$97, () => metrics().time, null);
+            insert(_el$97, createComponent(CoinIcon, {}), _el$98);
+            insert(_el$97, () => m().cost, null);
             return _el$97;
-          }
-        }), createComponent(Show, {
-          get when() {
-            return metrics().tokens;
-          },
-          get children() {
-            const _el$99 = _tmpl$19$1(),
-              _el$100 = _el$99.firstChild;
-            _el$99.style.setProperty("display", "inline-flex");
-            _el$99.style.setProperty("align-items", "center");
-            _el$99.style.setProperty("gap", "4px");
-            _el$99.style.setProperty("padding", "4px 12px");
-            _el$99.style.setProperty("border-radius", "14px");
-            _el$99.style.setProperty("font-size", "0.75rem");
-            _el$99.style.setProperty("font-weight", "600");
-            _el$99.style.setProperty("white-space", "nowrap");
-            _el$99.style.setProperty("background", "#7c4dff");
-            _el$99.style.setProperty("color", "#fff");
-            insert(_el$99, createComponent(TokenIcon, {}), _el$100);
-            insert(_el$99, () => metrics().tokens, null);
-            return _el$99;
-          }
-        }), createComponent(Show, {
-          get when() {
-            return metrics().cost;
-          },
-          get children() {
-            const _el$101 = _tmpl$19$1(),
-              _el$102 = _el$101.firstChild;
-            _el$101.style.setProperty("display", "inline-flex");
-            _el$101.style.setProperty("align-items", "center");
-            _el$101.style.setProperty("gap", "4px");
-            _el$101.style.setProperty("padding", "4px 12px");
-            _el$101.style.setProperty("border-radius", "14px");
-            _el$101.style.setProperty("font-size", "0.75rem");
-            _el$101.style.setProperty("font-weight", "600");
-            _el$101.style.setProperty("white-space", "nowrap");
-            _el$101.style.setProperty("background", "#ff9800");
-            _el$101.style.setProperty("color", "#fff");
-            insert(_el$101, createComponent(CoinIcon, {}), _el$102);
-            insert(_el$101, () => metrics().cost, null);
-            return _el$101;
           }
         })]
       }));
-      _el$83.style.setProperty("display", "flex");
-      _el$83.style.setProperty("gap", "0");
-      _el$83.style.setProperty("padding", "0 20px");
-      _el$83.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
-      _el$84.style.setProperty("padding", "10px 16px");
-      _el$84.style.setProperty("border", "none");
-      _el$84.style.setProperty("background", "transparent");
-      _el$84.style.setProperty("cursor", "pointer");
-      _el$84.style.setProperty("font-size", "0.875rem");
-      _el$84.style.setProperty("font-weight", "500");
-      _el$84.style.setProperty("font-family", "inherit");
-      _el$84.style.setProperty("margin-bottom", "-1px");
-      _el$84.addEventListener("click", () => setViewMode('rendered'));
-      _el$85.style.setProperty("padding", "10px 16px");
-      _el$85.style.setProperty("border", "none");
-      _el$85.style.setProperty("background", "transparent");
-      _el$85.style.setProperty("cursor", "pointer");
-      _el$85.style.setProperty("font-size", "0.875rem");
-      _el$85.style.setProperty("font-weight", "500");
-      _el$85.style.setProperty("font-family", "inherit");
-      _el$85.style.setProperty("margin-bottom", "-1px");
-      _el$85.addEventListener("click", () => setViewMode('raw'));
-      _el$86.style.setProperty("padding", "16px 20px");
-      _el$86.style.setProperty("overflow-y", "initial");
-      _el$86.style.setProperty("max-height", "100%");
-      insert(_el$86, createComponent(Show, {
-        get when() {
-          return viewMode() === 'rendered';
-        },
-        get fallback() {
-          return (() => {
-            const _el$103 = _tmpl$12$3();
-            style(_el$103, jsonBlockStyle);
-            createRenderEffect(() => _el$103.innerHTML = getHighlightedJson());
-            return _el$103;
-          })();
-        },
-        get children() {
-          return renderRenderedView();
-        }
-      }));
+      return _el$76;
+    })(), (() => {
+      const _el$80 = _tmpl$29(),
+        _el$81 = _el$80.firstChild,
+        _el$82 = _el$81.nextSibling;
+      _el$80.style.setProperty("display", "flex");
+      _el$80.style.setProperty("gap", "0");
+      _el$80.style.setProperty("padding", "0 20px");
+      _el$80.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
+      _el$81.$$click = () => setViewMode('rendered');
+      _el$81.style.setProperty("padding", "10px 16px");
+      _el$81.style.setProperty("border", "none");
+      _el$81.style.setProperty("background", "transparent");
+      _el$81.style.setProperty("cursor", "pointer");
+      _el$81.style.setProperty("font-size", "0.875rem");
+      _el$81.style.setProperty("font-weight", "500");
+      _el$81.style.setProperty("font-family", "inherit");
+      _el$81.style.setProperty("margin-bottom", "-1px");
+      _el$82.$$click = () => setViewMode('raw');
+      _el$82.style.setProperty("padding", "10px 16px");
+      _el$82.style.setProperty("border", "none");
+      _el$82.style.setProperty("background", "transparent");
+      _el$82.style.setProperty("cursor", "pointer");
+      _el$82.style.setProperty("font-size", "0.875rem");
+      _el$82.style.setProperty("font-weight", "500");
+      _el$82.style.setProperty("font-family", "inherit");
+      _el$82.style.setProperty("margin-bottom", "-1px");
       createRenderEffect(_p$ => {
-        const _v$22 = `${dialogPaddingTop()}px`,
-          _v$23 = props.backgroundColor ?? '#ffffff',
-          _v$24 = props.textColor ?? '#303235',
-          _v$25 = `calc(100% - ${dialogPaddingTop()}px)`,
-          _v$26 = viewMode() === 'rendered' ? '#1976d2' : 'inherit',
-          _v$27 = viewMode() === 'rendered' ? 1 : 0.6,
-          _v$28 = viewMode() === 'rendered' ? '2px solid #1976d2' : '2px solid transparent',
-          _v$29 = viewMode() === 'raw' ? '#1976d2' : 'inherit',
-          _v$30 = viewMode() === 'raw' ? 1 : 0.6,
-          _v$31 = viewMode() === 'raw' ? '2px solid #1976d2' : '2px solid transparent';
-        _v$22 !== _p$._v$22 && ((_p$._v$22 = _v$22) != null ? _el$77.style.setProperty("padding-top", _v$22) : _el$77.style.removeProperty("padding-top"));
-        _v$23 !== _p$._v$23 && ((_p$._v$23 = _v$23) != null ? _el$78.style.setProperty("background-color", _v$23) : _el$78.style.removeProperty("background-color"));
-        _v$24 !== _p$._v$24 && ((_p$._v$24 = _v$24) != null ? _el$78.style.setProperty("color", _v$24) : _el$78.style.removeProperty("color"));
-        _v$25 !== _p$._v$25 && ((_p$._v$25 = _v$25) != null ? _el$78.style.setProperty("max-height", _v$25) : _el$78.style.removeProperty("max-height"));
-        _v$26 !== _p$._v$26 && ((_p$._v$26 = _v$26) != null ? _el$84.style.setProperty("color", _v$26) : _el$84.style.removeProperty("color"));
-        _v$27 !== _p$._v$27 && ((_p$._v$27 = _v$27) != null ? _el$84.style.setProperty("opacity", _v$27) : _el$84.style.removeProperty("opacity"));
-        _v$28 !== _p$._v$28 && ((_p$._v$28 = _v$28) != null ? _el$84.style.setProperty("border-bottom", _v$28) : _el$84.style.removeProperty("border-bottom"));
-        _v$29 !== _p$._v$29 && ((_p$._v$29 = _v$29) != null ? _el$85.style.setProperty("color", _v$29) : _el$85.style.removeProperty("color"));
-        _v$30 !== _p$._v$30 && ((_p$._v$30 = _v$30) != null ? _el$85.style.setProperty("opacity", _v$30) : _el$85.style.removeProperty("opacity"));
-        _v$31 !== _p$._v$31 && ((_p$._v$31 = _v$31) != null ? _el$85.style.setProperty("border-bottom", _v$31) : _el$85.style.removeProperty("border-bottom"));
+        const _v$22 = viewMode() === 'rendered' ? '#1976d2' : 'inherit',
+          _v$23 = viewMode() === 'rendered' ? 1 : 0.6,
+          _v$24 = viewMode() === 'rendered' ? '2px solid #1976d2' : '2px solid transparent',
+          _v$25 = viewMode() === 'raw' ? '#1976d2' : 'inherit',
+          _v$26 = viewMode() === 'raw' ? 1 : 0.6,
+          _v$27 = viewMode() === 'raw' ? '2px solid #1976d2' : '2px solid transparent';
+        _v$22 !== _p$._v$22 && ((_p$._v$22 = _v$22) != null ? _el$81.style.setProperty("color", _v$22) : _el$81.style.removeProperty("color"));
+        _v$23 !== _p$._v$23 && ((_p$._v$23 = _v$23) != null ? _el$81.style.setProperty("opacity", _v$23) : _el$81.style.removeProperty("opacity"));
+        _v$24 !== _p$._v$24 && ((_p$._v$24 = _v$24) != null ? _el$81.style.setProperty("border-bottom", _v$24) : _el$81.style.removeProperty("border-bottom"));
+        _v$25 !== _p$._v$25 && ((_p$._v$25 = _v$25) != null ? _el$82.style.setProperty("color", _v$25) : _el$82.style.removeProperty("color"));
+        _v$26 !== _p$._v$26 && ((_p$._v$26 = _v$26) != null ? _el$82.style.setProperty("opacity", _v$26) : _el$82.style.removeProperty("opacity"));
+        _v$27 !== _p$._v$27 && ((_p$._v$27 = _v$27) != null ? _el$82.style.setProperty("border-bottom", _v$27) : _el$82.style.removeProperty("border-bottom"));
         return _p$;
       }, {
         _v$22: undefined,
@@ -25587,53 +25846,71 @@ ${body}</tbody>
         _v$24: undefined,
         _v$25: undefined,
         _v$26: undefined,
-        _v$27: undefined,
-        _v$28: undefined,
-        _v$29: undefined,
-        _v$30: undefined,
-        _v$31: undefined
+        _v$27: undefined
       });
-      return _el$77;
+      return _el$80;
+    })(), (() => {
+      const _el$83 = _tmpl$9$3();
+      _el$83.style.setProperty("padding", "16px 20px");
+      _el$83.style.setProperty("overflow-y", "auto");
+      _el$83.style.setProperty("flex", "1");
+      insert(_el$83, createComponent(Show, {
+        get when() {
+          return viewMode() === 'rendered';
+        },
+        get fallback() {
+          return (() => {
+            const _el$99 = _tmpl$12$3();
+            style(_el$99, jsonBlockStyle);
+            createRenderEffect(() => _el$99.innerHTML = getHighlightedJson());
+            return _el$99;
+          })();
+        },
+        get children() {
+          return renderRenderedView();
+        }
+      }));
+      return _el$83;
     })(), createComponent(Show, {
       get when() {
         return toolDetailData();
       },
       get children() {
         return [(() => {
-          const _el$87 = _tmpl$31(),
+          const _el$84 = _tmpl$31(),
+            _el$85 = _el$84.firstChild,
+            _el$86 = _el$85.firstChild,
+            _el$87 = _el$86.firstChild,
             _el$88 = _el$87.firstChild,
-            _el$89 = _el$88.firstChild,
-            _el$90 = _el$89.firstChild,
-            _el$91 = _el$90.firstChild,
-            _el$93 = _el$90.nextSibling,
-            _el$94 = _el$89.nextSibling;
-          _el$87.style.setProperty("position", "fixed");
-          _el$87.style.setProperty("inset", "0");
-          _el$87.style.setProperty("z-index", "1004");
+            _el$90 = _el$87.nextSibling,
+            _el$91 = _el$86.nextSibling;
+          _el$84.$$click = () => setToolDetailData(null);
+          _el$84.style.setProperty("position", "fixed");
+          _el$84.style.setProperty("inset", "0");
+          _el$84.style.setProperty("z-index", "1004");
+          _el$84.style.setProperty("display", "flex");
+          _el$84.style.setProperty("align-items", "center");
+          _el$84.style.setProperty("justify-content", "center");
+          _el$85.$$click = e => e.stopPropagation();
+          _el$85.style.setProperty("position", "relative");
+          _el$85.style.setProperty("width", "100%");
+          _el$85.style.setProperty("max-width", "560px");
+          _el$85.style.setProperty("margin", "24px 16px");
+          _el$85.style.setProperty("border-radius", "8px");
+          _el$85.style.setProperty("box-shadow", "0 20px 40px -4px rgba(0,0,0,0.2), 0 8px 16px -4px rgba(0,0,0,0.1)");
+          _el$85.style.setProperty("display", "flex");
+          _el$85.style.setProperty("flex-direction", "column");
+          _el$85.style.setProperty("max-height", "calc(100% - 80px)");
+          _el$85.style.setProperty("overflow", "hidden");
+          _el$86.style.setProperty("display", "flex");
+          _el$86.style.setProperty("align-items", "center");
+          _el$86.style.setProperty("justify-content", "space-between");
+          _el$86.style.setProperty("padding", "14px 20px");
+          _el$86.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
           _el$87.style.setProperty("display", "flex");
           _el$87.style.setProperty("align-items", "center");
-          _el$87.style.setProperty("justify-content", "center");
-          _el$87.addEventListener("click", () => setToolDetailData(null));
-          _el$88.style.setProperty("position", "relative");
-          _el$88.style.setProperty("width", "100%");
-          _el$88.style.setProperty("max-width", "560px");
-          _el$88.style.setProperty("margin", "24px 16px");
-          _el$88.style.setProperty("border-radius", "8px");
-          _el$88.style.setProperty("box-shadow", "0 20px 40px -4px rgba(0,0,0,0.2), 0 8px 16px -4px rgba(0,0,0,0.1)");
-          _el$88.style.setProperty("display", "flex");
-          _el$88.style.setProperty("flex-direction", "column");
-          `calc(100% - ${CHAT_HEADER_HEIGHT}px)` != null ? _el$88.style.setProperty("max-height", `calc(100% - ${CHAT_HEADER_HEIGHT}px)`) : _el$88.style.removeProperty("max-height");
-          _el$88.style.setProperty("overflow", "hidden");
-          _el$88.addEventListener("click", e => e.stopPropagation());
-          _el$89.style.setProperty("display", "flex");
-          _el$89.style.setProperty("align-items", "center");
-          _el$89.style.setProperty("justify-content", "space-between");
-          _el$89.style.setProperty("padding", "14px 20px");
-          _el$89.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
-          _el$90.style.setProperty("display", "flex");
-          _el$90.style.setProperty("align-items", "center");
-          _el$90.style.setProperty("gap", "8px");
-          insert(_el$90, createComponent(NodeIcon, {
+          _el$87.style.setProperty("gap", "8px");
+          insert(_el$87, createComponent(NodeIcon, {
             get name() {
               return getToolIconName(toolDetailData()?.tool || '', cleanedData()?.output?.availableTools);
             },
@@ -25641,83 +25918,480 @@ ${body}</tbody>
               return props.apiHost;
             },
             size: 24
-          }), _el$91);
-          _el$91.style.setProperty("font-weight", "600");
-          _el$91.style.setProperty("font-size", "0.95rem");
-          insert(_el$91, () => toolDetailData()?.tool || 'Tool Detail');
-          insert(_el$90, createComponent(Show, {
+          }), _el$88);
+          _el$88.style.setProperty("font-weight", "600");
+          _el$88.style.setProperty("font-size", "0.95rem");
+          insert(_el$88, () => toolDetailData()?.tool || 'Tool Detail');
+          insert(_el$87, createComponent(Show, {
             get when() {
               return toolDetailData()?.error;
             },
             get children() {
-              const _el$92 = _tmpl$30();
-              _el$92.style.setProperty("display", "inline-flex");
-              _el$92.style.setProperty("align-items", "center");
-              _el$92.style.setProperty("padding", "2px 8px");
-              _el$92.style.setProperty("border-radius", "10px");
-              _el$92.style.setProperty("font-size", "0.7rem");
-              _el$92.style.setProperty("font-weight", "500");
-              _el$92.style.setProperty("background", "#FFEBEE");
-              _el$92.style.setProperty("color", "#C62828");
-              _el$92.style.setProperty("border", "1px solid #C6282833");
-              return _el$92;
+              const _el$89 = _tmpl$30();
+              _el$89.style.setProperty("display", "inline-flex");
+              _el$89.style.setProperty("align-items", "center");
+              _el$89.style.setProperty("padding", "2px 8px");
+              _el$89.style.setProperty("border-radius", "10px");
+              _el$89.style.setProperty("font-size", "0.7rem");
+              _el$89.style.setProperty("font-weight", "500");
+              _el$89.style.setProperty("background", "#FFEBEE");
+              _el$89.style.setProperty("color", "#C62828");
+              _el$89.style.setProperty("border", "1px solid #C6282833");
+              return _el$89;
             }
           }), null);
-          _el$93.style.setProperty("border", "none");
-          _el$93.style.setProperty("background", "transparent");
-          _el$93.style.setProperty("cursor", "pointer");
-          _el$93.style.setProperty("padding", "4px");
-          _el$93.style.setProperty("border-radius", "4px");
-          _el$93.style.setProperty("display", "flex");
-          _el$93.style.setProperty("align-items", "center");
-          _el$93.style.setProperty("color", "inherit");
-          _el$93.style.setProperty("opacity", "0.7");
-          _el$93.addEventListener("click", () => setToolDetailData(null));
-          insert(_el$93, createComponent(CloseIcon, {}));
-          _el$94.style.setProperty("padding", "16px 20px");
-          _el$94.style.setProperty("overflow-y", "auto");
-          insert(_el$94, createComponent(JsonBlock, {
+          _el$90.$$click = () => setToolDetailData(null);
+          _el$90.style.setProperty("border", "none");
+          _el$90.style.setProperty("background", "transparent");
+          _el$90.style.setProperty("cursor", "pointer");
+          _el$90.style.setProperty("padding", "4px");
+          _el$90.style.setProperty("border-radius", "4px");
+          _el$90.style.setProperty("display", "flex");
+          _el$90.style.setProperty("align-items", "center");
+          _el$90.style.setProperty("color", "inherit");
+          _el$90.style.setProperty("opacity", "0.7");
+          insert(_el$90, createComponent(CloseIcon, {}));
+          _el$91.style.setProperty("padding", "16px 20px");
+          _el$91.style.setProperty("overflow-y", "auto");
+          insert(_el$91, createComponent(JsonBlock, {
             get data() {
               return toolDetailData();
             }
           }));
           createRenderEffect(_p$ => {
-            const _v$32 = props.backgroundColor ?? '#ffffff',
-              _v$33 = props.textColor ?? '#303235';
-            _v$32 !== _p$._v$32 && ((_p$._v$32 = _v$32) != null ? _el$88.style.setProperty("background-color", _v$32) : _el$88.style.removeProperty("background-color"));
-            _v$33 !== _p$._v$33 && ((_p$._v$33 = _v$33) != null ? _el$88.style.setProperty("color", _v$33) : _el$88.style.removeProperty("color"));
+            const _v$28 = props.backgroundColor ?? '#ffffff',
+              _v$29 = props.textColor ?? '#303235';
+            _v$28 !== _p$._v$28 && ((_p$._v$28 = _v$28) != null ? _el$85.style.setProperty("background-color", _v$28) : _el$85.style.removeProperty("background-color"));
+            _v$29 !== _p$._v$29 && ((_p$._v$29 = _v$29) != null ? _el$85.style.setProperty("color", _v$29) : _el$85.style.removeProperty("color"));
             return _p$;
           }, {
-            _v$32: undefined,
-            _v$33: undefined
+            _v$28: undefined,
+            _v$29: undefined
           });
-          return _el$87;
+          return _el$84;
         })(), (() => {
-          const _el$95 = _tmpl$9$3();
-          _el$95.style.setProperty("position", "fixed");
-          _el$95.style.setProperty("inset", "0");
-          _el$95.style.setProperty("z-index", "1003");
-          _el$95.style.setProperty("background-color", "rgba(0,0,0,0.35)");
-          _el$95.addEventListener("click", e => {
+          const _el$92 = _tmpl$9$3();
+          _el$92.$$click = e => {
             e.stopPropagation();
             setToolDetailData(null);
-          });
-          return _el$95;
+          };
+          _el$92.style.setProperty("position", "fixed");
+          _el$92.style.setProperty("inset", "0");
+          _el$92.style.setProperty("z-index", "1003");
+          _el$92.style.setProperty("background-color", "rgba(0,0,0,0.35)");
+          return _el$92;
         })()];
       }
-    }), (() => {
-      const _el$96 = _tmpl$9$3();
-      _el$96.style.setProperty("position", "fixed");
-      _el$96.style.setProperty("inset", "0");
-      _el$96.style.setProperty("z-index", "1001");
-      _el$96.style.setProperty("background-color", "rgba(0,0,0,0.25)");
-      _el$96.style.setProperty("pointer-events", "auto");
-      _el$96.addEventListener("click", () => props.onClose());
-      return _el$96;
-    })()];
+    })];
+  };
+  delegateEvents(["click"]);
+
+  const _tmpl$$f = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6">`),
+    _tmpl$2$a = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m9 18 6-6-6-6">`),
+    _tmpl$3$7 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24" fill="currentColor" opacity="0.3"><circle cx="4" cy="8" r="1.5"></circle><circle cx="8" cy="8" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="8" cy="12" r="1.5"></circle><circle cx="4" cy="16" r="1.5"></circle><circle cx="8" cy="16" r="1.5">`),
+    _tmpl$4$5 = /*#__PURE__*/template(`<div class="flex items-center"><span>`),
+    _tmpl$5$5 = /*#__PURE__*/template(`<div class="mr-1">`),
+    _tmpl$6$4 = /*#__PURE__*/template(`<div class="status-icon">`),
+    _tmpl$7$4 = /*#__PURE__*/template(`<style>`),
+    _tmpl$8$3 = /*#__PURE__*/template(`<div>`),
+    _tmpl$9$2 = /*#__PURE__*/template(`<span class="font-semibold text-xs">Process Flow`),
+    _tmpl$10$2 = /*#__PURE__*/template(`<div class="p-2">`),
+    _tmpl$11$2 = /*#__PURE__*/template(`<div title="Drag to resize">`),
+    _tmpl$12$2 = /*#__PURE__*/template(`<div><div><div><div><h2>Traces</h2></div><button title="Close"></button></div><div><div><div class="flex items-center p-2 cursor-pointer hover:bg-gray-100 transition-colors duration-150"><div class="flex-shrink-0"></div></div></div><div>`),
+    _tmpl$13$2 = /*#__PURE__*/template(`<style>* { user-select: none !important; -webkit-user-select: none !important; }`),
+    _tmpl$14$2 = /*#__PURE__*/template(`<span class="status-icon">`),
+    _tmpl$15$2 = /*#__PURE__*/template(`<div>Select a node to view details`);
+  // Chevron icons for the tree panel
+  const ChevronDownIcon$1 = () => _tmpl$$f();
+  const ChevronRightIcon = () => _tmpl$2$a();
+  // Drag handle icon (vertical grip dots)
+  const DragHandleIcon = () => _tmpl$3$7();
+  const MIN_LEFT_WIDTH = 44; // collapsed: just the toggle header
+  const DEFAULT_LEFT_WIDTH = 180;
+  const MIN_EXPANDED_WIDTH = 140;
+  const TracesDialog = props => {
+    const [treeData, setTreeData] = createSignal([]);
+    const [expandedNodes, setExpandedNodes] = createSignal([]);
+    const [selectedNode, setSelectedNode] = createSignal(null);
+    const [selectedNodeId, setSelectedNodeId] = createSignal('');
+    const [executionStatus, setExecutionStatus] = createSignal(null);
+    const [isPanelExpanded, setIsPanelExpanded] = createSignal(true);
+    const [leftWidth, setLeftWidth] = createSignal(DEFAULT_LEFT_WIDTH);
+    const [isDragging, setIsDragging] = createSignal(false);
+    // Lookup map: node id -> node data (for onNodeSelect)
+    const nodeMap = new Map();
+    const buildNodeMap = nodes => {
+      nodes.forEach(node => {
+        nodeMap.set(node.id, node);
+        if (node.children && node.children.length > 0) {
+          buildNodeMap(node.children);
+        }
+      });
+    };
+    onMount(() => {
+      if (props.workflowData) {
+        const treeNodes = buildTreeData(props.workflowData);
+        setTreeData(treeNodes);
+        buildNodeMap(treeNodes);
+        const status = getExecutionStatus(treeNodes);
+        setExecutionStatus(status);
+        if (treeNodes.length > 0) {
+          setExpandedNodes(treeNodes.map(node => node.id));
+          // Auto-select first root node
+          const first = treeNodes[0];
+          setSelectedNodeId(first.id);
+          setSelectedNode({
+            label: first.label,
+            name: first.name,
+            status: first.status,
+            data: first.data
+          });
+        }
+      }
+    });
+    const handleNodeSelect = itemId => {
+      const node = nodeMap.get(itemId);
+      if (node) {
+        setSelectedNodeId(itemId);
+        setSelectedNode({
+          label: node.label,
+          name: node.name,
+          status: node.status,
+          data: node.data
+        });
+      }
+    };
+    const togglePanel = () => {
+      setIsPanelExpanded(!isPanelExpanded());
+    };
+    // Drag resize handlers
+    let dragStartX = 0;
+    let dragStartWidth = 0;
+    const onDragStart = e => {
+      e.preventDefault();
+      dragStartX = e.clientX;
+      dragStartWidth = leftWidth();
+      setIsDragging(true);
+      document.addEventListener('mousemove', onDragMove);
+      document.addEventListener('mouseup', onDragEnd);
+    };
+    const onDragMove = e => {
+      const delta = e.clientX - dragStartX;
+      const newWidth = Math.max(MIN_EXPANDED_WIDTH, dragStartWidth + delta);
+      setLeftWidth(newWidth);
+    };
+    const onDragEnd = () => {
+      setIsDragging(false);
+      document.removeEventListener('mousemove', onDragMove);
+      document.removeEventListener('mouseup', onDragEnd);
+    };
+    // Touch drag handlers
+    const onTouchStart = e => {
+      const touch = e.touches[0];
+      dragStartX = touch.clientX;
+      dragStartWidth = leftWidth();
+      setIsDragging(true);
+      document.addEventListener('touchmove', onTouchMove);
+      document.addEventListener('touchend', onTouchEnd);
+    };
+    const onTouchMove = e => {
+      const touch = e.touches[0];
+      const delta = touch.clientX - dragStartX;
+      const newWidth = Math.max(MIN_EXPANDED_WIDTH, dragStartWidth + delta);
+      setLeftWidth(newWidth);
+    };
+    const onTouchEnd = () => {
+      setIsDragging(false);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+    onCleanup(() => {
+      document.removeEventListener('mousemove', onDragMove);
+      document.removeEventListener('mouseup', onDragEnd);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    });
+    // Recursive function to render a tree node
+    const renderNode = node => {
+      const foundIcon = getAgentflowIcon(node.name);
+      const nodeLabel = (() => {
+        const _el$4 = _tmpl$4$5(),
+          _el$5 = _el$4.firstChild;
+        insert(_el$4, foundIcon && (() => {
+          const _el$6 = _tmpl$5$5();
+          _el$6.style.setProperty("display", "flex");
+          _el$6.style.setProperty("align-items", "center");
+          insert(_el$6, () => foundIcon.icon({
+            size: 20,
+            color: foundIcon.color
+          }));
+          return _el$6;
+        })(), _el$5);
+        insert(_el$5, () => node.label);
+        return _el$4;
+      })();
+      const statusIcon = (() => {
+        const _el$7 = _tmpl$6$4();
+        insert(_el$7, () => getStatusIcon(node.status));
+        return _el$7;
+      })();
+      return createComponent(TreeItem, {
+        get itemId() {
+          return node.id;
+        },
+        label: nodeLabel,
+        icon: statusIcon,
+        get borderColor() {
+          return foundIcon?.color;
+        },
+        get children() {
+          return createMemo(() => !!(node.children && node.children.length > 0))() && node.children.map(childNode => renderNode(childNode));
+        }
+      });
+    };
+    const dialogPaddingTop = () => props.dialogContainer && props.hasCustomHeader ? 50 : CHAT_HEADER_HEIGHT;
+    const currentLeftWidth = () => isPanelExpanded() ? leftWidth() : MIN_LEFT_WIDTH;
+    const DialogContent = () => [(() => {
+      const _el$8 = _tmpl$7$4();
+      insert(_el$8, nddStyles);
+      return _el$8;
+    })(), (() => {
+      const _el$9 = _tmpl$8$3();
+      _el$9.$$click = () => props.onClose();
+      _el$9.style.setProperty("position", "fixed");
+      _el$9.style.setProperty("inset", "0");
+      _el$9.style.setProperty("z-index", "1001");
+      _el$9.style.setProperty("background-color", "rgba(0,0,0,0.25)");
+      _el$9.style.setProperty("pointer-events", "auto");
+      return _el$9;
+    })(), (() => {
+      const _el$10 = _tmpl$12$2(),
+        _el$11 = _el$10.firstChild,
+        _el$12 = _el$11.firstChild,
+        _el$13 = _el$12.firstChild,
+        _el$14 = _el$13.firstChild,
+        _el$15 = _el$13.nextSibling,
+        _el$16 = _el$12.nextSibling,
+        _el$17 = _el$16.firstChild,
+        _el$18 = _el$17.firstChild,
+        _el$19 = _el$18.firstChild,
+        _el$24 = _el$17.nextSibling;
+      _el$10.$$click = () => props.onClose();
+      _el$10.style.setProperty("position", "fixed");
+      _el$10.style.setProperty("inset", "0");
+      _el$10.style.setProperty("z-index", "1002");
+      _el$10.style.setProperty("display", "flex");
+      _el$10.style.setProperty("align-items", "center");
+      _el$10.style.setProperty("justify-content", "center");
+      _el$10.style.setProperty("overflow-x", "hidden");
+      _el$10.style.setProperty("overflow-y", "auto");
+      _el$10.style.setProperty("outline", "none");
+      _el$11.$$click = e => e.stopPropagation();
+      _el$11.style.setProperty("position", "relative");
+      _el$11.style.setProperty("width", "100%");
+      _el$11.style.setProperty("max-width", "960px");
+      _el$11.style.setProperty("margin", "8px");
+      _el$11.style.setProperty("border-radius", "8px");
+      _el$11.style.setProperty("box-shadow", "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)");
+      _el$11.style.setProperty("display", "flex");
+      _el$11.style.setProperty("flex-direction", "column");
+      _el$11.style.setProperty("overflow", "hidden");
+      _el$11.style.setProperty("outline", "none");
+      _el$11.style.setProperty("font-family", "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif");
+      _el$12.style.setProperty("display", "flex");
+      _el$12.style.setProperty("align-items", "center");
+      _el$12.style.setProperty("justify-content", "space-between");
+      _el$12.style.setProperty("padding", "12px 16px");
+      _el$12.style.setProperty("border-bottom", "1px solid rgba(0,0,0,0.1)");
+      _el$13.style.setProperty("display", "flex");
+      _el$13.style.setProperty("align-items", "center");
+      _el$13.style.setProperty("gap", "8px");
+      _el$14.style.setProperty("font-weight", "600");
+      _el$14.style.setProperty("font-size", "1.05rem");
+      _el$14.style.setProperty("margin", "0");
+      insert(_el$13, (() => {
+        const _c$ = createMemo(() => !!executionStatus());
+        return () => _c$() && (() => {
+          const _el$26 = _tmpl$14$2();
+          insert(_el$26, () => getStatusIcon(executionStatus() || 'PENDING'));
+          createRenderEffect(() => setAttribute(_el$26, "title", `Execution Status: ${executionStatus()}`));
+          return _el$26;
+        })();
+      })(), null);
+      _el$15.$$click = () => props.onClose();
+      _el$15.style.setProperty("border", "none");
+      _el$15.style.setProperty("background", "transparent");
+      _el$15.style.setProperty("cursor", "pointer");
+      _el$15.style.setProperty("padding", "4px");
+      _el$15.style.setProperty("border-radius", "4px");
+      _el$15.style.setProperty("display", "flex");
+      _el$15.style.setProperty("align-items", "center");
+      _el$15.style.setProperty("color", "inherit");
+      _el$15.style.setProperty("opacity", "0.7");
+      insert(_el$15, createComponent(CloseIcon, {}));
+      _el$16.style.setProperty("display", "flex");
+      _el$16.style.setProperty("flex", "1");
+      _el$16.style.setProperty("min-height", "0");
+      _el$17.style.setProperty("overflow-y", "auto");
+      _el$17.style.setProperty("overflow-x", "hidden");
+      _el$17.style.setProperty("flex-shrink", "0");
+      _el$18.$$click = togglePanel;
+      _el$18.style.setProperty("background-color", "rgba(0,0,0,0.03)");
+      _el$18.style.setProperty("gap", "4px");
+      insert(_el$19, (() => {
+        const _c$2 = createMemo(() => !!isPanelExpanded());
+        return () => _c$2() ? createComponent(ChevronDownIcon$1, {}) : createComponent(ChevronRightIcon, {});
+      })());
+      insert(_el$18, createComponent(Show, {
+        get when() {
+          return isPanelExpanded();
+        },
+        get children() {
+          const _el$20 = _tmpl$9$2();
+          _el$20.style.setProperty("white-space", "nowrap");
+          return _el$20;
+        }
+      }), null);
+      insert(_el$17, createComponent(Show, {
+        get when() {
+          return isPanelExpanded();
+        },
+        get children() {
+          const _el$21 = _tmpl$10$2();
+          _el$21.style.setProperty("font-size", "0.85rem");
+          insert(_el$21, createComponent(RichTreeView, {
+            get defaultExpanded() {
+              return expandedNodes();
+            },
+            get defaultSelected() {
+              return selectedNodeId();
+            },
+            indentationLevel: 16,
+            onNodeSelect: handleNodeSelect,
+            get children() {
+              return createComponent(For, {
+                get each() {
+                  return treeData();
+                },
+                children: rootNode => renderNode(rootNode)
+              });
+            }
+          }));
+          return _el$21;
+        }
+      }), null);
+      insert(_el$16, createComponent(Show, {
+        get when() {
+          return isPanelExpanded();
+        },
+        get children() {
+          const _el$22 = _tmpl$11$2();
+          _el$22.$$touchstart = onTouchStart;
+          _el$22.$$mousedown = onDragStart;
+          _el$22.style.setProperty("width", "8px");
+          _el$22.style.setProperty("cursor", "col-resize");
+          _el$22.style.setProperty("display", "flex");
+          _el$22.style.setProperty("align-items", "center");
+          _el$22.style.setProperty("justify-content", "center");
+          _el$22.style.setProperty("flex-shrink", "0");
+          _el$22.style.setProperty("border-left", "1px solid rgba(0,0,0,0.1)");
+          _el$22.style.setProperty("transition", "background-color 0.15s ease");
+          _el$22.style.setProperty("user-select", "none");
+          insert(_el$22, createComponent(DragHandleIcon, {}));
+          createRenderEffect(() => (isDragging() ? 'rgba(0,0,0,0.08)' : 'transparent') != null ? _el$22.style.setProperty("background-color", isDragging() ? 'rgba(0,0,0,0.08)' : 'transparent') : _el$22.style.removeProperty("background-color"));
+          return _el$22;
+        }
+      }), _el$24);
+      insert(_el$16, createComponent(Show, {
+        get when() {
+          return !isPanelExpanded();
+        },
+        get children() {
+          const _el$23 = _tmpl$8$3();
+          _el$23.style.setProperty("width", "1px");
+          _el$23.style.setProperty("background-color", "rgba(0,0,0,0.1)");
+          _el$23.style.setProperty("flex-shrink", "0");
+          return _el$23;
+        }
+      }), _el$24);
+      _el$24.style.setProperty("flex", "1");
+      _el$24.style.setProperty("overflow-y", "auto");
+      _el$24.style.setProperty("min-width", "0");
+      _el$24.style.setProperty("display", "flex");
+      _el$24.style.setProperty("flex-direction", "column");
+      insert(_el$24, createComponent(Show, {
+        get when() {
+          return selectedNode();
+        },
+        keyed: true,
+        get fallback() {
+          return (() => {
+            const _el$27 = _tmpl$15$2();
+            _el$27.style.setProperty("display", "flex");
+            _el$27.style.setProperty("align-items", "center");
+            _el$27.style.setProperty("justify-content", "center");
+            _el$27.style.setProperty("flex", "1");
+            _el$27.style.setProperty("opacity", "0.5");
+            _el$27.style.setProperty("padding", "40px");
+            return _el$27;
+          })();
+        },
+        children: node => createComponent(NodeDetailsContent, {
+          node: node,
+          get backgroundColor() {
+            return props.backgroundColor;
+          },
+          get textColor() {
+            return props.textColor;
+          },
+          get apiHost() {
+            return props.apiHost;
+          },
+          get chatflowid() {
+            return props.chatflowid;
+          },
+          get chatId() {
+            return props.chatId;
+          }
+        })
+      }));
+      createRenderEffect(_p$ => {
+        const _v$ = `${dialogPaddingTop()}px`,
+          _v$2 = props.backgroundColor ?? '#ffffff',
+          _v$3 = props.textColor ?? '#303235',
+          _v$4 = `calc(100% - ${dialogPaddingTop()}px - 16px)`,
+          _v$5 = `${currentLeftWidth()}px`,
+          _v$6 = `${currentLeftWidth()}px`,
+          _v$7 = isDragging() ? 'none' : 'width 0.15s ease, min-width 0.15s ease';
+        _v$ !== _p$._v$ && ((_p$._v$ = _v$) != null ? _el$10.style.setProperty("padding-top", _v$) : _el$10.style.removeProperty("padding-top"));
+        _v$2 !== _p$._v$2 && ((_p$._v$2 = _v$2) != null ? _el$11.style.setProperty("background-color", _v$2) : _el$11.style.removeProperty("background-color"));
+        _v$3 !== _p$._v$3 && ((_p$._v$3 = _v$3) != null ? _el$11.style.setProperty("color", _v$3) : _el$11.style.removeProperty("color"));
+        _v$4 !== _p$._v$4 && ((_p$._v$4 = _v$4) != null ? _el$11.style.setProperty("max-height", _v$4) : _el$11.style.removeProperty("max-height"));
+        _v$5 !== _p$._v$5 && ((_p$._v$5 = _v$5) != null ? _el$17.style.setProperty("width", _v$5) : _el$17.style.removeProperty("width"));
+        _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$17.style.setProperty("min-width", _v$6) : _el$17.style.removeProperty("min-width"));
+        _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$17.style.setProperty("transition", _v$7) : _el$17.style.removeProperty("transition"));
+        return _p$;
+      }, {
+        _v$: undefined,
+        _v$2: undefined,
+        _v$3: undefined,
+        _v$4: undefined,
+        _v$5: undefined,
+        _v$6: undefined,
+        _v$7: undefined
+      });
+      return _el$10;
+    })(), createComponent(Show, {
+      get when() {
+        return isDragging();
+      },
+      get children() {
+        return _tmpl$13$2();
+      }
+    })];
     return createComponent(Show, {
       get when() {
-        return props.isOpen && props.node;
+        return props.isOpen;
       },
       get children() {
         return createComponent(Show, {
@@ -25739,485 +26413,7 @@ ${body}</tbody>
       }
     });
   };
-
-  const _tmpl$$f = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01">`),
-    _tmpl$2$a = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14">`),
-    _tmpl$3$7 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16l4-4-4-4"></path><path d="M8 12h8">`),
-    _tmpl$4$5 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16">`),
-    _tmpl$5$5 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6">`),
-    _tmpl$6$4 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m9 18 6-6-6-6">`),
-    _tmpl$7$4 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><rect x="9" y="9" width="6" height="6">`),
-    _tmpl$8$3 = /*#__PURE__*/template(`<div class="flex items-center"><span>`),
-    _tmpl$9$2 = /*#__PURE__*/template(`<div class="mr-1">`),
-    _tmpl$10$2 = /*#__PURE__*/template(`<div class="status-icon">`),
-    _tmpl$11$2 = /*#__PURE__*/template(`<button class="expand-detail-btn" title="View Details">`),
-    _tmpl$12$2 = /*#__PURE__*/template(`<div class="border-t"><div class="p-4 mb-2">`),
-    _tmpl$13$2 = /*#__PURE__*/template(`<div><div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors duration-150"><div class="flex items-center space-x-2"><div class="flex-shrink-0"></div><h2 class="font-semibold flex items-center">`),
-    _tmpl$14$2 = /*#__PURE__*/template(`<span class="ml-2 status-icon">`);
-  // Default styling values consistent with BotBubble
-  const defaultBackgroundColor$3 = '#f7f8ff';
-  const defaultTextColor$4 = '#303235';
-  const defaultFontSize$2 = 16;
-  const FLOWISE_CREDENTIAL_ID = 'FLOWISE_CREDENTIAL_ID';
-  // Status icon components
-  const FinishedIcon = () => _tmpl$$f();
-  const PendingIcon = () => _tmpl$2$a();
-  const RunningIcon = () => _tmpl$3$7();
-  const ErrorIcon = () => _tmpl$4$5();
-  // Chevron icons for the collapsible panel
-  const ChevronDownIcon$1 = () => _tmpl$5$5();
-  const ChevronRightIcon = () => _tmpl$6$4();
-  // Function to get the appropriate icon based on node status
-  const getStatusIcon = status => {
-    let icon;
-    switch (status) {
-      case 'FINISHED':
-        icon = createComponent(FinishedIcon, {});
-        break;
-      case 'PENDING':
-        icon = createComponent(PendingIcon, {});
-        break;
-      case 'RUNNING':
-      case 'INPROGRESS':
-        icon = createComponent(RunningIcon, {});
-        break;
-      case 'ERROR':
-        icon = createComponent(ErrorIcon, {});
-        break;
-      case 'STOPPED':
-        icon = createComponent(StoppedIcon, {});
-        break;
-      default:
-        icon = createComponent(PendingIcon, {});
-    }
-    return icon;
-  };
-  // Add a new icon for the STOPPED status
-  const StoppedIcon = () => _tmpl$7$4();
-  // Main component for visualizing workflow as a tree
-  const WorkflowTreeView = props => {
-    const [expandedNodes, setExpandedNodes] = createSignal([]);
-    const [isPanelExpanded, setIsPanelExpanded] = createSignal(props.initiallyExpanded !== false);
-    const [treeData, setTreeData] = createSignal([]);
-    const [executionStatus, setExecutionStatus] = createSignal(null);
-    const [dialogNode, setDialogNode] = createSignal(null);
-    const [isDialogOpen, setIsDialogOpen] = createSignal(false);
-    // Get overall execution status of the workflow
-    const getExecutionStatus = executionTree => {
-      const getAllStatuses = nodes => {
-        let statuses = [];
-        nodes.forEach(node => {
-          if (node.status) statuses.push(node.status);
-          if (node.children && node.children.length > 0) {
-            statuses = [...statuses, ...getAllStatuses(node.children)];
-          }
-        });
-        return statuses;
-      };
-      const statuses = getAllStatuses(executionTree);
-      if (statuses.includes('ERROR')) return 'ERROR';
-      if (statuses.includes('RUNNING') || statuses.includes('INPROGRESS')) return 'INPROGRESS';
-      if (statuses.includes('STOPPED')) return 'STOPPED';
-      if (statuses.every(status => status === 'FINISHED')) return 'FINISHED';
-      return null;
-    };
-    // Transform the execution data into a tree structure
-    const buildTreeData = nodes => {
-      // for each node, loop through each and every nested key of node.data, and remove the key if it is equal to FLOWISE_CREDENTIAL_ID
-      nodes.forEach(node => {
-        const removeFlowiseCredentialId = data => {
-          for (const key in data) {
-            if (key === FLOWISE_CREDENTIAL_ID) {
-              delete data[key];
-            }
-            if (typeof data[key] === 'object' && data[key] !== null) {
-              removeFlowiseCredentialId(data[key]);
-            }
-          }
-        };
-        if (node.data) removeFlowiseCredentialId(node.data);
-      });
-      // Create a map for quick node lookup
-      // Use execution index to make each node instance unique
-      const nodeMap = new Map();
-      nodes.forEach((node, index) => {
-        const uniqueNodeId = `${node.nodeId}_${index}`;
-        nodeMap.set(uniqueNodeId, {
-          ...node,
-          uniqueNodeId,
-          children: [],
-          executionIndex: index
-        });
-      });
-      // Identify iteration nodes and their children
-      const iterationGroups = new Map(); // parentId -> Map of iterationIndex -> nodes
-      // Group iteration child nodes by their parent and iteration index
-      nodes.forEach((node, index) => {
-        if (node.data?.parentNodeId && node.data?.iterationIndex !== undefined) {
-          const parentId = node.data.parentNodeId;
-          const iterationIndex = node.data.iterationIndex;
-          if (!iterationGroups.has(parentId)) {
-            iterationGroups.set(parentId, new Map());
-          }
-          const iterationMap = iterationGroups.get(parentId);
-          if (!iterationMap.has(iterationIndex)) {
-            iterationMap.set(iterationIndex, []);
-          }
-          iterationMap.get(iterationIndex).push(`${node.nodeId}_${index}`);
-        }
-      });
-      // Create virtual iteration container nodes
-      iterationGroups.forEach((iterationMap, parentId) => {
-        iterationMap.forEach((nodeIds, iterationIndex) => {
-          // Find the parent iteration node
-          let parentNode = null;
-          for (let i = 0; i < nodes.length; i++) {
-            if (nodes[i].nodeId === parentId) {
-              parentNode = nodes[i];
-              break;
-            }
-          }
-          if (!parentNode) return;
-          // Get iteration context from first child node
-          const firstChildId = nodeIds[0];
-          const firstChild = nodeMap.get(firstChildId);
-          const iterationContext = firstChild?.data?.iterationContext || {
-            index: iterationIndex
-          };
-          // Create a virtual node for this iteration
-          const iterationNodeId = `${parentId}_${iterationIndex}`;
-          const iterationLabel = `Iteration #${iterationIndex}`;
-          // Determine status based on child nodes
-          const childNodes = nodeIds.map(id => nodeMap.get(id));
-          const iterationStatus = childNodes.some(n => n.status === 'ERROR') ? 'ERROR' : childNodes.some(n => n.status === 'INPROGRESS' || n.status === 'RUNNING') ? 'INPROGRESS' : childNodes.every(n => n.status === 'FINISHED') ? 'FINISHED' : 'PENDING';
-          // Create the virtual node and add to nodeMap
-          const virtualNode = {
-            nodeId: iterationNodeId,
-            nodeLabel: iterationLabel,
-            data: {
-              name: 'iterationAgentflow',
-              iterationIndex,
-              iterationContext,
-              isVirtualNode: true,
-              parentIterationId: parentId
-            },
-            previousNodeIds: [],
-            status: iterationStatus,
-            uniqueNodeId: iterationNodeId,
-            children: [],
-            executionIndex: -1 // Flag as a virtual node
-          };
-
-          nodeMap.set(iterationNodeId, virtualNode);
-          // Set this virtual node as the parent for all nodes in this iteration
-          nodeIds.forEach(childId => {
-            const childNode = nodeMap.get(childId);
-            if (childNode) {
-              childNode.virtualParentId = iterationNodeId;
-            }
-          });
-        });
-      });
-      // Root nodes have no previous nodes
-      const rootNodes = [];
-      const processedNodes = new Set();
-      // First pass: Build the main tree structure (excluding iteration children)
-      nodes.forEach((node, index) => {
-        const uniqueNodeId = `${node.nodeId}_${index}`;
-        const treeNode = nodeMap.get(uniqueNodeId);
-        // Skip nodes that belong to an iteration (they'll be added to their virtual parent)
-        if (node.data?.parentNodeId && node.data?.iterationIndex !== undefined) {
-          return;
-        }
-        if (node.previousNodeIds.length === 0) {
-          rootNodes.push(treeNode);
-        } else {
-          // Find the most recent (latest) parent node among all previous nodes
-          let mostRecentParentIndex = -1;
-          let mostRecentParentId = null;
-          node.previousNodeIds.forEach(parentId => {
-            // Find the most recent instance of this parent node
-            for (let i = 0; i < index; i++) {
-              if (nodes[i].nodeId === parentId && i > mostRecentParentIndex) {
-                mostRecentParentIndex = i;
-                mostRecentParentId = parentId;
-              }
-            }
-          });
-          // Only add to the most recent parent
-          if (mostRecentParentIndex !== -1 && mostRecentParentId) {
-            const parentUniqueId = `${mostRecentParentId}_${mostRecentParentIndex}`;
-            const parentNode = nodeMap.get(parentUniqueId);
-            if (parentNode) {
-              parentNode.children.push(treeNode);
-              processedNodes.add(uniqueNodeId);
-            }
-          }
-        }
-      });
-      // Second pass: Build the iteration sub-trees
-      iterationGroups.forEach((iterationMap, parentId) => {
-        // Find all instances of the parent node
-        const parentInstances = [];
-        nodes.forEach((node, index) => {
-          if (node.nodeId === parentId) {
-            parentInstances.push(`${node.nodeId}_${index}`);
-          }
-        });
-        // Find the latest instance of the parent node that exists in the tree
-        let latestParent = null;
-        for (let i = parentInstances.length - 1; i >= 0; i--) {
-          const parentId = parentInstances[i];
-          const parent = nodeMap.get(parentId);
-          if (parent) {
-            latestParent = parent;
-            break;
-          }
-        }
-        if (!latestParent) return;
-        // Add all virtual iteration nodes to the parent
-        iterationMap.forEach((nodeIds, iterationIndex) => {
-          const iterationNodeId = `${parentId}_${iterationIndex}`;
-          const virtualNode = nodeMap.get(iterationNodeId);
-          if (virtualNode) {
-            latestParent.children.push(virtualNode);
-          }
-        });
-      });
-      // Third pass: Build the structure inside each virtual iteration node
-      nodeMap.forEach(node => {
-        if (node.virtualParentId) {
-          const virtualParent = nodeMap.get(node.virtualParentId);
-          if (virtualParent) {
-            if (node.previousNodeIds.length === 0) {
-              // This is a root node within the iteration
-              virtualParent.children.push(node);
-            } else {
-              // Find its parent within the same iteration
-              let parentFound = false;
-              for (const prevNodeId of node.previousNodeIds) {
-                // Look for nodes with the same previous node ID in the same iteration
-                nodeMap.forEach(potentialParent => {
-                  if (potentialParent.nodeId === prevNodeId && potentialParent.data?.iterationIndex === node.data?.iterationIndex && potentialParent.data?.parentNodeId === node.data?.parentNodeId && !parentFound) {
-                    potentialParent.children.push(node);
-                    parentFound = true;
-                  }
-                });
-              }
-              // If no parent was found within the iteration, add directly to virtual parent
-              if (!parentFound) {
-                virtualParent.children.push(node);
-              }
-            }
-          }
-        }
-      });
-      // Final pass: Sort all children arrays to ensure iteration nodes appear first
-      const sortChildrenNodes = node => {
-        if (node.children && node.children.length > 0) {
-          // Sort children: iteration nodes first, then others by their original execution order
-          node.children.sort((a, b) => {
-            // Check if a is an iteration node
-            const aIsIteration = a.data?.name === 'iterationAgentflow' || a.data?.isVirtualNode;
-            // Check if b is an iteration node
-            const bIsIteration = b.data?.name === 'iterationAgentflow' || b.data?.isVirtualNode;
-            // If both are iterations or both are not iterations, preserve original order
-            if (aIsIteration === bIsIteration) {
-              return a.executionIndex - b.executionIndex;
-            }
-            // Otherwise, put iterations first
-            return aIsIteration ? -1 : 1;
-          });
-          // Recursively sort children's children
-          node.children.forEach(sortChildrenNodes);
-        }
-      };
-      // Apply sorting to all root nodes and their children
-      rootNodes.forEach(sortChildrenNodes);
-      // Transform to the required format
-      const transformNode = node => ({
-        id: node.uniqueNodeId,
-        label: node.nodeLabel,
-        name: node.data?.name,
-        status: node.status,
-        data: node.data,
-        children: node.children.map(transformNode)
-      });
-      const transformedNodes = rootNodes.map(transformNode);
-      // Determine the overall execution status
-      const status = getExecutionStatus(transformedNodes);
-      setExecutionStatus(status);
-      return transformedNodes;
-    };
-    // Initialize tree data on mount
-    onMount(() => {
-      const treeNodes = buildTreeData(props.workflowData);
-      setTreeData(treeNodes);
-      // Expand root nodes by default
-      if (treeNodes.length > 0) {
-        setExpandedNodes(treeNodes.map(node => node.id));
-      }
-    });
-    // Toggle the collapsible panel
-    const togglePanel = () => {
-      setIsPanelExpanded(!isPanelExpanded());
-    };
-    // Open node details dialog
-    const openNodeDialog = node => {
-      setDialogNode({
-        label: node.label,
-        name: node.name,
-        status: node.status,
-        data: node.data
-      });
-      setIsDialogOpen(true);
-    };
-    // Recursive function to render a node and its children
-    const renderNode = node => {
-      const foundIcon = getAgentflowIcon(node.name);
-      const nodeLabel = (() => {
-        const _el$8 = _tmpl$8$3(),
-          _el$9 = _el$8.firstChild;
-        insert(_el$8, foundIcon && (() => {
-          const _el$10 = _tmpl$9$2();
-          _el$10.style.setProperty("display", "flex");
-          _el$10.style.setProperty("align-items", "center");
-          insert(_el$10, () => foundIcon.icon({
-            size: 20,
-            color: foundIcon.color
-          }));
-          return _el$10;
-        })(), _el$9);
-        insert(_el$9, () => node.label);
-        return _el$8;
-      })();
-      const statusIcon = (() => {
-        const _el$11 = _tmpl$10$2();
-        insert(_el$11, () => getStatusIcon(node.status));
-        return _el$11;
-      })();
-      const expandButton = (() => {
-        const _el$12 = _tmpl$11$2();
-        _el$12.$$click = e => {
-          e.stopPropagation();
-          openNodeDialog(node);
-        };
-        insert(_el$12, createComponent(MaximizeIcon, {}));
-        return _el$12;
-      })();
-      return createComponent(TreeItem, {
-        get itemId() {
-          return node.id;
-        },
-        label: nodeLabel,
-        icon: statusIcon,
-        endIcon: expandButton,
-        get borderColor() {
-          return foundIcon?.color;
-        },
-        get children() {
-          return createMemo(() => !!(node.children && node.children.length > 0))() && node.children.map(childNode => renderNode(childNode));
-        }
-      });
-    };
-    return (() => {
-      const _el$13 = _tmpl$13$2(),
-        _el$14 = _el$13.firstChild,
-        _el$15 = _el$14.firstChild,
-        _el$16 = _el$15.firstChild,
-        _el$17 = _el$16.nextSibling;
-      _el$14.$$click = togglePanel;
-      _el$14.style.setProperty("background-color", "rgba(0,0,0,0.03)");
-      insert(_el$16, (() => {
-        const _c$ = createMemo(() => !!isPanelExpanded());
-        return () => _c$() ? createComponent(ChevronDownIcon$1, {}) : createComponent(ChevronRightIcon, {});
-      })());
-      insert(_el$17, () => props.title || 'Process Flow', null);
-      insert(_el$17, (() => {
-        const _c$2 = createMemo(() => !!executionStatus());
-        return () => _c$2() && (() => {
-          const _el$20 = _tmpl$14$2();
-          insert(_el$20, () => getStatusIcon(executionStatus() || 'PENDING'));
-          createRenderEffect(() => setAttribute(_el$20, "title", `Execution Status: ${executionStatus()}`));
-          return _el$20;
-        })();
-      })(), null);
-      insert(_el$13, createComponent(Show, {
-        get when() {
-          return isPanelExpanded();
-        },
-        get children() {
-          const _el$18 = _tmpl$12$2(),
-            _el$19 = _el$18.firstChild;
-          insert(_el$19, createComponent(RichTreeView, {
-            get defaultExpanded() {
-              return expandedNodes();
-            },
-            get indentationLevel() {
-              return props.indentationLevel || 24;
-            },
-            get children() {
-              return createComponent(For, {
-                get each() {
-                  return treeData();
-                },
-                children: rootNode => renderNode(rootNode)
-              });
-            }
-          }));
-          return _el$18;
-        }
-      }), null);
-      insert(_el$13, createComponent(NodeDetailsDialog, {
-        get isOpen() {
-          return isDialogOpen();
-        },
-        onClose: () => setIsDialogOpen(false),
-        get node() {
-          return dialogNode();
-        },
-        get backgroundColor() {
-          return props.backgroundColor;
-        },
-        get textColor() {
-          return props.textColor;
-        },
-        get apiHost() {
-          return props.apiHost;
-        },
-        get chatflowid() {
-          return props.chatflowid;
-        },
-        get chatId() {
-          return props.chatId;
-        },
-        get hasCustomHeader() {
-          return props.hasCustomHeader;
-        },
-        get dialogContainer() {
-          return props.dialogContainer;
-        }
-      }), null);
-      createRenderEffect(_p$ => {
-        const _v$ = `mb-2 ml-2 border rounded-lg shadow-sm overflow-hidden ${props.class || ''}`,
-          _v$2 = props.backgroundColor ?? defaultBackgroundColor$3,
-          _v$3 = props.textColor ?? defaultTextColor$4,
-          _v$4 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$2}px`;
-        _v$ !== _p$._v$ && className(_el$13, _p$._v$ = _v$);
-        _v$2 !== _p$._v$2 && ((_p$._v$2 = _v$2) != null ? _el$13.style.setProperty("background-color", _v$2) : _el$13.style.removeProperty("background-color"));
-        _v$3 !== _p$._v$3 && ((_p$._v$3 = _v$3) != null ? _el$13.style.setProperty("color", _v$3) : _el$13.style.removeProperty("color"));
-        _v$4 !== _p$._v$4 && ((_p$._v$4 = _v$4) != null ? _el$13.style.setProperty("font-size", _v$4) : _el$13.style.removeProperty("font-size"));
-        return _p$;
-      }, {
-        _v$: undefined,
-        _v$2: undefined,
-        _v$3: undefined,
-        _v$4: undefined
-      });
-      return _el$13;
-    })();
-  };
-  delegateEvents(["click"]);
+  delegateEvents(["click", "mousedown", "touchstart"]);
 
   const _tmpl$$e = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44A2.5 2.5 0 0 1 4.5 17.5a2.5 2.5 0 0 1-.44-4.96A2.5 2.5 0 0 1 6.5 10a2.5 2.5 0 0 1 .44-4.96A2.5 2.5 0 0 1 9.5 2z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44A2.5 2.5 0 0 0 19.5 17.5a2.5 2.5 0 0 0 .44-4.96A2.5 2.5 0 0 0 17.5 10a2.5 2.5 0 0 0-.44-4.96A2.5 2.5 0 0 0 14.5 2z">`),
     _tmpl$2$9 = /*#__PURE__*/template(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6">`),
@@ -26396,16 +26592,16 @@ ${body}</tbody>
     _tmpl$2$8 = /*#__PURE__*/template(`<div class="mt-2"><div>`),
     _tmpl$3$5 = /*#__PURE__*/template(`<span class="prose">`),
     _tmpl$4$3 = /*#__PURE__*/template(`<div><div class="flex flex-row justify-start mb-2 items-start host-container"><div class="flex flex-col justify-start"></div></div><div></div><div><div>`),
-    _tmpl$5$3 = /*#__PURE__*/template(`<div>`),
-    _tmpl$6$2 = /*#__PURE__*/template(`<details class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]"><summary class="cursor-pointer"><span class="italic">Agent Messages</span></summary><br>`),
-    _tmpl$7$2 = /*#__PURE__*/template(`<div class="flex flex-row items-start flex-wrap w-full gap-2">`),
-    _tmpl$8$1 = /*#__PURE__*/template(`<div class="ml-2 mb-1 max-w-full">`),
-    _tmpl$9$1 = /*#__PURE__*/template(`<span class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose" data-testid="host-bubble">`),
-    _tmpl$10$1 = /*#__PURE__*/template(`<div class="px-4 py-2 flex flex-row justify-start space-x-2">`),
-    _tmpl$11$1 = /*#__PURE__*/template(`<button type="button" class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2">&nbsp;`),
-    _tmpl$12$1 = /*#__PURE__*/template(`<button type="button" class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2">&nbsp;`),
-    _tmpl$13$1 = /*#__PURE__*/template(`<button type="button">`),
-    _tmpl$14$1 = /*#__PURE__*/template(`<span class="px-2 py-[10px] font-semibold">`),
+    _tmpl$5$3 = /*#__PURE__*/template(`<details class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]"><summary class="cursor-pointer"><span class="italic">Agent Messages</span></summary><br>`),
+    _tmpl$6$2 = /*#__PURE__*/template(`<div class="flex flex-row items-start flex-wrap w-full gap-2">`),
+    _tmpl$7$2 = /*#__PURE__*/template(`<div class="ml-2 mb-1 max-w-full">`),
+    _tmpl$8$1 = /*#__PURE__*/template(`<span class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose" data-testid="host-bubble">`),
+    _tmpl$9$1 = /*#__PURE__*/template(`<div class="px-4 py-2 flex flex-row justify-start space-x-2">`),
+    _tmpl$10$1 = /*#__PURE__*/template(`<button type="button" class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2">&nbsp;`),
+    _tmpl$11$1 = /*#__PURE__*/template(`<button type="button" class="px-4 py-2 font-medium text-red-600 border border-red-600 rounded-full hover:bg-red-600 hover:text-white transition-colors duration-300 flex items-center space-x-2">&nbsp;`),
+    _tmpl$12$1 = /*#__PURE__*/template(`<button type="button">`),
+    _tmpl$13$1 = /*#__PURE__*/template(`<span class="px-2 py-[10px] font-semibold">`),
+    _tmpl$14$1 = /*#__PURE__*/template(`<div>`),
     _tmpl$15$1 = /*#__PURE__*/template(`<div class="copied-message">Copied!`),
     _tmpl$16$1 = /*#__PURE__*/template(`<div class="text-sm text-gray-500 ml-2">`);
   const defaultBackgroundColor$2 = '#f7f8ff';
@@ -26424,6 +26620,7 @@ ${body}</tbody>
     const [copiedMessage, setCopiedMessage] = createSignal(false);
     const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
     const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+    const [isTracesDialogOpen, setIsTracesDialogOpen] = createSignal(false);
     // Store a reference to the bot message element for the copyMessageToClipboard function
     const [botMessageElement, setBotMessageElement] = createSignal(null);
     const setBotMessageRef = el => {
@@ -26773,42 +26970,14 @@ ${body}</tbody>
         }
       }), _el$8);
       insert(_el$8, (() => {
-        const _c$ = createMemo(() => !!(props.showAgentMessages && props.message.agentFlowExecutedData && Array.isArray(props.message.agentFlowExecutedData) && props.message.agentFlowExecutedData.length > 0));
+        const _c$ = createMemo(() => !!(props.showAgentMessages && props.message.agentReasoning));
         return () => _c$() && (() => {
-          const _el$12 = _tmpl$5$3();
-          insert(_el$12, createComponent(WorkflowTreeView, {
-            get workflowData() {
-              return props.message.agentFlowExecutedData;
-            },
-            indentationLevel: 24,
-            get apiHost() {
-              return props.apiHost;
-            },
-            get chatflowid() {
-              return props.chatflowid;
-            },
-            get chatId() {
-              return props.chatId;
-            },
-            get hasCustomHeader() {
-              return props.hasCustomHeader;
-            },
-            get dialogContainer() {
-              return props.dialogContainer;
-            }
-          }));
-          return _el$12;
-        })();
-      })(), null);
-      insert(_el$8, (() => {
-        const _c$2 = createMemo(() => !!(props.showAgentMessages && props.message.agentReasoning));
-        return () => _c$2() && (() => {
-          const _el$13 = _tmpl$6$2(),
-            _el$14 = _el$13.firstChild;
-            _el$14.nextSibling;
+          const _el$12 = _tmpl$5$3(),
+            _el$13 = _el$12.firstChild;
+            _el$13.nextSibling;
           const _ref$ = botDetailsEl;
-          typeof _ref$ === "function" ? use(_ref$, _el$13) : botDetailsEl = _el$13;
-          insert(_el$13, createComponent(For, {
+          typeof _ref$ === "function" ? use(_ref$, _el$12) : botDetailsEl = _el$12;
+          insert(_el$12, createComponent(For, {
             get each() {
               return props.message.agentReasoning;
             },
@@ -26848,14 +27017,14 @@ ${body}</tbody>
               });
             }
           }), null);
-          return _el$13;
+          return _el$12;
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$3 = createMemo(() => !!(props.message.artifacts && props.message.artifacts.length > 0));
-        return () => _c$3() && (() => {
-          const _el$16 = _tmpl$7$2();
-          insert(_el$16, createComponent(For, {
+        const _c$2 = createMemo(() => !!(props.message.artifacts && props.message.artifacts.length > 0));
+        return () => _c$2() && (() => {
+          const _el$15 = _tmpl$6$2();
+          insert(_el$15, createComponent(For, {
             get each() {
               return props.message.artifacts;
             },
@@ -26863,14 +27032,14 @@ ${body}</tbody>
               return item !== null ? createMemo(() => renderArtifacts(item)) : null;
             }
           }));
-          return _el$16;
+          return _el$15;
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$4 = createMemo(() => !!props.message.thinking);
-        return () => _c$4() && (() => {
-          const _el$17 = _tmpl$8$1();
-          insert(_el$17, createComponent(ThinkingCard, {
+        const _c$3 = createMemo(() => !!props.message.thinking);
+        return () => _c$3() && (() => {
+          const _el$16 = _tmpl$7$2();
+          insert(_el$16, createComponent(ThinkingCard, {
             get thinking() {
               return props.message.thinking;
             },
@@ -26887,36 +27056,36 @@ ${body}</tbody>
               return props.textColor ?? defaultTextColor$3;
             }
           }));
-          return _el$17;
+          return _el$16;
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$5 = createMemo(() => !!props.message.message);
-        return () => _c$5() && (() => {
-          const _el$18 = _tmpl$9$1();
-          use(setBotMessageRef, _el$18);
-          _el$18.style.setProperty("border-radius", "6px");
+        const _c$4 = createMemo(() => !!props.message.message);
+        return () => _c$4() && (() => {
+          const _el$17 = _tmpl$8$1();
+          use(setBotMessageRef, _el$17);
+          _el$17.style.setProperty("border-radius", "6px");
           createRenderEffect(_p$ => {
             const _v$5 = props.backgroundColor ?? defaultBackgroundColor$2,
               _v$6 = props.textColor ?? defaultTextColor$3,
               _v$7 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$1}px`;
-            _v$5 !== _p$._v$5 && ((_p$._v$5 = _v$5) != null ? _el$18.style.setProperty("background-color", _v$5) : _el$18.style.removeProperty("background-color"));
-            _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$18.style.setProperty("color", _v$6) : _el$18.style.removeProperty("color"));
-            _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$18.style.setProperty("font-size", _v$7) : _el$18.style.removeProperty("font-size"));
+            _v$5 !== _p$._v$5 && ((_p$._v$5 = _v$5) != null ? _el$17.style.setProperty("background-color", _v$5) : _el$17.style.removeProperty("background-color"));
+            _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$17.style.setProperty("color", _v$6) : _el$17.style.removeProperty("color"));
+            _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$17.style.setProperty("font-size", _v$7) : _el$17.style.removeProperty("font-size"));
             return _p$;
           }, {
             _v$5: undefined,
             _v$6: undefined,
             _v$7: undefined
           });
-          return _el$18;
+          return _el$17;
         })();
       })(), null);
       insert(_el$8, (() => {
-        const _c$6 = createMemo(() => !!props.message.action);
-        return () => _c$6() && (() => {
-          const _el$19 = _tmpl$10$1();
-          insert(_el$19, createComponent(For, {
+        const _c$5 = createMemo(() => !!props.message.action);
+        return () => _c$5() && (() => {
+          const _el$18 = _tmpl$9$1();
+          insert(_el$18, createComponent(For, {
             get each() {
               return props.message.action.elements || [];
             },
@@ -26924,53 +27093,53 @@ ${body}</tbody>
               return createMemo((() => {
                 const _c$9 = createMemo(() => !!(action.type === 'approve-button' && action.label === 'Yes' || action.type === 'agentflowv2-approve-button'));
                 return () => _c$9() ? (() => {
-                  const _el$20 = _tmpl$11$1(),
-                    _el$21 = _el$20.firstChild;
-                  _el$20.$$click = () => props.handleActionClick(action, props.message.action);
-                  insert(_el$20, createComponent(TickIcon, {}), _el$21);
-                  insert(_el$20, () => action.label, null);
-                  return _el$20;
+                  const _el$19 = _tmpl$10$1(),
+                    _el$20 = _el$19.firstChild;
+                  _el$19.$$click = () => props.handleActionClick(action, props.message.action);
+                  insert(_el$19, createComponent(TickIcon, {}), _el$20);
+                  insert(_el$19, () => action.label, null);
+                  return _el$19;
                 })() : (() => {
                   const _c$10 = createMemo(() => !!(action.type === 'reject-button' && action.label === 'No' || action.type === 'agentflowv2-reject-button'));
                   return () => _c$10() ? (() => {
-                    const _el$22 = _tmpl$12$1(),
-                      _el$23 = _el$22.firstChild;
-                    _el$22.$$click = () => props.handleActionClick(action, props.message.action);
-                    insert(_el$22, createComponent(XIcon, {
+                    const _el$21 = _tmpl$11$1(),
+                      _el$22 = _el$21.firstChild;
+                    _el$21.$$click = () => props.handleActionClick(action, props.message.action);
+                    insert(_el$21, createComponent(XIcon, {
                       isCurrentColor: true
-                    }), _el$23);
-                    insert(_el$22, () => action.label, null);
-                    return _el$22;
+                    }), _el$22);
+                    insert(_el$21, () => action.label, null);
+                    return _el$21;
                   })() : (() => {
-                    const _el$24 = _tmpl$13$1();
-                    insert(_el$24, () => action.label);
-                    return _el$24;
+                    const _el$23 = _tmpl$12$1();
+                    insert(_el$23, () => action.label);
+                    return _el$23;
                   })();
                 })();
               })());
             }
           }));
-          return _el$19;
+          return _el$18;
         })();
       })(), null);
       insert(_el$9, (() => {
-        const _c$7 = createMemo(() => !!(props.message.sourceDocuments && props.message.sourceDocuments.length));
-        return () => _c$7() && [createComponent(Show, {
+        const _c$6 = createMemo(() => !!(props.message.sourceDocuments && props.message.sourceDocuments.length));
+        return () => _c$6() && [createComponent(Show, {
           get when() {
             return props.sourceDocsTitle;
           },
           get children() {
-            const _el$25 = _tmpl$14$1();
-            insert(_el$25, () => props.sourceDocsTitle);
-            return _el$25;
+            const _el$24 = _tmpl$13$1();
+            insert(_el$24, () => props.sourceDocsTitle);
+            return _el$24;
           }
         }), (() => {
-          const _el$26 = _tmpl$5$3();
-          _el$26.style.setProperty("display", "flex");
-          _el$26.style.setProperty("flex-direction", "row");
-          _el$26.style.setProperty("width", "100%");
-          _el$26.style.setProperty("flex-wrap", "wrap");
-          insert(_el$26, createComponent(For, {
+          const _el$25 = _tmpl$14$1();
+          _el$25.style.setProperty("display", "flex");
+          _el$25.style.setProperty("flex-direction", "row");
+          _el$25.style.setProperty("width", "100%");
+          _el$25.style.setProperty("flex-wrap", "wrap");
+          insert(_el$25, createComponent(For, {
             get each() {
               return [...removeDuplicateURL(props.message)];
             },
@@ -26993,7 +27162,7 @@ ${body}</tbody>
               });
             }
           }));
-          return _el$26;
+          return _el$25;
         })()];
       })());
       insert(_el$11, createComponent(Show, {
@@ -27031,8 +27200,8 @@ ${body}</tbody>
         }
       }), null);
       insert(_el$11, (() => {
-        const _c$8 = createMemo(() => !!(props.chatFeedbackStatus && props.message.messageId));
-        return () => _c$8() && [createComponent(RegenerateResponseButton, {
+        const _c$7 = createMemo(() => !!(props.chatFeedbackStatus && props.message.messageId));
+        return () => _c$7() && [createComponent(RegenerateResponseButton, {
           "class": "regenerate-response-button",
           get feedbackColor() {
             return props.feedbackColor;
@@ -27048,9 +27217,9 @@ ${body}</tbody>
             return copiedMessage();
           },
           get children() {
-            const _el$27 = _tmpl$15$1();
-            createRenderEffect(() => (props.feedbackColor ?? defaultFeedbackColor) != null ? _el$27.style.setProperty("color", props.feedbackColor ?? defaultFeedbackColor) : _el$27.style.removeProperty("color"));
-            return _el$27;
+            const _el$26 = _tmpl$15$1();
+            createRenderEffect(() => (props.feedbackColor ?? defaultFeedbackColor) != null ? _el$26.style.setProperty("color", props.feedbackColor ?? defaultFeedbackColor) : _el$26.style.removeProperty("color"));
+            return _el$26;
           }
         }), createMemo((() => {
           const _c$11 = createMemo(() => !!(rating() === '' || rating() === 'THUMBS_UP'));
@@ -27085,12 +27254,51 @@ ${body}</tbody>
             return props.message.dateTime;
           },
           get children() {
-            const _el$28 = _tmpl$16$1();
-            insert(_el$28, () => formatDateTime(props.message.dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time));
-            return _el$28;
+            const _el$27 = _tmpl$16$1();
+            insert(_el$27, () => formatDateTime(props.message.dateTime, props?.dateTimeToggle?.date, props?.dateTimeToggle?.time));
+            return _el$27;
           }
         })];
       })(), null);
+      insert(_el$11, (() => {
+        const _c$8 = createMemo(() => !!(!props.isLoading && props.showAgentMessages && props.message.message && props.message.agentFlowExecutedData && Array.isArray(props.message.agentFlowExecutedData) && props.message.agentFlowExecutedData.length > 0));
+        return () => _c$8() && createComponent(TracesButton, {
+          get feedbackColor() {
+            return props.feedbackColor;
+          },
+          onClick: () => setIsTracesDialogOpen(true)
+        });
+      })(), null);
+      insert(_el$10, createComponent(TracesDialog, {
+        get isOpen() {
+          return isTracesDialogOpen();
+        },
+        onClose: () => setIsTracesDialogOpen(false),
+        get workflowData() {
+          return props.message.agentFlowExecutedData;
+        },
+        get backgroundColor() {
+          return props.backgroundColor;
+        },
+        get textColor() {
+          return props.textColor;
+        },
+        get apiHost() {
+          return props.apiHost;
+        },
+        get chatflowid() {
+          return props.chatflowid;
+        },
+        get chatId() {
+          return props.chatId;
+        },
+        get hasCustomHeader() {
+          return props.hasCustomHeader;
+        },
+        get dialogContainer() {
+          return props.dialogContainer;
+        }
+      }), null);
       insert(_el$10, createComponent(Show, {
         get when() {
           return showFeedbackContentDialog();
