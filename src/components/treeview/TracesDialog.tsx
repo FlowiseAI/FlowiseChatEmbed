@@ -185,9 +185,7 @@ export const TracesDialog = (props: TracesDialogProps) => {
     const nodeLabel = <span>{node.label}</span>;
 
     const nodeIcon = foundIcon ? (
-      <div style={{ display: 'flex', 'align-items': 'center' }}>
-        {foundIcon.icon({ size: 18, color: foundIcon.color })}
-      </div>
+      <div style={{ display: 'flex', 'align-items': 'center' }}>{foundIcon.icon({ size: 18, color: foundIcon.color })}</div>
     ) : (
       <span />
     );
