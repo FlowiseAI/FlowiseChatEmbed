@@ -650,6 +650,33 @@ export const BotBubble = (props: Props) => {
               }}
             />
           </Show>
+          <Show when={hasMultipleResponseVersions()}>
+            <div class="text-sm text-gray-500 mr-2 flex items-center">
+              <button
+                type="button"
+                class="px-1"
+                disabled={responseVersionIndex() === 0}
+                onClick={() => setResponseVersionIndex((prev) => Math.max(0, prev - 1))}
+                title="Previous response"
+                aria-label="Previous version"
+                style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
+              >
+                {'<'}
+              </button>
+              <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${responseVersionIndex() + 1}/${totalResponseVersions()}`}</span>
+              <button
+                type="button"
+                class="px-1"
+                disabled={responseVersionIndex() === totalResponseVersions() - 1}
+                onClick={() => setResponseVersionIndex((prev) => Math.min(totalResponseVersions() - 1, prev + 1))}
+                title="Next response"
+                aria-label="Next version"
+                style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
+              >
+                {'>'}
+              </button>
+            </div>
+          </Show>
           {props.chatFeedbackStatus && activeMessage().messageId && (
             <>
               <Show when={props.showRegenerateResponseButton}>
@@ -658,35 +685,6 @@ export const BotBubble = (props: Props) => {
                   feedbackColor={props.feedbackColor}
                   onClick={() => props.onRegenerateResponse?.()}
                 />
-              </Show>
-              <Show when={hasMultipleResponseVersions()}>
-                <div class="text-sm text-gray-500 mr-2 flex items-center">
-                  <button
-                    type="button"
-                    class="px-1"
-                    disabled={responseVersionIndex() === 0}
-                    onClick={() => setResponseVersionIndex((prev) => Math.max(0, prev - 1))}
-                    title="Previous response"
-                    aria-label="Previous version"
-                    style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
-                  >
-                    {'<'}
-                  </button>
-                  <span style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>{`${
-                    responseVersionIndex() + 1
-                  }/${totalResponseVersions()}`}</span>
-                  <button
-                    type="button"
-                    class="px-1"
-                    disabled={responseVersionIndex() === totalResponseVersions() - 1}
-                    onClick={() => setResponseVersionIndex((prev) => Math.min(totalResponseVersions() - 1, prev + 1))}
-                    title="Next response"
-                    aria-label="Next version"
-                    style={{ color: props.feedbackColor ?? defaultFeedbackColor }}
-                  >
-                    {'>'}
-                  </button>
-                </div>
               </Show>
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>

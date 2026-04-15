@@ -714,6 +714,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   let hasSoundPlayed = false;
   let isStreaming = false;
+  let pendingResponseVersions: MessageResponseVersion[] | null = null;
 
   const updateLastMessage = (text: string) => {
     setMessages((prevMessages) => {
@@ -801,7 +802,29 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateAgentFlowEvent = (event: string) => {
     if (event === 'INPROGRESS') {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
+      setMessages((prevMessages) => {
+        const lastMsg = prevMessages[prevMessages.length - 1];
+        const newMsg: MessageType = { message: '', type: 'apiMessage', agentFlowEventStatus: event };
+
+        if (lastMsg?.type === 'apiMessage' && lastMsg.responseVersions?.length) {
+          // Carry over from prior apiMessage (start or earlier INPROGRESS)
+          newMsg.responseVersions = lastMsg.responseVersions;
+          newMsg.responseVersionIndex = lastMsg.responseVersionIndex;
+        } else if (pendingResponseVersions && pendingResponseVersions.length > 0) {
+          // Initialize from scratch (start never fired, this is the first apiMessage during regeneration)
+          const responseVersions = [...pendingResponseVersions, createResponseVersion(newMsg)];
+          newMsg.responseVersions = responseVersions;
+          newMsg.responseVersionIndex = responseVersions.length - 1;
+          pendingResponseVersions = null; // consumed
+        }
+
+        // Carry over messageId so BotBubble's feedback/pagination guard passes
+        if (lastMsg?.type === 'apiMessage' && lastMsg.messageId) {
+          newMsg.messageId = lastMsg.messageId;
+        }
+
+        return [...prevMessages, newMsg];
+      });
     } else {
       setMessages((prevMessages) => {
         const lastMsg = prevMessages[prevMessages.length - 1];
@@ -944,7 +967,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const canRegenerateResponse = (messageIndex: number) => {
     if (!chatFeedbackStatus() || loading()) return false;
     if (messageIndex !== lastApiMessageIndex()) return false;
-    const previousMessage = messages()[messageIndex - 1];
+    // Walk backward past intermediate agent flow apiMessages to find the userMessage
+    const currentMessages = messages();
+    let i = messageIndex - 1;
+    while (i >= 0 && currentMessages[i].type === 'apiMessage') i--;
+    const previousMessage = currentMessages[i];
     if (!previousMessage || previousMessage.type !== 'userMessage') return false;
     if (previousMessage.fileUploads?.length) return false;
     return true;
@@ -959,7 +986,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const currentMessages = messages();
     const targetMessage = currentMessages[messageIndex];
-    const previousMessage = currentMessages[messageIndex - 1];
+
+    // Walk backward past intermediate apiMessages to find the userMessage
+    let userMsgIndex = messageIndex - 1;
+    while (userMsgIndex >= 0 && currentMessages[userMsgIndex].type === 'apiMessage') userMsgIndex--;
+    const previousMessage = currentMessages[userMsgIndex];
+    if (!previousMessage || previousMessage.type !== 'userMessage') return;
 
     const ratings = messageRatings();
     const withRating = (v: MessageResponseVersion): MessageResponseVersion =>
@@ -968,8 +1000,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const existingResponseVersions = (() => {
       if (targetMessage.responseVersions && targetMessage.responseVersions.length > 0) {
         const versions = [...targetMessage.responseVersions].map(withRating);
-        // The latest slot may have message:'' if it was loaded from localStorage before
-        // the end-event persist ran. Overwrite it with the actual content on the top-level message.
         const last = versions.length - 1;
         if (!versions[last].message) {
           versions[last] = withRating(createResponseVersion(targetMessage));
@@ -980,12 +1010,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     })();
 
     setFollowUpPrompts([]);
-    const updatedMessages = currentMessages.slice(0, messageIndex);
+    // Remove all apiMessages from this exchange (intermediate + target)
+    const updatedMessages = currentMessages.slice(0, userMsgIndex + 1);
     addChatMessage(updatedMessages);
     setMessages(updatedMessages);
 
-    // Note: chatId is kept so the server retains conversation context up to this point.
-    // The server's history will still include messages that were removed client-side
     await handleSubmit(previousMessage.message, undefined, undefined, {
       skipAddUserMessage: true,
       responseVersions: existingResponseVersions,
@@ -1042,6 +1071,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     const chatId = params.chatId;
     const input = params.question;
     params.streaming = true;
+    pendingResponseVersions = options?.responseVersions?.length ? options.responseVersions : null;
 
     const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       if (props.onRequest && init) {
@@ -1089,11 +1119,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             isStreaming = true;
             setMessages((prevMessages) => {
               const newMessage: MessageType = { message: '', type: 'apiMessage' };
-              if (options?.responseVersions && options.responseVersions.length > 0) {
-                const responseVersions = [...options.responseVersions, createResponseVersion(newMessage)];
+              const versionsToUse = options?.responseVersions ?? pendingResponseVersions;
+              if (versionsToUse && versionsToUse.length > 0) {
+                const responseVersions = [...versionsToUse, createResponseVersion(newMessage)];
                 newMessage.responseVersions = responseVersions;
                 newMessage.responseVersionIndex = responseVersions.length - 1;
               }
+              pendingResponseVersions = null; // consumed
               return [...prevMessages, newMessage];
             });
             break;
@@ -1213,6 +1245,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUploadedFiles([]);
     hasSoundPlayed = false;
     isStreaming = false; // safety net to ensure that the streaming is not left on
+    pendingResponseVersions = null;
     setTimeout(() => {
       scrollToBottom();
     }, 100);
