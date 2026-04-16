@@ -40,7 +40,7 @@ const ChevronRightIcon = () => (
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="transition-transform duration-200"
+    style={{ transition: 'transform 0.2s' }}
   >
     <path d="m9 18 6-6-6-6" />
   </svg>
@@ -57,7 +57,7 @@ const ChevronDownIcon = () => (
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="transition-transform duration-200"
+    style={{ transition: 'transform 0.2s' }}
   >
     <path d="m6 9 6 6 6-6" />
   </svg>
@@ -198,8 +198,22 @@ export const RichTreeView = (props: RichTreeViewProps) => {
       padding-left: ${mergedProps.indentationLevel}px !important;
     }
     .tree-item-content {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.25rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
       border-left: 3px solid transparent;
       transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .tree-item-icon-container {
+      margin-right: 0.25rem;
+    }
+    .tree-item-icon {
+      margin-right: 0.5rem;
+    }
+    .tree-item-label {
+      flex-grow: 1;
     }
     .tree-item-content:hover {
       background-color: rgba(0, 0, 0, 0.06);
@@ -282,20 +296,18 @@ export const TreeItem = (props: TreeItemProps) => {
   return (
     <div class="tree-item-root">
       <div
-        class={`tree-item-content flex items-center py-2 px-1 rounded cursor-pointer ${context.isSelected(props.itemId) ? 'selected' : ''} ${
-          context.isHighlighted(props.itemId) ? 'highlighted' : ''
-        }`}
+        class={`tree-item-content ${context.isSelected(props.itemId) ? 'selected' : ''} ${context.isHighlighted(props.itemId) ? 'highlighted' : ''}`}
         onClick={handleClick}
       >
-        <div class="tree-item-icon-container mr-1">
+        <div class="tree-item-icon-container">
           {!isLeaf && <Dynamic component={context.isExpanded(props.itemId) ? ChevronDownIcon : ChevronRightIcon} />}
         </div>
 
-        <div class="tree-item-icon mr-2">
+        <div class="tree-item-icon">
           {props.icon ? props.icon : props.expandedIcon && context.isExpanded(props.itemId) ? props.expandedIcon : getDefaultIcon()}
         </div>
 
-        <div class="tree-item-label flex-grow">{props.label}</div>
+        <div class="tree-item-label">{props.label}</div>
 
         <Show when={props.endIcon}>
           <div class="tree-item-end-icon">{props.endIcon}</div>

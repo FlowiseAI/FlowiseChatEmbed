@@ -31,7 +31,7 @@ const ChevronDownIcon = () => (
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="transition-transform duration-200"
+    style={{ transition: 'transform 0.2s' }}
   >
     <path d="m6 9 6 6 6-6" />
   </svg>
@@ -48,7 +48,7 @@ const ChevronRightIcon = () => (
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="transition-transform duration-200"
+    style={{ transition: 'transform 0.2s' }}
   >
     <path d="m9 18 6-6-6-6" />
   </svg>
@@ -206,6 +206,7 @@ export const TracesDialog = (props: TracesDialogProps) => {
   const DialogContent = () => (
     <>
       <style>{nddStyles}</style>
+      <style>{`.tree-panel-header:hover { background-color: rgba(0,0,0,0.06); }`}</style>
       {/* Backdrop */}
       <div
         style={{ position: 'fixed', inset: '0', 'z-index': 1001, 'background-color': 'rgba(0,0,0,0.25)', 'pointer-events': 'auto' }}
@@ -298,19 +299,25 @@ export const TracesDialog = (props: TracesDialogProps) => {
             >
               {/* Collapsible tree header */}
               <div
-                class="flex items-center p-2 cursor-pointer hover:bg-gray-100 transition-colors duration-150"
+                class="tree-panel-header"
                 onClick={togglePanel}
-                style={{ 'background-color': 'rgba(0,0,0,0.03)', gap: '4px' }}
+                style={{
+                  display: 'flex',
+                  'align-items': 'center',
+                  padding: '0.5rem',
+                  cursor: 'pointer',
+                  'background-color': 'rgba(0,0,0,0.03)',
+                  gap: '4px',
+                  transition: 'background-color 0.15s ease',
+                }}
               >
-                <div class="flex-shrink-0">{isPanelExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}</div>
+                <div style={{ 'flex-shrink': '0' }}>{isPanelExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}</div>
                 <Show when={isPanelExpanded()}>
-                  <span class="font-semibold text-xs" style={{ 'white-space': 'nowrap' }}>
-                    Process Flow
-                  </span>
+                  <span style={{ 'font-weight': '600', 'font-size': '0.75rem', 'line-height': '1rem', 'white-space': 'nowrap' }}>Process Flow</span>
                 </Show>
               </div>
               <Show when={isPanelExpanded()}>
-                <div class="p-2" style={{ 'font-size': '0.85rem' }}>
+                <div style={{ padding: '0.5rem', 'font-size': '0.85rem' }}>
                   <RichTreeView
                     defaultExpanded={expandedNodes()}
                     defaultSelected={selectedNodeId()}

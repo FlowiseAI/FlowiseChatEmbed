@@ -1,37 +1,301 @@
 <!--
-  NOTE: This .html file (and public folder) is optional and can be safely deleted.
-  It serves only as a demo/test page.
-  
-  The chatbot can be embedded directly on any allowed domain using the embed script that
-  is generated when starting the server.
+  Dialog Portal Test Page
+  =======================
+  Layout:
+    Left  40% — flowise-fullchatbot chat widget
+    Right 60% — scrollable Lorem Ipsum article (host page content)
+
+  The red banner (z-index 600) overlaps the top-right corner of the chat panel.
+    Portal OFF → dialog appears BEHIND the banner (z-index trapped in shadow DOM)
+    Portal ON  → dialog correctly overlays the banner (host stacking context)
+
+  Toggling portal mode updates `dialogContainer` directly on the element —
+  no destroy/remount, so the right-side content is never affected.
+
+  Usage:  yarn dev  →  open http://localhost:5678
 -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dialog Portal Test — Flowise</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: system-ui, sans-serif;
+      }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flowise Chatbot Widget</title>
-</head>
+      /* Controls bar */
+      #controls {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 48px;
+        z-index: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 16px;
+        background: #1e293b;
+        color: #fff;
+        font-size: 14px;
+      }
+      #controls .hint {
+        margin-left: auto;
+        font-size: 11px;
+        opacity: 0.5;
+      }
+      #toggle-btn {
+        padding: 5px 14px;
+        border: none;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #toggle-btn.portal-off {
+        background: #64748b;
+        color: #fff;
+      }
+      #toggle-btn.portal-on {
+        background: #16a34a;
+        color: #fff;
+      }
+      #mode-label {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+      #mode-label.portal-off {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+      }
+      #mode-label.portal-on {
+        background: rgba(34, 197, 94, 0.2);
+        color: #86efac;
+      }
 
-<body>
-    <div id="root"></div>
+      /* z-index stress-test banner — sits at 600, above the shadow DOM context.
+         Portal OFF: dialog (z-index 1002 inside shadow) loses to this banner.
+         Portal ON:  dialog is in host context; z-index 1002 beats 600. */
+      #stacking-stress {
+        position: fixed;
+        top: 48px;
+        left: 0;
+        z-index: 600;
+        background: #ef4444;
+        color: #fff;
+        padding: 8px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        pointer-events: none;
+        border-radius: 0 0 8px 0;
+        line-height: 1.6;
+      }
+
+      /* Split layout */
+      #layout {
+        display: flex;
+        height: calc(100vh - 48px);
+        margin-top: 48px;
+      }
+
+      #right-panel {
+        width: 60%;
+        overflow-y: auto;
+        padding: 40px 48px;
+      }
+      #right-panel article {
+        max-width: 640px;
+        line-height: 1.7;
+      }
+      #right-panel blockquote {
+        border-left: 3px solid #6366f1;
+        margin: 24px 0;
+        padding: 10px 16px;
+        background: #f1f5f9;
+        font-style: italic;
+      }
+
+      #left-panel {
+        width: 40%;
+        flex-shrink: 0;
+        overflow: hidden;
+        border-left: 1px solid #e2e8f0;
+      }
+      flowise-fullchatbot {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Portal target — empty div outside the shadow DOM.
+         The dialog portals its content here when dialogContainer is active.
+         z-index 900 ensures it sits above the stress-test banner (600). */
+      #dialog-portal-target {
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        pointer-events: none;
+      }
+      #dialog-portal-target > * {
+        pointer-events: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Portal target — must exist in DOM before Chatbot.initFull() is called -->
+    <div id="dialog-portal-target" aria-hidden="true"></div>
+
+    <!-- Controls bar -->
+    <div id="controls">
+      <strong>Dialog Portal Test</strong>
+      <button id="toggle-btn" class="portal-off" onclick="toggleMode()">Enable Portal</button>
+      <span id="mode-label" class="portal-off">Portal OFF</span>
+      <span class="hint">Start a chat → click a flow node → toggle portal to compare z-index behaviour</span>
+    </div>
+
+    <!-- Stacking stress-test banner (z-index 600) overlaps the chat panel -->
+    <div id="stacking-stress">
+      <span class="s-title">z-index: 600</span>
+      <span class="s-row">Portal OFF → dialog hides behind this</span>
+      <span class="s-row">Portal ON &nbsp;→ dialog appears above</span>
+    </div>
+
+    <!-- Split layout -->
+    <div id="layout">
+      <!-- Right 60%: Lorem Ipsum article -->
+      <div id="right-panel">
+        <article>
+          <h1>The Architecture of Intelligent Workflow Automation</h1>
+          <p><small>April 10, 2026 &middot; Flowise Team</small></p>
+
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+            minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          </p>
+
+          <p>
+            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde
+            omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et
+            quasi architecto beatae vitae dicta sunt explicabo.
+          </p>
+
+          <blockquote>
+            "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione
+            voluptatem sequi nesciunt."
+          </blockquote>
+
+          <h2>Agent Flow Execution Model</h2>
+
+          <p>
+            Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora
+            incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis
+            suscipit laboriosam.
+          </p>
+
+          <ul>
+            <li>Temporibus autem quibusdam et aut officiis debitis rerum necessitatibus saepe eveniet.</li>
+            <li>Ut et voluptates repudiandae sint et molestiae non recusandae.</li>
+            <li>Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores.</li>
+            <li>Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit.</li>
+          </ul>
+
+          <h2>Shadow DOM Stacking Contexts</h2>
+
+          <p>
+            Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita
+            distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus,
+            omnis voluptas assumenda est.
+          </p>
+
+          <p>
+            Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae
+            non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut
+            perferendis doloribus asperiores repellat.
+          </p>
+
+          <h2>Portal Rendering Strategy</h2>
+
+          <p>
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium. Nemo enim ipsam voluptatem quia voluptas
+            sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Ut enim ad minima
+            veniam, quis nostrum exercitationem ullam.
+          </p>
+
+          <blockquote>
+            "Excepteur sint occaecat cupidatat non proident — sunt in culpa qui officia deserunt mollit anim id est laborum et dolorum fuga."
+          </blockquote>
+
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+            minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+            voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+          </p>
+        </article>
+      </div>
+
+      <!-- Left 40%: Chat widget -->
+      <div id="left-panel">
+        <flowise-fullchatbot></flowise-fullchatbot>
+      </div>
+    </div>
+
     <script type="module">
-        import Chatbot from './web.js'
-        
-        // Example initialization:
-        // If your .env contains:
-        // agent1=xyz789-uvw456,https://example.com
-        // support=abc123-def456,https://example.com
-        // salesbot=ghi123-jkl456,https://example.com
-        //
-        // Then use the environment variable name as chatflowid:
-        Chatbot.init({
-            chatflowid: 'agent1',    // or 'support', 'salesbot', etc.
-            apiHost: window.location.origin
-        })
-    </script>
-</body>
+      import Chatbot from './web.js';
 
+      // ── Configuration ──────────────────────────────────────────────────────
+      const CHATFLOW_ID = '58fbdbc9-c189-41a1-b99c-93720cc73411';
+      const API_HOST = 'http://localhost:3000';
+      // ──────────────────────────────────────────────────────────────────────
+
+      const portalTarget = document.getElementById('dialog-portal-target');
+      let portalEnabled = false;
+
+      // Mount once — initFull finds the <flowise-fullchatbot> already in #left-panel
+      Chatbot.initFull({
+        chatflowid: CHATFLOW_ID,
+        apiHost: API_HOST,
+        theme: {
+          chatWindow: {
+            showAgentMessages: true,
+            title: 'Agent Flow Chat',
+            showTitle: true,
+          },
+        },
+      });
+
+      // Toggle portal mode by updating dialogContainer directly on the element.
+      // No destroy/remount needed — solid-element observes the prop change.
+      window.toggleMode = function () {
+        portalEnabled = !portalEnabled;
+
+        const el = document.querySelector('flowise-fullchatbot');
+        const btn = document.getElementById('toggle-btn');
+        const label = document.getElementById('mode-label');
+
+        // Update the prop in-place; the Solid component reacts automatically
+        el.dialogContainer = portalEnabled ? portalTarget : undefined;
+
+        if (portalEnabled) {
+          btn.textContent = 'Disable Portal';
+          btn.className = 'portal-on';
+          label.textContent = 'Portal ON';
+          label.className = 'portal-on';
+        } else {
+          btn.textContent = 'Enable Portal';
+          btn.className = 'portal-off';
+          label.textContent = 'Portal OFF';
+          label.className = 'portal-off';
+        }
+      };
+    </script>
+  </body>
 </html>
