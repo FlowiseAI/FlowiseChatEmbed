@@ -556,6 +556,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let ttsTimeoutRef: ReturnType<typeof setTimeout> | null = null;
   let hasAutoSentInitialMessage = false;
 
+  createEffect(() => {
+    // Reset the auto-send flag when the chatflow ID changes (for SPA routing)
+    props.chatflowid; 
+    hasAutoSentInitialMessage = false;
+  });
+
+
   createMemo(() => {
     const customerId = (props.chatflowConfig?.vars as any)?.customerId;
     setChatId(customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4());
@@ -1630,14 +1637,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       }
       setIsTTSEnabled(!!chatbotConfig.isTTSEnabled);
-    }
-
-    // Auto-send initial message after config is fully loaded
-    const leadCaptureRequired = leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead;
-    if (props.autoSendInitialMessage && !hasAutoSentInitialMessage && !leadCaptureRequired) {
-      hasAutoSentInitialMessage = true;
-      setUserInput(props.autoSendInitialMessage);
-      handleSubmit(props.autoSendInitialMessage);
+      
+      // Auto-send initial message after config is fully loaded
+      const leadCaptureRequired = leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead;
+      if (props.autoSendInitialMessage && !hasAutoSentInitialMessage && !leadCaptureRequired && messages().length === 1) {
+        hasAutoSentInitialMessage = true;
+        setUserInput(props.autoSendInitialMessage);
+        handleSubmit(props.autoSendInitialMessage);
+      }
     }
 
     // eslint-disable-next-line solid/reactivity
