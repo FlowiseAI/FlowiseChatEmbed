@@ -6,13 +6,14 @@ import { FeedbackRatingType, sendFeedbackQuery, sendFileDownloadQuery, updateFee
 import { FileUpload, IAction, MessageType } from '../Bot';
 import { CopyToClipboardButton, ThumbsDownButton, ThumbsUpButton } from '../buttons/FeedbackButtons';
 import { RegenerateResponseButton } from '../buttons/RegenerateResponseButton';
+import { TracesButton } from '../buttons/TracesButton';
 import { TTSButton } from '../buttons/TTSButton';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
 import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
-import { WorkflowTreeView } from '../treeview/WorkflowTreeView';
+import { TracesDialog } from '../treeview/TracesDialog';
 import { ThinkingCard } from './ThinkingBubble';
 
 type Props = {
@@ -63,6 +64,7 @@ export const BotBubble = (props: Props) => {
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [thumbsUpColor, setThumbsUpColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
   const [thumbsDownColor, setThumbsDownColor] = createSignal(props.feedbackColor ?? defaultFeedbackColor); // default color
+  const [isTracesDialogOpen, setIsTracesDialogOpen] = createSignal(false);
 
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
@@ -408,22 +410,6 @@ export const BotBubble = (props: Props) => {
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
         <div class="flex flex-col justify-start">
-          {props.showAgentMessages &&
-            props.message.agentFlowExecutedData &&
-            Array.isArray(props.message.agentFlowExecutedData) &&
-            props.message.agentFlowExecutedData.length > 0 && (
-              <div>
-                <WorkflowTreeView
-                  workflowData={props.message.agentFlowExecutedData}
-                  indentationLevel={24}
-                  apiHost={props.apiHost}
-                  chatflowid={props.chatflowid}
-                  chatId={props.chatId}
-                  hasCustomHeader={props.hasCustomHeader}
-                  dialogContainer={props.dialogContainer}
-                />
-              </div>
-            )}
           {props.showAgentMessages && props.message.agentReasoning && (
             <details ref={botDetailsEl} class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]">
               <summary class="cursor-pointer">
@@ -583,7 +569,11 @@ export const BotBubble = (props: Props) => {
           </Show>
           {props.chatFeedbackStatus && props.message.messageId && (
             <>
-              <RegenerateResponseButton class="regenerate-response-button" feedbackColor={props.feedbackColor} onClick={() => props.onRegenerateResponse?.()} />
+              <RegenerateResponseButton
+                class="regenerate-response-button"
+                feedbackColor={props.feedbackColor}
+                onClick={() => props.onRegenerateResponse?.()}
+              />
               <CopyToClipboardButton feedbackColor={props.feedbackColor} onClick={() => copyMessageToClipboard()} />
               <Show when={copiedMessage()}>
                 <div class="copied-message" style={{ color: props.feedbackColor ?? defaultFeedbackColor }}>
@@ -608,7 +598,27 @@ export const BotBubble = (props: Props) => {
               </Show>
             </>
           )}
+          {!props.isLoading &&
+            props.showAgentMessages &&
+            props.message.message &&
+            props.message.agentFlowExecutedData &&
+            Array.isArray(props.message.agentFlowExecutedData) &&
+            props.message.agentFlowExecutedData.length > 0 && (
+              <TracesButton feedbackColor={props.feedbackColor} onClick={() => setIsTracesDialogOpen(true)} />
+            )}
         </div>
+        <TracesDialog
+          isOpen={isTracesDialogOpen()}
+          onClose={() => setIsTracesDialogOpen(false)}
+          workflowData={props.message.agentFlowExecutedData}
+          backgroundColor={props.backgroundColor}
+          textColor={props.textColor}
+          apiHost={props.apiHost}
+          chatflowid={props.chatflowid}
+          chatId={props.chatId}
+          hasCustomHeader={props.hasCustomHeader}
+          dialogContainer={props.dialogContainer}
+        />
         <Show when={showFeedbackContentDialog()}>
           <FeedbackContentDialog
             isOpen={showFeedbackContentDialog()}
