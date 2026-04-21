@@ -58,6 +58,7 @@ export type ChatWindowTheme = {
     titleBackgroundColor?: string;
     welcomeMessage?: string;
     errorMessage?: string;
+    autoSendInitialMessage?: string;
     backgroundColor?: string;
     backgroundImage?: string;
     height?: number | string;
@@ -76,7 +77,6 @@ export type ChatWindowTheme = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     headerHtml?: string;
-    autoSendInitialMessage?: string;
 };
 export type ButtonTheme = {
     size?: 'small' | 'medium' | 'large' | number;

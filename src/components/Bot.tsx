@@ -1633,7 +1633,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     }
 
     // Auto-send initial message after config is fully loaded
-    if (props.autoSendInitialMessage && !hasAutoSentInitialMessage) {
+    const leadCaptureRequired = leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead;
+    if (props.autoSendInitialMessage && !hasAutoSentInitialMessage && !leadCaptureRequired) {
       hasAutoSentInitialMessage = true;
       setUserInput(props.autoSendInitialMessage);
       handleSubmit(props.autoSendInitialMessage);
