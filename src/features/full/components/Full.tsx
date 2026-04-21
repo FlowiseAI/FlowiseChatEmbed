@@ -104,6 +104,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             dateTimeToggle={props.theme?.chatWindow?.dateTimeToggle}
             renderHTML={props.theme?.chatWindow?.renderHTML}
             dialogContainer={resolveDialogContainer(props.dialogContainer)}
+            autoSendInitialMessage={props.theme?.chatWindow?.autoSendInitialMessage}
           />
         </div>
       </Show>

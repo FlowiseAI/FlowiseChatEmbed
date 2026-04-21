@@ -124,6 +124,7 @@ export type BotProps = {
     closeBot?: () => void;
     hasCustomHeader?: boolean;
     dialogContainer?: HTMLElement;
+    autoSendInitialMessage?: string;
 };
 export type LeadsConfig = {
     status: boolean;

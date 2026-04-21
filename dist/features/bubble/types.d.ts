@@ -76,6 +76,7 @@ export type ChatWindowTheme = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     headerHtml?: string;
+    autoSendInitialMessage?: string;
 };
 export type ButtonTheme = {
     size?: 'small' | 'medium' | 'large' | number;
