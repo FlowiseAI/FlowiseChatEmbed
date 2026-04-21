@@ -556,12 +556,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let ttsTimeoutRef: ReturnType<typeof setTimeout> | null = null;
   let hasAutoSentInitialMessage = false;
 
-  createEffect(() => {
+  createEffect(on(() => props.chatflowid, () => {
     // Reset the auto-send flag when the chatflow ID changes (for SPA routing)
-    props.chatflowid; 
     hasAutoSentInitialMessage = false;
-  });
-
+  }, { defer: true }));
 
   createMemo(() => {
     const customerId = (props.chatflowConfig?.vars as any)?.customerId;
