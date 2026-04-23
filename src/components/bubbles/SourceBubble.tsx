@@ -1,4 +1,4 @@
-import { createSignal, Show } from 'solid-js';
+import { createSignal, createMemo, Show } from 'solid-js';
 import { FileIcon, GlobeIcon } from '../icons';
 
 type Props = {
@@ -62,11 +62,12 @@ const SourceGlobeIcon = () => <GlobeIcon width="14" height="14" style={{ 'flex-s
 const SourceFileIcon = () => <FileIcon width="14" height="14" style={{ 'flex-shrink': 0, color: '#6b7280' }} />;
 
 export const SourceBubble = (props: Props) => {
-  const url = () => (props.metadata?.source ? isValidURL(props.metadata.source) : undefined);
+  const [isHovered, setIsHovered] = createSignal(false);
+  const url = createMemo(() => (props.metadata?.source ? isValidURL(props.metadata.source) : undefined));
   // Lighter tint of the bot bubble color (mix 60% toward white). Falls back to a soft neutral.
-  const baseBg = () => (props.backgroundColor ? mixHex(props.backgroundColor, '#ffffff', 0.6) : '#fafbff');
+  const baseBg = createMemo(() => (props.backgroundColor ? mixHex(props.backgroundColor, '#ffffff', 0.6) : '#fafbff'));
   // Hover: a touch darker than the resting tint (mix 8% toward black).
-  const hoverBg = () => mixHex(baseBg(), '#000000', 0.04);
+  const hoverBg = createMemo(() => mixHex(baseBg(), '#000000', 0.04));
 
   return (
     <button
@@ -81,8 +82,8 @@ export const SourceBubble = (props: Props) => {
         gap: '6px',
         'max-width': '160px',
         padding: '4px 10px',
-        'background-color': baseBg(),
-        border: '1px solid #e5e7eb',
+        'background-color': isHovered() ? hoverBg() : baseBg(),
+        border: isHovered() ? '1px solid #d1d5db' : '1px solid #e5e7eb',
         'border-radius': '9999px',
         'font-size': '12px',
         'line-height': '1.2',
@@ -91,14 +92,8 @@ export const SourceBubble = (props: Props) => {
         'box-shadow': '0 1px 1px rgba(0,0,0,0.02)',
         transition: 'background-color 120ms ease, border-color 120ms ease, transform 120ms ease',
       }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.backgroundColor = hoverBg();
-        (e.currentTarget as HTMLButtonElement).style.borderColor = '#d1d5db';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.backgroundColor = baseBg();
-        (e.currentTarget as HTMLButtonElement).style.borderColor = '#e5e7eb';
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Show when={url()} fallback={<SourceFileIcon />}>
         <FaviconIcon url={url() as URL} />
