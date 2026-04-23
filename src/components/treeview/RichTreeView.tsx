@@ -1,7 +1,6 @@
 import { createContext, useContext, JSXElement, Show, For, createEffect, mergeProps } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Dynamic } from 'solid-js/web';
-import { ChevronRightIcon, ChevronDownIcon, FolderIcon, FolderOpenIcon, FileIcon } from '../icons';
 
 // TreeView Context Type
 type TreeViewContextType = {
@@ -28,6 +27,91 @@ const TreeViewContext = createContext<TreeViewContextType>({
   isSelected: () => false,
   isHighlighted: () => false,
 });
+
+// Icons for expanded and collapsed states
+const ChevronRightIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    style={{ transition: 'transform 0.2s' }}
+  >
+    <path d="m9 18 6-6-6-6" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    style={{ transition: 'transform 0.2s' }}
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
+// Default folder icons
+const FolderIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+  </svg>
+);
+
+const FolderOpenIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+const FileIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+    <polyline points="14 2 14 8 20 8" />
+  </svg>
+);
 
 // Props for RichTreeView component
 type RichTreeViewProps = {
@@ -204,9 +288,9 @@ export const TreeItem = (props: TreeItemProps) => {
 
   const getDefaultIcon = () => {
     if (isLeaf) {
-      return <FileIcon width="18" height="18" />;
+      return <FileIcon />;
     }
-    return <>{context.isExpanded(props.itemId) ? <FolderOpenIcon width="18" height="18" /> : <FolderIcon width="18" height="18" />}</>;
+    return <>{context.isExpanded(props.itemId) ? <FolderOpenIcon /> : <FolderIcon />}</>;
   };
 
   return (
@@ -216,15 +300,7 @@ export const TreeItem = (props: TreeItemProps) => {
         onClick={handleClick}
       >
         <div class="tree-item-icon-container">
-          {!isLeaf && (
-            <Dynamic
-              component={
-                context.isExpanded(props.itemId)
-                  ? () => <ChevronDownIcon width="18" height="18" style={{ transition: 'transform 0.2s' }} />
-                  : () => <ChevronRightIcon width="18" height="18" style={{ transition: 'transform 0.2s' }} />
-              }
-            />
-          )}
+          {!isLeaf && <Dynamic component={context.isExpanded(props.itemId) ? ChevronDownIcon : ChevronRightIcon} />}
         </div>
 
         <div class="tree-item-icon">
