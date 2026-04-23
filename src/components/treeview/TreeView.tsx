@@ -1,6 +1,7 @@
 import { createSignal, createContext, useContext, JSXElement, Show, For, createEffect } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Dynamic } from 'solid-js/web';
+import { ChevronDownIcon, ChevronRightIcon } from '../icons';
 
 // TreeView Context Type
 type TreeViewContextType = {
@@ -16,41 +17,6 @@ const TreeViewContext = createContext<TreeViewContextType>({
   toggleItem: () => {},
   isExpanded: () => false,
 });
-
-// Icons for expanded and collapsed states
-const ChevronRight = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="transition-transform duration-200"
-  >
-    <path d="m9 18 6-6-6-6" />
-  </svg>
-);
-
-const ChevronDown = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="transition-transform duration-200"
-  >
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-);
 
 // Props for TreeView component
 type TreeViewProps = {
@@ -111,7 +77,13 @@ export const TreeItem = (props: TreeItemProps) => {
         onClick={() => hasChildren && context.toggleItem(props.itemId)}
       >
         <div class="tree-item-icon-container mr-1" style={{ visibility: hasChildren ? 'visible' : 'hidden' }}>
-          <Dynamic component={context.isExpanded(props.itemId) ? ChevronDown : ChevronRight} />
+          <Dynamic
+            component={
+              context.isExpanded(props.itemId)
+                ? () => <ChevronDownIcon width="20" height="20" class="transition-transform duration-200" />
+                : () => <ChevronRightIcon width="20" height="20" class="transition-transform duration-200" />
+            }
+          />
         </div>
 
         <Show when={props.icon}>

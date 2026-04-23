@@ -1,6 +1,7 @@
 import { createSignal, onMount, Show, For } from 'solid-js';
 import { RichTreeView, TreeItem } from './RichTreeView';
 import { getAgentflowIcon, MaximizeIcon } from './AgentflowIcons';
+import { ChevronDownIcon, ChevronRightIcon } from '../icons';
 import { NodeDetailsDialog } from './NodeDetailsDialog';
 import { WorkflowNode, buildTreeData, getStatusIcon, getExecutionStatus } from './workflowUtils';
 
@@ -28,41 +29,6 @@ type WorkflowTreeViewProps = {
 const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
-
-// Chevron icons for the collapsible panel
-const ChevronDownIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="transition-transform duration-200"
-  >
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-);
-
-const ChevronRightIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="transition-transform duration-200"
-  >
-    <path d="m9 18 6-6-6-6" />
-  </svg>
-);
 
 // Main component for visualizing workflow as a tree
 export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
@@ -158,7 +124,13 @@ export const WorkflowTreeView = (props: WorkflowTreeViewProps) => {
         }}
       >
         <div class="flex items-center space-x-2">
-          <div class="flex-shrink-0">{isPanelExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}</div>
+          <div class="flex-shrink-0">
+            {isPanelExpanded() ? (
+              <ChevronDownIcon width="20" height="20" class="transition-transform duration-200" />
+            ) : (
+              <ChevronRightIcon width="20" height="20" class="transition-transform duration-200" />
+            )}
+          </div>
           <h2 class="font-semibold flex items-center">
             {props.title || 'Process Flow'}
             {executionStatus() && (
