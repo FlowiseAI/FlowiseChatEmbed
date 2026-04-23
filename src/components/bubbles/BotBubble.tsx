@@ -11,6 +11,7 @@ import { TTSButton } from '../buttons/TTSButton';
 import FeedbackContentDialog from '../FeedbackContentDialog';
 import { AgentReasoningBubble } from './AgentReasoningBubble';
 import { TickIcon, XIcon } from '../icons';
+import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
 import { TracesDialog } from '../treeview/TracesDialog';
 import { ThinkingCard } from './ThinkingBubble';
@@ -174,6 +175,31 @@ export const BotBubble = (props: Props) => {
     } catch (e) {
       return;
     }
+  };
+
+  const isValidURL = (url: string): URL | undefined => {
+    try {
+      return new URL(url);
+    } catch (err) {
+      return undefined;
+    }
+  };
+
+  const removeDuplicateURL = (message: MessageType) => {
+    const visitedURLs: string[] = [];
+    const newSourceDocuments: any = [];
+    const sourceDocuments = Array.isArray(message.sourceDocuments) ? message.sourceDocuments : [];
+
+    sourceDocuments.forEach((source: any) => {
+      if (!source || !source.metadata) return;
+      if (isValidURL(source.metadata.source) && !visitedURLs.includes(source.metadata.source)) {
+        visitedURLs.push(source.metadata.source);
+        newSourceDocuments.push(source);
+      } else if (!isValidURL(source.metadata.source)) {
+        newSourceDocuments.push(source);
+      }
+    });
+    return newSourceDocuments;
   };
 
   const onThumbsUpClick = async () => {
@@ -484,6 +510,48 @@ export const BotBubble = (props: Props) => {
             </div>
           )}
         </div>
+      </div>
+      <div>
+        {props.message.sourceDocuments && props.message.sourceDocuments.length > 0 && (
+          <div style={{ padding: '6px 8px 2px 8px' }}>
+            <Show when={props.sourceDocsTitle}>
+              <span
+                class="px-2 py-[10px] font-semibold"
+                style={{
+                  display: 'block',
+                  'font-size': '11px',
+                  'letter-spacing': '0.06em',
+                  'text-transform': 'uppercase',
+                  color: '#6b7280',
+                  'margin-bottom': '4px',
+                }}
+              >
+                {props.sourceDocsTitle}
+              </span>
+            </Show>
+            <div style={{ display: 'flex', 'flex-direction': 'row', width: '100%', 'flex-wrap': 'wrap', gap: '6px' }}>
+              <For each={[...removeDuplicateURL(props.message)]}>
+                {(src) => {
+                  const URL = isValidURL(src.metadata.source);
+                  return (
+                    <SourceBubble
+                      pageContent={src.metadata.title ? src.metadata.title : URL ? URL.pathname : src.pageContent}
+                      metadata={src.metadata}
+                      backgroundColor={props.backgroundColor ?? defaultBackgroundColor}
+                      onSourceClick={() => {
+                        if (URL) {
+                          window.open(src.metadata.source, '_blank');
+                        } else {
+                          props.handleSourceDocumentsClick(src);
+                        }
+                      }}
+                    />
+                  );
+                }}
+              </For>
+            </div>
+          </div>
+        )}
       </div>
       <div>
         <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>

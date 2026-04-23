@@ -81,7 +81,7 @@ export const SourceBubble = (props: Props) => {
         'align-items': 'center',
         gap: '6px',
         'max-width': '160px',
-        padding: '4px 10px',
+        padding: '6px 12px',
         'background-color': isHovered() ? hoverBg() : baseBg(),
         border: isHovered() ? '1px solid #d1d5db' : '1px solid #e5e7eb',
         'border-radius': '9999px',
