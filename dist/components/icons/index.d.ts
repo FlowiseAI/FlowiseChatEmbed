@@ -15,4 +15,8 @@ export * from './VolumeIcon';
 export * from './SquareStopIcon';
 export * from './ChevronDownIcon';
 export * from './TracesIcon';
+export * from './ChevronRightIcon';
+export * from './FolderIcon';
+export * from './FileIcon';
+export * from './GlobeIcon';
 //# sourceMappingURL=index.d.ts.map
