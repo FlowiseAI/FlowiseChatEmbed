@@ -1823,7 +1823,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleDrop = async (e: InputEvent | DragEvent) => {
-    if (!uploadsConfig()?.isImageUploadAllowed && !isFileUploadAllowed) {
+    if (!uploadsConfig()?.isImageUploadAllowed && !isFileUploadAllowed()) {
       return;
     }
     e.preventDefault();
@@ -1925,7 +1925,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const onRecordingCancelled = () => {
-    if (!recordingNotSupported) cancelAudioRecording();
+    if (!recordingNotSupported()) cancelAudioRecording();
     setIsRecording(false);
     setRecordingNotSupported(false);
   };
