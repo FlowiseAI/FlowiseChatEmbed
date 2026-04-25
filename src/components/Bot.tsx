@@ -1823,11 +1823,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   const handleDrop = async (e: InputEvent | DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
     if (!uploadsConfig()?.isImageUploadAllowed && !isFileUploadAllowed()) {
       return;
     }
-    e.preventDefault();
-    setIsDragActive(false);
     const files = [];
     const uploadedFiles = [];
     if (e.dataTransfer && e.dataTransfer.files.length > 0) {
