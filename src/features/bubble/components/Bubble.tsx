@@ -212,6 +212,7 @@ export const Bubble = (props: BubbleProps) => {
               hasCustomHeader={!!bubbleProps.theme?.chatWindow?.headerHtml}
               closeBot={closeBot}
               dialogContainer={resolveDialogContainer(props.dialogContainer) ?? bubbleContainerRef()}
+              autoSendInitialMessage={bubbleProps.theme?.chatWindow?.autoSendInitialMessage}
             />
           </div>
         </Show>

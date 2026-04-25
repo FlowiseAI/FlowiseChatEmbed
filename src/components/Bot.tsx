@@ -188,6 +188,7 @@ export type BotProps = {
   closeBot?: () => void;
   hasCustomHeader?: boolean;
   dialogContainer?: HTMLElement;
+  autoSendInitialMessage?: string;
 };
 
 export type LeadsConfig = {
@@ -553,6 +554,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // TTS auto-scroll prevention refs
   let isTTSActionRef = false;
   let ttsTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+  let hasAutoSentInitialMessage = false;
+
+  createEffect(on(() => props.chatflowid, () => {
+    // Reset the auto-send flag when the chatflow ID changes (for SPA routing)
+    hasAutoSentInitialMessage = false;
+  }, { defer: true }));
 
   createMemo(() => {
     const customerId = (props.chatflowConfig?.vars as any)?.customerId;
@@ -1628,6 +1635,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       }
       setIsTTSEnabled(!!chatbotConfig.isTTSEnabled);
+      
+      // Auto-send initial message after config is fully loaded
+      const leadCaptureRequired = leadsConfig()?.status && !getLocalStorageChatflow(props.chatflowid)?.lead;
+      if (props.autoSendInitialMessage && !hasAutoSentInitialMessage && !leadCaptureRequired && messages().length === 1) {
+        hasAutoSentInitialMessage = true;
+        setUserInput(props.autoSendInitialMessage);
+        handleSubmit(props.autoSendInitialMessage);
+      }
     }
 
     // eslint-disable-next-line solid/reactivity
