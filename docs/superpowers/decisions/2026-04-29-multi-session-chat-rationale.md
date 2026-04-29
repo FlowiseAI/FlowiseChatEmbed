@@ -1,6 +1,6 @@
 # Multi-Session Chat — Goal, Assumptions & Thinking
 
-A higher-level companion to the structured decision log. Read this first to understand *why* the feature looks the way it does; read the decision log for the option-by-option breakdown.
+A higher-level companion to the structured decision log. Read this first to understand _why_ the feature looks the way it does; read the decision log for the option-by-option breakdown.
 
 **Date:** 2026-04-29
 **Status:** Designed and planned (not yet implemented)
@@ -83,7 +83,7 @@ These are the things we treated as **true without verifying**, because verifying
 2. **One responsive UI pattern across modes.** Maintaining two different UIs (e.g., a sidebar in full-page and a totally different dropdown in bubble) is not worth the cost. Same component, CSS adapts.
 3. **No new test framework for v1.** We accept the risk of manual-only verification because adding Vitest is its own scope. A follow-up spec covers this.
 
-### Constraints we *chose* to accept (could be revisited)
+### Constraints we _chose_ to accept (could be revisited)
 
 - 50 session cap per chatflowid — chosen for localStorage headroom; configurable.
 - Cancel-on-switch streaming — chosen over background-continue because background-continue has tricky lifecycle edges. Background-continue can come later.
@@ -126,7 +126,7 @@ That's surgical. Most of `Bot.tsx`'s logic (streaming, file uploads, feedback, o
 
 ### 4. "Match user mental models — don't invent new ones"
 
-A session list is a familiar concept. Users know what "+ New chat", rename, delete, and an active highlight mean from ChatGPT/Claude/Gemini. We're deliberately *not* introducing novelties:
+A session list is a familiar concept. Users know what "+ New chat", rename, delete, and an active highlight mean from ChatGPT/Claude/Gemini. We're deliberately _not_ introducing novelties:
 
 - No tags, folders, pinning, or archive in v1 (they'd add new mental load without a clear reason).
 - Inline rename and inline delete confirmation (not modals — modals are heavyweight for a per-row action).
@@ -174,7 +174,7 @@ What it looks like when this ships and is working:
 
 ## Non-Goals (Explicit)
 
-To prevent scope creep during implementation, these are explicitly *not* what this feature delivers:
+To prevent scope creep during implementation, these are explicitly _not_ what this feature delivers:
 
 - **Cross-device sync.** Each device has its own session list. Coming in v2 with server-backed persistence.
 - **LLM-generated session titles.** Titles are truncated first messages or user-renamed. Smart titles need a backend endpoint.
