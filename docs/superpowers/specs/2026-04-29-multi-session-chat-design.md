@@ -18,21 +18,21 @@ The feature ships **opt-in** in the embed (a `BotProps.multiSession.enabled` fla
 
 These were decided during brainstorming and are the load-bearing assumptions for the rest of the design.
 
-| # | Decision | Rationale |
-|---|---|---|
-| 1 | **Device-local storage only (Option A).** No server-side session list, no cross-device sync. | Smallest blast radius; no Flowise backend changes; no identity primitive required. Cross-device is future work. |
-| 2 | **One responsive panel (Option B).** Same `SessionPanel` component renders as a left sidebar in full-page mode and as a slide-in drawer in bubble/popup. | One UI pattern, one mental model, one code path. CSS adapts. |
-| 3 | **Polished v1 feature set (Option B).** New chat · switch · delete · sort by recency · auto-title from truncated first user message · manual rename. **No** search, pinning, archive, or LLM-generated titles. | Auto-title alone leaves users wanting rename; LLM titles + search require backend work that conflicts with Decision 1. |
-| 4 | **Opt-in for the embed; default-on for Flowise core (Option C).** Embedders flip a flag; Flowise's own admin previews enable it by default. | Doesn't disrupt customer sites; lets Flowise dogfood the feature. |
-| 5 | **In-place migration (Option A).** Existing `${chatflowid}_EXTERNAL` thread becomes session #1 on first read of the new code. | Idempotent, invisible to end-users, zero data loss. |
-| 6 | **Spec scope = embed end-to-end + thin Flowise companion section (Option B).** Implementation lives in this repo; a checklist of Flowise-side touchpoints is included but not designed in detail. | Engineering complexity is in the embed; Flowise-side work is mostly configuration. |
-| 7 | **Architecture: Solid store + reactive Bot (Approach 2).** A new `sessionStore` is the source of truth; both `SessionPanel` and `Bot.tsx` subscribe. | Avoids the remount-and-refetch cost of a wrapper-keyed approach; rename/delete/migration logic lives naturally in the store. |
-| 8 | **Storage shape: split index from per-session message bodies.** Index in `${chatflowid}_EXTERNAL`; messages in `${chatflowid}_EXTERNAL_msgs_${chatId}`. | Append-during-streaming touches only the active session's blob, not the whole list. Total bytes are unchanged; per-write cost scales with the active session, not the whole list. |
-| 9 | **Cap: 50 sessions per chatflowid; soft warn once, then FIFO eviction by `updatedAt`.** | Bounded localStorage cost; rare-but-graceful eviction; one-time toast keeps users informed. |
-| 10 | **Stream-during-switch: cancel + switch (Option a).** Best-effort abort on the in-flight assistant message, then switch. | Predictable, small change. Background-continue is a polish item for later. |
-| 11 | **Cross-tab: last-write-wins with `storage`-event re-read.** | Realistic for v1. Real-time merge is future work. |
-| 12 | **`flowise-clear-chat` (existing event) repurposed when multi-session is on**: deletes the active session and starts a fresh one. With multi-session off, behavior is unchanged. | Preserves end-user expectation of "clear what I see." |
-| 13 | **Test framework: defer (Option B).** v1 ships with manual testing + heavy code review; Vitest + Solid Testing Library is a follow-up. | Avoid scope creep on infra. **Risk:** migration and store actions are exactly the code that benefits most from unit tests; reviewers and authors must compensate. |
+| #   | Decision                                                                                                                                                                                                       | Rationale                                                                                                                                                                         |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Device-local storage only (Option A).** No server-side session list, no cross-device sync.                                                                                                                   | Smallest blast radius; no Flowise backend changes; no identity primitive required. Cross-device is future work.                                                                   |
+| 2   | **One responsive panel (Option B).** Same `SessionPanel` component renders as a left sidebar in full-page mode and as a slide-in drawer in bubble/popup.                                                       | One UI pattern, one mental model, one code path. CSS adapts.                                                                                                                      |
+| 3   | **Polished v1 feature set (Option B).** New chat · switch · delete · sort by recency · auto-title from truncated first user message · manual rename. **No** search, pinning, archive, or LLM-generated titles. | Auto-title alone leaves users wanting rename; LLM titles + search require backend work that conflicts with Decision 1.                                                            |
+| 4   | **Opt-in for the embed; default-on for Flowise core (Option C).** Embedders flip a flag; Flowise's own admin previews enable it by default.                                                                    | Doesn't disrupt customer sites; lets Flowise dogfood the feature.                                                                                                                 |
+| 5   | **In-place migration (Option A).** Existing `${chatflowid}_EXTERNAL` thread becomes session #1 on first read of the new code.                                                                                  | Idempotent, invisible to end-users, zero data loss.                                                                                                                               |
+| 6   | **Spec scope = embed end-to-end + thin Flowise companion section (Option B).** Implementation lives in this repo; a checklist of Flowise-side touchpoints is included but not designed in detail.              | Engineering complexity is in the embed; Flowise-side work is mostly configuration.                                                                                                |
+| 7   | **Architecture: Solid store + reactive Bot (Approach 2).** A new `sessionStore` is the source of truth; both `SessionPanel` and `Bot.tsx` subscribe.                                                           | Avoids the remount-and-refetch cost of a wrapper-keyed approach; rename/delete/migration logic lives naturally in the store.                                                      |
+| 8   | **Storage shape: split index from per-session message bodies.** Index in `${chatflowid}_EXTERNAL`; messages in `${chatflowid}_EXTERNAL_msgs_${chatId}`.                                                        | Append-during-streaming touches only the active session's blob, not the whole list. Total bytes are unchanged; per-write cost scales with the active session, not the whole list. |
+| 9   | **Cap: 50 sessions per chatflowid; soft warn once, then FIFO eviction by `updatedAt`.**                                                                                                                        | Bounded localStorage cost; rare-but-graceful eviction; one-time toast keeps users informed.                                                                                       |
+| 10  | **Stream-during-switch: cancel + switch (Option a).** Best-effort abort on the in-flight assistant message, then switch.                                                                                       | Predictable, small change. Background-continue is a polish item for later.                                                                                                        |
+| 11  | **Cross-tab: last-write-wins with `storage`-event re-read.**                                                                                                                                                   | Realistic for v1. Real-time merge is future work.                                                                                                                                 |
+| 12  | **`flowise-clear-chat` (existing event) repurposed when multi-session is on**: deletes the active session and starts a fresh one. With multi-session off, behavior is unchanged.                               | Preserves end-user expectation of "clear what I see."                                                                                                                             |
+| 13  | **Test framework: defer (Option B).** v1 ships with manual testing + heavy code review; Vitest + Solid Testing Library is a follow-up.                                                                         | Avoid scope creep on infra. **Risk:** migration and store actions are exactly the code that benefits most from unit tests; reviewers and authors must compensate.                 |
 
 ---
 
@@ -139,6 +139,7 @@ Signature: `(messages: MessageType[]) => string | null`.
 - **Returns `null`** if no `userMessage` is found (the caller decides the fallback string).
 
 Callers and their fallbacks:
+
 - **Migration** uses `titleFromMessage(chatHistory) ?? "Previous chat"`.
 - **New chat** flow doesn't call this; it sets `title: "New chat"` directly (the sentinel).
 - **Auto-title** flow only fires after a user message has just been appended, so it gets a non-null result.
@@ -182,8 +183,8 @@ Shown once per chatflowid the first time eviction occurs. Persisted via a one-ti
 
 ```ts
 type MultiSessionConfig = {
-  enabled: boolean;       // default false in embed; default true when wrapped by Flowise core
-  maxSessions?: number;   // default 50
+  enabled: boolean; // default false in embed; default true when wrapped by Flowise core
+  maxSessions?: number; // default 50
 };
 
 type BotProps = {
@@ -223,12 +224,12 @@ Themes that don't set `sessionPanel.*` colors get sensible defaults derived from
 
 Matches the existing `flowise-clear-chat` pattern.
 
-| Event | Direction | Detail | Behavior |
-|---|---|---|---|
-| `flowise-new-session` | host → embed | `{}` | Creates a new session; sets it active. |
-| `flowise-switch-session` | host → embed | `{ chatId: string }` | Switches active session if `chatId` exists; no-op otherwise. |
-| `flowise-session-changed` | embed → host | `{ chatId: string, title: string }` | Emitted on switch and on title change. |
-| `flowise-clear-chat` | host → embed | (existing) | **Multi-session on:** deletes active session, creates a fresh one. **Off:** unchanged (clears the one thread). |
+| Event                     | Direction    | Detail                              | Behavior                                                                                                       |
+| ------------------------- | ------------ | ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `flowise-new-session`     | host → embed | `{}`                                | Creates a new session; sets it active.                                                                         |
+| `flowise-switch-session`  | host → embed | `{ chatId: string }`                | Switches active session if `chatId` exists; no-op otherwise.                                                   |
+| `flowise-session-changed` | embed → host | `{ chatId: string, title: string }` | Emitted on switch and on title change.                                                                         |
+| `flowise-clear-chat`      | host → embed | (existing)                          | **Multi-session on:** deletes active session, creates a fresh one. **Off:** unchanged (clears the one thread). |
 
 ### Accessibility
 
@@ -280,7 +281,7 @@ Notation: **Index** = `localStorage[chatflowid_EXTERNAL]`; **MsgKey(id)** = `loc
 3. **Persist throttle:** writes to `MsgKey(activeChatId)` are debounced ~150ms so streaming doesn't fire one localStorage write per token.
 4. **Flush triggers:** stream-end event from backend, `pagehide`, `beforeunload` — all flush pending writes immediately.
 5. After persist, bump `session.updatedAt` and write Index (Index is small; per-message Index writes are cheap).
-6. **Auto-title:** if the appended message is the first `userMessage` in this session **and** `session.title === "New chat"` (the sentinel set by the New chat flow), derive title via `titleFromMessage` and write Index. Once a session's title differs from the sentinel — whether via auto-title or manual rename — auto-titling never fires again for that session. Edge case: a user who manually renames *back to* the literal string `"New chat"` will, on their next first-user-message in a freshly created session, see auto-title fire again. Acceptable trade-off; vanishingly rare.
+6. **Auto-title:** if the appended message is the first `userMessage` in this session **and** `session.title === "New chat"` (the sentinel set by the New chat flow), derive title via `titleFromMessage` and write Index. Once a session's title differs from the sentinel — whether via auto-title or manual rename — auto-titling never fires again for that session. Edge case: a user who manually renames _back to_ the literal string `"New chat"` will, on their next first-user-message in a freshly created session, see auto-title fire again. Acceptable trade-off; vanishingly rare.
 
 ### Rename
 
@@ -307,7 +308,7 @@ Notation: **Index** = `localStorage[chatflowid_EXTERNAL]`; **MsgKey(id)** = `loc
 
 ### `QuotaExceededError` on writes
 
-The 50-session cap is a *count* limit; bytes can still blow up on huge sessions. On any localStorage write failure:
+The 50-session cap is a _count_ limit; bytes can still blow up on huge sessions. On any localStorage write failure:
 
 1. Catch `QuotaExceededError` (DOMException name match).
 2. **Emergency eviction:** drop the **non-active** session with the lowest `updatedAt` (Index + MsgKey); retry the write. The active session is never evicted by this path — that would be self-defeating.
@@ -322,6 +323,7 @@ If `JSON.parse` throws or the parsed value matches neither v1 nor v2, log a cons
 ### Storage drift / orphans
 
 Reconcile/GC on init handles ungraceful tab closes mid-write:
+
 - MsgKey exists with no matching Index entry → orphan; delete.
 - Index entry exists with no matching MsgKey → seed empty MsgKey; log info.
 
