@@ -4,7 +4,7 @@
 
 **Goal:** Add a ChatGPT-style multi-session chat experience to FlowiseChatEmbed: one chatflow can host a list of independent conversations the user can create, switch between, rename, and delete. Storage is device-local (`localStorage`); v1 ships opt-in via `BotProps.multiSession.enabled`.
 
-**Architecture:** A new Solid store (`sessionStore`) becomes the single source of truth for sessions. A `SessionPanel` component renders responsively (sidebar in full-page; drawer in bubble/popup). `Bot.tsx` is refactored to read its active thread from the store. Storage uses a *split shape*: a small index keyed by chatflowid plus one localStorage key per session for messages — so streamed appends only rewrite the active session's blob, not the whole list.
+**Architecture:** A new Solid store (`sessionStore`) becomes the single source of truth for sessions. A `SessionPanel` component renders responsively (sidebar in full-page; drawer in bubble/popup). `Bot.tsx` is refactored to read its active thread from the store. Storage uses a _split shape_: a small index keyed by chatflowid plus one localStorage key per session for messages — so streamed appends only rewrite the active session's blob, not the whole list.
 
 **Tech Stack:** Solid.js (1.7), TypeScript, Tailwind, Rollup. No new runtime deps. No new test framework in v1 (deferred per spec Decision #13).
 
@@ -27,6 +27,7 @@ Reviewers must compensate for the missing automated coverage — see spec Sectio
 ## File Structure
 
 **New files:**
+
 ```
 src/state/
   sessionStorage.ts        // Index + per-session MsgKey I/O, GC, quota recovery
@@ -46,6 +47,7 @@ public/
 ```
 
 **Modified files:**
+
 ```
 src/components/Bot.tsx                       // Replace internal chatId/messages signals with store-derived
 src/types.ts                                 // Add MultiSessionConfig
@@ -68,6 +70,7 @@ The store doesn't exist yet. Phase 1 builds the pure-logic layer underneath it: 
 ### Task 1: Title derivation utility
 
 **Files:**
+
 - Create: `src/utils/titleFromMessage.ts`
 - Create (or modify if it exists later): `public/debug-sessions.html`
 
@@ -99,7 +102,7 @@ export const titleFromMessage = (messages: MessageType[]): string | null => {
 
 ```html
 <!-- public/debug-sessions.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -147,29 +150,14 @@ export const titleFromMessage = (messages: MessageType[]): string | null => {
       const { titleFromMessage } = await import('/src/utils/titleFromMessage.ts');
 
       __assert(titleFromMessage([]) === null, 'empty messages → null');
-      __assert(
-        titleFromMessage([{ type: 'apiMessage', message: 'hi' }]) === null,
-        'no userMessage → null',
-      );
-      __assert(
-        titleFromMessage([{ type: 'userMessage', message: 'Hello world' }]) === 'Hello world',
-        'short user message preserved',
-      );
-      __assert(
-        titleFromMessage([{ type: 'userMessage', message: '   spaced   out   ' }]) === 'spaced out',
-        'whitespace collapsed and trimmed',
-      );
-      __assert(
-        titleFromMessage([{ type: 'userMessage', message: '**bold** _italic_ `code`' }]) === 'bold italic code',
-        'markdown stripped',
-      );
+      __assert(titleFromMessage([{ type: 'apiMessage', message: 'hi' }]) === null, 'no userMessage → null');
+      __assert(titleFromMessage([{ type: 'userMessage', message: 'Hello world' }]) === 'Hello world', 'short user message preserved');
+      __assert(titleFromMessage([{ type: 'userMessage', message: '   spaced   out   ' }]) === 'spaced out', 'whitespace collapsed and trimmed');
+      __assert(titleFromMessage([{ type: 'userMessage', message: '**bold** _italic_ `code`' }]) === 'bold italic code', 'markdown stripped');
       const long = 'a'.repeat(60);
       const t = titleFromMessage([{ type: 'userMessage', message: long }]);
       __assert(t.length === 41 && t.endsWith('…'), 'long message truncated to 40 chars + ellipsis');
-      __assert(
-        titleFromMessage([{ type: 'userMessage', message: '   ' }]) === null,
-        'whitespace-only user message → null',
-      );
+      __assert(titleFromMessage([{ type: 'userMessage', message: '   ' }]) === null, 'whitespace-only user message → null');
     </script>
   </body>
 </html>
@@ -197,6 +185,7 @@ git commit -m "feat(sessions): add titleFromMessage utility and debug harness"
 Storage is a separate module so it can be unit-verified without Solid runtime. This task adds the types and the read path. Writes come in Task 3.
 
 **Files:**
+
 - Create: `src/state/sessionStorage.ts`
 - Modify: `public/debug-sessions.html`
 
@@ -227,7 +216,7 @@ const msgKey = (chatflowid: string, chatId: string) => `${chatflowid}_EXTERNAL_m
 const capWarnedKey = (chatflowid: string) => `${chatflowid}_EXTERNAL_capWarned`;
 const panelCollapsedKey = (chatflowid: string) => `${chatflowid}_EXTERNAL_panelCollapsed`;
 
-const safeParse = <T,>(raw: string | null): T | null => {
+const safeParse = <T>(raw: string | null): T | null => {
   if (raw === null) return null;
   try {
     return JSON.parse(raw) as T;
@@ -264,9 +253,7 @@ Append inside the existing `<script type="module">` of `public/debug-sessions.ht
 
 ```js
 // Section: sessionStorage reads
-const { readIndex, readMessages, readPanelCollapsed, _internalKeys } = await import(
-  '/src/state/sessionStorage.ts'
-);
+const { readIndex, readMessages, readPanelCollapsed, _internalKeys } = await import('/src/state/sessionStorage.ts');
 
 const cf = '__test_cf_' + Date.now();
 
@@ -313,6 +300,7 @@ git commit -m "feat(sessions): add sessionStorage read API and types"
 ### Task 3: Session storage I/O — writes, GC, quota recovery
 
 **Files:**
+
 - Modify: `src/state/sessionStorage.ts`
 - Modify: `public/debug-sessions.html`
 
@@ -330,11 +318,7 @@ export class StorageQuotaError extends Error {
 
 const isQuotaError = (e: unknown): boolean => {
   if (!(e instanceof Error)) return false;
-  return (
-    e.name === 'QuotaExceededError' ||
-    e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
-    (e as { code?: number }).code === 22
-  );
+  return e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || (e as { code?: number }).code === 22;
 };
 
 const safeWrite = (key: string, value: string) => {
@@ -350,11 +334,7 @@ export const writeIndex = (chatflowid: string, index: ChatflowIndexV2): void => 
   safeWrite(indexKey(chatflowid), JSON.stringify(index));
 };
 
-export const writeMessages = (
-  chatflowid: string,
-  chatId: string,
-  messages: MessageType[],
-): void => {
+export const writeMessages = (chatflowid: string, chatId: string, messages: MessageType[]): void => {
   safeWrite(msgKey(chatflowid, chatId), JSON.stringify(messages));
 };
 
@@ -375,10 +355,7 @@ export const writeCapWarned = (chatflowid: string): void => {
  * - Returns chatIds whose MsgKey was deleted (orphans, not in index).
  * - Returns chatIds in index that have no MsgKey (caller should seed empty).
  */
-export const reconcileOrphans = (
-  chatflowid: string,
-  index: ChatflowIndexV2,
-): { deletedOrphans: string[]; missingMsgKeys: string[] } => {
+export const reconcileOrphans = (chatflowid: string, index: ChatflowIndexV2): { deletedOrphans: string[]; missingMsgKeys: string[] } => {
   const indexIds = new Set(index.sessions.map((s) => s.chatId));
   const prefix = `${chatflowid}_EXTERNAL_msgs_`;
 
@@ -411,13 +388,7 @@ Append to the harness `<script>` block:
 
 ```js
 // Section: sessionStorage writes + reconcile
-const {
-  writeIndex,
-  writeMessages,
-  removeMessages,
-  reconcileOrphans,
-  StorageQuotaError,
-} = await import('/src/state/sessionStorage.ts');
+const { writeIndex, writeMessages, removeMessages, reconcileOrphans, StorageQuotaError } = await import('/src/state/sessionStorage.ts');
 
 const cf2 = '__test_cf2_' + Date.now();
 
@@ -475,6 +446,7 @@ git commit -m "feat(sessions): add storage writes, GC, and quota error type"
 ### Task 4: v1 → v2 migration
 
 **Files:**
+
 - Create: `src/state/sessionMigration.ts`
 - Modify: `public/debug-sessions.html`
 
@@ -483,13 +455,7 @@ git commit -m "feat(sessions): add storage writes, GC, and quota error type"
 ```ts
 // src/state/sessionMigration.ts
 import type { MessageType } from '@/components/Bot';
-import {
-  type ChatflowIndexV2,
-  type LeadCaptureData,
-  readMessages,
-  writeIndex,
-  writeMessages,
-} from './sessionStorage';
+import { type ChatflowIndexV2, type LeadCaptureData, readMessages, writeIndex, writeMessages } from './sessionStorage';
 import { titleFromMessage } from '@/utils/titleFromMessage';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -517,10 +483,7 @@ const isV1Shape = (raw: unknown): raw is RawV1 => {
  *
  * Pass `newChatId` so callers can plumb in their `customerId+uuid` prefix.
  */
-export const loadOrMigrate = (
-  chatflowid: string,
-  newChatId: () => string,
-): ChatflowIndexV2 => {
+export const loadOrMigrate = (chatflowid: string, newChatId: () => string): ChatflowIndexV2 => {
   const raw = localStorage.getItem(indexKey(chatflowid));
 
   // No entry → fresh
@@ -647,10 +610,7 @@ localStorage.removeItem(`${cf3}_EXTERNAL`);
 localStorage.setItem(`${cf3}_EXTERNAL`, JSON.stringify({ totally: 'unknown' }));
 const r5 = loadOrMigrate(cf3, mkId);
 __assert(r5.version === 2, 'unknown shape → fresh in-memory v2');
-__assert(
-  JSON.parse(localStorage.getItem(`${cf3}_EXTERNAL`)).totally === 'unknown',
-  'unknown shape NOT overwritten in storage',
-);
+__assert(JSON.parse(localStorage.getItem(`${cf3}_EXTERNAL`)).totally === 'unknown', 'unknown shape NOT overwritten in storage');
 localStorage.removeItem(`${cf3}_EXTERNAL`);
 ```
 
@@ -674,6 +634,7 @@ git commit -m "feat(sessions): add v1→v2 in-place migration"
 The store wraps the storage module in Solid signals. This task wires init + read selectors. Mutations come in Task 6.
 
 **Files:**
+
 - Create: `src/state/sessionStore.ts`
 - Modify: `public/debug-sessions.html`
 
@@ -719,18 +680,12 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
   // Lazy in-memory cache: chatId → messages. Populated on read.
   const messageCache = new Map<string, MessageType[]>();
   messageCache.set(initial.activeChatId, readMessages(chatflowid, initial.activeChatId));
-  const [activeMessages, setActiveMessages] = createSignal<MessageType[]>(
-    messageCache.get(initial.activeChatId)!,
-  );
+  const [activeMessages, setActiveMessages] = createSignal<MessageType[]>(messageCache.get(initial.activeChatId)!);
 
   // ---- selectors ----
-  const sessions = createMemo(() =>
-    [...index().sessions].sort((a, b) => b.updatedAt - a.updatedAt),
-  );
+  const sessions = createMemo(() => [...index().sessions].sort((a, b) => b.updatedAt - a.updatedAt));
   const activeChatId = createMemo(() => index().activeChatId);
-  const activeSession = createMemo<SessionV2 | undefined>(() =>
-    index().sessions.find((s) => s.chatId === activeChatId()),
-  );
+  const activeSession = createMemo<SessionV2 | undefined>(() => index().sessions.find((s) => s.chatId === activeChatId()));
   const lead = createMemo(() => index().lead);
 
   // ---- internal helpers (used by Task 6) ----
@@ -807,6 +762,7 @@ git commit -m "feat(sessions): scaffold sessionStore with init + selectors"
 ### Task 6: Session store actions — newChat, switchSession, append, rename, delete
 
 **Files:**
+
 - Modify: `src/state/sessionStore.ts`
 - Modify: `public/debug-sessions.html`
 
@@ -1035,10 +991,7 @@ await new Promise((resolve) => {
     // upsertMessage + auto-title
     s.actions.upsertMessage({ type: 'userMessage', message: 'How do I export?', messageId: 'm1' });
     s.actions.flushPending();
-    __assert(
-      s.activeSession()?.title === 'How do I export?',
-      'first user message auto-titled active session',
-    );
+    __assert(s.activeSession()?.title === 'How do I export?', 'first user message auto-titled active session');
 
     // upsertMessage replace by messageId (streaming-style)
     s.actions.upsertMessage({ type: 'apiMessage', message: 'Stre', messageId: 'b1' });
@@ -1049,10 +1002,7 @@ await new Promise((resolve) => {
 
     // rename — empty falls back
     s.actions.renameSession(idA, '   ');
-    __assert(
-      s.activeSession()?.title === 'How do I export?',
-      'empty rename falls back to derived title',
-    );
+    __assert(s.activeSession()?.title === 'How do I export?', 'empty rename falls back to derived title');
     s.actions.renameSession(idA, 'My custom title');
     __assert(s.activeSession()?.title === 'My custom title', 'rename takes effect');
 
@@ -1061,19 +1011,13 @@ await new Promise((resolve) => {
     __assert(s.sessions().length === 3, 'at cap with 3 sessions');
     s.actions.newChat(); // → would be 4; oldest evicted
     __assert(s.sessions().length === 3, 'eviction kept count at cap');
-    __assert(
-      !s.sessions().some((sess) => sess.chatId === idA),
-      'oldest non-active session evicted',
-    );
+    __assert(!s.sessions().some((sess) => sess.chatId === idA), 'oldest non-active session evicted');
 
     // delete active → switches to most recent remaining
     const activeBeforeDelete = s.activeChatId();
     s.actions.deleteSession(activeBeforeDelete);
     __assert(s.activeChatId() !== activeBeforeDelete, 'deleting active picks new active');
-    __assert(
-      !s.sessions().some((sess) => sess.chatId === activeBeforeDelete),
-      'deleted session removed from list',
-    );
+    __assert(!s.sessions().some((sess) => sess.chatId === activeBeforeDelete), 'deleted session removed from list');
 
     dispose();
     resolve();
@@ -1082,9 +1026,10 @@ await new Promise((resolve) => {
 
 // Cleanup
 const idx5 = readIndex(cf5);
-if (idx5) for (const sess of idx5.sessions) {
-  localStorage.removeItem(`${cf5}_EXTERNAL_msgs_${sess.chatId}`);
-}
+if (idx5)
+  for (const sess of idx5.sessions) {
+    localStorage.removeItem(`${cf5}_EXTERNAL_msgs_${sess.chatId}`);
+  }
 localStorage.removeItem(`${cf5}_EXTERNAL`);
 ```
 
@@ -1104,6 +1049,7 @@ git commit -m "feat(sessions): add store actions (new/switch/upsert/rename/delet
 ### Task 7: Quota error handling — emergency eviction wrapper
 
 **Files:**
+
 - Modify: `src/state/sessionStore.ts`
 
 This wraps every persist that could fail with quota recovery. We don't have a clean way to simulate `QuotaExceededError` in the harness (browsers don't let you cap a domain easily), so verification is by code review + manual fill-the-quota test in Task 21.
@@ -1113,45 +1059,43 @@ This wraps every persist that could fail with quota recovery. We don't have a cl
 Insert into `createSessionStore` after the `_persistIndex` declaration:
 
 ```ts
-  /**
-   * Run a write op; on QuotaExceededError, evict the oldest non-active session and retry.
-   * Up to `attempts` retries; if it still fails, surfaces a callback to show a toast.
-   */
-  let onQuotaPanic: (() => void) | null = null;
-  const setQuotaPanicHandler = (cb: () => void) => {
-    onQuotaPanic = cb;
-  };
+/**
+ * Run a write op; on QuotaExceededError, evict the oldest non-active session and retry.
+ * Up to `attempts` retries; if it still fails, surfaces a callback to show a toast.
+ */
+let onQuotaPanic: (() => void) | null = null;
+const setQuotaPanicHandler = (cb: () => void) => {
+  onQuotaPanic = cb;
+};
 
-  const withQuotaRecovery = (op: () => void) => {
-    let attempt = 0;
-    while (attempt < 5) {
+const withQuotaRecovery = (op: () => void) => {
+  let attempt = 0;
+  while (attempt < 5) {
+    try {
+      op();
+      return;
+    } catch (e) {
+      if (!(e as Error)?.name?.includes('Quota') && !(e instanceof Error && e.message.includes('quota'))) throw e;
+      // Evict oldest non-active session.
+      const cur = index();
+      const candidates = cur.sessions.filter((s) => s.chatId !== cur.activeChatId).sort((a, b) => a.updatedAt - b.updatedAt);
+      if (candidates.length === 0) break;
+      const victim = candidates[0];
+      localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${victim.chatId}`);
+      messageCache.delete(victim.chatId);
+      const sessions = cur.sessions.filter((s) => s.chatId !== victim.chatId);
+      // Best-effort persist of pruned index (this might also throw — counts as an attempt).
       try {
-        op();
-        return;
-      } catch (e) {
-        if (!(e as Error)?.name?.includes('Quota') && !(e instanceof Error && e.message.includes('quota'))) throw e;
-        // Evict oldest non-active session.
-        const cur = index();
-        const candidates = cur.sessions
-          .filter((s) => s.chatId !== cur.activeChatId)
-          .sort((a, b) => a.updatedAt - b.updatedAt);
-        if (candidates.length === 0) break;
-        const victim = candidates[0];
-        localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${victim.chatId}`);
-        messageCache.delete(victim.chatId);
-        const sessions = cur.sessions.filter((s) => s.chatId !== victim.chatId);
-        // Best-effort persist of pruned index (this might also throw — counts as an attempt).
-        try {
-          writeIndex(chatflowid, { ...cur, sessions });
-          setIndex({ ...cur, sessions });
-        } catch {
-          // ignore; loop will retry op anyway
-        }
-        attempt++;
+        writeIndex(chatflowid, { ...cur, sessions });
+        setIndex({ ...cur, sessions });
+      } catch {
+        // ignore; loop will retry op anyway
       }
+      attempt++;
     }
-    if (onQuotaPanic) onQuotaPanic();
-  };
+  }
+  if (onQuotaPanic) onQuotaPanic();
+};
 ```
 
 - [ ] **Step 2: Wrap the existing persist sites**
@@ -1161,23 +1105,23 @@ Replace every direct `_persistIndex(next)` and `writeMessages(chatflowid, id, ne
 In `flushPending`:
 
 ```ts
-  const flushPending = () => {
-    if (pendingPersist === null) return;
-    clearTimeout(pendingPersist);
-    pendingPersist = null;
-    const id = activeChatId();
-    const msgs = messageCache.get(id);
-    if (msgs) withQuotaRecovery(() => writeMessages(chatflowid, id, msgs));
-  };
+const flushPending = () => {
+  if (pendingPersist === null) return;
+  clearTimeout(pendingPersist);
+  pendingPersist = null;
+  const id = activeChatId();
+  const msgs = messageCache.get(id);
+  if (msgs) withQuotaRecovery(() => writeMessages(chatflowid, id, msgs));
+};
 ```
 
 In `upsertMessage` (the debounced setTimeout body):
 
 ```ts
-    pendingPersist = setTimeout(() => {
-      pendingPersist = null;
-      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
-    }, 150);
+pendingPersist = setTimeout(() => {
+  pendingPersist = null;
+  withQuotaRecovery(() => writeMessages(chatflowid, id, next));
+}, 150);
 ```
 
 For `_persistIndex` calls inside actions, wrap the call: `withQuotaRecovery(() => _persistIndex(next))`.
@@ -1213,6 +1157,7 @@ git commit -m "feat(sessions): add emergency eviction on QuotaExceededError"
 ### Task 8: Add `MultiSessionConfig` to `BotProps` and theme keys
 
 **Files:**
+
 - Modify: `src/components/Bot.tsx` (BotProps only)
 - Modify: `src/features/bubble/types.ts`
 - Modify: `src/features/full/types.ts`
@@ -1278,6 +1223,7 @@ git commit -m "feat(sessions): add MultiSessionConfig to BotProps and sessionPan
 The existing helper is now backed by the new storage module. Without this wrapper, a `lead` write would clobber `sessions`.
 
 **Files:**
+
 - Modify: `src/utils/index.ts`
 
 - [ ] **Step 1: Replace `setLocalStorageChatflow` and `getLocalStorageChatflow`**
@@ -1292,11 +1238,7 @@ import { readIndex, readMessages, writeIndex } from '@/state/sessionStorage';
  * (and active-session messages where applicable), so callers writing
  * `{ lead }` or `{ chatHistory }` don't clobber other v2 fields.
  */
-export const setLocalStorageChatflow = (
-  chatflowid: string,
-  chatId: string,
-  saveObj: Record<string, any> = {},
-) => {
+export const setLocalStorageChatflow = (chatflowid: string, chatId: string, saveObj: Record<string, any> = {}) => {
   const idx = readIndex(chatflowid);
   if (!idx) {
     // No v2 yet: fall back to legacy single-key write so nothing breaks if
@@ -1368,6 +1310,7 @@ git commit -m "refactor(sessions): make setLocalStorageChatflow a field-merge wr
 This is a Solid component that wraps `<Bot>` with conditional panel rendering. The panel itself is empty until Phase 4.
 
 **Files:**
+
 - Create: `src/components/sessions/ChatRoot.tsx`
 - Modify: `src/components/index.ts` (re-export)
 
@@ -1429,6 +1372,7 @@ The store and shell are now in place. This phase builds the visible panel: list,
 ### Task 11: `SessionPanel` skeleton with theme cascade
 
 **Files:**
+
 - Create: `src/components/sessions/SessionPanel.tsx`
 - Modify: `src/components/sessions/ChatRoot.tsx`
 
@@ -1464,8 +1408,7 @@ type Props = {
   chatWindowText?: string;
 };
 
-const px = (v: string | number | undefined, fallback: string) =>
-  v === undefined ? fallback : typeof v === 'number' ? `${v}px` : v;
+const px = (v: string | number | undefined, fallback: string) => (v === undefined ? fallback : typeof v === 'number' ? `${v}px` : v);
 
 export const SessionPanel = (props: Props) => {
   const sessions = () => props.store.sessions();
@@ -1535,16 +1478,9 @@ export const SessionPanel = (props: Props) => {
 
       <Show
         when={sessions().length > 0}
-        fallback={
-          <div style={{ padding: '24px', 'text-align': 'center', 'font-size': '12px', opacity: 0.7 }}>
-            {emptyText()}
-          </div>
-        }
+        fallback={<div style={{ padding: '24px', 'text-align': 'center', 'font-size': '12px', opacity: 0.7 }}>{emptyText()}</div>}
       >
-        <div
-          role="list"
-          style={{ flex: 1, overflow: 'auto', padding: '0 4px' }}
-        >
+        <div role="list" style={{ flex: 1, overflow: 'auto', padding: '0 4px' }}>
           <For each={sessions()}>
             {(s) => {
               const isActive = () => s.chatId === activeId();
@@ -1607,8 +1543,7 @@ export const ChatRoot = (props: ChatRootProps) => {
   const enabled = () => props.multiSession?.enabled === true;
 
   const newChatId = () => {
-    const customerId = (props.chatflowConfig as { vars?: { customerId?: string } } | undefined)
-      ?.vars?.customerId;
+    const customerId = (props.chatflowConfig as { vars?: { customerId?: string } } | undefined)?.vars?.customerId;
     return customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4();
   };
 
@@ -1621,22 +1556,13 @@ export const ChatRoot = (props: ChatRootProps) => {
   // Best-effort theme cascade — first usable theme wins (full > popup > bubble).
   const panelTheme = createMemo(() => {
     const anyProps = props as unknown as Record<string, any>;
-    return (
-      anyProps.theme?.chatWindow?.sessionPanel ??
-      anyProps.chatWindow?.sessionPanel ??
-      undefined
-    );
+    return anyProps.theme?.chatWindow?.sessionPanel ?? anyProps.chatWindow?.sessionPanel ?? undefined;
   });
 
   return (
     <Show when={enabled()} fallback={<Bot {...props} />}>
       <div class="flex h-full w-full">
-        <SessionPanel
-          store={store}
-          isFullPage={!!props.isFullPage}
-          panelTheme={panelTheme()}
-          chatWindowBackground={props.backgroundColor}
-        />
+        <SessionPanel store={store} isFullPage={!!props.isFullPage} panelTheme={panelTheme()} chatWindowBackground={props.backgroundColor} />
         <div style={{ flex: 1, height: '100%' }}>
           <Bot {...props} />
         </div>
@@ -1655,6 +1581,7 @@ Update `public/index.html` to enable multi-session on the demo embed. Find the e
 Run: `npm run dev` (one terminal), `npm start` (another), open `http://localhost:3000`.
 
 Expected:
+
 - Sidebar appears on the left in full-page mode.
 - One session in the list (titled "New chat").
 - Clicking "+ New chat" prepends a new session and the active highlight moves to it.
@@ -1674,6 +1601,7 @@ git commit -m "feat(sessions): render SessionPanel from ChatRoot with theme casc
 The current `SessionPanel` inlines item rendering. Extract it into `SessionListItem` and add the rename interaction.
 
 **Files:**
+
 - Create: `src/components/sessions/SessionListItem.tsx`
 - Modify: `src/components/sessions/SessionPanel.tsx`
 
@@ -1752,11 +1680,7 @@ export const SessionListItem = (props: Props) => {
         'border-radius': '6px',
         'margin-bottom': '2px',
         cursor: 'pointer',
-        background: props.active
-          ? props.theme.activeBackgroundColor
-          : hovered()
-          ? props.theme.hoverBackgroundColor
-          : 'transparent',
+        background: props.active ? props.theme.activeBackgroundColor : hovered() ? props.theme.hoverBackgroundColor : 'transparent',
         color: props.active ? props.theme.activeTextColor : props.theme.textColor,
         display: 'flex',
         'align-items': 'center',
@@ -1921,7 +1845,7 @@ import { SessionListItem } from './SessionListItem';
       onDelete={() => props.store.actions.deleteSession(s.chatId)}
     />
   )}
-</For>
+</For>;
 ```
 
 - [ ] **Step 3: Manual verification**
@@ -1929,6 +1853,7 @@ import { SessionListItem } from './SessionListItem';
 Reload demo (`npm run dev` watch should auto-rebuild).
 
 Recipe:
+
 1. Hover over any session row → ✎ and × icons appear.
 2. Click ✎ → row swaps to inline input pre-selected.
 3. Type a new title, press **Enter** → row reverts with new title; check `localStorage[chatflowid_EXTERNAL]` in DevTools → that session's `title` matches.
@@ -1948,6 +1873,7 @@ git commit -m "feat(sessions): inline rename and delete-confirm on session items
 ### Task 13: Cap-warning toast
 
 **Files:**
+
 - Create: `src/components/sessions/CapWarningToast.tsx`
 - Modify: `src/state/sessionStore.ts`
 - Modify: `src/components/sessions/SessionPanel.tsx`
@@ -1963,49 +1889,49 @@ import { readCapWarned, writeCapWarned } from './sessionStorage';
 Add a signal near the top of `createSessionStore`, after the existing `setActiveMessages` signal:
 
 ```ts
-  const [capWarning, setCapWarning] = createSignal(false);
+const [capWarning, setCapWarning] = createSignal(false);
 ```
 
 In `newChat`, **after** the eviction loop (after `evicted` array is fully populated, after the trailing `for` loop that removes evicted MsgKeys), insert:
 
 ```ts
-    if (evicted.length > 0 && !readCapWarned(chatflowid)) {
-      writeCapWarned(chatflowid);
-      setCapWarning(true);
-    }
+if (evicted.length > 0 && !readCapWarned(chatflowid)) {
+  writeCapWarned(chatflowid);
+  setCapWarning(true);
+}
 ```
 
 Expose `capWarning` and a dismiss action on the store's return value. Modify the existing return object:
 
 ```ts
-  return {
-    chatflowid,
-    maxSessions,
-    sessions,
-    activeChatId,
-    activeSession,
-    activeMessages,
-    lead,
-    capWarning,
-    actions: {
-      newChat,
-      switchSession,
-      upsertMessage,
-      renameSession,
-      deleteSession,
-      setLead,
-      flushPending,
-      setQuotaPanicHandler,
-      dismissCapWarning: () => setCapWarning(false),
-    },
-    _internal: {
-      index,
-      setIndex,
-      messageCache,
-      setActiveMessages,
-      persistIndex: _persistIndex,
-    },
-  };
+return {
+  chatflowid,
+  maxSessions,
+  sessions,
+  activeChatId,
+  activeSession,
+  activeMessages,
+  lead,
+  capWarning,
+  actions: {
+    newChat,
+    switchSession,
+    upsertMessage,
+    renameSession,
+    deleteSession,
+    setLead,
+    flushPending,
+    setQuotaPanicHandler,
+    dismissCapWarning: () => setCapWarning(false),
+  },
+  _internal: {
+    index,
+    setIndex,
+    messageCache,
+    setActiveMessages,
+    persistIndex: _persistIndex,
+  },
+};
 ```
 
 - [ ] **Step 2: Create the toast component**
@@ -2068,12 +1994,9 @@ import { CapWarningToast } from './CapWarningToast';
 // ...
 <CapWarningToast
   visible={props.store.capWarning()}
-  text={
-    props.panelTheme?.capWarningText ??
-    'Conversation limit reached. Starting new ones will remove the oldest.'
-  }
+  text={props.panelTheme?.capWarningText ?? 'Conversation limit reached. Starting new ones will remove the oldest.'}
   onDismiss={() => props.store.actions.dismissCapWarning()}
-/>
+/>;
 ```
 
 - [ ] **Step 4: Manual verification — fill to cap**
@@ -2091,10 +2014,7 @@ for (let i = 1; i <= 50; i++) {
   sessions.push({ chatId: id, title: 'Test ' + i, createdAt: i, updatedAt: i });
   localStorage.setItem(`${cf}_EXTERNAL_msgs_${id}`, '[]');
 }
-localStorage.setItem(
-  `${cf}_EXTERNAL`,
-  JSON.stringify({ version: 2, activeChatId: 'fake-50', sessions }),
-);
+localStorage.setItem(`${cf}_EXTERNAL`, JSON.stringify({ version: 2, activeChatId: 'fake-50', sessions }));
 localStorage.removeItem(`${cf}_EXTERNAL_capWarned`);
 location.reload();
 ```
@@ -2124,6 +2044,7 @@ git commit -m "feat(sessions): one-time cap-warning toast on first eviction"
 ### Task 14: Sidebar collapse (full-page only)
 
 **Files:**
+
 - Modify: `src/components/sessions/SessionPanel.tsx`
 - Use existing: `src/state/sessionStorage.ts` `readPanelCollapsed` / `writePanelCollapsed`
 
@@ -2134,9 +2055,7 @@ At the top of the component:
 ```tsx
 import { readPanelCollapsed, writePanelCollapsed } from '@/state/sessionStorage';
 // ...
-const [collapsed, setCollapsed] = createSignal(
-  props.isFullPage ? readPanelCollapsed(props.store.chatflowid) : false,
-);
+const [collapsed, setCollapsed] = createSignal(props.isFullPage ? readPanelCollapsed(props.store.chatflowid) : false);
 const toggleCollapsed = () => {
   if (!props.isFullPage) return;
   const next = !collapsed();
@@ -2196,14 +2115,13 @@ style={{
 Hide list, new-chat button, and toast contents when collapsed:
 
 ```tsx
-<Show when={!collapsed()}>
-  {/* existing new-chat button + toast + list block */}
-</Show>
+<Show when={!collapsed()}>{/* existing new-chat button + toast + list block */}</Show>
 ```
 
 - [ ] **Step 2: Manual verification**
 
 On the full-page demo:
+
 1. Click `⟨` in the panel header → panel narrows to 44px showing only `☰`.
 2. Click `☰` → panel expands.
 3. Reload page → panel state persists.
@@ -2222,6 +2140,7 @@ git commit -m "feat(sessions): collapsible sidebar with persisted state in full-
 ### Task 15: Drawer mode (bubble/popup)
 
 **Files:**
+
 - Modify: `src/components/sessions/SessionPanel.tsx`
 - Modify: `src/components/sessions/ChatRoot.tsx`
 
@@ -2305,7 +2224,7 @@ const isDrawer = !props.isFullPage;
   onDrawerClose={() => setDrawerOpen(false)}
   panelTheme={panelTheme()}
   chatWindowBackground={props.backgroundColor}
-/>
+/>;
 ```
 
 For the toggle, expose a custom event listener that the existing `Bot.tsx` header `☰` button (added in next task) will dispatch:
@@ -2360,6 +2279,7 @@ In `Bot.tsx`, find the chat header render block (search for `props.title` near h
 - [ ] **Step 4: Manual verification (bubble mode)**
 
 In the demo page, switch the embed to bubble mode (or open the demo's bubble harness if available). Open the bubble. Expected:
+
 1. `☰` shown in the header.
 2. Click `☰` → drawer slides in from the left over a dimmed backdrop, taking ~75% of the bubble width.
 3. Click a session row → drawer closes, that session loads.
@@ -2381,6 +2301,7 @@ The store now drives the panel. Bot.tsx still reads/writes its own internal `cha
 ### Task 16: Bot.tsx — read active session from store via context
 
 **Files:**
+
 - Modify: `src/components/Bot.tsx`
 - Modify: `src/components/sessions/ChatRoot.tsx`
 
@@ -2470,6 +2391,7 @@ Run: `npm run build`
 Expected: passes.
 
 Manual: open demo with `multiSession.enabled = true`. Expected:
+
 - Sidebar shows current session.
 - Existing chat features still render (input, send button, history rendering for the active session).
 - **New messages don't persist yet** — that's fixed in Task 17. Sending a message will display it during the session, but on reload it disappears.
@@ -2486,11 +2408,12 @@ git commit -m "refactor(bot): read active session from sessionStore via context"
 ### Task 17: Bot.tsx — route message writes through the store
 
 **Files:**
+
 - Modify: `src/components/Bot.tsx`
 
 - [ ] **Step 1: Replace direct `setMessages(append)` patterns with store calls**
 
-In `Bot.tsx`, find every place where `setMessages(...)` is called to *append* or *update* a message. Common patterns to look for:
+In `Bot.tsx`, find every place where `setMessages(...)` is called to _append_ or _update_ a message. Common patterns to look for:
 
 - `setMessages([...messages(), { type: 'userMessage', message: ... }])`
 - `setMessages((prev) => [...prev, newMsg])`
@@ -2561,6 +2484,7 @@ if (sessionStore) {
 - [ ] **Step 4: Manual verification**
 
 On the demo with multi-session enabled:
+
 1. Send a message → reply streams in normally.
 2. Reload the page → message and reply persist; correct session is still active.
 3. Open a new session, send a message → switching back to the first session shows the original history.
@@ -2579,6 +2503,7 @@ git commit -m "refactor(bot): route message writes through sessionStore"
 ### Task 18: Stream abort on session switch
 
 **Files:**
+
 - Modify: `src/components/Bot.tsx`
 
 The store can't directly abort streams (it doesn't know about the fetch). Bot.tsx exposes the abort capability; the store invokes it when active changes.
@@ -2604,10 +2529,7 @@ if (sessionStore) {
             (Bot as any).abortInFlight(); // placeholder if there's a method
           }
           // Or: hit the abort endpoint directly with the old id.
-          fetch(
-            `${props.apiHost ?? ''}/api/v1/chatmessage/abort/${props.chatflowid}/${lastSeenChatId}`,
-            { method: 'PUT' },
-          ).catch(() => {});
+          fetch(`${props.apiHost ?? ''}/api/v1/chatmessage/abort/${props.chatflowid}/${lastSeenChatId}`, { method: 'PUT' }).catch(() => {});
         } catch {
           // best-effort
         }
@@ -2618,7 +2540,7 @@ if (sessionStore) {
 }
 ```
 
-> **Note:** The exact abort wiring depends on how the existing streaming code is structured. The intent: on session switch, fire-and-forget abort for the *previous* `chatId`. If there's already a per-request `AbortController` accessible at this scope, prefer calling `.abort()` on it instead of an HTTP call.
+> **Note:** The exact abort wiring depends on how the existing streaming code is structured. The intent: on session switch, fire-and-forget abort for the _previous_ `chatId`. If there's already a per-request `AbortController` accessible at this scope, prefer calling `.abort()` on it instead of an HTTP call.
 
 - [ ] **Step 2: Manual verification**
 
@@ -2641,6 +2563,7 @@ git commit -m "feat(sessions): best-effort stream abort on session switch"
 ### Task 19: Custom events — new-session, switch-session, session-changed, repurposed clear-chat
 
 **Files:**
+
 - Modify: `src/components/Bot.tsx`
 - Modify: `src/components/sessions/ChatRoot.tsx`
 - Modify: `src/state/sessionStore.ts`
@@ -2748,6 +2671,7 @@ git commit -m "feat(sessions): custom events for new/switch/changed and repurpos
 ### Task 20: Cross-tab `storage` event listener
 
 **Files:**
+
 - Modify: `src/state/sessionStore.ts`
 
 - [ ] **Step 1: Listen for cross-tab Index changes**
@@ -2804,6 +2728,7 @@ git commit -m "feat(sessions): cross-tab sync via storage event"
 ### Task 21: Wire `<ChatRoot>` into Bubble, Full, and Popup
 
 **Files:**
+
 - Modify: `src/features/bubble/components/Bubble.tsx`
 - Modify: `src/features/full/components/Full.tsx`
 - Modify: `src/features/popup/components/Popup.tsx`
@@ -2817,10 +2742,7 @@ In each of the three feature components, swap `<Bot {...props} />` for `<ChatRoo
 For each mode, where it constructs the `BotProps` from theme config, ensure `sessionPanel` is forwarded. Typically this looks like:
 
 ```tsx
-<ChatRoot
-  {...botProps}
-  theme={theme} /* if not already spread; needed by ChatRoot's panelTheme cascade */
-/>
+<ChatRoot {...botProps} theme={theme} /* if not already spread; needed by ChatRoot's panelTheme cascade */ />
 ```
 
 If the existing code maps `theme.chatWindow.*` flat onto `BotProps`, do the same for `sessionPanel`:
@@ -2849,6 +2771,7 @@ git commit -m "feat(sessions): wire ChatRoot into bubble, full, and popup modes"
 ### Task 22: Accessibility polish — focus traps, keyboard nav
 
 **Files:**
+
 - Modify: `src/components/sessions/SessionPanel.tsx`
 - Modify: `src/components/sessions/SessionListItem.tsx`
 
@@ -2922,6 +2845,7 @@ git commit -m "feat(sessions): keyboard nav, focus trap, and Escape-to-close"
 ### Task 23: Manual test pass + Flowise companion checklist documentation
 
 **Files:**
+
 - Create: `docs/superpowers/manual-test-plans/2026-04-29-multi-session-chat.md`
 - Modify: `docs/superpowers/specs/2026-04-29-multi-session-chat-design.md` (mark items checked)
 
@@ -2948,17 +2872,20 @@ Execute every recipe from spec Section 8 against `npm run dev` + `npm start`:
 This is the verification log for the multi-session feature. Run before merging the implementation PR.
 
 ## Environment
+
 - `npm run dev` (Rollup watch)
 - `npm start` (Express server on :3000 by default)
 - Demo at `public/index.html` with `multiSession='{ "enabled": true }'`
 
 ## Matrix
+
 [Copy the Step 1 checklist here, each item with a "Pass / Fail / Notes" column.]
 
 ## Sign-off
-- Author: ______
-- Reviewer: ______
-- Date: ______
+
+- Author: **\_\_**
+- Reviewer: **\_\_**
+- Date: **\_\_**
 ```
 
 - [ ] **Step 3: Update spec to reflect implementation done**
@@ -2968,6 +2895,7 @@ In the design spec, change `**Status:** Design (pre-implementation)` to `**Statu
 - [ ] **Step 4: Open follow-up issues for the Flowise companion**
 
 Per spec Section 9, the parent Flowise repo needs:
+
 1. Set `multiSession.enabled = true` in the admin UI's preview embed.
 2. Verify chatflowid stability across preview reloads.
 3. (Future spec) Expose "Enable session history" toggle in chatflow settings.
