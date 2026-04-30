@@ -21,7 +21,7 @@ const msgKey = (chatflowid: string, chatId: string) => `${chatflowid}_EXTERNAL_m
 const capWarnedKey = (chatflowid: string) => `${chatflowid}_EXTERNAL_capWarned`;
 const panelCollapsedKey = (chatflowid: string) => `${chatflowid}_EXTERNAL_panelCollapsed`;
 
-const safeParse = <T,>(raw: string | null): T | null => {
+const safeParse = <T>(raw: string | null): T | null => {
   if (raw === null) return null;
   try {
     return JSON.parse(raw) as T;
@@ -38,7 +38,8 @@ export const readIndex = (chatflowid: string): ChatflowIndexV2 | null => {
 };
 
 export const readMessages = (chatflowid: string, chatId: string): MessageType[] => {
-  return safeParse<MessageType[]>(localStorage.getItem(msgKey(chatflowid, chatId))) ?? [];
+  const parsed = safeParse<unknown>(localStorage.getItem(msgKey(chatflowid, chatId)));
+  return Array.isArray(parsed) ? (parsed as MessageType[]) : [];
 };
 
 export const readPanelCollapsed = (chatflowid: string): boolean => {

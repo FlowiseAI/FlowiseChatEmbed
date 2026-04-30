@@ -42,6 +42,15 @@
       };
       window.__assert = (cond, msg) => print(msg, !!cond);
 
+      // ⚠️  Inline-port limitation:
+      // This harness can't `await import('/src/.../...ts')` because the dev server
+      // doesn't transpile TypeScript for static HTML imports. We compensate by
+      // inlining a JS port of each module's logic below. This means the harness
+      // verifies the *spec's intended behavior*, not the actual TS source — drift
+      // between the source and the inline port will not be caught here.
+      // See spec Decision #13 (test framework deferred). Move to a real test
+      // runner (Vitest + Solid Testing Library) when adding the follow-up spec.
+
       // Section: titleFromMessage
       // Inline JS port of src/utils/titleFromMessage.ts for harness verification.
       // Keep in sync with the source file when changing logic.
@@ -98,7 +107,10 @@
         if (parsed.version === 2) return parsed;
         return null;
       };
-      const readMessages = (cf, id) => _safeParse(localStorage.getItem(_msgKey(cf, id))) ?? [];
+      const readMessages = (cf, id) => {
+        const parsed = _safeParse(localStorage.getItem(_msgKey(cf, id)));
+        return Array.isArray(parsed) ? parsed : [];
+      };
       const readPanelCollapsed = (cf) => localStorage.getItem(_panelCollapsedKey(cf)) === '1';
 
       const cf = '__test_cf_' + Date.now();
