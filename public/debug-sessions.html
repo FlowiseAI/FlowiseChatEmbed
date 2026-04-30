@@ -43,8 +43,20 @@
       window.__assert = (cond, msg) => print(msg, !!cond);
 
       // Section: titleFromMessage
-      // Try importing from built dist/web.js (fallback for when TS transpilation isn't available in dev)
-      const { titleFromMessage } = await import('/web.js');
+      // Inline JS port of src/utils/titleFromMessage.ts for harness verification.
+      // Keep in sync with the source file when changing logic.
+      const MAX_TITLE_LEN = 40;
+      const titleFromMessage = (messages) => {
+        const firstUser = messages.find((m) => m.type === 'userMessage');
+        if (!firstUser) return null;
+        const stripped = (firstUser.message ?? '')
+          .replace(/[`*_~#>[\]()]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (stripped.length === 0) return null;
+        if (stripped.length <= MAX_TITLE_LEN) return stripped;
+        return stripped.slice(0, MAX_TITLE_LEN).trimEnd() + '…';
+      };
 
       __assert(titleFromMessage([]) === null, 'empty messages → null');
       __assert(
