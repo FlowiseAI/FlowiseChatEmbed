@@ -82,6 +82,52 @@
         titleFromMessage([{ type: 'userMessage', message: '   ' }]) === null,
         'whitespace-only user message → null',
       );
+
+      // Section: sessionStorage reads
+      // Inline JS port for harness verification (keep in sync with src/state/sessionStorage.ts)
+      const _indexKey = (cf) => `${cf}_EXTERNAL`;
+      const _msgKey = (cf, id) => `${cf}_EXTERNAL_msgs_${id}`;
+      const _panelCollapsedKey = (cf) => `${cf}_EXTERNAL_panelCollapsed`;
+      const _safeParse = (raw) => {
+        if (raw === null) return null;
+        try { return JSON.parse(raw); } catch { return null; }
+      };
+      const readIndex = (cf) => {
+        const parsed = _safeParse(localStorage.getItem(_indexKey(cf)));
+        if (!parsed || typeof parsed !== 'object') return null;
+        if (parsed.version === 2) return parsed;
+        return null;
+      };
+      const readMessages = (cf, id) => _safeParse(localStorage.getItem(_msgKey(cf, id))) ?? [];
+      const readPanelCollapsed = (cf) => localStorage.getItem(_panelCollapsedKey(cf)) === '1';
+
+      const cf = '__test_cf_' + Date.now();
+
+      // Empty state
+      __assert(readIndex(cf) === null, 'no entry → readIndex returns null');
+      __assert(readMessages(cf, 'x').length === 0, 'no messages → readMessages returns []');
+      __assert(readPanelCollapsed(cf) === false, 'no collapse pref → false');
+
+      // v2 entry
+      const v2 = {
+        version: 2,
+        activeChatId: 'a',
+        sessions: [{ chatId: 'a', title: 'Hello', createdAt: 1, updatedAt: 2 }],
+      };
+      localStorage.setItem(_indexKey(cf), JSON.stringify(v2));
+      const got = readIndex(cf);
+      __assert(got && got.activeChatId === 'a', 'v2 entry round-trips');
+
+      // Corrupt entry
+      localStorage.setItem(_indexKey(cf), 'not json');
+      __assert(readIndex(cf) === null, 'corrupt JSON → null');
+
+      // v1 entry (no version field) → null at this layer (migration handles upgrade later)
+      localStorage.setItem(_indexKey(cf), JSON.stringify({ chatId: 'x', chatHistory: [] }));
+      __assert(readIndex(cf) === null, 'v1-shaped entry → null at storage layer');
+
+      // Cleanup
+      localStorage.removeItem(_indexKey(cf));
     </script>
   </body>
 </html>
