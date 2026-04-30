@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Multi-session debug harness</title>
+    <style>
+      body {
+        font-family: monospace;
+        padding: 24px;
+        line-height: 1.6;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      .pass {
+        color: green;
+      }
+      .fail {
+        color: crimson;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 8px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Multi-session debug harness</h1>
+    <p>Open DevTools console — failures are red. Each section is added as the plan progresses.</p>
+    <pre id="log"></pre>
+
+    <script type="module">
+      const log = document.getElementById('log');
+      const print = (msg, ok) => {
+        const line = document.createElement('span');
+        line.textContent = (ok ? '✓ ' : '✗ ') + msg + '\n';
+        line.className = ok ? 'pass' : 'fail';
+        log.appendChild(line);
+        if (!ok) console.error(msg);
+        else console.log('PASS:', msg);
+      };
+      window.__assert = (cond, msg) => print(msg, !!cond);
+
+      // Section: titleFromMessage
+      // Try importing from built dist/web.js (fallback for when TS transpilation isn't available in dev)
+      const { titleFromMessage } = await import('/web.js');
+
+      __assert(titleFromMessage([]) === null, 'empty messages → null');
+      __assert(
+        titleFromMessage([{ type: 'apiMessage', message: 'hi' }]) === null,
+        'no userMessage → null',
+      );
+      __assert(
+        titleFromMessage([{ type: 'userMessage', message: 'Hello world' }]) === 'Hello world',
+        'short user message preserved',
+      );
+      __assert(
+        titleFromMessage([{ type: 'userMessage', message: '   spaced   out   ' }]) === 'spaced out',
+        'whitespace collapsed and trimmed',
+      );
+      __assert(
+        titleFromMessage([{ type: 'userMessage', message: '**bold** _italic_ `code`' }]) === 'bold italic code',
+        'markdown stripped',
+      );
+      const long = 'a'.repeat(60);
+      const t = titleFromMessage([{ type: 'userMessage', message: long }]);
+      __assert(t.length === 41 && t.endsWith('…'), 'long message truncated to 40 chars + ellipsis');
+      __assert(
+        titleFromMessage([{ type: 'userMessage', message: '   ' }]) === null,
+        'whitespace-only user message → null',
+      );
+    </script>
+  </body>
+</html>
