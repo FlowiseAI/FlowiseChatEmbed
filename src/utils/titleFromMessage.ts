@@ -6,7 +6,7 @@ export const titleFromMessage = (messages: MessageType[]): string | null => {
   const firstUser = messages.find((m) => m.type === 'userMessage');
   if (!firstUser) return null;
 
-  const stripped = (firstUser.message ?? '')
+  const stripped = firstUser.message
     .replace(/[`*_~#>[\]()]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
