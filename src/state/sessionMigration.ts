@@ -2,12 +2,10 @@ import type { MessageType } from '@/components/Bot';
 import {
   type ChatflowIndexV2,
   type LeadCaptureData,
-  readMessages,
   writeIndex,
   writeMessages,
 } from './sessionStorage';
 import { titleFromMessage } from '@/utils/titleFromMessage';
-import { v4 as uuidv4 } from 'uuid';
 
 type RawV1 = {
   chatId?: string;
@@ -33,10 +31,7 @@ const isV1Shape = (raw: unknown): raw is RawV1 => {
  *
  * Pass `newChatId` so callers can plumb in their `customerId+uuid` prefix.
  */
-export const loadOrMigrate = (
-  chatflowid: string,
-  newChatId: () => string,
-): ChatflowIndexV2 => {
+export const loadOrMigrate = (chatflowid: string, newChatId: () => string): ChatflowIndexV2 => {
   const raw = localStorage.getItem(indexKey(chatflowid));
 
   // No entry → fresh
