@@ -140,6 +140,79 @@
 
       // Cleanup
       localStorage.removeItem(_indexKey(cf));
+
+      // Section: sessionStorage writes + reconcile
+      // Inline JS port for harness verification (keep in sync with src/state/sessionStorage.ts)
+      const _isQuotaError = (e) => {
+        if (!(e instanceof Error)) return false;
+        return e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22;
+      };
+      class _StorageQuotaError extends Error {
+        constructor() { super('localStorage quota exceeded'); this.name = 'StorageQuotaError'; }
+      }
+      const _safeWrite = (key, value) => {
+        try { localStorage.setItem(key, value); }
+        catch (e) { if (_isQuotaError(e)) throw new _StorageQuotaError(); throw e; }
+      };
+      const _capWarnedKey = (cf) => `${cf}_EXTERNAL_capWarned`;
+      const writeIndex = (cf, idx) => _safeWrite(_indexKey(cf), JSON.stringify(idx));
+      const writeMessages = (cf, id, msgs) => _safeWrite(_msgKey(cf, id), JSON.stringify(msgs));
+      const removeMessages = (cf, id) => localStorage.removeItem(_msgKey(cf, id));
+      const reconcileOrphans = (cf, idx) => {
+        const indexIds = new Set(idx.sessions.map((s) => s.chatId));
+        const prefix = `${cf}_EXTERNAL_msgs_`;
+        const deletedOrphans = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith(prefix)) continue;
+          const chatId = k.slice(prefix.length);
+          if (!indexIds.has(chatId)) { localStorage.removeItem(k); deletedOrphans.push(chatId); i--; }
+        }
+        const missingMsgKeys = [];
+        for (const s of idx.sessions) {
+          if (localStorage.getItem(_msgKey(cf, s.chatId)) === null) missingMsgKeys.push(s.chatId);
+        }
+        return { deletedOrphans, missingMsgKeys };
+      };
+
+      const cf2 = '__test_cf2_' + Date.now();
+
+      // Round-trip
+      const idx = {
+        version: 2,
+        activeChatId: 'a',
+        sessions: [
+          { chatId: 'a', title: 'A', createdAt: 1, updatedAt: 1 },
+          { chatId: 'b', title: 'B', createdAt: 2, updatedAt: 2 },
+        ],
+      };
+      writeIndex(cf2, idx);
+      writeMessages(cf2, 'a', [{ type: 'userMessage', message: 'hi' }]);
+      writeMessages(cf2, 'b', [{ type: 'userMessage', message: 'yo' }]);
+
+      const got2 = readIndex(cf2);
+      __assert(got2 && got2.sessions.length === 2, 'index write+read round-trip');
+      __assert(readMessages(cf2, 'a').length === 1, 'messages a round-trip');
+      __assert(readMessages(cf2, 'b').length === 1, 'messages b round-trip');
+
+      // Orphan: write a MsgKey for a chatId not in the index
+      writeMessages(cf2, 'orphan-id', [{ type: 'userMessage', message: 'lost' }]);
+      const result1 = reconcileOrphans(cf2, idx);
+      __assert(result1.deletedOrphans.includes('orphan-id'), 'orphan MsgKey detected and deleted');
+      __assert(readMessages(cf2, 'orphan-id').length === 0, 'orphan MsgKey actually removed');
+
+      // Missing: index has 'c' but no MsgKey
+      const idxWithMissing = {
+        ...idx,
+        sessions: [...idx.sessions, { chatId: 'c', title: 'C', createdAt: 3, updatedAt: 3 }],
+      };
+      const result2 = reconcileOrphans(cf2, idxWithMissing);
+      __assert(result2.missingMsgKeys.includes('c'), 'missing MsgKey detected');
+
+      // Cleanup
+      removeMessages(cf2, 'a');
+      removeMessages(cf2, 'b');
+      localStorage.removeItem(`${cf2}_EXTERNAL`);
     </script>
   </body>
 </html>

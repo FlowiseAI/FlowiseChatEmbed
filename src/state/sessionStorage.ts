@@ -51,3 +51,86 @@ export const readCapWarned = (chatflowid: string): boolean => {
 };
 
 export const _internalKeys = { indexKey, msgKey, capWarnedKey, panelCollapsedKey };
+
+export class StorageQuotaError extends Error {
+  constructor() {
+    super('localStorage quota exceeded');
+    this.name = 'StorageQuotaError';
+  }
+}
+
+const isQuotaError = (e: unknown): boolean => {
+  if (!(e instanceof Error)) return false;
+  return (
+    e.name === 'QuotaExceededError' ||
+    e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    (e as { code?: number }).code === 22
+  );
+};
+
+const safeWrite = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    if (isQuotaError(e)) throw new StorageQuotaError();
+    throw e;
+  }
+};
+
+export const writeIndex = (chatflowid: string, index: ChatflowIndexV2): void => {
+  safeWrite(indexKey(chatflowid), JSON.stringify(index));
+};
+
+export const writeMessages = (
+  chatflowid: string,
+  chatId: string,
+  messages: MessageType[],
+): void => {
+  safeWrite(msgKey(chatflowid, chatId), JSON.stringify(messages));
+};
+
+export const removeMessages = (chatflowid: string, chatId: string): void => {
+  localStorage.removeItem(msgKey(chatflowid, chatId));
+};
+
+export const writePanelCollapsed = (chatflowid: string, collapsed: boolean): void => {
+  safeWrite(panelCollapsedKey(chatflowid), collapsed ? '1' : '0');
+};
+
+export const writeCapWarned = (chatflowid: string): void => {
+  safeWrite(capWarnedKey(chatflowid), '1');
+};
+
+/**
+ * Reconcile MsgKey orphans against an Index.
+ * - Returns chatIds whose MsgKey was deleted (orphans, not in index).
+ * - Returns chatIds in index that have no MsgKey (caller should seed empty).
+ */
+export const reconcileOrphans = (
+  chatflowid: string,
+  index: ChatflowIndexV2,
+): { deletedOrphans: string[]; missingMsgKeys: string[] } => {
+  const indexIds = new Set(index.sessions.map((s) => s.chatId));
+  const prefix = `${chatflowid}_EXTERNAL_msgs_`;
+
+  const deletedOrphans: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith(prefix)) continue;
+    const chatId = k.slice(prefix.length);
+    if (!indexIds.has(chatId)) {
+      localStorage.removeItem(k);
+      deletedOrphans.push(chatId);
+      i--; // length shrunk
+    }
+  }
+
+  const missingMsgKeys: string[] = [];
+  for (const s of index.sessions) {
+    if (localStorage.getItem(msgKey(chatflowid, s.chatId)) === null) {
+      missingMsgKeys.push(s.chatId);
+    }
+  }
+
+  return { deletedOrphans, missingMsgKeys };
+};
