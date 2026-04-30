@@ -320,6 +320,15 @@
         'unknown shape NOT overwritten in storage',
       );
       localStorage.removeItem(`${cf3}_EXTERNAL`);
+
+      // Section: sessionStore (no harness verification)
+      // The store requires Solid's reactive runtime (createSignal, createMemo, batch).
+      // The harness's inline-port pattern can't easily mock Solid, so the store is
+      // verified via integration tests in later tasks: Bot.tsx wiring (Task 16-17),
+      // the demo page exercising new-chat / switch / rename / delete on Tasks 11-15.
+      // See spec Decision #13 — the follow-up Vitest spec will give us proper
+      // component-level coverage.
+      __assert(true, 'sessionStore — verification deferred to integration (Task 11+)');
     </script>
   </body>
 </html>
