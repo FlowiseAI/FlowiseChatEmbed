@@ -213,6 +213,113 @@
       removeMessages(cf2, 'a');
       removeMessages(cf2, 'b');
       localStorage.removeItem(`${cf2}_EXTERNAL`);
+
+      // Section: migration
+      // Inline JS port for harness verification (keep in sync with src/state/sessionMigration.ts)
+      const _isV1Shape = (raw) => {
+        if (!raw || typeof raw !== 'object') return false;
+        if ('version' in raw) return false;
+        return typeof raw.chatId === 'string' || Array.isArray(raw.chatHistory);
+      };
+
+      const loadOrMigrate = (cf, newChatId) => {
+        const raw = localStorage.getItem(_indexKey(cf));
+        const writeFresh = () => {
+          const id = newChatId();
+          const fresh = {
+            version: 2,
+            activeChatId: id,
+            sessions: [{ chatId: id, title: 'New chat', createdAt: Date.now(), updatedAt: Date.now() }],
+          };
+          writeIndex(cf, fresh);
+          writeMessages(cf, id, []);
+          return fresh;
+        };
+        if (raw === null) return writeFresh();
+        let parsed;
+        try { parsed = JSON.parse(raw); } catch { return writeFresh(); }
+        if (parsed && typeof parsed === 'object' && parsed.version === 2) return parsed;
+        if (_isV1Shape(parsed)) {
+          const chatId = parsed.chatId ?? newChatId();
+          const messages = parsed.chatHistory ?? [];
+          const now = Date.now();
+          const title = titleFromMessage(messages) ?? 'Previous chat';
+          const v2 = {
+            version: 2,
+            activeChatId: chatId,
+            sessions: [{ chatId, title, createdAt: now, updatedAt: now }],
+            lead: parsed.lead,
+          };
+          writeIndex(cf, v2);
+          writeMessages(cf, chatId, messages);
+          return v2;
+        }
+        // unknown shape — fresh in memory, do NOT clobber
+        const id = newChatId();
+        return {
+          version: 2,
+          activeChatId: id,
+          sessions: [{ chatId: id, title: 'New chat', createdAt: Date.now(), updatedAt: Date.now() }],
+        };
+      };
+
+      const mkId = () => 'mig-' + Math.random().toString(16).slice(2, 8);
+      const cf3 = '__test_cf3_' + Date.now();
+
+      // Empty → fresh v2
+      const r1 = loadOrMigrate(cf3, mkId);
+      __assert(r1.version === 2 && r1.sessions.length === 1, 'empty → fresh v2 with one session');
+      __assert(r1.sessions[0].title === 'New chat', 'fresh session titled "New chat"');
+      localStorage.removeItem(`${cf3}_EXTERNAL`);
+
+      // v1 with chatHistory → migrate
+      localStorage.setItem(
+        `${cf3}_EXTERNAL`,
+        JSON.stringify({
+          chatId: 'old-1',
+          chatHistory: [
+            { type: 'userMessage', message: 'How do I export to CSV?' },
+            { type: 'apiMessage', message: 'You can use…' },
+          ],
+          lead: { email: 'a@b.com' },
+        }),
+      );
+      const r2 = loadOrMigrate(cf3, mkId);
+      __assert(r2.activeChatId === 'old-1', 'v1 chatId carried over');
+      __assert(r2.sessions[0].title.startsWith('How do I export'), 'title derived from first user msg');
+      __assert(r2.lead && r2.lead.email === 'a@b.com', 'lead preserved');
+      __assert(readMessages(cf3, 'old-1').length === 2, 'chatHistory written to MsgKey');
+      __assert(readIndex(cf3)?.version === 2, 'storage now contains v2');
+      localStorage.removeItem(`${cf3}_EXTERNAL`);
+      localStorage.removeItem(`${cf3}_EXTERNAL_msgs_old-1`);
+
+      // v1 with empty chatHistory → "Previous chat"
+      localStorage.setItem(`${cf3}_EXTERNAL`, JSON.stringify({ chatId: 'p', chatHistory: [] }));
+      const r3 = loadOrMigrate(cf3, mkId);
+      __assert(r3.sessions[0].title === 'Previous chat', 'empty v1 history → "Previous chat"');
+      localStorage.removeItem(`${cf3}_EXTERNAL`);
+      localStorage.removeItem(`${cf3}_EXTERNAL_msgs_p`);
+
+      // v2 idempotent
+      const v2idx = {
+        version: 2,
+        activeChatId: 'a',
+        sessions: [{ chatId: 'a', title: 'kept', createdAt: 9, updatedAt: 9 }],
+      };
+      localStorage.setItem(`${cf3}_EXTERNAL`, JSON.stringify(v2idx));
+      const r4 = loadOrMigrate(cf3, mkId);
+      __assert(r4.activeChatId === 'a' && r4.sessions[0].title === 'kept', 'v2 idempotent');
+      localStorage.removeItem(`${cf3}_EXTERNAL`);
+
+      // Unknown shape → does NOT clobber
+      localStorage.setItem(`${cf3}_EXTERNAL`, JSON.stringify({ totally: 'unknown' }));
+      const r5 = loadOrMigrate(cf3, mkId);
+      __assert(r5.version === 2, 'unknown shape → fresh in-memory v2');
+      __assert(
+        JSON.parse(localStorage.getItem(`${cf3}_EXTERNAL`)).totally === 'unknown',
+        'unknown shape NOT overwritten in storage',
+      );
+      localStorage.removeItem(`${cf3}_EXTERNAL`);
     </script>
   </body>
 </html>
