@@ -46,6 +46,7 @@ import {
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 import { CHAT_HEADER_HEIGHT } from '@/constants';
+import { useSessionStore } from './sessions/ChatRoot';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -477,6 +478,7 @@ const FormInputView = (props: {
 export const Bot = (botProps: BotProps & { class?: string }) => {
   // set a default value for showTitle if not set and merge with other props
   const props = mergeProps({ showTitle: true }, botProps);
+  const sessionStore = useSessionStore();
   let chatContainer: HTMLDivElement | undefined;
   let bottomSpacer: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
@@ -487,7 +489,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [loading, setLoading] = createSignal(false);
   const [sourcePopupOpen, setSourcePopupOpen] = createSignal(false);
   const [sourcePopupSrc, setSourcePopupSrc] = createSignal({});
-  const [messages, setMessages] = createSignal<MessageType[]>(
+  const [fallbackMessages, setFallbackMessages] = createSignal<MessageType[]>(
     [
       {
         message: props.welcomeMessage ?? defaultWelcomeMessage,
@@ -496,9 +498,19 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     ],
     { equals: false },
   );
+  const messages = () => sessionStore?.activeMessages() ?? fallbackMessages();
+  const setMessages = (next: MessageType[] | ((prev: MessageType[]) => MessageType[])) => {
+    if (sessionStore) return;
+    setFallbackMessages((prev) => (typeof next === 'function' ? next(prev) : next));
+  };
 
   const [isChatFlowAvailableToStream, setIsChatFlowAvailableToStream] = createSignal(false);
-  const [chatId, setChatId] = createSignal('');
+  const [fallbackChatId, setFallbackChatId] = createSignal('');
+  const chatId = () => sessionStore?.activeChatId() ?? fallbackChatId();
+  const setChatId = (next: string) => {
+    if (sessionStore) return;
+    setFallbackChatId(next);
+  };
   const [isMessageStopping, setIsMessageStopping] = createSignal(false);
   const [starterPrompts, setStarterPrompts] = createSignal<string[]>([], { equals: false });
   const [chatFeedbackStatus, setChatFeedbackStatus] = createSignal<boolean>(false);
@@ -560,10 +572,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let isTTSActionRef = false;
   let ttsTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
-  createMemo(() => {
-    const customerId = (props.chatflowConfig?.vars as any)?.customerId;
-    setChatId(customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4());
-  });
+  if (!sessionStore) {
+    // eslint-disable-next-line solid/reactivity
+    createMemo(() => {
+      const customerId = (props.chatflowConfig?.vars as any)?.customerId;
+      setFallbackChatId(customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4());
+    });
+  }
 
   onMount(() => {
     if (botProps?.observersConfig) {
@@ -1523,49 +1538,51 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       setDisclaimerPopupOpen(false);
     }
 
-    const chatMessage = getLocalStorageChatflow(props.chatflowid);
-    if (chatMessage && Object.keys(chatMessage).length) {
-      if (chatMessage.chatId) setChatId(chatMessage.chatId);
-      const savedLead = chatMessage.lead;
-      if (savedLead) {
-        setIsLeadSaved(!!savedLead);
-        setLeadEmail(savedLead.email);
-      }
-      const loadedMessages: MessageType[] =
-        chatMessage?.chatHistory?.length > 0
-          ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-                rating: message.rating,
-                dateTime: message.dateTime,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-              if ((message as any).reasonContent && typeof (message as any).reasonContent === 'object') {
-                chatHistory.thinking = (message as any).reasonContent.thinking;
-                chatHistory.thinkingDuration = (message as any).reasonContent.thinkingDuration;
-              }
-              if (message.thinking) chatHistory.thinking = message.thinking;
-              if (message.thinkingDuration !== undefined) chatHistory.thinkingDuration = message.thinkingDuration;
-              if (message.action) chatHistory.action = message.action;
-              if (message.artifacts) chatHistory.artifacts = message.artifacts;
-              if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
-              if (message.execution && message.execution.executionData)
-                chatHistory.agentFlowExecutedData =
-                  typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
-              if (message.agentFlowExecutedData)
-                chatHistory.agentFlowExecutedData =
-                  typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
-              return chatHistory;
-            })
-          : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
+    if (!sessionStore) {
+      const chatMessage = getLocalStorageChatflow(props.chatflowid);
+      if (chatMessage && Object.keys(chatMessage).length) {
+        if (chatMessage.chatId) setChatId(chatMessage.chatId);
+        const savedLead = chatMessage.lead;
+        if (savedLead) {
+          setIsLeadSaved(!!savedLead);
+          setLeadEmail(savedLead.email);
+        }
+        const loadedMessages: MessageType[] =
+          chatMessage?.chatHistory?.length > 0
+            ? chatMessage.chatHistory?.map((message: MessageType) => {
+                const chatHistory: MessageType = {
+                  messageId: message?.messageId,
+                  message: message.message,
+                  type: message.type,
+                  rating: message.rating,
+                  dateTime: message.dateTime,
+                };
+                if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+                if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+                if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+                if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+                if ((message as any).reasonContent && typeof (message as any).reasonContent === 'object') {
+                  chatHistory.thinking = (message as any).reasonContent.thinking;
+                  chatHistory.thinkingDuration = (message as any).reasonContent.thinkingDuration;
+                }
+                if (message.thinking) chatHistory.thinking = message.thinking;
+                if (message.thinkingDuration !== undefined) chatHistory.thinkingDuration = message.thinkingDuration;
+                if (message.action) chatHistory.action = message.action;
+                if (message.artifacts) chatHistory.artifacts = message.artifacts;
+                if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
+                if (message.execution && message.execution.executionData)
+                  chatHistory.agentFlowExecutedData =
+                    typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
+                if (message.agentFlowExecutedData)
+                  chatHistory.agentFlowExecutedData =
+                    typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
+                return chatHistory;
+              })
+            : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
-      const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
-      setMessages([...filteredMessages]);
+        const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
+        setMessages([...filteredMessages]);
+      }
     }
 
     // Determine if particular chatflow is available for streaming
