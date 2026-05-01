@@ -4,8 +4,10 @@ import {
   type ChatflowIndexV2,
   type SessionV2,
   type LeadCaptureData,
+  readCapWarned,
   readMessages,
   reconcileOrphans,
+  writeCapWarned,
   writeIndex,
   writeMessages,
 } from './sessionStorage';
@@ -37,6 +39,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
   const messageCache = new Map<string, MessageType[]>();
   messageCache.set(initial.activeChatId, readMessages(chatflowid, initial.activeChatId));
   const [activeMessages, setActiveMessages] = createSignal<MessageType[]>(messageCache.get(initial.activeChatId)!);
+  const [capWarning, setCapWarning] = createSignal(false);
 
   // ---- selectors ----
   const sessions = createMemo(() => [...index().sessions].sort((a, b) => b.updatedAt - a.updatedAt));
@@ -69,9 +72,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
         if (!(e as Error)?.name?.includes('Quota') && !(e instanceof Error && e.message.includes('quota'))) throw e;
         // Evict oldest non-active session.
         const cur = index();
-        const candidates = cur.sessions
-          .filter((s) => s.chatId !== cur.activeChatId)
-          .sort((a, b) => a.updatedAt - b.updatedAt);
+        const candidates = cur.sessions.filter((s) => s.chatId !== cur.activeChatId).sort((a, b) => a.updatedAt - b.updatedAt);
         if (candidates.length === 0) break;
         const victim = candidates[0];
         localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${victim.chatId}`);
@@ -136,6 +137,11 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     for (const eid of evicted) {
       localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${eid}`);
       messageCache.delete(eid);
+    }
+
+    if (evicted.length > 0 && !readCapWarned(chatflowid)) {
+      writeCapWarned(chatflowid);
+      setCapWarning(true);
     }
 
     return id;
@@ -261,6 +267,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     activeSession,
     activeMessages,
     lead,
+    capWarning,
     actions: {
       newChat,
       switchSession,
@@ -270,6 +277,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       setLead,
       flushPending,
       setQuotaPanicHandler,
+      dismissCapWarning: () => setCapWarning(false),
     },
     _internal: {
       index,

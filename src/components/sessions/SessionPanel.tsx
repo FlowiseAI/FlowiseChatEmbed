@@ -1,6 +1,7 @@
 import { For, Show } from 'solid-js';
 import type { SessionStore } from '@/state/sessionStore';
 import { SessionListItem } from './SessionListItem';
+import { CapWarningToast } from './CapWarningToast';
 
 type SessionPanelTheme = {
   width?: string | number;
@@ -94,6 +95,12 @@ export const SessionPanel = (props: Props) => {
           + {newChatLabel()}
         </button>
       </div>
+
+      <CapWarningToast
+        visible={props.store.capWarning()}
+        text={props.panelTheme?.capWarningText ?? 'Conversation limit reached. Starting new ones will remove the oldest.'}
+        onDismiss={() => props.store.actions.dismissCapWarning()}
+      />
 
       <Show
         when={sessions().length > 0}
