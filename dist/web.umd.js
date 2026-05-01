@@ -81780,7 +81780,11 @@ ${body}</tbody>
     _tmpl$17 = /*#__PURE__*/template(`<div class="w-full flex flex-row flex-wrap px-5 py-[10px] gap-2">`),
     _tmpl$18 = /*#__PURE__*/template(`<div class="flex items-center gap-1 px-5"><span class="text-sm text-gray-700">Try these prompts`),
     _tmpl$19 = /*#__PURE__*/template(`<div class="w-full flex items-center justify-start gap-2 px-5 pt-2 border-t border-[#eeeeee]">`),
+<<<<<<< HEAD
     _tmpl$20 = /*#__PURE__*/template(`<div><div class="relative flex flex-col w-full flex-1 min-h-0 justify-start z-0"><div class="overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 pt-[70px] relative scrollable-container chatbot-chat-view"></div><div class="w-full px-5 pt-2 pb-1">`),
+=======
+    _tmpl$20 = /*#__PURE__*/template(`<div><div class="relative flex flex-col w-full flex-1 min-h-0 justify-start z-0"><div><div class="w-full"></div></div><div class="w-full px-5 pt-2 pb-1">`),
+>>>>>>> e9fd54c (pr)
     _tmpl$21 = /*#__PURE__*/template(`<div class="absolute top-0 left-0 bottom-0 right-0 w-full h-full z-50">`),
     _tmpl$22 = /*#__PURE__*/template(`<div class="absolute top-0 left-0 bottom-0 right-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white z-40 gap-2 border-2 border-dashed"><h2 class="text-xl font-semibold">Drop here to upload`),
     _tmpl$23 = /*#__PURE__*/template(`<span>`),
@@ -82695,8 +82699,19 @@ ${body}</tbody>
             case 'start':
               isStreaming = true;
               // Pin the originating session so every subsequent stream event routes there,
+<<<<<<< HEAD
               // even if the user switches the active session mid-stream.
               streamingChatId = sessionStore?.activeChatId() ?? chatId();
+=======
+              // even if the user switches the active session mid-stream. handleSubmit
+              // already pinned this synchronously before the request fired — DO NOT
+              // re-read activeChatId here, otherwise a session-switch in the gap
+              // between fetch firing and the 'start' SSE arriving would re-pin to the
+              // new active and bleed tokens into the wrong chat.
+              if (streamingChatId === undefined) {
+                streamingChatId = sessionStore?.activeChatId() ?? chatId();
+              }
+>>>>>>> e9fd54c (pr)
               // Assign a temporary messageId so subsequent token / mutate-last events upsert the
               // same record. The id will be swapped to the server's chatMessageId on metadata.
               streamingApiMessageId = v4();
@@ -84232,13 +84247,19 @@ ${body}</tbody>
         const _el$31 = _tmpl$20(),
           _el$37 = _el$31.firstChild,
           _el$38 = _el$37.firstChild,
+<<<<<<< HEAD
           _el$47 = _el$38.nextSibling;
+=======
+          _el$39 = _el$38.firstChild,
+          _el$48 = _el$38.nextSibling;
+>>>>>>> e9fd54c (pr)
         _el$31.addEventListener("dragenter", handleDrag);
         const _ref$ = botContainer;
         typeof _ref$ === "function" ? use(_ref$, _el$31) : botContainer = _el$31;
         insert(_el$31, (() => {
           const _c$10 = createMemo(() => !!isDragActive());
           return () => _c$10() && (() => {
+<<<<<<< HEAD
             const _el$48 = _tmpl$21();
             _el$48.addEventListener("drop", handleDrop);
             _el$48.addEventListener("dragover", handleDrag);
@@ -84246,19 +84267,35 @@ ${body}</tbody>
             _el$48.addEventListener("dragleave", handleDrag);
             _el$48.addEventListener("dragenter", handleDrag);
             return _el$48;
+=======
+            const _el$49 = _tmpl$21();
+            _el$49.addEventListener("drop", handleDrop);
+            _el$49.addEventListener("dragover", handleDrag);
+            _el$49.addEventListener("dragend", handleDrag);
+            _el$49.addEventListener("dragleave", handleDrag);
+            _el$49.addEventListener("dragenter", handleDrag);
+            return _el$49;
+>>>>>>> e9fd54c (pr)
           })();
         })(), _el$37);
         insert(_el$31, (() => {
           const _c$11 = createMemo(() => !!(isDragActive() && (uploadsConfig()?.isImageUploadAllowed || isFileUploadAllowed())));
           return () => _c$11() && (() => {
+<<<<<<< HEAD
             const _el$49 = _tmpl$22();
               _el$49.firstChild;
             insert(_el$49, createComponent(For, {
+=======
+            const _el$50 = _tmpl$22();
+              _el$50.firstChild;
+            insert(_el$50, createComponent(For, {
+>>>>>>> e9fd54c (pr)
               get each() {
                 return [...(uploadsConfig()?.imgUploadSizeAndTypes || []), ...(uploadsConfig()?.fileUploadSizeAndTypes || [])];
               },
               children: allowed => {
                 return [(() => {
+<<<<<<< HEAD
                   const _el$51 = _tmpl$23();
                   insert(_el$51, () => allowed.fileTypes?.join(', '));
                   return _el$51;
@@ -84271,12 +84308,31 @@ ${body}</tbody>
                       _el$55.nextSibling;
                     insert(_el$52, () => allowed.maxUploadSize, _el$55);
                     return _el$52;
+=======
+                  const _el$52 = _tmpl$23();
+                  insert(_el$52, () => allowed.fileTypes?.join(', '));
+                  return _el$52;
+                })(), createMemo((() => {
+                  const _c$13 = createMemo(() => !!allowed.maxUploadSize);
+                  return () => _c$13() && (() => {
+                    const _el$53 = _tmpl$24(),
+                      _el$54 = _el$53.firstChild,
+                      _el$56 = _el$54.nextSibling;
+                      _el$56.nextSibling;
+                    insert(_el$53, () => allowed.maxUploadSize, _el$56);
+                    return _el$53;
+>>>>>>> e9fd54c (pr)
                   })();
                 })())];
               }
             }), null);
+<<<<<<< HEAD
             createRenderEffect(() => props.bubbleBackgroundColor != null ? _el$49.style.setProperty("border-color", props.bubbleBackgroundColor) : _el$49.style.removeProperty("border-color"));
             return _el$49;
+=======
+            createRenderEffect(() => props.bubbleBackgroundColor != null ? _el$50.style.setProperty("border-color", props.bubbleBackgroundColor) : _el$50.style.removeProperty("border-color"));
+            return _el$50;
+>>>>>>> e9fd54c (pr)
           })();
         })(), _el$37);
         insert(_el$31, createComponent(Show, {
@@ -84371,7 +84427,12 @@ ${body}</tbody>
         }), _el$37);
         const _ref$2 = chatContainer;
         typeof _ref$2 === "function" ? use(_ref$2, _el$38) : chatContainer = _el$38;
+<<<<<<< HEAD
         insert(_el$38, createComponent(For, {
+=======
+        className(_el$38, `overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 ${sessionStore ? 'pt-6' : 'pt-[70px]'} relative scrollable-container chatbot-chat-view`);
+        insert(_el$39, createComponent(For, {
+>>>>>>> e9fd54c (pr)
           get each() {
             return [...messages()];
           },
@@ -84424,6 +84485,10 @@ ${body}</tbody>
                 get apiHost() {
                   return props.apiHost;
                 },
+<<<<<<< HEAD
+=======
+                bare: !!sessionStore,
+>>>>>>> e9fd54c (pr)
                 get backgroundColor() {
                   return props.botMessage?.backgroundColor;
                 },
@@ -84533,17 +84598,29 @@ ${body}</tbody>
               return () => _c$18() && createComponent(LoadingBubble, {});
             })())];
           }
+<<<<<<< HEAD
         }), null);
+=======
+        }));
+>>>>>>> e9fd54c (pr)
         insert(_el$38, createComponent(Show, {
           get when() {
             return loading();
           },
           get children() {
+<<<<<<< HEAD
             const _el$39 = _tmpl$12$1();
             const _ref$3 = bottomSpacer;
             typeof _ref$3 === "function" ? use(_ref$3, _el$39) : bottomSpacer = _el$39;
             _el$39.style.setProperty("flex-grow", "1");
             return _el$39;
+=======
+            const _el$40 = _tmpl$12$1();
+            const _ref$3 = bottomSpacer;
+            typeof _ref$3 === "function" ? use(_ref$3, _el$40) : bottomSpacer = _el$40;
+            _el$40.style.setProperty("flex-grow", "1");
+            return _el$40;
+>>>>>>> e9fd54c (pr)
           }
         }), null);
         insert(_el$37, createComponent(Show, {
@@ -84551,6 +84628,7 @@ ${body}</tbody>
             return showScrollButton();
           },
           get children() {
+<<<<<<< HEAD
             const _el$40 = _tmpl$16(),
               _el$41 = _el$40.firstChild;
             _el$41.$$click = forceScrollToBottom;
@@ -84560,6 +84638,17 @@ ${body}</tbody>
             return _el$40;
           }
         }), _el$47);
+=======
+            const _el$41 = _tmpl$16(),
+              _el$42 = _el$41.firstChild;
+            _el$42.$$click = forceScrollToBottom;
+            insert(_el$42, createComponent(ChevronDownIcon$3, {
+              "class": "w-5 h-5"
+            }));
+            return _el$41;
+          }
+        }), _el$48);
+>>>>>>> e9fd54c (pr)
         insert(_el$37, createComponent(Show, {
           get when() {
             return messages().length === 1;
@@ -84570,8 +84659,13 @@ ${body}</tbody>
                 return starterPrompts().length > 0;
               },
               get children() {
+<<<<<<< HEAD
                 const _el$42 = _tmpl$17();
                 insert(_el$42, createComponent(For, {
+=======
+                const _el$43 = _tmpl$17();
+                insert(_el$43, createComponent(For, {
+>>>>>>> e9fd54c (pr)
                   get each() {
                     return [...starterPrompts()];
                   },
@@ -84583,11 +84677,24 @@ ${body}</tbody>
                     }
                   })
                 }));
+<<<<<<< HEAD
                 return _el$42;
               }
             });
           }
         }), _el$47);
+=======
+                createRenderEffect(_$p => style(_el$43, sessionStore ? {
+                  'max-width': '760px',
+                  'margin-left': 'auto',
+                  'margin-right': 'auto'
+                } : {}, _$p));
+                return _el$43;
+              }
+            });
+          }
+        }), _el$48);
+>>>>>>> e9fd54c (pr)
         insert(_el$37, createComponent(Show, {
           get when() {
             return createMemo(() => messages().length > 2)() && followUpPromptsStatus();
@@ -84599,6 +84706,7 @@ ${body}</tbody>
               },
               get children() {
                 return [(() => {
+<<<<<<< HEAD
                   const _el$43 = _tmpl$18(),
                     _el$44 = _el$43.firstChild;
                   insert(_el$43, createComponent(SparklesIcon, {
@@ -84608,6 +84716,17 @@ ${body}</tbody>
                 })(), (() => {
                   const _el$45 = _tmpl$17();
                   insert(_el$45, createComponent(For, {
+=======
+                  const _el$44 = _tmpl$18(),
+                    _el$45 = _el$44.firstChild;
+                  insert(_el$44, createComponent(SparklesIcon, {
+                    "class": "w-4 h-4"
+                  }), _el$45);
+                  return _el$44;
+                })(), (() => {
+                  const _el$46 = _tmpl$17();
+                  insert(_el$46, createComponent(For, {
+>>>>>>> e9fd54c (pr)
                     get each() {
                       return [...followUpPrompts()];
                     },
@@ -84619,32 +84738,53 @@ ${body}</tbody>
                       }
                     })
                   }));
+<<<<<<< HEAD
                   return _el$45;
+=======
+                  return _el$46;
+>>>>>>> e9fd54c (pr)
                 })()];
               }
             });
           }
+<<<<<<< HEAD
         }), _el$47);
+=======
+        }), _el$48);
+>>>>>>> e9fd54c (pr)
         insert(_el$37, createComponent(Show, {
           get when() {
             return previews().length > 0;
           },
           get children() {
+<<<<<<< HEAD
             const _el$46 = _tmpl$19();
             insert(_el$46, createComponent(For, {
+=======
+            const _el$47 = _tmpl$19();
+            insert(_el$47, createComponent(For, {
+>>>>>>> e9fd54c (pr)
               get each() {
                 return [...previews()];
               },
               children: item => createMemo(() => previewDisplay(item))
             }));
+<<<<<<< HEAD
             return _el$46;
           }
         }), _el$47);
         insert(_el$47, (() => {
+=======
+            return _el$47;
+          }
+        }), _el$48);
+        insert(_el$48, (() => {
+>>>>>>> e9fd54c (pr)
           const _c$12 = createMemo(() => !!isRecording());
           return () => _c$12() ? createMemo((() => {
             const _c$19 = createMemo(() => !!recordingNotSupported());
             return () => _c$19() ? (() => {
+<<<<<<< HEAD
               const _el$56 = _tmpl$25(),
                 _el$57 = _el$56.firstChild,
                 _el$58 = _el$57.firstChild,
@@ -84667,6 +84807,30 @@ ${body}</tbody>
                 return () => _c$20() && _tmpl$28();
               })(), null);
               insert(_el$64, createComponent(CancelButton, {
+=======
+              const _el$57 = _tmpl$25(),
+                _el$58 = _el$57.firstChild,
+                _el$59 = _el$58.firstChild,
+                _el$60 = _el$59.nextSibling;
+              _el$60.$$click = () => onRecordingCancelled();
+              return _el$57;
+            })() : (() => {
+              const _el$61 = _tmpl$27(),
+                _el$62 = _el$61.firstChild,
+                _el$63 = _el$62.firstChild,
+                _el$64 = _el$63.nextSibling,
+                _el$65 = _el$62.nextSibling;
+              _el$61.style.setProperty("margin", "auto");
+              insert(_el$63, createComponent(CircleDotIcon, {
+                color: "red"
+              }));
+              insert(_el$64, () => elapsedTime() || '00:00');
+              insert(_el$62, (() => {
+                const _c$20 = createMemo(() => !!isLoadingRecording());
+                return () => _c$20() && _tmpl$28();
+              })(), null);
+              insert(_el$65, createComponent(CancelButton, {
+>>>>>>> e9fd54c (pr)
                 get buttonColor() {
                   return props.textInput?.sendButtonColor;
                 },
@@ -84674,12 +84838,21 @@ ${body}</tbody>
                 "class": "m-0",
                 "on:click": onRecordingCancelled,
                 get children() {
+<<<<<<< HEAD
                   const _el$65 = _tmpl$26();
                   _el$65.style.setProperty("font-family", "Poppins, sans-serif");
                   return _el$65;
                 }
               }), null);
               insert(_el$64, createComponent(SendButton, {
+=======
+                  const _el$66 = _tmpl$26();
+                  _el$66.style.setProperty("font-family", "Poppins, sans-serif");
+                  return _el$66;
+                }
+              }), null);
+              insert(_el$65, createComponent(SendButton, {
+>>>>>>> e9fd54c (pr)
                 get sendButtonColor() {
                   return props.textInput?.sendButtonColor;
                 },
@@ -84690,6 +84863,7 @@ ${body}</tbody>
                 "class": "m-0",
                 "on:click": onRecordingStopped,
                 get children() {
+<<<<<<< HEAD
                   const _el$66 = _tmpl$26();
                   _el$66.style.setProperty("font-family", "Poppins, sans-serif");
                   return _el$66;
@@ -84706,6 +84880,24 @@ ${body}</tbody>
                 _v$15: undefined
               });
               return _el$60;
+=======
+                  const _el$67 = _tmpl$26();
+                  _el$67.style.setProperty("font-family", "Poppins, sans-serif");
+                  return _el$67;
+                }
+              }), null);
+              createRenderEffect(_p$ => {
+                const _v$17 = props.textInput?.backgroundColor ?? defaultBackgroundColor,
+                  _v$18 = props.textInput?.textColor ?? defaultTextColor;
+                _v$17 !== _p$._v$17 && ((_p$._v$17 = _v$17) != null ? _el$61.style.setProperty("background-color", _v$17) : _el$61.style.removeProperty("background-color"));
+                _v$18 !== _p$._v$18 && ((_p$._v$18 = _v$18) != null ? _el$61.style.setProperty("color", _v$18) : _el$61.style.removeProperty("color"));
+                return _p$;
+              }, {
+                _v$17: undefined,
+                _v$18: undefined
+              });
+              return _el$61;
+>>>>>>> e9fd54c (pr)
             })();
           })()) : createComponent(TextInput, {
             get backgroundColor() {
@@ -84786,7 +84978,35 @@ ${body}</tbody>
           },
           botContainer: botContainer
         }), null);
+<<<<<<< HEAD
         createRenderEffect(() => className(_el$31, 'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class));
+=======
+        createRenderEffect(_p$ => {
+          const _v$14 = 'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class,
+            _v$15 = {
+              ...(sessionStore ? {
+                'max-width': '760px',
+                'margin-left': 'auto',
+                'margin-right': 'auto',
+                'padding-left': '8px',
+                'padding-right': '8px'
+              } : {})
+            },
+            _v$16 = sessionStore ? {
+              'max-width': '760px',
+              'margin-left': 'auto',
+              'margin-right': 'auto'
+            } : {};
+          _v$14 !== _p$._v$14 && className(_el$31, _p$._v$14 = _v$14);
+          _p$._v$15 = style(_el$39, _v$15, _p$._v$15);
+          _p$._v$16 = style(_el$48, _v$16, _p$._v$16);
+          return _p$;
+        }, {
+          _v$14: undefined,
+          _v$15: undefined,
+          _v$16: undefined
+        });
+>>>>>>> e9fd54c (pr)
         return _el$31;
       })();
     })()), createMemo((() => {
