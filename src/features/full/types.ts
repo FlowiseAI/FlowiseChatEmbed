@@ -1,11 +1,9 @@
-export type BubbleParams = {
-  theme?: BubbleTheme;
+export type FullParams = {
+  theme?: FullTheme;
 };
 
-export type BubbleTheme = {
+export type FullTheme = {
   chatWindow?: ChatWindowTheme;
-  button?: ButtonTheme;
-  tooltip?: ToolTipTheme;
   disclaimer?: DisclaimerPopUpTheme;
   customCSS?: string;
   form?: FormTheme;
@@ -99,31 +97,6 @@ export type ChatWindowTheme = {
     emptyStateText?: string;
     capWarningText?: string;
   };
-};
-
-export type ButtonTheme = {
-  size?: 'small' | 'medium' | 'large' | number; // custom size of chatbot in pixels
-  backgroundColor?: string;
-  iconColor?: string;
-  customIconSrc?: string;
-  bottom?: number;
-  right?: number;
-  dragAndDrop?: boolean; // parameter to enable drag and drop(true or false)
-  autoWindowOpen?: autoWindowOpenTheme;
-};
-
-export type ToolTipTheme = {
-  showTooltip?: boolean; // parameter to enable tooltip(true or false)
-  tooltipMessage?: string;
-  tooltipBackgroundColor?: string;
-  tooltipTextColor?: string;
-  tooltipFontSize?: number;
-};
-
-export type autoWindowOpenTheme = {
-  autoOpen?: boolean; //parameter to control automatic window opening
-  openDelay?: number; // Optional parameter for delay time in seconds
-  autoOpenOnMobile?: boolean; // Optional parameter for opening on mobile
 };
 
 export type DisclaimerPopUpTheme = {
