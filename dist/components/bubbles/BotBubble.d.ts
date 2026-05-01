@@ -33,6 +33,7 @@ type Props = {
     handleTTSStop?: (messageId: string) => void;
     hasCustomHeader?: boolean;
     dialogContainer?: HTMLElement;
+    bare?: boolean;
 };
 export declare const BotBubble: (props: Props) => import("solid-js").JSX.Element;
 export {};

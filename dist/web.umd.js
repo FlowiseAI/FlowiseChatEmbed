@@ -26878,7 +26878,7 @@ ${body}</tbody>
     _tmpl$5$6 = /*#__PURE__*/template(`<details class="mb-2 px-4 py-2 ml-2 chatbot-host-bubble rounded-[6px]"><summary class="cursor-pointer"><span class="italic">Agent Messages</span></summary><br>`),
     _tmpl$6$5 = /*#__PURE__*/template(`<div class="flex flex-row items-start flex-wrap w-full gap-2">`),
     _tmpl$7$5 = /*#__PURE__*/template(`<div class="ml-2 mb-1 max-w-full">`),
-    _tmpl$8$4 = /*#__PURE__*/template(`<span class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose bot-markdown-content" data-testid="host-bubble">`),
+    _tmpl$8$4 = /*#__PURE__*/template(`<span data-testid="host-bubble">`),
     _tmpl$9$3 = /*#__PURE__*/template(`<button type="button" class="py-2 px-4 mb-2 ml-2 justify-center font-semibold text-white focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 file-annotation-button"><div class="ml-2">`),
     _tmpl$10$3 = /*#__PURE__*/template(`<div class="px-4 py-2 flex flex-row justify-start space-x-2">`),
     _tmpl$11$2 = /*#__PURE__*/template(`<button type="button" class="px-4 py-2 font-medium text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300 flex items-center space-x-2">&nbsp;`),
@@ -27206,7 +27206,6 @@ ${body}</tbody>
         _el$9 = _el$7.nextSibling,
         _el$10 = _el$9.nextSibling,
         _el$11 = _el$10.firstChild;
-      _el$7.style.setProperty("margin-right", "50px");
       insert(_el$7, createComponent(Show, {
         get when() {
           return props.showAvatar;
@@ -27314,22 +27313,26 @@ ${body}</tbody>
         return () => _c$4() && [(() => {
           const _el$17 = _tmpl$8$4();
           use(setBotMessageRef, _el$17);
-          _el$17.style.setProperty("border-radius", "6px");
-          _el$17.style.setProperty("--bot-markdown-code-color", "#FFFFFF");
-          _el$17.style.setProperty("--bot-markdown-inline-code-color", "#4CAF50");
           createRenderEffect(_p$ => {
-            const _v$6 = props.backgroundColor ?? defaultBackgroundColor$2,
-              _v$7 = props.textColor ?? defaultTextColor$3,
-              _v$8 = props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$1}px`,
-              _v$9 = props.textColor ?? defaultTextColor$3;
-            _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$17.style.setProperty("background-color", _v$6) : _el$17.style.removeProperty("background-color"));
-            _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$17.style.setProperty("color", _v$7) : _el$17.style.removeProperty("color"));
-            _v$8 !== _p$._v$8 && ((_p$._v$8 = _v$8) != null ? _el$17.style.setProperty("font-size", _v$8) : _el$17.style.removeProperty("font-size"));
-            _v$9 !== _p$._v$9 && ((_p$._v$9 = _v$9) != null ? _el$17.style.setProperty("--bot-markdown-text-color", _v$9) : _el$17.style.removeProperty("--bot-markdown-text-color"));
+            const _v$8 = props.bare ? 'px-1 py-1 max-w-full prose bot-markdown-content' : 'px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose bot-markdown-content',
+              _v$9 = {
+                ...(props.bare ? {
+                  'background-color': 'transparent',
+                  color: props.textColor ?? defaultTextColor$3
+                } : {
+                  'background-color': props.backgroundColor ?? defaultBackgroundColor$2,
+                  color: props.textColor ?? defaultTextColor$3,
+                  'border-radius': '6px'
+                }),
+                'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize$1}px`,
+                '--bot-markdown-text-color': props.textColor ?? defaultTextColor$3,
+                '--bot-markdown-code-color': '#FFFFFF',
+                '--bot-markdown-inline-code-color': '#4CAF50'
+              };
+            _v$8 !== _p$._v$8 && className(_el$17, _p$._v$8 = _v$8);
+            _p$._v$9 = style(_el$17, _v$9, _p$._v$9);
             return _p$;
           }, {
-            _v$6: undefined,
-            _v$7: undefined,
             _v$8: undefined,
             _v$9: undefined
           });
@@ -27597,7 +27600,16 @@ ${body}</tbody>
           });
         }
       }), null);
-      createRenderEffect(() => className(_el$11, `flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`));
+      createRenderEffect(_p$ => {
+        const _v$6 = props.bare ? '0' : '50px',
+          _v$7 = `flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`;
+        _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$7.style.setProperty("margin-right", _v$6) : _el$7.style.removeProperty("margin-right"));
+        _v$7 !== _p$._v$7 && className(_el$11, _p$._v$7 = _v$7);
+        return _p$;
+      }, {
+        _v$6: undefined,
+        _v$7: undefined
+      });
       return _el$6;
     })();
   };
@@ -85482,21 +85494,30 @@ ${body}</tbody>
                     return starred();
                   },
                   children: s => renderItem(s)
-                }), createComponent(Show, {
-                  get when() {
-                    return recents().length > 0;
-                  },
-                  get children() {
-                    const _el$12 = _tmpl$7();
-                    _el$12.style.setProperty("padding", "12px 6px 4px 6px");
-                    _el$12.style.setProperty("font-size", "11px");
-                    _el$12.style.setProperty("font-weight", "600");
-                    _el$12.style.setProperty("letter-spacing", "0.04em");
-                    _el$12.style.setProperty("text-transform", "uppercase");
-                    createRenderEffect(() => _el$12.style.setProperty("color", mutedFg()) );
-                    return _el$12;
-                  }
                 })];
+              }
+            }), null);
+            insert(_el$10, createComponent(Show, {
+              get when() {
+                return recents().length > 0;
+              },
+              get children() {
+                const _el$12 = _tmpl$7();
+                _el$12.style.setProperty("font-size", "11px");
+                _el$12.style.setProperty("font-weight", "600");
+                _el$12.style.setProperty("letter-spacing", "0.04em");
+                _el$12.style.setProperty("text-transform", "uppercase");
+                createRenderEffect(_p$ => {
+                  const _v$5 = starred().length > 0 ? '12px 6px 4px 6px' : '8px 6px 4px 6px',
+                    _v$6 = mutedFg();
+                  _v$5 !== _p$._v$5 && ((_p$._v$5 = _v$5) != null ? _el$12.style.setProperty("padding", _v$5) : _el$12.style.removeProperty("padding"));
+                  _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$12.style.setProperty("color", _v$6) : _el$12.style.removeProperty("color"));
+                  return _p$;
+                }, {
+                  _v$5: undefined,
+                  _v$6: undefined
+                });
+                return _el$12;
               }
             }), null);
             insert(_el$10, createComponent(For, {
@@ -85524,20 +85545,20 @@ ${body}</tbody>
           _el$18.style.setProperty("font-family", "inherit");
           insert(_el$18, panelBody);
           createRenderEffect(_p$ => {
-            const _v$7 = collapsed() ? px(props.panelTheme?.collapsedWidth, '52px') : px(props.panelTheme?.width, '272px'),
-              _v$8 = bg(),
-              _v$9 = fg(),
-              _v$10 = `1px solid ${border()}`;
-            _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$18.style.setProperty("width", _v$7) : _el$18.style.removeProperty("width"));
-            _v$8 !== _p$._v$8 && ((_p$._v$8 = _v$8) != null ? _el$18.style.setProperty("background", _v$8) : _el$18.style.removeProperty("background"));
-            _v$9 !== _p$._v$9 && ((_p$._v$9 = _v$9) != null ? _el$18.style.setProperty("color", _v$9) : _el$18.style.removeProperty("color"));
-            _v$10 !== _p$._v$10 && ((_p$._v$10 = _v$10) != null ? _el$18.style.setProperty("border-right", _v$10) : _el$18.style.removeProperty("border-right"));
+            const _v$9 = collapsed() ? px(props.panelTheme?.collapsedWidth, '52px') : px(props.panelTheme?.width, '272px'),
+              _v$10 = bg(),
+              _v$11 = fg(),
+              _v$12 = `1px solid ${border()}`;
+            _v$9 !== _p$._v$9 && ((_p$._v$9 = _v$9) != null ? _el$18.style.setProperty("width", _v$9) : _el$18.style.removeProperty("width"));
+            _v$10 !== _p$._v$10 && ((_p$._v$10 = _v$10) != null ? _el$18.style.setProperty("background", _v$10) : _el$18.style.removeProperty("background"));
+            _v$11 !== _p$._v$11 && ((_p$._v$11 = _v$11) != null ? _el$18.style.setProperty("color", _v$11) : _el$18.style.removeProperty("color"));
+            _v$12 !== _p$._v$12 && ((_p$._v$12 = _v$12) != null ? _el$18.style.setProperty("border-right", _v$12) : _el$18.style.removeProperty("border-right"));
             return _p$;
           }, {
-            _v$7: undefined,
-            _v$8: undefined,
             _v$9: undefined,
-            _v$10: undefined
+            _v$10: undefined,
+            _v$11: undefined,
+            _v$12: undefined
           });
           return _el$18;
         })();
@@ -85575,14 +85596,14 @@ ${body}</tbody>
               _el$16.style.setProperty("font-family", "inherit");
               insert(_el$16, panelBody, null);
               createRenderEffect(_p$ => {
-                const _v$5 = bg(),
-                  _v$6 = fg();
-                _v$5 !== _p$._v$5 && ((_p$._v$5 = _v$5) != null ? _el$16.style.setProperty("background", _v$5) : _el$16.style.removeProperty("background"));
-                _v$6 !== _p$._v$6 && ((_p$._v$6 = _v$6) != null ? _el$16.style.setProperty("color", _v$6) : _el$16.style.removeProperty("color"));
+                const _v$7 = bg(),
+                  _v$8 = fg();
+                _v$7 !== _p$._v$7 && ((_p$._v$7 = _v$7) != null ? _el$16.style.setProperty("background", _v$7) : _el$16.style.removeProperty("background"));
+                _v$8 !== _p$._v$8 && ((_p$._v$8 = _v$8) != null ? _el$16.style.setProperty("color", _v$8) : _el$16.style.removeProperty("color"));
                 return _p$;
               }, {
-                _v$5: undefined,
-                _v$6: undefined
+                _v$7: undefined,
+                _v$8: undefined
               });
               return _el$16;
             })()];

@@ -49,6 +49,10 @@ type Props = {
   handleTTSStop?: (messageId: string) => void;
   hasCustomHeader?: boolean;
   dialogContainer?: HTMLElement;
+  // When true, render the bot message inline (no background bubble, no
+  // padding/border-radius) — matching ChatGPT/Claude/Gemini's "user is in a
+  // bubble, assistant is unboxed text" pattern. Used in multi-session mode.
+  bare?: boolean;
 };
 
 const defaultBackgroundColor = '#f7f8ff';
@@ -366,7 +370,7 @@ export const BotBubble = (props: Props) => {
 
   return (
     <div>
-      <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': '50px' }}>
+      <div class="flex flex-row justify-start mb-2 items-start host-container" style={{ 'margin-right': props.bare ? '0' : '50px' }}>
         <Show when={props.showAvatar}>
           <Avatar initialAvatarSrc={props.avatarSrc} />
         </Show>
@@ -424,12 +428,20 @@ export const BotBubble = (props: Props) => {
             <>
               <span
                 ref={setBotMessageRef}
-                class="px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose bot-markdown-content"
+                class={
+                  props.bare
+                    ? 'px-1 py-1 max-w-full prose bot-markdown-content'
+                    : 'px-4 py-2 ml-2 max-w-full chatbot-host-bubble prose bot-markdown-content'
+                }
                 data-testid="host-bubble"
                 style={{
-                  'background-color': props.backgroundColor ?? defaultBackgroundColor,
-                  color: props.textColor ?? defaultTextColor,
-                  'border-radius': '6px',
+                  ...(props.bare
+                    ? { 'background-color': 'transparent', color: props.textColor ?? defaultTextColor }
+                    : {
+                        'background-color': props.backgroundColor ?? defaultBackgroundColor,
+                        color: props.textColor ?? defaultTextColor,
+                        'border-radius': '6px',
+                      }),
                   'font-size': props.fontSize ? `${props.fontSize}px` : `${defaultFontSize}px`,
                   '--bot-markdown-text-color': props.textColor ?? defaultTextColor,
                   '--bot-markdown-code-color': '#FFFFFF',
