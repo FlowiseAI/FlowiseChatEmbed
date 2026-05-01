@@ -1,5 +1,6 @@
 import styles from '../../../assets/index.css';
-import { Bot, BotProps } from '@/components/Bot';
+import type { BotProps } from '@/components/Bot';
+import { ChatRoot } from '@/components/sessions/ChatRoot';
 import { BubbleParams } from '@/features/bubble/types';
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { resolveDialogContainer } from '@/utils';
@@ -69,7 +70,7 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             overflow: 'hidden', // Ensure no extra scrolling due to content overflow
           }}
         >
-          <Bot
+          <ChatRoot
             backgroundColor={props.theme?.chatWindow?.backgroundColor}
             formBackgroundColor={props.theme?.form?.backgroundColor}
             formTextColor={props.theme?.form?.textColor}
@@ -104,6 +105,8 @@ export const Full = (props: FullProps, { element }: { element: HTMLElement }) =>
             dateTimeToggle={props.theme?.chatWindow?.dateTimeToggle}
             renderHTML={props.theme?.chatWindow?.renderHTML}
             dialogContainer={resolveDialogContainer(props.dialogContainer)}
+            multiSession={props.multiSession}
+            theme={props.theme}
           />
         </div>
       </Show>

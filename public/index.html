@@ -13,6 +13,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flowise Chatbot Widget</title>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; }
+        flowise-fullchatbot { display: block; width: 100%; height: 100vh; }
+    </style>
 </head>
 
 <body>
@@ -27,9 +31,10 @@
         // salesbot=ghi123-jkl456,https://example.com
         //
         // Then use the environment variable name as chatflowid:
-        Chatbot.init({
-            chatflowid: 'agent1',    // or 'support', 'salesbot', etc.
-            apiHost: window.location.origin
+        Chatbot.initFull({
+            chatflowid: '3c95bf39-1208-4f0a-baf1-1c605a3e30b4',    // or 'support', 'salesbot', etc.
+            apiHost: 'http://localhost:3000',
+            multiSession: { enabled: true }
         })
     </script>
 </body>
