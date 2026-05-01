@@ -737,20 +737,27 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // its real chatMessageId, and cleared on stream close.
   let streamingApiMessageId: string | undefined;
 
+  // Tracks the chatId that owns the in-flight stream. Captured at stream start so all
+  // subsequent token / metadata / cleanup events route to that session — even if the
+  // user switches the active session mid-stream. Cleared in closeResponse.
+  let streamingChatId: string | undefined;
+
   /**
    * Mutate the last apiMessage (the one being streamed). In store mode this routes
-   * through upsertMessage keyed by streamingApiMessageId. In fallback mode it
+   * through upsertMessageInSession keyed by streamingChatId so tokens never bleed
+   * into a different session if the user switches mid-stream. In fallback mode it
    * preserves the original addChatMessage call so localStorage-based reload still
    * works for non-store users.
    */
   const replaceLastApiMessage = (updater: (last: MessageType) => MessageType, options?: { persistFallback?: boolean }): void => {
     if (sessionStore) {
-      const cur = sessionStore.activeMessages();
+      const targetChatId = streamingChatId ?? sessionStore.activeChatId();
+      const cur = sessionStore.actions.getSessionMessages(targetChatId);
       if (cur.length === 0) return;
       const last = cur[cur.length - 1];
       if (!last || last.type !== 'apiMessage') return;
       const updated = updater(last);
-      sessionStore.actions.upsertMessage(updated);
+      sessionStore.actions.upsertMessageInSession(targetChatId, updated);
       return;
     }
     setFallbackMessages((prev) => {
@@ -765,13 +772,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   /**
-   * Append a brand-new message. In store mode routes via upsertMessage (treated
-   * as append because the messageId is either fresh or undefined). In fallback
-   * mode appends to the signal and persists via addChatMessage.
+   * Append a brand-new message. In store mode routes via upsertMessageInSession
+   * targeting the streaming session (when a stream is in flight) so the message
+   * lands in the originating chat. In fallback mode appends to the signal and
+   * persists via addChatMessage.
    */
   const appendMessage = (msg: MessageType, options?: { persistFallback?: boolean }): void => {
     if (sessionStore) {
-      sessionStore.actions.upsertMessage(msg);
+      const targetChatId = streamingChatId ?? sessionStore.activeChatId();
+      sessionStore.actions.upsertMessageInSession(targetChatId, msg);
       return;
     }
     setFallbackMessages((prev) => {
@@ -852,7 +861,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const updateAgentFlowEvent = (event: string) => {
     if (event === 'INPROGRESS') {
       // INPROGRESS appends a new placeholder apiMessage. Use a fresh streaming id so
-      // subsequent mutate-last calls find it.
+      // subsequent mutate-last calls find it. Also pin the streaming session if not
+      // already pinned (some agentflow runs don't emit a 'start' event first).
+      if (sessionStore && streamingChatId === undefined) {
+        streamingChatId = sessionStore.activeChatId();
+      }
       streamingApiMessageId = uuidv4();
       appendMessage({ messageId: streamingApiMessageId, message: '', type: 'apiMessage', agentFlowEventStatus: event });
     } else {
@@ -914,6 +927,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     scrollToBottom();
+    // The request is dead either way — release the streaming-session pin so the
+    // next submission re-pins to the (then-)active session.
+    streamingChatId = undefined;
   };
 
   const handleDisclaimerAccept = () => {
@@ -963,11 +979,15 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     // set message id that is needed for feedback
     if (data.chatMessageId) {
-      if (sessionStore && streamingApiMessageId) {
-        const current = sessionStore.activeMessages();
+      if (sessionStore && streamingApiMessageId && streamingChatId) {
+        const current = sessionStore.actions.getSessionMessages(streamingChatId);
         const lastMsg = current[current.length - 1];
         if (lastMsg && lastMsg.type === 'apiMessage') {
-          sessionStore.actions.upsertMessage({ ...lastMsg, messageId: data.chatMessageId }, { replaceId: streamingApiMessageId });
+          sessionStore.actions.upsertMessageInSession(
+            streamingChatId,
+            { ...lastMsg, messageId: data.chatMessageId },
+            { replaceId: streamingApiMessageId },
+          );
           streamingApiMessageId = data.chatMessageId;
         }
       } else if (!sessionStore) {
@@ -989,11 +1009,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       // the response contains the question even if it was in an audio format
       // so if input is empty but the response contains the question, update the user message to show the question
       if (sessionStore) {
-        const current = sessionStore.activeMessages();
+        const targetChatId = streamingChatId ?? sessionStore.activeChatId();
+        const current = sessionStore.actions.getSessionMessages(targetChatId);
         if (current.length >= 2) {
           const secondLast = current[current.length - 2];
           if (secondLast.type !== 'apiMessage' && secondLast.messageId) {
-            sessionStore.actions.upsertMessage({ ...secondLast, message: data.question });
+            sessionStore.actions.upsertMessageInSession(targetChatId, { ...secondLast, message: data.question });
           }
         }
       } else {
@@ -1086,6 +1107,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         switch (payload.event) {
           case 'start':
             isStreaming = true;
+            // Pin the originating session so every subsequent stream event routes there,
+            // even if the user switches the active session mid-stream.
+            streamingChatId = sessionStore?.activeChatId() ?? chatId();
             // Assign a temporary messageId so subsequent token / mutate-last events upsert the
             // same record. The id will be swapped to the server's chatMessageId on metadata.
             streamingApiMessageId = uuidv4();
@@ -1163,11 +1187,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       async onclose() {
         isStreaming = false;
         if (sessionStore) {
-          if (streamingApiMessageId) {
-            const current = sessionStore.activeMessages();
+          if (streamingApiMessageId && streamingChatId) {
+            const current = sessionStore.actions.getSessionMessages(streamingChatId);
             const last = current[current.length - 1];
             if (last && shouldRemoveEmptyApiMessage(last)) {
-              sessionStore.actions.removeMessageById(streamingApiMessageId);
+              sessionStore.actions.removeMessageByIdInSession(streamingChatId, streamingApiMessageId);
             }
           }
         } else {
@@ -1187,11 +1211,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         console.error('EventSource Error: ', err);
         isStreaming = false;
         if (sessionStore) {
-          if (streamingApiMessageId) {
-            const current = sessionStore.activeMessages();
+          if (streamingApiMessageId && streamingChatId) {
+            const current = sessionStore.actions.getSessionMessages(streamingChatId);
             const last = current[current.length - 1];
             if (last && shouldRemoveEmptyApiMessage(last)) {
-              sessionStore.actions.removeMessageById(streamingApiMessageId);
+              sessionStore.actions.removeMessageByIdInSession(streamingChatId, streamingApiMessageId);
             }
           }
         } else {
@@ -1218,6 +1242,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     hasSoundPlayed = false;
     isStreaming = false;
     streamingApiMessageId = undefined;
+    streamingChatId = undefined;
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -1367,6 +1392,17 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setShowScrollButton(false);
     scrollToBottom();
 
+    // Pin the originating session for the entire request lifecycle so that
+    // appendMessage / replaceLastApiMessage / metadata updates / post-submit
+    // file-upload trim all route to the session the user submitted from —
+    // even if the user switches the active session mid-stream. closeResponse
+    // clears this for the streaming path; we clear it manually below for
+    // non-streaming.
+    const wasStreaming = isChatFlowAvailableToStream();
+    if (sessionStore && streamingChatId === undefined) {
+      streamingChatId = sessionStore.activeChatId();
+    }
+
     let uploads: IUploads = previews().map((item) => {
       return {
         data: item.data,
@@ -1476,7 +1512,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // Update last question to avoid saving base64 data to localStorage
     if (uploads && uploads.length > 0) {
       if (sessionStore) {
-        const current = sessionStore.activeMessages();
+        const targetChatId = streamingChatId ?? sessionStore.activeChatId();
+        const current = sessionStore.actions.getSessionMessages(targetChatId);
         if (current.length >= 2) {
           const idx = current.length - 2;
           const item = current[idx];
@@ -1486,8 +1523,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               name: file.name,
               mime: file.mime,
             }));
-            // upsertMessage will key by messageId (assigned earlier when appended)
-            sessionStore.actions.upsertMessage({ ...item, fileUploads });
+            // upsertMessageInSession will key by messageId (assigned earlier when appended)
+            sessionStore.actions.upsertMessageInSession(targetChatId, { ...item, fileUploads });
           }
         }
       } else {
@@ -1509,6 +1546,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           return [...messages];
         });
       }
+    }
+
+    // Streaming path clears streamingChatId via closeResponse when the stream
+    // ends. Non-streaming has no equivalent hook, so clear it here so the next
+    // submission re-pins to the (then-)active session.
+    if (!wasStreaming) {
+      streamingChatId = undefined;
     }
   };
 

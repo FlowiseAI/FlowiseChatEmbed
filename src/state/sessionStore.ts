@@ -211,20 +211,57 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
    * If `messageId` is provided and matches an existing message, that message is
    * replaced (used for streaming token updates). Otherwise the message is appended.
    * Persists with a 150ms debounce on MsgKey writes.
+   *
+   * NOTE: per-chatId pending persists. The previous single-timer scheme assumed
+   * all writes targeted the active session, but streaming-vs-session-switch
+   * means we may upsert into a non-active session. Each session gets its own
+   * debounce slot so writes are not lost when the user switches between
+   * sessions while a stream is in flight.
    */
-  let pendingPersist: ReturnType<typeof setTimeout> | null = null;
+  const pendingPersists = new Map<string, ReturnType<typeof setTimeout>>();
+  const schedulePersist = (chatId: string, messages: MessageType[]) => {
+    const existing = pendingPersists.get(chatId);
+    if (existing !== undefined) clearTimeout(existing);
+    pendingPersists.set(
+      chatId,
+      setTimeout(() => {
+        pendingPersists.delete(chatId);
+        withQuotaRecovery(() => writeMessages(chatflowid, chatId, messages));
+      }, 150),
+    );
+  };
   const flushPending = () => {
-    if (pendingPersist === null) return;
-    clearTimeout(pendingPersist);
-    pendingPersist = null;
-    const id = activeChatId();
-    const msgs = messageCache.get(id);
-    if (msgs) withQuotaRecovery(() => writeMessages(chatflowid, id, msgs));
+    for (const [chatId, timer] of pendingPersists) {
+      clearTimeout(timer);
+      const msgs = messageCache.get(chatId);
+      if (msgs) withQuotaRecovery(() => writeMessages(chatflowid, chatId, msgs));
+    }
+    pendingPersists.clear();
   };
 
-  const upsertMessage = (msg: MessageType, options?: { replaceId?: string }): void => {
-    const id = activeChatId();
-    const cached = messageCache.get(id) ?? [];
+  /**
+   * Read messages for a specific chatId. Returns the in-memory cached snapshot
+   * if present (which reflects any in-flight streaming writes), otherwise lazily
+   * loads from localStorage. Caller must not mutate the returned array.
+   */
+  const getSessionMessages = (chatId: string): MessageType[] => {
+    let cached = messageCache.get(chatId);
+    if (!cached) {
+      cached = readMessages(chatflowid, chatId);
+      messageCache.set(chatId, cached);
+    }
+    return cached;
+  };
+
+  /**
+   * Append or replace a message in a SPECIFIC session (by chatId).
+   * Mirrors `upsertMessage` but never assumes the session is active. The visible
+   * `activeMessages` signal is only updated when the target chatId is the
+   * currently active one — that guarantees streaming events targeted at session
+   * B do not appear in session A after the user switches.
+   */
+  const upsertMessageInSession = (chatId: string, msg: MessageType, options?: { replaceId?: string }): void => {
+    const cached = getSessionMessages(chatId);
     let next: MessageType[];
     const findId = options?.replaceId ?? msg.messageId;
     const existingIdx = findId !== undefined ? cached.findIndex((m) => m.messageId === findId) : -1;
@@ -236,20 +273,19 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     } else {
       next = [...cached, msg];
     }
-    messageCache.set(id, next);
-    setActiveMessages(next);
+    messageCache.set(chatId, next);
 
-    // Debounce MsgKey writes for streaming.
-    if (pendingPersist !== null) clearTimeout(pendingPersist);
-    pendingPersist = setTimeout(() => {
-      pendingPersist = null;
-      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
-    }, 150);
+    // Only update the visible signal if this chatId is the active one.
+    if (chatId === activeChatId()) {
+      setActiveMessages(next);
+    }
+
+    schedulePersist(chatId, next);
 
     // Bump session.updatedAt and (if first user msg) auto-title. Index writes are cheap.
     const isFirstUserMsg = msg.type === 'userMessage' && next.filter((m) => m.type === 'userMessage').length === 1;
     const current = index();
-    const sIdx = current.sessions.findIndex((s) => s.chatId === id);
+    const sIdx = current.sessions.findIndex((s) => s.chatId === chatId);
     if (sIdx < 0) return;
     const session = current.sessions[sIdx];
     let nextSession: SessionV2 = { ...session, updatedAt: Date.now() };
@@ -262,22 +298,29 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
   };
 
+  const upsertMessage = (msg: MessageType, options?: { replaceId?: string }): void => {
+    upsertMessageInSession(activeChatId(), msg, options);
+  };
+
+  /**
+   * Remove a message from a specific session by its messageId. No-op if not found.
+   * Updates the visible `activeMessages` signal only when the target chatId is active.
+   */
+  const removeMessageByIdInSession = (chatId: string, messageId: string): void => {
+    const cached = getSessionMessages(chatId);
+    const next = cached.filter((m) => m.messageId !== messageId);
+    if (next.length === cached.length) return;
+    messageCache.set(chatId, next);
+    if (chatId === activeChatId()) setActiveMessages(next);
+    schedulePersist(chatId, next);
+  };
+
   /**
    * Remove a message from the active session by its messageId. No-op if not found.
    * Used to clean up empty placeholder messages after stream abort/error.
    */
   const removeMessageById = (messageId: string): void => {
-    const id = activeChatId();
-    const cached = messageCache.get(id) ?? [];
-    const next = cached.filter((m) => m.messageId !== messageId);
-    if (next.length === cached.length) return;
-    messageCache.set(id, next);
-    setActiveMessages(next);
-    if (pendingPersist !== null) clearTimeout(pendingPersist);
-    pendingPersist = setTimeout(() => {
-      pendingPersist = null;
-      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
-    }, 150);
+    removeMessageByIdInSession(activeChatId(), messageId);
   };
 
   /**
@@ -288,11 +331,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     const id = activeChatId();
     messageCache.set(id, next);
     setActiveMessages(next);
-    if (pendingPersist !== null) clearTimeout(pendingPersist);
-    pendingPersist = setTimeout(() => {
-      pendingPersist = null;
-      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
-    }, 150);
+    schedulePersist(id, next);
     const current = index();
     const sIdx = current.sessions.findIndex((s) => s.chatId === id);
     if (sIdx < 0) return;
@@ -365,8 +404,11 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       newChat,
       switchSession,
       upsertMessage,
+      upsertMessageInSession,
       removeMessageById,
+      removeMessageByIdInSession,
       replaceActiveMessages,
+      getSessionMessages,
       renameSession,
       deleteSession,
       setLead,
