@@ -65,6 +65,10 @@ export const SessionPanel = (props: Props) => {
     if (props.isDrawer) props.onDrawerClose?.();
   };
 
+  // Render helper, NOT a component. Do not add lifecycle primitives
+  // (createEffect, onMount, onCleanup) or new signals here — those must live
+  // in component scope so Solid can track ownership correctly. Pure JSX +
+  // signal reads only.
   const panelBody = (): JSX.Element => (
     <>
       <div
