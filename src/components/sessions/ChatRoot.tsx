@@ -1,4 +1,4 @@
-import { Show, createMemo } from 'solid-js';
+import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { Bot, type BotProps } from '@/components/Bot';
 import { SessionPanel } from './SessionPanel';
 import { createSessionStore } from '@/state/sessionStore';
@@ -39,9 +39,23 @@ const ChatRootEnabled = (props: ChatRootProps) => {
     return themeAny?.chatWindow?.sessionPanel ?? undefined;
   });
 
+  const isDrawer = !props.isFullPage;
+  const [drawerOpen, setDrawerOpen] = createSignal(false);
+  const onToggleDrawer = () => setDrawerOpen((v) => !v);
+  onMount(() => window.addEventListener('flowise-toggle-session-drawer', onToggleDrawer));
+  onCleanup(() => window.removeEventListener('flowise-toggle-session-drawer', onToggleDrawer));
+
   return (
-    <div class="flex h-full w-full" data-multisession>
-      <SessionPanel store={store} isFullPage={!!props.isFullPage} panelTheme={panelTheme()} chatWindowBackground={props.backgroundColor} />
+    <div class="flex h-full w-full" data-multisession style={{ position: 'relative' }}>
+      <SessionPanel
+        store={store}
+        isFullPage={!!props.isFullPage}
+        isDrawer={isDrawer}
+        drawerOpen={drawerOpen}
+        onDrawerClose={() => setDrawerOpen(false)}
+        panelTheme={panelTheme()}
+        chatWindowBackground={props.backgroundColor}
+      />
       <div style={{ flex: 1, height: '100%' }}>
         <Bot {...props} />
       </div>

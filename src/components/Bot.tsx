@@ -2625,6 +2625,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 'border-top-right-radius': props.isFullPage || props.hasCustomHeader ? '0px' : '6px',
               }}
             >
+              <Show when={props.multiSession?.enabled && !props.isFullPage}>
+                <button
+                  type="button"
+                  aria-label="Open conversations"
+                  onClick={() => window.dispatchEvent(new CustomEvent('flowise-toggle-session-drawer'))}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'inherit',
+                    'font-size': '16px',
+                    cursor: 'pointer',
+                    padding: '0 4px',
+                    'margin-left': '8px',
+                  }}
+                >
+                  ☰
+                </button>
+              </Show>
               <Show when={props.titleAvatarSrc}>
                 <>
                   <div style={{ width: '15px' }} />

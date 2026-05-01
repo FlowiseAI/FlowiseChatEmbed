@@ -1,4 +1,4 @@
-import { For, Show, createSignal } from 'solid-js';
+import { For, Show, createSignal, type JSX } from 'solid-js';
 import type { SessionStore } from '@/state/sessionStore';
 import { readPanelCollapsed, writePanelCollapsed } from '@/state/sessionStorage';
 import { SessionListItem } from './SessionListItem';
@@ -23,6 +23,9 @@ type SessionPanelTheme = {
 type Props = {
   store: SessionStore;
   isFullPage: boolean;
+  isDrawer: boolean;
+  drawerOpen?: () => boolean;
+  onDrawerClose?: () => void;
   panelTheme?: SessionPanelTheme;
   // Cascade: fall through to chatWindow palette if panel keys unset.
   chatWindowBackground?: string;
@@ -59,23 +62,11 @@ export const SessionPanel = (props: Props) => {
   };
   const handleSwitch = (id: string) => {
     props.store.actions.switchSession(id);
+    if (props.isDrawer) props.onDrawerClose?.();
   };
 
-  return (
-    <nav
-      role="navigation"
-      aria-label="Conversations"
-      style={{
-        width: collapsed() ? px(props.panelTheme?.collapsedWidth, '44px') : px(props.panelTheme?.width, '260px'),
-        background: bg(),
-        color: fg(),
-        'border-right': `1px solid ${border()}`,
-        display: 'flex',
-        'flex-direction': 'column',
-        height: '100%',
-        transition: 'width 150ms ease',
-      }}
-    >
+  const panelBody = (): JSX.Element => (
+    <>
       <div
         style={{
           padding: '12px',
@@ -159,6 +150,62 @@ export const SessionPanel = (props: Props) => {
           </div>
         </Show>
       </Show>
-    </nav>
+    </>
+  );
+
+  return (
+    <Show
+      when={props.isDrawer}
+      fallback={
+        <nav
+          role="navigation"
+          aria-label="Conversations"
+          style={{
+            width: collapsed() ? px(props.panelTheme?.collapsedWidth, '44px') : px(props.panelTheme?.width, '260px'),
+            background: bg(),
+            color: fg(),
+            'border-right': `1px solid ${border()}`,
+            display: 'flex',
+            'flex-direction': 'column',
+            height: '100%',
+            transition: 'width 150ms ease',
+          }}
+        >
+          {panelBody()}
+        </nav>
+      }
+    >
+      <Show when={props.drawerOpen?.() ?? false}>
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(0,0,0,0.25)',
+            'z-index': 5,
+          }}
+          onClick={() => props.onDrawerClose?.()}
+          aria-hidden="true"
+        />
+        <nav
+          role="navigation"
+          aria-label="Conversations"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: '75%',
+            'z-index': 6,
+            background: bg(),
+            color: fg(),
+            display: 'flex',
+            'flex-direction': 'column',
+            'box-shadow': '2px 0 8px rgba(0,0,0,0.2)',
+          }}
+        >
+          {panelBody()}
+        </nav>
+      </Show>
+    </Show>
   );
 };
