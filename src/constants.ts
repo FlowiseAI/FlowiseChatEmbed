@@ -8,6 +8,7 @@ export const defaultBotProps: BubbleProps = {
   theme: undefined,
   observersConfig: undefined,
   dialogContainer: undefined,
+  multiSession: undefined,
 };
 
 export const CHAT_HEADER_HEIGHT = 50;
