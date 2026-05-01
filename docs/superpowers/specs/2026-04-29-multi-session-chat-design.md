@@ -1,6 +1,6 @@
 # Multi-Session Chat — Design
 
-**Status:** Design (pre-implementation)
+**Status:** Implemented (manual test plan: [docs/superpowers/manual-test-plans/2026-04-29-multi-session-chat.md](../manual-test-plans/2026-04-29-multi-session-chat.md))
 **Date:** 2026-04-29
 **Repo:** FlowiseChatEmbed (with thin Flowise-core companion section)
 
