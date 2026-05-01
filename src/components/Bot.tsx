@@ -498,7 +498,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     ],
     { equals: false },
   );
-  const messages = () => sessionStore?.activeMessages() ?? fallbackMessages();
+  // In store mode, prepend the welcome message to the rendered list so the user
+  // sees a welcome bubble + starter prompts on a fresh session, matching the
+  // fallback-mode behavior where fallbackMessages is seeded with welcome.
+  // The welcome is purely a render-time affordance — it is NOT persisted to
+  // the store. Handlers that write the whole array back (e.g.,
+  // handleRegenerateResponse) must strip the synthetic welcome before writing.
+  const messages = () => {
+    if (sessionStore) {
+      return [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' as messageType }, ...sessionStore.activeMessages()];
+    }
+    return fallbackMessages();
+  };
   const setMessages = (next: MessageType[] | ((prev: MessageType[]) => MessageType[])) => {
     if (sessionStore) return;
     setFallbackMessages((prev) => (typeof next === 'function' ? next(prev) : next));
@@ -961,7 +972,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setFollowUpPrompts([]);
     const updatedMessages = currentMessages.slice(0, messageIndex);
     if (sessionStore) {
-      sessionStore.actions.replaceActiveMessages(updatedMessages);
+      // messages() prepends a synthetic welcome at index 0 in store mode that
+      // is not part of the actual store; strip it before writing back.
+      sessionStore.actions.replaceActiveMessages(updatedMessages.slice(1));
     } else {
       addChatMessage(updatedMessages);
       setMessages(updatedMessages);
