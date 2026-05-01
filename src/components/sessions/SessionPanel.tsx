@@ -1,5 +1,6 @@
 import { For, Show } from 'solid-js';
 import type { SessionStore } from '@/state/sessionStore';
+import { SessionListItem } from './SessionListItem';
 
 type SessionPanelTheme = {
   width?: string | number;
@@ -100,42 +101,21 @@ export const SessionPanel = (props: Props) => {
       >
         <div role="list" style={{ flex: 1, overflow: 'auto', padding: '0 4px' }}>
           <For each={sessions()}>
-            {(s) => {
-              const isActive = () => s.chatId === activeId();
-              return (
-                <div
-                  role="listitem"
-                  aria-current={isActive() ? 'true' : undefined}
-                  onClick={() => handleSwitch(s.chatId)}
-                  style={{
-                    padding: '8px 10px',
-                    'border-radius': '6px',
-                    'margin-bottom': '2px',
-                    cursor: 'pointer',
-                    background: isActive() ? activeBg() : 'transparent',
-                    color: isActive() ? activeFg() : fg(),
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive()) (e.currentTarget as HTMLDivElement).style.background = hoverBg();
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive()) (e.currentTarget as HTMLDivElement).style.background = 'transparent';
-                  }}
-                >
-                  <div
-                    style={{
-                      'font-size': '12px',
-                      'font-weight': 500,
-                      overflow: 'hidden',
-                      'text-overflow': 'ellipsis',
-                      'white-space': 'nowrap',
-                    }}
-                  >
-                    {s.title}
-                  </div>
-                </div>
-              );
-            }}
+            {(s) => (
+              <SessionListItem
+                session={s}
+                active={s.chatId === activeId()}
+                theme={{
+                  textColor: fg(),
+                  activeBackgroundColor: activeBg(),
+                  activeTextColor: activeFg(),
+                  hoverBackgroundColor: hoverBg(),
+                }}
+                onSwitch={() => handleSwitch(s.chatId)}
+                onRename={(next) => props.store.actions.renameSession(s.chatId, next)}
+                onDelete={() => props.store.actions.deleteSession(s.chatId)}
+              />
+            )}
           </For>
         </div>
       </Show>
