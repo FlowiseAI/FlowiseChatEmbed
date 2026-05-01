@@ -60,9 +60,13 @@ export const SessionPanel = (props: Props) => {
   const activeFg = () => props.panelTheme?.activeTextColor ?? brand();
   const hoverBg = () => props.panelTheme?.hoverBackgroundColor ?? overlay(brand(), 7);
   const border = () => props.panelTheme?.borderColor ?? overlay(brand(), 12);
-  const newBtnBg = () => props.panelTheme?.newChatButtonColor ?? brand();
-  const newBtnFg = () => props.panelTheme?.newChatButtonTextColor ?? '#ffffff';
-  const newBtnHoverBg = () => `color-mix(in srgb, ${newBtnBg()} 88%, black)`;
+  // Default: subdued left-aligned "compose" affordance matching ChatGPT/Claude/
+  // Gemini patterns — transparent bg, hover gives a subtle brand-tinted feedback.
+  // Embedders can opt into a prominent solid button by setting
+  // panelTheme.newChatButtonColor (we honor that and switch to solid styling).
+  const isNewBtnSolid = () => props.panelTheme?.newChatButtonColor !== undefined;
+  const newBtnBg = () => props.panelTheme?.newChatButtonColor ?? 'transparent';
+  const newBtnFg = () => props.panelTheme?.newChatButtonTextColor ?? (isNewBtnSolid() ? '#ffffff' : 'inherit');
 
   const [collapsed, setCollapsed] = createSignal(props.isFullPage ? readPanelCollapsed(props.store.chatflowid) : false);
   const [newBtnHovered, setNewBtnHovered] = createSignal(false);
@@ -174,13 +178,33 @@ export const SessionPanel = (props: Props) => {
             <Show
               when={collapsed()}
               fallback={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                   <line x1="9" y1="3" x2="9" y2="21" />
                 </svg>
               }
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <line x1="3" y1="12" x2="21" y2="12" />
                 <line x1="3" y1="18" x2="21" y2="18" />
@@ -191,7 +215,7 @@ export const SessionPanel = (props: Props) => {
       </div>
 
       <Show when={!collapsed()}>
-        <div style={{ padding: '0 12px 12px 12px' }}>
+        <div style={{ padding: '0 8px 4px 8px' }}>
           <button
             type="button"
             onClick={handleNewChat}
@@ -199,25 +223,42 @@ export const SessionPanel = (props: Props) => {
             onMouseLeave={() => setNewBtnHovered(false)}
             style={{
               width: '100%',
-              background: newBtnHovered() ? newBtnHoverBg() : newBtnBg(),
+              background: isNewBtnSolid()
+                ? newBtnHovered()
+                  ? `color-mix(in srgb, ${newBtnBg()} 88%, black)`
+                  : newBtnBg()
+                : newBtnHovered()
+                  ? hoverBg()
+                  : 'transparent',
               color: newBtnFg(),
               border: 'none',
-              padding: '9px 12px',
+              padding: '8px 10px 8px 14px',
               'border-radius': '8px',
               'font-size': '13px',
               'font-weight': 500,
               cursor: 'pointer',
-              display: 'inline-flex',
+              display: 'flex',
               'align-items': 'center',
-              'justify-content': 'center',
-              gap: '6px',
-              transition: 'background 120ms ease, transform 120ms ease',
-              'box-shadow': '0 1px 2px rgba(0,0,0,0.04)',
+              'justify-content': 'flex-start',
+              gap: '10px',
+              transition: 'background 120ms ease',
+              'text-align': 'left',
+              ...(isNewBtnSolid() ? { 'box-shadow': '0 1px 2px rgba(0,0,0,0.04)' } : {}),
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 113 3L7.5 19.5 3 21l1.5-4.5z" />
             </svg>
             <span>{newChatLabel()}</span>
           </button>
@@ -231,11 +272,7 @@ export const SessionPanel = (props: Props) => {
 
         <Show
           when={sessions().length > 0}
-          fallback={
-            <div style={{ padding: '32px 16px', 'text-align': 'center', 'font-size': '12px', color: mutedFg() }}>
-              {emptyText()}
-            </div>
-          }
+          fallback={<div style={{ padding: '32px 16px', 'text-align': 'center', 'font-size': '12px', color: mutedFg() }}>{emptyText()}</div>}
         >
           <div role="list" onKeyDown={onListKey} style={{ flex: 1, overflow: 'auto', padding: '4px 8px 12px 8px' }}>
             <For each={sessions()}>
@@ -316,7 +353,7 @@ export const SessionPanel = (props: Props) => {
             'box-shadow': '4px 0 24px rgba(0,0,0,0.18)',
             'font-family': 'inherit',
           }}
-        >
+        >chloe
           {panelBody()}
         </nav>
       </Show>
