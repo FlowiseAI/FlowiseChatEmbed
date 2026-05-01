@@ -720,7 +720,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const cur = sessionStore.activeMessages();
       if (cur.length === 0) return;
       const last = cur[cur.length - 1];
-      if (!last || last.type === 'userMessage') return;
+      if (!last || last.type !== 'apiMessage') return;
       const updated = updater(last);
       sessionStore.actions.upsertMessage(updated);
       return;
@@ -728,7 +728,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setFallbackMessages((prev) => {
       if (prev.length === 0) return prev;
       const last = prev[prev.length - 1];
-      if (!last || last.type === 'userMessage') return prev;
+      if (!last || last.type !== 'apiMessage') return prev;
       const updated = updater(last);
       const next = [...prev.slice(0, -1), updated];
       if (options?.persistFallback !== false) addChatMessage(next);
@@ -1114,8 +1114,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 addChatMessage(prev);
                 return prev;
               });
+              setLocalStorageChatflow(chatflowid, chatId);
             }
-            setLocalStorageChatflow(chatflowid, chatId);
             closeResponse();
             break;
           case 'tts_start':

@@ -187,6 +187,8 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (existingIdx >= 0) {
       next = [...cached];
       next[existingIdx] = msg;
+    } else if (options?.replaceId !== undefined) {
+      return; // explicit replace target missing: no-op
     } else {
       next = [...cached, msg];
     }
@@ -247,6 +249,12 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       pendingPersist = null;
       withQuotaRecovery(() => writeMessages(chatflowid, id, next));
     }, 150);
+    const current = index();
+    const sIdx = current.sessions.findIndex((s) => s.chatId === id);
+    if (sIdx < 0) return;
+    const sessions = [...current.sessions];
+    sessions[sIdx] = { ...sessions[sIdx], updatedAt: Date.now() };
+    withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
   };
 
   const renameSession = (chatId: string, rawTitle: string): void => {
