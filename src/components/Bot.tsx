@@ -2085,11 +2085,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const getInputDisabled = (): boolean => {
     const messagesArray = messages();
+    const lastMsg = messagesArray[messagesArray.length - 1];
     const disabled =
       loading() ||
       !props.chatflowid ||
       (leadsConfig()?.status && !isLeadSaved()) ||
-      (messagesArray[messagesArray.length - 1].action && Object.keys(messagesArray[messagesArray.length - 1].action as any).length > 0);
+      (lastMsg?.action && Object.keys(lastMsg.action as any).length > 0);
     if (disabled) {
       return true;
     }
