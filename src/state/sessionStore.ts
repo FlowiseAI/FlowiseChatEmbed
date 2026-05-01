@@ -53,6 +53,17 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     setIndex(next);
   };
 
+  // ---- session-changed callback ----
+  let onSessionChanged: ((detail: { chatId: string; title: string }) => void) | null = null;
+  const setOnSessionChanged = (cb: typeof onSessionChanged) => {
+    onSessionChanged = cb;
+  };
+  const emitSessionChanged = () => {
+    if (!onSessionChanged) return;
+    const s = activeSession();
+    if (s) onSessionChanged({ chatId: s.chatId, title: s.title });
+  };
+
   /**
    * Run a write op; on QuotaExceededError, evict the oldest non-active session and retry.
    * Up to `attempts` retries; if it still fails, surfaces a callback to show a toast.
@@ -132,6 +143,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
 
       withQuotaRecovery(() => _persistIndex(next));
       setActiveMessages([]);
+      emitSessionChanged();
     });
 
     for (const eid of evicted) {
@@ -159,6 +171,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     batch(() => {
       withQuotaRecovery(() => _persistIndex({ ...index(), activeChatId: chatId }));
       setActiveMessages(messages!);
+      emitSessionChanged();
     });
   };
 
@@ -270,6 +283,9 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     const sessions = [...current.sessions];
     sessions[sIdx] = { ...sessions[sIdx], title: nextTitle };
     withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
+    // Only emit session-changed when the renamed session is the active one,
+    // since the event detail includes the title listeners care about.
+    if (chatId === current.activeChatId) emitSessionChanged();
   };
 
   const deleteSession = (chatId: string): void => {
@@ -295,6 +311,9 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       setActiveMessages(cached);
     }
     withQuotaRecovery(() => _persistIndex({ ...current, activeChatId: nextActive, sessions }));
+    // Emit only when the active session actually changed (deleted the active one).
+    // When sessions.length === 0, newChat() above already emits — don't double-emit.
+    if (nextActive !== current.activeChatId) emitSessionChanged();
   };
 
   const setLead = (lead: LeadCaptureData | undefined): void => {
@@ -321,6 +340,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       setLead,
       flushPending,
       setQuotaPanicHandler,
+      setOnSessionChanged,
       dismissCapWarning: () => setCapWarning(false),
     },
     _internal: {

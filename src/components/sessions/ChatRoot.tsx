@@ -49,6 +49,30 @@ const ChatRootEnabled = (props: ChatRootProps) => {
   onMount(() => window.addEventListener('flowise-toggle-session-drawer', onToggleDrawer));
   onCleanup(() => window.removeEventListener('flowise-toggle-session-drawer', onToggleDrawer));
 
+  const onNew = () => store.actions.newChat();
+  const onSwitch = (e: Event) => {
+    const detail = (e as CustomEvent<{ chatId?: string }>).detail;
+    if (detail?.chatId) store.actions.switchSession(detail.chatId);
+  };
+  const onClear = () => {
+    store.actions.deleteSession(store.activeChatId());
+  };
+
+  store.actions.setOnSessionChanged((detail) => {
+    window.dispatchEvent(new CustomEvent('flowise-session-changed', { detail }));
+  });
+
+  onMount(() => {
+    window.addEventListener('flowise-new-session', onNew);
+    window.addEventListener('flowise-switch-session', onSwitch);
+    window.addEventListener('flowise-clear-chat', onClear);
+  });
+  onCleanup(() => {
+    window.removeEventListener('flowise-new-session', onNew);
+    window.removeEventListener('flowise-switch-session', onSwitch);
+    window.removeEventListener('flowise-clear-chat', onClear);
+  });
+
   return (
     <SessionContext.Provider value={store}>
       <div class="flex h-full w-full" data-multisession style={{ position: 'relative' }}>
