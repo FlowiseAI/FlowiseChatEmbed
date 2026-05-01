@@ -178,11 +178,12 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (msgs) withQuotaRecovery(() => writeMessages(chatflowid, id, msgs));
   };
 
-  const upsertMessage = (msg: MessageType): void => {
+  const upsertMessage = (msg: MessageType, options?: { replaceId?: string }): void => {
     const id = activeChatId();
     const cached = messageCache.get(id) ?? [];
     let next: MessageType[];
-    const existingIdx = msg.messageId !== undefined ? cached.findIndex((m) => m.messageId === msg.messageId) : -1;
+    const findId = options?.replaceId ?? msg.messageId;
+    const existingIdx = findId !== undefined ? cached.findIndex((m) => m.messageId === findId) : -1;
     if (existingIdx >= 0) {
       next = [...cached];
       next[existingIdx] = msg;
@@ -213,6 +214,39 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     const sessions = [...current.sessions];
     sessions[sIdx] = nextSession;
     withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
+  };
+
+  /**
+   * Remove a message from the active session by its messageId. No-op if not found.
+   * Used to clean up empty placeholder messages after stream abort/error.
+   */
+  const removeMessageById = (messageId: string): void => {
+    const id = activeChatId();
+    const cached = messageCache.get(id) ?? [];
+    const next = cached.filter((m) => m.messageId !== messageId);
+    if (next.length === cached.length) return;
+    messageCache.set(id, next);
+    setActiveMessages(next);
+    if (pendingPersist !== null) clearTimeout(pendingPersist);
+    pendingPersist = setTimeout(() => {
+      pendingPersist = null;
+      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
+    }, 150);
+  };
+
+  /**
+   * Replace the entire active session message list atomically. Used for
+   * regenerate-style operations that truncate the message history.
+   */
+  const replaceActiveMessages = (next: MessageType[]): void => {
+    const id = activeChatId();
+    messageCache.set(id, next);
+    setActiveMessages(next);
+    if (pendingPersist !== null) clearTimeout(pendingPersist);
+    pendingPersist = setTimeout(() => {
+      pendingPersist = null;
+      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
+    }, 150);
   };
 
   const renameSession = (chatId: string, rawTitle: string): void => {
@@ -272,6 +306,8 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       newChat,
       switchSession,
       upsertMessage,
+      removeMessageById,
+      replaceActiveMessages,
       renameSession,
       deleteSession,
       setLead,
