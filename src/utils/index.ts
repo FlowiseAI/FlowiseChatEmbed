@@ -1,3 +1,5 @@
+import { readIndex, readMessages, writeIndex } from '@/state/sessionStorage';
+
 export const isNotDefined = <T>(value: T | undefined | null): value is undefined | null => value === undefined || value === null;
 
 export const isDefined = <T>(value: T | undefined | null): value is NonNullable<T> => value !== undefined && value !== null;
@@ -74,33 +76,65 @@ export const sendRequest = async <ResponseData>(
   }
 };
 
-export const setLocalStorageChatflow = (chatflowid: string, chatId: string, saveObj: Record<string, any> = {}) => {
-  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
-  const obj = { ...saveObj };
-  if (chatId) obj.chatId = chatId;
-
-  if (!chatDetails) {
-    localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
-  } else {
-    try {
-      const parsedChatDetails = JSON.parse(chatDetails);
-      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({ ...parsedChatDetails, ...obj }));
-    } catch (e) {
-      const chatId = chatDetails;
-      obj.chatId = chatId;
-      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
+/**
+ * v1-compatible wrapper. Writes are field-level merges over the v2 index
+ * (and active-session messages where applicable), so callers writing
+ * `{ lead }` or `{ chatHistory }` don't clobber other v2 fields.
+ */
+export const setLocalStorageChatflow = (
+  chatflowid: string,
+  chatId: string,
+  saveObj: Record<string, any> = {},
+) => {
+  const idx = readIndex(chatflowid);
+  if (!idx) {
+    // No v2 yet: fall back to legacy single-key write so nothing breaks if
+    // the store hasn't initialized. The store will migrate on next mount.
+    const existingRaw = localStorage.getItem(`${chatflowid}_EXTERNAL`);
+    let existing: Record<string, any> = {};
+    if (existingRaw) {
+      try {
+        existing = JSON.parse(existingRaw);
+      } catch {
+        // ignore
+      }
     }
+    const merged = { ...existing, ...saveObj };
+    if (chatId) merged.chatId = chatId;
+    localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(merged));
+    return;
   }
+
+  // v2 path: merge known fields.
+  const next = { ...idx };
+  if ('lead' in saveObj) next.lead = saveObj.lead;
+  // chatHistory writes are no-ops on the v2 index (messages live elsewhere); the
+  // new write path is via store.upsertMessage.
+  writeIndex(chatflowid, next);
 };
 
+/**
+ * v1-compatible projection. Returns a v1-shaped object derived from the active
+ * session of the v2 index, so existing callers (notably the lead-capture path)
+ * keep working.
+ */
 export const getLocalStorageChatflow = (chatflowid: string) => {
-  const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
-  if (!chatDetails) return {};
-  try {
-    return JSON.parse(chatDetails);
-  } catch (e) {
-    return {};
+  const idx = readIndex(chatflowid);
+  if (!idx) {
+    const raw = localStorage.getItem(`${chatflowid}_EXTERNAL`);
+    if (!raw) return {};
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
   }
+  const messages = readMessages(chatflowid, idx.activeChatId);
+  return {
+    chatId: idx.activeChatId,
+    chatHistory: messages,
+    lead: idx.lead,
+  };
 };
 
 export const removeLocalStorageChatHistory = (chatflowid: string) => {
