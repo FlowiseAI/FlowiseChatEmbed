@@ -11,6 +11,16 @@ type ChatRootProps = BotProps & { class?: string; theme?: unknown };
 export const ChatRoot = (props: ChatRootProps) => {
   const enabled = () => props.multiSession?.enabled === true;
 
+  return (
+    <Show when={enabled()} fallback={<Bot {...props} />}>
+      <ChatRootEnabled {...props} />
+    </Show>
+  );
+};
+
+// Inner component so that createSessionStore (which runs loadOrMigrate and may
+// persist a v2 index on first read) only executes when multiSession is enabled.
+const ChatRootEnabled = (props: ChatRootProps) => {
   const newChatId = () => {
     const customerId = (props.chatflowConfig as { vars?: { customerId?: string } } | undefined)?.vars?.customerId;
     return customerId ? `${customerId.toString()}+${uuidv4()}` : uuidv4();
@@ -22,20 +32,19 @@ export const ChatRoot = (props: ChatRootProps) => {
     maxSessions: props.multiSession?.maxSessions,
   });
 
-  // Best-effort theme cascade — first usable theme wins (full > popup > bubble).
+  // Theme cascade: every mount surface passes `theme` as a structured object;
+  // Task 21 will tighten the typing per mode.
   const panelTheme = createMemo(() => {
-    const anyProps = props as unknown as Record<string, any>;
-    return anyProps.theme?.chatWindow?.sessionPanel ?? anyProps.chatWindow?.sessionPanel ?? undefined;
+    const themeAny = (props as unknown as Record<string, any>).theme;
+    return themeAny?.chatWindow?.sessionPanel ?? undefined;
   });
 
   return (
-    <Show when={enabled()} fallback={<Bot {...props} />}>
-      <div class="flex h-full w-full" data-multisession>
-        <SessionPanel store={store} isFullPage={!!props.isFullPage} panelTheme={panelTheme()} chatWindowBackground={props.backgroundColor} />
-        <div style={{ flex: 1, height: '100%' }}>
-          <Bot {...props} />
-        </div>
+    <div class="flex h-full w-full" data-multisession>
+      <SessionPanel store={store} isFullPage={!!props.isFullPage} panelTheme={panelTheme()} chatWindowBackground={props.backgroundColor} />
+      <div style={{ flex: 1, height: '100%' }}>
+        <Bot {...props} />
       </div>
-    </Show>
+    </div>
   );
 };
