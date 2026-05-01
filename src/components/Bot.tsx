@@ -636,6 +636,18 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         isProgrammaticScroll = false;
       }, 500);
     };
+
+    // Flush any debounced session-store writes when the page is hidden / unloading.
+    // pagehide is the modern, reliable hook (covers BFCache navigations); beforeunload is a belt-and-suspenders.
+    if (sessionStore) {
+      const flush = () => sessionStore.actions.flushPending();
+      window.addEventListener('pagehide', flush);
+      window.addEventListener('beforeunload', flush);
+      onCleanup(() => {
+        window.removeEventListener('pagehide', flush);
+        window.removeEventListener('beforeunload', flush);
+      });
+    }
   });
 
   let programmaticScrollGuard: (fn: () => void) => void = (fn) => fn();
@@ -672,9 +684,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   /**
-   * Add each chat message into localStorage
+   * Add each chat message into localStorage. In store mode this is a no-op
+   * because sessionStore handles its own persistence; the legacy
+   * setLocalStorageChatflow call would only churn the v2 index for nothing.
    */
   const addChatMessage = (allMessage: MessageType[]) => {
+    if (sessionStore) return;
     const messages = allMessage.map((item) => {
       if (item.fileUploads) {
         const fileUploads = item?.fileUploads.map((file) => ({
@@ -687,6 +702,55 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return item;
     });
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: messages });
+  };
+
+  // Tracks the messageId currently being mutated by a streaming response. Set on stream
+  // start (assigned a temp uuid), swapped on the metadata event when the server returns
+  // its real chatMessageId, and cleared on stream close.
+  let streamingApiMessageId: string | undefined;
+
+  /**
+   * Mutate the last apiMessage (the one being streamed). In store mode this routes
+   * through upsertMessage keyed by streamingApiMessageId. In fallback mode it
+   * preserves the original addChatMessage call so localStorage-based reload still
+   * works for non-store users.
+   */
+  const replaceLastApiMessage = (updater: (last: MessageType) => MessageType, options?: { persistFallback?: boolean }): void => {
+    if (sessionStore) {
+      const cur = sessionStore.activeMessages();
+      if (cur.length === 0) return;
+      const last = cur[cur.length - 1];
+      if (!last || last.type === 'userMessage') return;
+      const updated = updater(last);
+      sessionStore.actions.upsertMessage(updated);
+      return;
+    }
+    setFallbackMessages((prev) => {
+      if (prev.length === 0) return prev;
+      const last = prev[prev.length - 1];
+      if (!last || last.type === 'userMessage') return prev;
+      const updated = updater(last);
+      const next = [...prev.slice(0, -1), updated];
+      if (options?.persistFallback !== false) addChatMessage(next);
+      return next;
+    });
+  };
+
+  /**
+   * Append a brand-new message. In store mode routes via upsertMessage (treated
+   * as append because the messageId is either fresh or undefined). In fallback
+   * mode appends to the signal and persists via addChatMessage.
+   */
+  const appendMessage = (msg: MessageType, options?: { persistFallback?: boolean }): void => {
+    if (sessionStore) {
+      sessionStore.actions.upsertMessage(msg);
+      return;
+    }
+    setFallbackMessages((prev) => {
+      const next = [...prev, msg];
+      if (options?.persistFallback !== false) addChatMessage(next);
+      return next;
+    });
   };
 
   // Define the audioRef
@@ -714,151 +778,94 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let isStreaming = false;
 
   const updateLastMessage = (text: string) => {
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      if (!text) return prevMessages;
-      const updatedMsg = { ...lastMsg, message: lastMsg.message + text, rating: undefined, dateTime: new Date().toISOString() };
-      if (!hasSoundPlayed) {
-        playReceiveSound();
-        hasSoundPlayed = true;
-      }
-      const allMessages = [...prevMessages.slice(0, -1), updatedMsg];
-      if (!isStreaming) addChatMessage(allMessages);
-      return allMessages;
-    });
+    if (!text) return;
+    if (!hasSoundPlayed) {
+      playReceiveSound();
+      hasSoundPlayed = true;
+    }
+    replaceLastApiMessage(
+      (lastMsg) => ({
+        ...lastMsg,
+        message: lastMsg.message + text,
+        rating: undefined,
+        dateTime: new Date().toISOString(),
+      }),
+      { persistFallback: !isStreaming },
+    );
   };
 
   const updateErrorMessage = (errorMessage: string) => {
     const cleanedMessage = errorMessage.replace(/^Error:\s*\S+\s*-\s*/, '');
-    setMessages((prevMessages) => {
-      const allMessages = [...prevMessages, { message: props.errorMessage || cleanedMessage, type: 'apiMessage' as messageType }];
-      addChatMessage(allMessages);
-      return allMessages;
-    });
+    appendMessage({ message: props.errorMessage || cleanedMessage, type: 'apiMessage' as messageType });
   };
 
   const updateLastMessageSourceDocuments = (sourceDocuments: any) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, sourceDocuments };
-        }
-        return item;
-      });
-      if (!isStreaming) addChatMessage(updated);
-      return [...updated];
-    });
+    replaceLastApiMessage((lastMsg) => ({ ...lastMsg, sourceDocuments }), { persistFallback: !isStreaming });
   };
 
   const updateLastMessageUsedTools = (usedTools: any[]) => {
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, usedTools }];
-      if (!isStreaming) addChatMessage(allMessages);
-      return allMessages;
-    });
+    replaceLastApiMessage((lastMsg) => ({ ...lastMsg, usedTools }), { persistFallback: !isStreaming });
   };
 
   const updateLastMessageFileAnnotations = (fileAnnotations: any) => {
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, fileAnnotations }];
-      if (!isStreaming) addChatMessage(allMessages);
-      return allMessages;
-    });
+    replaceLastApiMessage((lastMsg) => ({ ...lastMsg, fileAnnotations }), { persistFallback: !isStreaming });
   };
 
   const updateLastMessageAgentReasoning = (agentReasoning: string | IAgentReasoning[]) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, agentReasoning: typeof agentReasoning === 'string' ? JSON.parse(agentReasoning) : agentReasoning };
-        }
-        return item;
-      });
-      if (!isStreaming) addChatMessage(updated);
-      return [...updated];
-    });
+    replaceLastApiMessage(
+      (lastMsg) => ({
+        ...lastMsg,
+        agentReasoning: typeof agentReasoning === 'string' ? JSON.parse(agentReasoning) : agentReasoning,
+      }),
+      { persistFallback: !isStreaming },
+    );
   };
 
   const updateAgentFlowEvent = (event: string) => {
     if (event === 'INPROGRESS') {
-      setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage', agentFlowEventStatus: event }]);
+      // INPROGRESS appends a new placeholder apiMessage. Use a fresh streaming id so
+      // subsequent mutate-last calls find it.
+      streamingApiMessageId = uuidv4();
+      appendMessage({ messageId: streamingApiMessageId, message: '', type: 'apiMessage', agentFlowEventStatus: event });
     } else {
-      setMessages((prevMessages) => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        if (lastMsg.type === 'userMessage') return prevMessages;
-        return [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowEventStatus: event }];
-      });
+      replaceLastApiMessage((lastMsg) => ({ ...lastMsg, agentFlowEventStatus: event }));
     }
   };
 
   const updateAgentFlowExecutedData = (agentFlowExecutedData: any) => {
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, agentFlowExecutedData }];
-      if (!isStreaming) addChatMessage(allMessages);
-      return allMessages;
-    });
+    replaceLastApiMessage((lastMsg) => ({ ...lastMsg, agentFlowExecutedData }), { persistFallback: !isStreaming });
   };
 
   const updateLastMessageArtifacts = (artifacts: FileUpload[]) => {
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, artifacts }];
-      if (!isStreaming) addChatMessage(allMessages);
-      return allMessages;
-    });
+    replaceLastApiMessage((lastMsg) => ({ ...lastMsg, artifacts }), { persistFallback: !isStreaming });
   };
 
   const updateLastMessageAction = (action: IAction) => {
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, action: typeof action === 'string' ? JSON.parse(action) : action };
-        }
-        return item;
-      });
-      if (!isStreaming) addChatMessage(updated);
-      return [...updated];
-    });
+    replaceLastApiMessage(
+      (lastMsg) => ({
+        ...lastMsg,
+        action: typeof action === 'string' ? JSON.parse(action as any) : action,
+      }),
+      { persistFallback: !isStreaming },
+    );
   };
 
   const handleThinkingEvent = (data: string, duration?: number) => {
     if (data && duration === undefined) {
       setIsThinking(true);
-      setMessages((prevMessages) => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        if (lastMsg.type === 'userMessage') return prevMessages;
-        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinking: (lastMsg.thinking || '') + data, isThinking: true }];
-        if (!isStreaming) addChatMessage(allMessages);
-        return allMessages;
+      replaceLastApiMessage((lastMsg) => ({ ...lastMsg, thinking: (lastMsg.thinking || '') + data, isThinking: true }), {
+        persistFallback: !isStreaming,
       });
     } else if (data === '' && duration !== undefined) {
       setIsThinking(false);
-      setMessages((prevMessages) => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        if (lastMsg.type === 'userMessage') return prevMessages;
-        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, thinkingDuration: duration, isThinking: false }];
-        if (!isStreaming) addChatMessage(allMessages);
-        return allMessages;
-      });
+      replaceLastApiMessage((lastMsg) => ({ ...lastMsg, thinkingDuration: duration, isThinking: false }), { persistFallback: !isStreaming });
     }
   };
 
   const finalizeThinking = () => {
     if (isThinking()) {
       setIsThinking(false);
-      setMessages((prevMessages) => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        if (lastMsg.type === 'userMessage') return prevMessages;
-        return [...prevMessages.slice(0, -1), { ...lastMsg, isThinking: false }];
-      });
+      replaceLastApiMessage((lastMsg) => ({ ...lastMsg, isThinking: false }), { persistFallback: false });
     }
   };
 
@@ -874,11 +881,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (!preventOverride && props.errorMessage) {
       errMessage = props.errorMessage;
     }
-    setMessages((prevMessages) => {
-      const messages: MessageType[] = [...prevMessages, { message: errMessage, type: 'apiMessage' }];
-      addChatMessage(messages);
-      return messages;
-    });
+    appendMessage({ message: errMessage, type: 'apiMessage' });
     setLoading(false);
     setUserInput('');
     setUploadedFiles([]);
@@ -913,8 +916,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     setFollowUpPrompts([]);
     const updatedMessages = currentMessages.slice(0, messageIndex);
-    addChatMessage(updatedMessages);
-    setMessages(updatedMessages);
+    if (sessionStore) {
+      sessionStore.actions.replaceActiveMessages(updatedMessages);
+    } else {
+      addChatMessage(updatedMessages);
+      setMessages(updatedMessages);
+    }
 
     // Note: chatId is kept so the server retains conversation context up to this point.
     // The server's history will still include messages that were removed client-side
@@ -928,37 +935,53 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     // set message id that is needed for feedback
     if (data.chatMessageId) {
-      setMessages((prevMessages) => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        if (lastMsg.type === 'apiMessage') {
-          const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, messageId: data.chatMessageId }];
-          addChatMessage(allMessages);
-          return allMessages;
+      if (sessionStore && streamingApiMessageId) {
+        const current = sessionStore.activeMessages();
+        const lastMsg = current[current.length - 1];
+        if (lastMsg && lastMsg.type === 'apiMessage') {
+          sessionStore.actions.upsertMessage({ ...lastMsg, messageId: data.chatMessageId }, { replaceId: streamingApiMessageId });
+          streamingApiMessageId = data.chatMessageId;
         }
-        return prevMessages;
-      });
+      } else if (!sessionStore) {
+        setFallbackMessages((prev) => {
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg && lastMsg.type === 'apiMessage') {
+            const allMessages = [...prev.slice(0, -1), { ...lastMsg, messageId: data.chatMessageId }];
+            addChatMessage(allMessages);
+            // Track the assigned id so any subsequent metadata events keep working in fallback.
+            streamingApiMessageId = data.chatMessageId;
+            return allMessages;
+          }
+          return prev;
+        });
+      }
     }
 
     if (input === '' && data.question) {
       // the response contains the question even if it was in an audio format
       // so if input is empty but the response contains the question, update the user message to show the question
-      setMessages((prevMessages) => {
-        const secondLast = prevMessages[prevMessages.length - 2];
-        if (secondLast.type === 'apiMessage') return prevMessages;
-        const allMessages = [...prevMessages.slice(0, -2), { ...secondLast, message: data.question }, prevMessages[prevMessages.length - 1]];
-        addChatMessage(allMessages);
-        return allMessages;
-      });
+      if (sessionStore) {
+        const current = sessionStore.activeMessages();
+        if (current.length >= 2) {
+          const secondLast = current[current.length - 2];
+          if (secondLast.type !== 'apiMessage' && secondLast.messageId) {
+            sessionStore.actions.upsertMessage({ ...secondLast, message: data.question });
+          }
+        }
+      } else {
+        setFallbackMessages((prev) => {
+          if (prev.length < 2) return prev;
+          const secondLast = prev[prev.length - 2];
+          if (secondLast.type === 'apiMessage') return prev;
+          const allMessages = [...prev.slice(0, -2), { ...secondLast, message: data.question }, prev[prev.length - 1]];
+          addChatMessage(allMessages);
+          return allMessages;
+        });
+      }
     }
 
     if (data.followUpPrompts) {
-      setMessages((prevMessages) => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        if (lastMsg.type === 'userMessage') return prevMessages;
-        const allMessages = [...prevMessages.slice(0, -1), { ...lastMsg, followUpPrompts: data.followUpPrompts }];
-        addChatMessage(allMessages);
-        return allMessages;
-      });
+      replaceLastApiMessage((lastMsg) => ({ ...lastMsg, followUpPrompts: data.followUpPrompts }));
       setFollowUpPrompts(JSON.parse(data.followUpPrompts));
     }
   };
@@ -1035,7 +1058,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         switch (payload.event) {
           case 'start':
             isStreaming = true;
-            setMessages((prevMessages) => [...prevMessages, { message: '', type: 'apiMessage' }]);
+            // Assign a temporary messageId so subsequent token / mutate-last events upsert the
+            // same record. The id will be swapped to the server's chatMessageId on metadata.
+            streamingApiMessageId = uuidv4();
+            appendMessage({ messageId: streamingApiMessageId, message: '', type: 'apiMessage' });
             break;
           case 'token':
             updateLastMessage(payload.data);
@@ -1083,10 +1109,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           case 'end':
             isStreaming = false;
             finalizeThinking();
-            setMessages((prev) => {
-              addChatMessage(prev);
-              return prev;
-            });
+            if (!sessionStore) {
+              setFallbackMessages((prev) => {
+                addChatMessage(prev);
+                return prev;
+              });
+            }
             setLocalStorageChatflow(chatflowid, chatId);
             closeResponse();
             break;
@@ -1106,29 +1134,49 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       },
       async onclose() {
         isStreaming = false;
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (shouldRemoveEmptyApiMessage(last)) {
-            const cleaned = prev.slice(0, -1);
-            addChatMessage(cleaned);
-            return cleaned;
+        if (sessionStore) {
+          if (streamingApiMessageId) {
+            const current = sessionStore.activeMessages();
+            const last = current[current.length - 1];
+            if (last && shouldRemoveEmptyApiMessage(last)) {
+              sessionStore.actions.removeMessageById(streamingApiMessageId);
+            }
           }
-          return prev;
-        });
+        } else {
+          setFallbackMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (shouldRemoveEmptyApiMessage(last)) {
+              const cleaned = prev.slice(0, -1);
+              addChatMessage(cleaned);
+              return cleaned;
+            }
+            return prev;
+          });
+        }
         closeResponse();
       },
       onerror(err) {
         console.error('EventSource Error: ', err);
         isStreaming = false;
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (shouldRemoveEmptyApiMessage(last)) {
-            const cleaned = prev.slice(0, -1);
-            addChatMessage(cleaned);
-            return cleaned;
+        if (sessionStore) {
+          if (streamingApiMessageId) {
+            const current = sessionStore.activeMessages();
+            const last = current[current.length - 1];
+            if (last && shouldRemoveEmptyApiMessage(last)) {
+              sessionStore.actions.removeMessageById(streamingApiMessageId);
+            }
           }
-          return prev;
-        });
+        } else {
+          setFallbackMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (shouldRemoveEmptyApiMessage(last)) {
+              const cleaned = prev.slice(0, -1);
+              addChatMessage(cleaned);
+              return cleaned;
+            }
+            return prev;
+          });
+        }
         closeResponse();
         throw err;
       },
@@ -1141,6 +1189,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUploadedFiles([]);
     hasSoundPlayed = false;
     isStreaming = false;
+    streamingApiMessageId = undefined;
     setTimeout(() => {
       scrollToBottom();
     }, 100);
@@ -1152,15 +1201,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     // Stop all TTS when aborting message
     stopAllTTS();
 
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      const lastAgentReasoning = lastMsg.agentReasoning;
-      if (lastAgentReasoning && lastAgentReasoning.length > 0) {
-        return [...prevMessages.slice(0, -1), { ...lastMsg, agentReasoning: lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent) }];
-      }
-      return prevMessages;
-    });
+    replaceLastApiMessage(
+      (lastMsg) => {
+        const lastAgentReasoning = lastMsg.agentReasoning;
+        if (lastAgentReasoning && lastAgentReasoning.length > 0) {
+          return { ...lastMsg, agentReasoning: lastAgentReasoning.filter((reasoning) => !reasoning.nextAgent) };
+        }
+        return lastMsg;
+      },
+      { persistFallback: false },
+    );
   };
 
   const handleAbort = async () => {
@@ -1308,11 +1358,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     clearPreviews();
 
     if (!options?.skipAddUserMessage) {
-      setMessages((prevMessages) => {
-        const messages: MessageType[] = [...prevMessages, { message: value as string, type: 'userMessage', fileUploads: uploads }];
-        addChatMessage(messages);
-        return messages;
-      });
+      appendMessage({ messageId: uuidv4(), message: value as string, type: 'userMessage', fileUploads: uploads });
     }
 
     const body: IncomingInput = {
@@ -1357,27 +1403,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
         playReceiveSound();
 
-        setMessages((prevMessages) => {
-          const newMessage = {
-            message: text,
-            id: data?.chatMessageId,
-            sourceDocuments: data?.sourceDocuments,
-            usedTools: data?.usedTools,
-            fileAnnotations: data?.fileAnnotations,
-            agentReasoning: data?.agentReasoning,
-            agentFlowExecutedData: data?.agentFlowExecutedData,
-            action: data?.action,
-            artifacts: data?.artifacts,
-            thinking: data?.reasonContent?.thinking,
-            thinkingDuration: data?.reasonContent?.thinkingDuration,
-            type: 'apiMessage' as messageType,
-            feedback: null,
-            dateTime: new Date().toISOString(),
-          };
-          const allMessages = [...prevMessages, newMessage];
-          addChatMessage(allMessages);
-          return allMessages;
-        });
+        const newMessage = {
+          messageId: data?.chatMessageId ?? uuidv4(),
+          message: text,
+          id: data?.chatMessageId,
+          sourceDocuments: data?.sourceDocuments,
+          usedTools: data?.usedTools,
+          fileAnnotations: data?.fileAnnotations,
+          agentReasoning: data?.agentReasoning,
+          agentFlowExecutedData: data?.agentFlowExecutedData,
+          action: data?.action,
+          artifacts: data?.artifacts,
+          thinking: data?.reasonContent?.thinking,
+          thinkingDuration: data?.reasonContent?.thinkingDuration,
+          type: 'apiMessage' as messageType,
+          feedback: null,
+          dateTime: new Date().toISOString(),
+        } as MessageType;
+        appendMessage(newMessage);
 
         updateMetadata(data, value);
 
@@ -1404,23 +1447,40 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     // Update last question to avoid saving base64 data to localStorage
     if (uploads && uploads.length > 0) {
-      setMessages((data) => {
-        const messages = data.map((item, i) => {
-          if (i === data.length - 2 && item.type === 'userMessage') {
-            if (item.fileUploads) {
-              const fileUploads = item?.fileUploads.map((file) => ({
-                type: file.type,
-                name: file.name,
-                mime: file.mime,
-              }));
-              return { ...item, fileUploads };
-            }
+      if (sessionStore) {
+        const current = sessionStore.activeMessages();
+        if (current.length >= 2) {
+          const idx = current.length - 2;
+          const item = current[idx];
+          if (item.type === 'userMessage' && item.fileUploads) {
+            const fileUploads = item.fileUploads.map((file) => ({
+              type: file.type,
+              name: file.name,
+              mime: file.mime,
+            }));
+            // upsertMessage will key by messageId (assigned earlier when appended)
+            sessionStore.actions.upsertMessage({ ...item, fileUploads });
           }
-          return item;
+        }
+      } else {
+        setFallbackMessages((data) => {
+          const messages = data.map((item, i) => {
+            if (i === data.length - 2 && item.type === 'userMessage') {
+              if (item.fileUploads) {
+                const fileUploads = item?.fileUploads.map((file) => ({
+                  type: file.type,
+                  name: file.name,
+                  mime: file.mime,
+                }));
+                return { ...item, fileUploads };
+              }
+            }
+            return item;
+          });
+          addChatMessage(messages);
+          return [...messages];
         });
-        addChatMessage(messages);
-        return [...messages];
-      });
+      }
     }
   };
 
@@ -1449,16 +1509,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const handleActionClick = async (elem: any, action: IAction | undefined | null) => {
     setUserInput(elem.label);
-    setMessages((data) => {
-      const updated = data.map((item, i) => {
-        if (i === data.length - 1) {
-          return { ...item, action: null };
-        }
-        return item;
-      });
-      addChatMessage(updated);
-      return [...updated];
-    });
+    replaceLastApiMessage((lastMsg) => ({ ...lastMsg, action: null }));
     if (elem.type.includes('agentflowv2')) {
       const type = elem.type.includes('approve') ? 'proceed' : 'reject';
       setFeedbackType(type);
@@ -1572,7 +1623,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
                 if (message.execution && message.execution.executionData)
                   chatHistory.agentFlowExecutedData =
-                    typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
+                    typeof message.execution.executionData === 'string'
+                      ? JSON.parse(message.execution.executionData)
+                      : message.execution.executionData;
                 if (message.agentFlowExecutedData)
                   chatHistory.agentFlowExecutedData =
                     typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
@@ -2048,19 +2101,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       [data.chatMessageId]: true,
     }));
 
-    setMessages((prevMessages) => {
-      const lastMsg = prevMessages[prevMessages.length - 1];
-      if (lastMsg.type === 'userMessage') return prevMessages;
-      const existingId = lastMsg.id || lastMsg.messageId;
-      let id = lastMsg.id;
-      if (!existingId) {
-        id = data.chatMessageId;
-      } else if (!lastMsg.id) {
-        id = existingId;
+    {
+      const cur = messages();
+      if (cur.length > 0) {
+        const lastMsg = cur[cur.length - 1];
+        if (lastMsg.type !== 'userMessage') {
+          const existingId = lastMsg.id || lastMsg.messageId;
+          let id = lastMsg.id;
+          if (!existingId) {
+            id = data.chatMessageId;
+          } else if (!lastMsg.id) {
+            id = existingId;
+          }
+          if (id !== lastMsg.id) {
+            replaceLastApiMessage((m) => ({ ...m, id }), { persistFallback: false });
+          }
+        }
       }
-      if (id === lastMsg.id) return prevMessages;
-      return [...prevMessages.slice(0, -1), { ...lastMsg, id }];
-    });
+    }
 
     setTtsStreamingState({
       mediaSource: null,
