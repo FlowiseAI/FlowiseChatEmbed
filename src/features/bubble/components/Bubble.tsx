@@ -2,7 +2,8 @@ import { createSignal, Show, splitProps, onCleanup, createEffect, onMount } from
 import styles from '../../../assets/index.css';
 import { BubbleButton } from './BubbleButton';
 import { BubbleParams } from '../types';
-import { Bot, BotProps } from '../../../components/Bot';
+import type { BotProps } from '../../../components/Bot';
+import { ChatRoot } from '@/components/sessions/ChatRoot';
 import Tooltip from './Tooltip';
 import { getBubbleButtonSize, resolveDialogContainer } from '@/utils';
 import DOMPurify from 'dompurify';
@@ -175,7 +176,7 @@ export const Bubble = (props: BubbleProps) => {
                 </svg>
               </button>
             </Show>
-            <Bot
+            <ChatRoot
               backgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
               formBackgroundColor={bubbleProps.theme?.form?.backgroundColor}
               formTextColor={bubbleProps.theme?.form?.textColor}
@@ -212,6 +213,8 @@ export const Bubble = (props: BubbleProps) => {
               hasCustomHeader={!!bubbleProps.theme?.chatWindow?.headerHtml}
               closeBot={closeBot}
               dialogContainer={resolveDialogContainer(props.dialogContainer) ?? bubbleContainerRef()}
+              multiSession={props.multiSession}
+              theme={bubbleProps.theme}
             />
           </div>
         </Show>
