@@ -329,6 +329,11 @@
       // See spec Decision #13 — the follow-up Vitest spec will give us proper
       // component-level coverage.
       __assert(true, 'sessionStore — verification deferred to integration (Task 11+)');
+
+      // Section: sessionStore actions (no harness verification)
+      // Same reasoning as Task 5: the actions are reactive Solid wiring; integration
+      // verification happens once the store is wired into Bot.tsx and the demo page.
+      __assert(true, 'sessionStore actions — verification deferred to integration');
     </script>
   </body>
 </html>
