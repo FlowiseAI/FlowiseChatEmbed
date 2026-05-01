@@ -43,6 +43,14 @@ const ChatRootEnabled = (props: ChatRootProps) => {
     return themeAny?.chatWindow?.sessionPanel ?? undefined;
   });
 
+  // Brand accent: drive the panel's active highlight, "+ New chat" button, and
+  // subtle background hue from the user-message bubble color (the chat's most
+  // prominent brand color). Falls back to GuestBubble's default if unset.
+  const chatBrandColor = createMemo<string>(() => {
+    const themeAny = (props as unknown as Record<string, any>).theme;
+    return themeAny?.chatWindow?.userMessage?.backgroundColor ?? '#3B81F6';
+  });
+
   const isDrawer = !props.isFullPage;
   const [drawerOpen, setDrawerOpen] = createSignal(false);
   const onToggleDrawer = () => setDrawerOpen((v) => !v);
@@ -85,6 +93,7 @@ const ChatRootEnabled = (props: ChatRootProps) => {
           onDrawerClose={() => setDrawerOpen(false)}
           panelTheme={panelTheme()}
           chatWindowBackground={props.backgroundColor}
+          chatBrandColor={chatBrandColor()}
         />
         <div style={{ flex: 1, height: '100%' }}>
           <Bot {...props} />

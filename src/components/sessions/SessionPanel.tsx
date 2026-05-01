@@ -30,9 +30,19 @@ type Props = {
   // Cascade: fall through to chatWindow palette if panel keys unset.
   chatWindowBackground?: string;
   chatWindowText?: string;
+  // Brand accent (typically userMessage.backgroundColor) — drives the
+  // "+ New chat" button, the active row highlight, hover feedback, and a
+  // subtle hue on the panel background. Each is overridable via panelTheme.*.
+  chatBrandColor: string;
 };
 
 const px = (v: string | number | undefined, fallback: string) => (v === undefined ? fallback : typeof v === 'number' ? `${v}px` : v);
+
+// Mix the brand color toward white at the given percent, using CSS color-mix.
+// e.g. tint('#3B81F6', 4) → 4% brand on a 96% white base.
+const tint = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, white)`;
+// Overlay the brand color at the given alpha (against whatever sits beneath).
+const overlay = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, transparent)`;
 
 export const SessionPanel = (props: Props) => {
   const sessions = () => props.store.sessions();
@@ -40,16 +50,24 @@ export const SessionPanel = (props: Props) => {
   const newChatLabel = () => props.panelTheme?.newChatLabel ?? 'New chat';
   const emptyText = () => props.panelTheme?.emptyStateText ?? 'No conversations yet';
 
-  const bg = () => props.panelTheme?.backgroundColor ?? props.chatWindowBackground ?? '#f8fafc';
-  const fg = () => props.panelTheme?.textColor ?? props.chatWindowText ?? '#334155';
-  const activeBg = () => props.panelTheme?.activeBackgroundColor ?? '#e0e7ff';
-  const activeFg = () => props.panelTheme?.activeTextColor ?? '#1e1b4b';
-  const hoverBg = () => props.panelTheme?.hoverBackgroundColor ?? 'rgba(0,0,0,0.04)';
-  const border = () => props.panelTheme?.borderColor ?? '#e2e8f0';
-  const newBtnBg = () => props.panelTheme?.newChatButtonColor ?? '#4f46e5';
+  const brand = () => props.chatBrandColor;
+
+  // Brand-driven palette with explicit overrides falling through.
+  const bg = () => props.panelTheme?.backgroundColor ?? tint(brand(), 4);
+  const fg = () => props.panelTheme?.textColor ?? props.chatWindowText ?? '#1f2937';
+  const mutedFg = () => 'color-mix(in srgb, currentColor 60%, transparent)';
+  const activeBg = () => props.panelTheme?.activeBackgroundColor ?? overlay(brand(), 14);
+  const activeFg = () => props.panelTheme?.activeTextColor ?? brand();
+  const hoverBg = () => props.panelTheme?.hoverBackgroundColor ?? overlay(brand(), 7);
+  const border = () => props.panelTheme?.borderColor ?? overlay(brand(), 12);
+  const newBtnBg = () => props.panelTheme?.newChatButtonColor ?? brand();
   const newBtnFg = () => props.panelTheme?.newChatButtonTextColor ?? '#ffffff';
+  const newBtnHoverBg = () => `color-mix(in srgb, ${newBtnBg()} 88%, black)`;
 
   const [collapsed, setCollapsed] = createSignal(props.isFullPage ? readPanelCollapsed(props.store.chatflowid) : false);
+  const [newBtnHovered, setNewBtnHovered] = createSignal(false);
+  const [collapseBtnHovered, setCollapseBtnHovered] = createSignal(false);
+
   const toggleCollapsed = () => {
     if (!props.isFullPage) return;
     const next = !collapsed();
@@ -112,53 +130,96 @@ export const SessionPanel = (props: Props) => {
     <>
       <div
         style={{
-          padding: '12px',
-          'border-bottom': `1px solid ${border()}`,
+          padding: collapsed() ? '14px 8px' : '14px 16px',
           display: 'flex',
           'align-items': 'center',
-          'justify-content': 'space-between',
-          'font-weight': 600,
-          'font-size': '13px',
+          'justify-content': collapsed() ? 'center' : 'space-between',
+          'min-height': '52px',
+          'box-sizing': 'border-box',
         }}
       >
         <Show when={!collapsed()}>
-          <span>Conversations</span>
+          <span
+            style={{
+              'font-size': '12px',
+              'font-weight': 600,
+              'letter-spacing': '0.04em',
+              'text-transform': 'uppercase',
+              color: mutedFg(),
+            }}
+          >
+            Chats
+          </span>
         </Show>
         <Show when={props.isFullPage}>
           <button
             type="button"
             onClick={toggleCollapsed}
+            onMouseEnter={() => setCollapseBtnHovered(true)}
+            onMouseLeave={() => setCollapseBtnHovered(false)}
             aria-label={collapsed() ? 'Expand conversations panel' : 'Collapse conversations panel'}
             style={{
-              background: 'transparent',
+              background: collapseBtnHovered() ? hoverBg() : 'transparent',
               border: 'none',
               cursor: 'pointer',
-              'font-size': '14px',
               color: 'inherit',
+              padding: '6px',
+              'border-radius': '6px',
+              display: 'inline-flex',
+              'align-items': 'center',
+              'justify-content': 'center',
+              transition: 'background 120ms ease',
             }}
           >
-            {collapsed() ? '☰' : '⟨'}
+            <Show
+              when={collapsed()}
+              fallback={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                </svg>
+              }
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </Show>
           </button>
         </Show>
       </div>
 
       <Show when={!collapsed()}>
-        <div style={{ padding: '8px' }}>
+        <div style={{ padding: '0 12px 12px 12px' }}>
           <button
             type="button"
             onClick={handleNewChat}
+            onMouseEnter={() => setNewBtnHovered(true)}
+            onMouseLeave={() => setNewBtnHovered(false)}
             style={{
               width: '100%',
-              background: newBtnBg(),
+              background: newBtnHovered() ? newBtnHoverBg() : newBtnBg(),
               color: newBtnFg(),
               border: 'none',
-              padding: '8px',
-              'border-radius': '6px',
-              'font-size': '12px',
+              padding: '9px 12px',
+              'border-radius': '8px',
+              'font-size': '13px',
+              'font-weight': 500,
               cursor: 'pointer',
+              display: 'inline-flex',
+              'align-items': 'center',
+              'justify-content': 'center',
+              gap: '6px',
+              transition: 'background 120ms ease, transform 120ms ease',
+              'box-shadow': '0 1px 2px rgba(0,0,0,0.04)',
             }}
           >
-            + {newChatLabel()}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>{newChatLabel()}</span>
           </button>
         </div>
 
@@ -170,9 +231,13 @@ export const SessionPanel = (props: Props) => {
 
         <Show
           when={sessions().length > 0}
-          fallback={<div style={{ padding: '24px', 'text-align': 'center', 'font-size': '12px', opacity: 0.7 }}>{emptyText()}</div>}
+          fallback={
+            <div style={{ padding: '32px 16px', 'text-align': 'center', 'font-size': '12px', color: mutedFg() }}>
+              {emptyText()}
+            </div>
+          }
         >
-          <div role="list" onKeyDown={onListKey} style={{ flex: 1, overflow: 'auto', padding: '0 4px' }}>
+          <div role="list" onKeyDown={onListKey} style={{ flex: 1, overflow: 'auto', padding: '4px 8px 12px 8px' }}>
             <For each={sessions()}>
               {(s) => (
                 <SessionListItem
@@ -183,6 +248,7 @@ export const SessionPanel = (props: Props) => {
                     activeBackgroundColor: activeBg(),
                     activeTextColor: activeFg(),
                     hoverBackgroundColor: hoverBg(),
+                    accentColor: brand(),
                   }}
                   onSwitch={() => handleSwitch(s.chatId)}
                   onRename={(next) => props.store.actions.renameSession(s.chatId, next)}
@@ -204,14 +270,15 @@ export const SessionPanel = (props: Props) => {
           role="navigation"
           aria-label="Conversations"
           style={{
-            width: collapsed() ? px(props.panelTheme?.collapsedWidth, '44px') : px(props.panelTheme?.width, '260px'),
+            width: collapsed() ? px(props.panelTheme?.collapsedWidth, '52px') : px(props.panelTheme?.width, '272px'),
             background: bg(),
             color: fg(),
             'border-right': `1px solid ${border()}`,
             display: 'flex',
             'flex-direction': 'column',
             height: '100%',
-            transition: 'width 150ms ease',
+            transition: 'width 180ms cubic-bezier(0.4, 0, 0.2, 1)',
+            'font-family': 'inherit',
           }}
         >
           {panelBody()}
@@ -223,8 +290,9 @@ export const SessionPanel = (props: Props) => {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(0,0,0,0.25)',
+            background: 'rgba(0,0,0,0.32)',
             'z-index': 5,
+            'backdrop-filter': 'blur(2px)',
           }}
           onClick={() => props.onDrawerClose?.()}
           aria-hidden="true"
@@ -238,13 +306,15 @@ export const SessionPanel = (props: Props) => {
             top: 0,
             left: 0,
             bottom: 0,
-            width: '75%',
+            width: '78%',
+            'max-width': '320px',
             'z-index': 6,
             background: bg(),
             color: fg(),
             display: 'flex',
             'flex-direction': 'column',
-            'box-shadow': '2px 0 8px rgba(0,0,0,0.2)',
+            'box-shadow': '4px 0 24px rgba(0,0,0,0.18)',
+            'font-family': 'inherit',
           }}
         >
           {panelBody()}
