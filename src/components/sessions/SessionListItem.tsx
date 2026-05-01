@@ -12,47 +12,43 @@ type Theme = {
 type Props = {
   session: SessionV2;
   active: boolean;
+  // Edit + delete state is owned by the parent SessionPanel and keyed by chatId
+  // so it survives <For> re-mounts triggered by streaming-driven updatedAt bumps.
+  editing: boolean;
+  editingDraft: string;
+  confirmingDelete: boolean;
   theme: Theme;
   onSwitch: () => void;
-  onRename: (next: string) => void;
-  onDelete: () => void;
+  onStartEdit: () => void;
+  onChangeDraft: (next: string) => void;
+  onCommitEdit: () => void;
+  onCancelEdit: () => void;
+  onStartDelete: () => void;
+  onCancelDelete: () => void;
+  onConfirmDelete: () => void;
 };
 
 export const SessionListItem = (props: Props) => {
-  const [editing, setEditing] = createSignal(false);
-  const [draft, setDraft] = createSignal(props.session.title);
-  const [confirmingDelete, setConfirmingDelete] = createSignal(false);
   const [hovered, setHovered] = createSignal(false);
 
   const startEdit = (e: MouseEvent) => {
     e.stopPropagation();
-    setDraft(props.session.title);
-    setEditing(true);
-  };
-  const commit = () => {
-    if (editing()) {
-      props.onRename(draft());
-      setEditing(false);
-    }
-  };
-  const cancel = () => {
-    setDraft(props.session.title);
-    setEditing(false);
+    props.onStartEdit();
   };
 
   const onClick = () => {
-    if (editing() || confirmingDelete()) return;
+    if (props.editing || props.confirmingDelete) return;
     props.onSwitch();
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter' && !editing() && !confirmingDelete()) {
+    if (e.key === 'Enter' && !props.editing && !props.confirmingDelete) {
       e.preventDefault();
       props.onSwitch();
     }
-    if (e.key === 'Delete' && !editing()) {
+    if (e.key === 'Delete' && !props.editing) {
       e.preventDefault();
-      setConfirmingDelete(true);
+      props.onStartDelete();
     }
   };
 
@@ -98,10 +94,10 @@ export const SessionListItem = (props: Props) => {
         />
       </Show>
       <Show
-        when={!editing() && !confirmingDelete()}
+        when={!props.editing && !props.confirmingDelete}
         fallback={
           <Show
-            when={editing()}
+            when={props.editing}
             fallback={
               <div style={{ flex: 1, 'font-size': '12.5px', display: 'flex', 'align-items': 'center', gap: '8px' }}>
                 <span style={{ 'font-weight': 500 }}>Delete?</span>
@@ -109,8 +105,7 @@ export const SessionListItem = (props: Props) => {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    props.onDelete();
-                    setConfirmingDelete(false);
+                    props.onConfirmDelete();
                   }}
                   style={{
                     background: '#dc2626',
@@ -129,7 +124,7 @@ export const SessionListItem = (props: Props) => {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setConfirmingDelete(false);
+                    props.onCancelDelete();
                   }}
                   style={{
                     background: 'transparent',
@@ -148,15 +143,15 @@ export const SessionListItem = (props: Props) => {
           >
             <input
               type="text"
-              value={draft()}
-              onInput={(e) => setDraft(e.currentTarget.value)}
+              value={props.editingDraft}
+              onInput={(e) => props.onChangeDraft(e.currentTarget.value)}
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
                 e.stopPropagation();
-                if (e.key === 'Enter') commit();
-                if (e.key === 'Escape') cancel();
+                if (e.key === 'Enter') props.onCommitEdit();
+                if (e.key === 'Escape') props.onCancelEdit();
               }}
-              onBlur={cancel}
+              onBlur={() => props.onCancelEdit()}
               ref={(el) => {
                 if (el) {
                   setTimeout(() => {
@@ -222,7 +217,17 @@ export const SessionListItem = (props: Props) => {
               e.currentTarget.style.background = 'transparent';
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <path d="M12 20h9" />
               <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z" />
             </svg>
@@ -233,7 +238,7 @@ export const SessionListItem = (props: Props) => {
             title="Delete"
             onClick={(e) => {
               e.stopPropagation();
-              setConfirmingDelete(true);
+              props.onStartDelete();
             }}
             style={{
               background: 'transparent',
@@ -259,7 +264,17 @@ export const SessionListItem = (props: Props) => {
               e.currentTarget.style.background = 'transparent';
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
               <path d="M10 11v6" />

@@ -72,6 +72,24 @@ export const SessionPanel = (props: Props) => {
   const [newBtnHovered, setNewBtnHovered] = createSignal(false);
   const [collapseBtnHovered, setCollapseBtnHovered] = createSignal(false);
 
+  // Edit/delete state lives at the panel level keyed by chatId. Solid's <For>
+  // re-mounts a SessionListItem whenever the SessionV2 reference changes, and
+  // the streaming session's reference changes on every token (auto-title bump).
+  // Holding state inside the row would reset edits mid-stream — keep it here.
+  const [editingChatId, setEditingChatId] = createSignal<string | null>(null);
+  const [editingDraft, setEditingDraft] = createSignal('');
+  const [confirmingDeleteChatId, setConfirmingDeleteChatId] = createSignal<string | null>(null);
+  const startEditing = (chatId: string, currentTitle: string) => {
+    setEditingDraft(currentTitle);
+    setEditingChatId(chatId);
+  };
+  const cancelEditing = () => setEditingChatId(null);
+  const commitEditing = (chatId: string) => {
+    const next = editingDraft();
+    props.store.actions.renameSession(chatId, next);
+    setEditingChatId(null);
+  };
+
   const toggleCollapsed = () => {
     if (!props.isFullPage) return;
     const next = !collapsed();
@@ -280,6 +298,9 @@ export const SessionPanel = (props: Props) => {
                 <SessionListItem
                   session={s}
                   active={s.chatId === activeId()}
+                  editing={editingChatId() === s.chatId}
+                  editingDraft={editingDraft()}
+                  confirmingDelete={confirmingDeleteChatId() === s.chatId}
                   theme={{
                     textColor: fg(),
                     activeBackgroundColor: activeBg(),
@@ -288,8 +309,16 @@ export const SessionPanel = (props: Props) => {
                     accentColor: brand(),
                   }}
                   onSwitch={() => handleSwitch(s.chatId)}
-                  onRename={(next) => props.store.actions.renameSession(s.chatId, next)}
-                  onDelete={() => props.store.actions.deleteSession(s.chatId)}
+                  onStartEdit={() => startEditing(s.chatId, s.title)}
+                  onChangeDraft={(next) => setEditingDraft(next)}
+                  onCommitEdit={() => commitEditing(s.chatId)}
+                  onCancelEdit={cancelEditing}
+                  onStartDelete={() => setConfirmingDeleteChatId(s.chatId)}
+                  onCancelDelete={() => setConfirmingDeleteChatId(null)}
+                  onConfirmDelete={() => {
+                    setConfirmingDeleteChatId(null);
+                    props.store.actions.deleteSession(s.chatId);
+                  }}
                 />
               )}
             </For>
@@ -353,7 +382,8 @@ export const SessionPanel = (props: Props) => {
             'box-shadow': '4px 0 24px rgba(0,0,0,0.18)',
             'font-family': 'inherit',
           }}
-        >chloe
+        >
+          chloe
           {panelBody()}
         </nav>
       </Show>
