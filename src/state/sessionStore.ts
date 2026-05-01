@@ -43,9 +43,10 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       const parsed = JSON.parse(e.newValue);
       if (parsed && typeof parsed === 'object' && parsed.version === 2) {
         const next = parsed as ChatflowIndexV2;
+        const prevActiveChatId = activeChatId();
         setIndex(next);
         // Also re-read active session's messages if active changed underneath.
-        if (next.activeChatId !== activeChatId()) {
+        if (next.activeChatId !== prevActiveChatId) {
           const msgs = readMessages(chatflowid, next.activeChatId);
           messageCache.set(next.activeChatId, msgs);
           setActiveMessages(msgs);
