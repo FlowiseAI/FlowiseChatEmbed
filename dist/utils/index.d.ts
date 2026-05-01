@@ -15,7 +15,17 @@ export declare const sendRequest: <ResponseData>(params: string | {
     data?: ResponseData | undefined;
     error?: Error | undefined;
 }>;
+/**
+ * v1-compatible wrapper. Writes are field-level merges over the v2 index
+ * (and active-session messages where applicable), so callers writing
+ * `{ lead }` or `{ chatHistory }` don't clobber other v2 fields.
+ */
 export declare const setLocalStorageChatflow: (chatflowid: string, chatId: string, saveObj?: Record<string, any>) => void;
+/**
+ * v1-compatible projection. Returns a v1-shaped object derived from the active
+ * session of the v2 index, so existing callers (notably the lead-capture path)
+ * keep working.
+ */
 export declare const getLocalStorageChatflow: (chatflowid: string) => any;
 export declare const removeLocalStorageChatHistory: (chatflowid: string) => void;
 export declare const getBubbleButtonSize: (size: 'small' | 'medium' | 'large' | number | undefined) => number;

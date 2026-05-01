@@ -26,6 +26,7 @@ type Props = {
   onStartDelete: () => void;
   onCancelDelete: () => void;
   onConfirmDelete: () => void;
+  onToggleStar?: () => void;
 };
 
 export const SessionListItem = (props: Props) => {
@@ -190,6 +191,52 @@ export const SessionListItem = (props: Props) => {
           {props.session.title}
         </div>
         <Show when={hovered() || props.active}>
+          <Show when={props.onToggleStar}>
+            <button
+              type="button"
+              aria-label={props.session.starred ? 'Unstar' : 'Star'}
+              title={props.session.starred ? 'Unstar' : 'Star'}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onToggleStar?.();
+              }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: props.session.starred ? '#f59e0b' : 'inherit',
+                cursor: 'pointer',
+                padding: '4px',
+                'border-radius': '4px',
+                opacity: props.session.starred ? 1 : 0.6,
+                display: 'inline-flex',
+                'align-items': 'center',
+                'justify-content': 'center',
+                transition: 'opacity 120ms ease, background 120ms ease, color 120ms ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.background = 'color-mix(in srgb, currentColor 10%, transparent)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = props.session.starred ? '1' : '0.6';
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill={props.session.starred ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+          </Show>
           <button
             type="button"
             aria-label="Rename"

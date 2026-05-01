@@ -45,9 +45,9 @@ Each row maps to one acceptance criterion in spec Section 8. Mark `Pass`, `Fail`
 
 ## Sign-off
 
-- Author: ********\_\_********
-- Reviewer: ******\_\_\_\_******
-- Date: ********\_\_\_\_********
+- Author: **\*\*\*\***\_\_**\*\*\*\***
+- Reviewer: **\*\***\_\_\_\_**\*\***
+- Date: **\*\*\*\***\_\_\_\_**\*\*\*\***
 
 ## Known Limitations / Deferred Items (v1)
 

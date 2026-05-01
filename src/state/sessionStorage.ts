@@ -7,6 +7,10 @@ export type SessionV2 = {
   title: string;
   createdAt: number;
   updatedAt: number;
+  // Optional pin: starred sessions render in a "Starred" section above
+  // "Recents" in the panel. Persisted in the v2 index. Absence is treated as
+  // false so legacy/v2 records without the field continue to work.
+  starred?: boolean;
 };
 
 export type ChatflowIndexV2 = {
@@ -61,11 +65,7 @@ export class StorageQuotaError extends Error {
 
 const isQuotaError = (e: unknown): boolean => {
   if (!(e instanceof Error)) return false;
-  return (
-    e.name === 'QuotaExceededError' ||
-    e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
-    (e as { code?: number }).code === 22
-  );
+  return e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || (e as { code?: number }).code === 22;
 };
 
 const safeWrite = (key: string, value: string) => {
@@ -81,11 +81,7 @@ export const writeIndex = (chatflowid: string, index: ChatflowIndexV2): void => 
   safeWrite(indexKey(chatflowid), JSON.stringify(index));
 };
 
-export const writeMessages = (
-  chatflowid: string,
-  chatId: string,
-  messages: MessageType[],
-): void => {
+export const writeMessages = (chatflowid: string, chatId: string, messages: MessageType[]): void => {
   safeWrite(msgKey(chatflowid, chatId), JSON.stringify(messages));
 };
 
@@ -106,10 +102,7 @@ export const writeCapWarned = (chatflowid: string): void => {
  * - Returns chatIds whose MsgKey was deleted (orphans, not in index).
  * - Returns chatIds in index that have no MsgKey (caller should seed empty).
  */
-export const reconcileOrphans = (
-  chatflowid: string,
-  index: ChatflowIndexV2,
-): { deletedOrphans: string[]; missingMsgKeys: string[] } => {
+export const reconcileOrphans = (chatflowid: string, index: ChatflowIndexV2): { deletedOrphans: string[]; missingMsgKeys: string[] } => {
   const indexIds = new Set(index.sessions.map((s) => s.chatId));
   const prefix = `${chatflowid}_EXTERNAL_msgs_`;
 

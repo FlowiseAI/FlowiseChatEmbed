@@ -1,10 +1,5 @@
 import type { MessageType } from '@/components/Bot';
-import {
-  type ChatflowIndexV2,
-  type LeadCaptureData,
-  writeIndex,
-  writeMessages,
-} from './sessionStorage';
+import { type ChatflowIndexV2, type LeadCaptureData, writeIndex, writeMessages } from './sessionStorage';
 import { titleFromMessage } from '@/utils/titleFromMessage';
 
 type RawV1 = {

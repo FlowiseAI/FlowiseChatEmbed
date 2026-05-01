@@ -83,6 +83,10 @@ export type MessageType = {
 };
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
 export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+export type MultiSessionConfig = {
+    enabled: boolean;
+    maxSessions?: number;
+};
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;
@@ -124,6 +128,7 @@ export type BotProps = {
     closeBot?: () => void;
     hasCustomHeader?: boolean;
     dialogContainer?: HTMLElement;
+    multiSession?: MultiSessionConfig;
 };
 export type LeadsConfig = {
     status: boolean;

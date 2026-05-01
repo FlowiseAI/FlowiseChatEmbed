@@ -74,6 +74,10 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
 
   // ---- selectors ----
   const sessions = createMemo(() => [...index().sessions].sort((a, b) => b.updatedAt - a.updatedAt));
+  // Split for the panel's "Starred" / "Recents" sections. Within each group,
+  // sort by updatedAt desc — same as the unified `sessions` selector.
+  const starredSessions = createMemo(() => [...index().sessions].filter((s) => s.starred === true).sort((a, b) => b.updatedAt - a.updatedAt));
+  const recentSessions = createMemo(() => [...index().sessions].filter((s) => s.starred !== true).sort((a, b) => b.updatedAt - a.updatedAt));
   const activeChatId = createMemo(() => index().activeChatId);
   const activeSession = createMemo<SessionV2 | undefined>(() => index().sessions.find((s) => s.chatId === activeChatId()));
   const lead = createMemo(() => index().lead);
@@ -340,6 +344,16 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
   };
 
+  const toggleStarred = (chatId: string): void => {
+    const current = index();
+    const sIdx = current.sessions.findIndex((s) => s.chatId === chatId);
+    if (sIdx < 0) return;
+    const sessions = [...current.sessions];
+    const wasStarred = sessions[sIdx].starred === true;
+    sessions[sIdx] = { ...sessions[sIdx], starred: !wasStarred };
+    withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
+  };
+
   const renameSession = (chatId: string, rawTitle: string): void => {
     const trimmed = rawTitle.trim().slice(0, 80);
     const current = index();
@@ -394,6 +408,8 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     chatflowid,
     maxSessions,
     sessions,
+    starredSessions,
+    recentSessions,
     activeChatId,
     activeSession,
     activeMessages,
@@ -410,6 +426,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       replaceActiveMessages,
       getSessionMessages,
       renameSession,
+      toggleStarred,
       deleteSession,
       setLead,
       flushPending,

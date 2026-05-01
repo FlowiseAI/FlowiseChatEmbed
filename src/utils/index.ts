@@ -81,11 +81,7 @@ export const sendRequest = async <ResponseData>(
  * (and active-session messages where applicable), so callers writing
  * `{ lead }` or `{ chatHistory }` don't clobber other v2 fields.
  */
-export const setLocalStorageChatflow = (
-  chatflowid: string,
-  chatId: string,
-  saveObj: Record<string, any> = {},
-) => {
+export const setLocalStorageChatflow = (chatflowid: string, chatId: string, saveObj: Record<string, any> = {}) => {
   const idx = readIndex(chatflowid);
   if (!idx) {
     // No v2 yet: fall back to legacy single-key write so nothing breaks if

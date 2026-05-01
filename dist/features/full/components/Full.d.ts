@@ -1,4 +1,4 @@
-import { BotProps } from '@/components/Bot';
+import type { BotProps } from '@/components/Bot';
 import { BubbleParams } from '@/features/bubble/types';
 export type FullProps = BotProps & BubbleParams;
 export declare const Full: (props: FullProps, { element }: {

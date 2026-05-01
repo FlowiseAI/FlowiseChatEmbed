@@ -46,6 +46,8 @@ const overlay = (color: string, pct: number) => `color-mix(in srgb, ${color} ${p
 
 export const SessionPanel = (props: Props) => {
   const sessions = () => props.store.sessions();
+  const starred = () => props.store.starredSessions();
+  const recents = () => props.store.recentSessions();
   const activeId = () => props.store.activeChatId();
   const newChatLabel = () => props.panelTheme?.newChatLabel ?? 'New chat';
   const emptyText = () => props.panelTheme?.emptyStateText ?? 'No conversations yet';
@@ -144,10 +146,40 @@ export const SessionPanel = (props: Props) => {
   onMount(() => document.addEventListener('keydown', onEscapeKey));
   onCleanup(() => document.removeEventListener('keydown', onEscapeKey));
 
-  // Render helper, NOT a component. Do not add lifecycle primitives
+  // Render helpers, NOT components. Do not add lifecycle primitives
   // (createEffect, onMount, onCleanup) or new signals here — those must live
   // in component scope so Solid can track ownership correctly. Pure JSX +
   // signal reads only.
+  type SessionRow = ReturnType<typeof props.store.starredSessions>[number];
+  const renderItem = (s: SessionRow): JSX.Element => (
+    <SessionListItem
+      session={s}
+      active={s.chatId === activeId()}
+      editing={editingChatId() === s.chatId}
+      editingDraft={editingDraft()}
+      confirmingDelete={confirmingDeleteChatId() === s.chatId}
+      theme={{
+        textColor: fg(),
+        activeBackgroundColor: activeBg(),
+        activeTextColor: activeFg(),
+        hoverBackgroundColor: hoverBg(),
+        accentColor: brand(),
+      }}
+      onSwitch={() => handleSwitch(s.chatId)}
+      onStartEdit={() => startEditing(s.chatId, s.title)}
+      onChangeDraft={(next: string) => setEditingDraft(next)}
+      onCommitEdit={() => commitEditing(s.chatId)}
+      onCancelEdit={cancelEditing}
+      onStartDelete={() => setConfirmingDeleteChatId(s.chatId)}
+      onCancelDelete={() => setConfirmingDeleteChatId(null)}
+      onConfirmDelete={() => {
+        setConfirmingDeleteChatId(null);
+        props.store.actions.deleteSession(s.chatId);
+      }}
+      onToggleStar={() => props.store.actions.toggleStarred(s.chatId)}
+    />
+  );
+
   const panelBody = (): JSX.Element => (
     <>
       <div
@@ -265,18 +297,20 @@ export const SessionPanel = (props: Props) => {
             }}
           >
             <svg
-              width="15"
-              height="15"
+              fill="#000000"
+              width="16px"
+              height="16px"
               viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
+              id="plus"
+              data-name="Line Color"
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon line-color"
             >
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.121 2.121 0 113 3L7.5 19.5 3 21l1.5-4.5z" />
+              <path
+                id="primary"
+                d="M5,12H19M12,5V19"
+                style={{ fill: 'none', stroke: 'rgb(0, 0, 0)', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2' }}
+              />
             </svg>
             <span>{newChatLabel()}</span>
           </button>
@@ -293,35 +327,38 @@ export const SessionPanel = (props: Props) => {
           fallback={<div style={{ padding: '32px 16px', 'text-align': 'center', 'font-size': '12px', color: mutedFg() }}>{emptyText()}</div>}
         >
           <div role="list" onKeyDown={onListKey} style={{ flex: 1, overflow: 'auto', padding: '4px 8px 12px 8px' }}>
-            <For each={sessions()}>
-              {(s) => (
-                <SessionListItem
-                  session={s}
-                  active={s.chatId === activeId()}
-                  editing={editingChatId() === s.chatId}
-                  editingDraft={editingDraft()}
-                  confirmingDelete={confirmingDeleteChatId() === s.chatId}
-                  theme={{
-                    textColor: fg(),
-                    activeBackgroundColor: activeBg(),
-                    activeTextColor: activeFg(),
-                    hoverBackgroundColor: hoverBg(),
-                    accentColor: brand(),
+            <Show when={starred().length > 0}>
+              <div
+                aria-hidden="true"
+                style={{
+                  padding: '8px 6px 4px 6px',
+                  'font-size': '11px',
+                  'font-weight': 600,
+                  'letter-spacing': '0.04em',
+                  'text-transform': 'uppercase',
+                  color: mutedFg(),
+                }}
+              >
+                Starred
+              </div>
+              <For each={starred()}>{(s) => renderItem(s)}</For>
+              <Show when={recents().length > 0}>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    padding: '12px 6px 4px 6px',
+                    'font-size': '11px',
+                    'font-weight': 600,
+                    'letter-spacing': '0.04em',
+                    'text-transform': 'uppercase',
+                    color: mutedFg(),
                   }}
-                  onSwitch={() => handleSwitch(s.chatId)}
-                  onStartEdit={() => startEditing(s.chatId, s.title)}
-                  onChangeDraft={(next) => setEditingDraft(next)}
-                  onCommitEdit={() => commitEditing(s.chatId)}
-                  onCancelEdit={cancelEditing}
-                  onStartDelete={() => setConfirmingDeleteChatId(s.chatId)}
-                  onCancelDelete={() => setConfirmingDeleteChatId(null)}
-                  onConfirmDelete={() => {
-                    setConfirmingDeleteChatId(null);
-                    props.store.actions.deleteSession(s.chatId);
-                  }}
-                />
-              )}
-            </For>
+                >
+                  Recents
+                </div>
+              </Show>
+            </Show>
+            <For each={recents()}>{(s) => renderItem(s)}</For>
           </div>
         </Show>
       </Show>

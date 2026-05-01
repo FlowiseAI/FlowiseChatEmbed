@@ -76,6 +76,21 @@ export type ChatWindowTheme = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     headerHtml?: string;
+    sessionPanel?: {
+        width?: string | number;
+        collapsedWidth?: string | number;
+        backgroundColor?: string;
+        textColor?: string;
+        activeBackgroundColor?: string;
+        activeTextColor?: string;
+        hoverBackgroundColor?: string;
+        borderColor?: string;
+        newChatButtonColor?: string;
+        newChatButtonTextColor?: string;
+        newChatLabel?: string;
+        emptyStateText?: string;
+        capWarningText?: string;
+    };
 };
 export type ButtonTheme = {
     size?: 'small' | 'medium' | 'large' | number;

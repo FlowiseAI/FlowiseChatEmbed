@@ -47,6 +47,7 @@ import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble'
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 import { CHAT_HEADER_HEIGHT } from '@/constants';
 import { useSessionStore } from './sessions/ChatRoot';
+import { SessionTitleHeader } from './sessions/SessionTitleHeader';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -2776,7 +2777,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             </div>
           )}
 
-          {props.showTitle ? (
+          <Show
+            when={props.showTitle && !sessionStore}
+            fallback={
+              <Show when={props.showTitle && sessionStore}>
+                <SessionTitleHeader isFullPage={!!props.isFullPage} textColor={props.titleTextColor} bubbleBackground={props.bubbleBackgroundColor} />
+              </Show>
+            }
+          >
             <div
               class={`flex flex-row items-center w-full h-[${CHAT_HEADER_HEIGHT}px] absolute top-0 left-0 z-10`}
               style={{
@@ -2786,24 +2794,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 'border-top-right-radius': props.isFullPage || props.hasCustomHeader ? '0px' : '6px',
               }}
             >
-              <Show when={props.multiSession?.enabled && !props.isFullPage}>
-                <button
-                  type="button"
-                  aria-label="Open conversations"
-                  onClick={() => window.dispatchEvent(new CustomEvent('flowise-toggle-session-drawer'))}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'inherit',
-                    'font-size': '16px',
-                    cursor: 'pointer',
-                    padding: '0 4px',
-                    'margin-left': '8px',
-                  }}
-                >
-                  ☰
-                </button>
-              </Show>
               <Show when={props.titleAvatarSrc}>
                 <>
                   <div style={{ width: '15px' }} />
@@ -2824,7 +2814,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
               </DeleteButton>
             </div>
-          ) : null}
+          </Show>
           <div class="relative flex flex-col w-full flex-1 min-h-0 justify-start z-0">
             <div
               ref={chatContainer}
