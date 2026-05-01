@@ -648,6 +648,32 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         window.removeEventListener('beforeunload', flush);
       });
     }
+
+    // Best-effort abort of any in-flight stream when the user switches to a different session.
+    if (sessionStore) {
+      let lastSeenChatId = sessionStore.activeChatId();
+      createEffect(
+        on(
+          () => sessionStore.activeChatId(),
+          (current) => {
+            if (current === lastSeenChatId) return;
+            const previousChatId = lastSeenChatId;
+            lastSeenChatId = current;
+            // Only abort if there was an in-flight request for the previous session.
+            if (!loading()) return;
+            // Fire-and-forget: don't await, don't surface errors. Best-effort.
+            abortMessageQuery({
+              chatflowid: props.chatflowid,
+              apiHost: props.apiHost,
+              chatId: previousChatId,
+              onRequest: props.onRequest,
+            }).catch(() => {
+              /* best-effort abort; ignore failures */
+            });
+          },
+        ),
+      );
+    }
   });
 
   let programmaticScrollGuard: (fn: () => void) => void = (fn) => fn();
