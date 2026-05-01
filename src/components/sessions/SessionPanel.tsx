@@ -1,4 +1,4 @@
-import { For, Show, createSignal, type JSX } from 'solid-js';
+import { For, Show, createEffect, createSignal, onCleanup, onMount, type JSX } from 'solid-js';
 import type { SessionStore } from '@/state/sessionStore';
 import { readPanelCollapsed, writePanelCollapsed } from '@/state/sessionStorage';
 import { SessionListItem } from './SessionListItem';
@@ -64,6 +64,45 @@ export const SessionPanel = (props: Props) => {
     props.store.actions.switchSession(id);
     if (props.isDrawer) props.onDrawerClose?.();
   };
+
+  const onListKey = (e: KeyboardEvent) => {
+    const target = e.currentTarget as HTMLElement;
+    const items = target.querySelectorAll<HTMLElement>('[role="listitem"]');
+    if (items.length === 0) return;
+    const focused = document.activeElement as HTMLElement | null;
+    let idx = -1;
+    items.forEach((el, i) => {
+      if (el === focused) idx = i;
+    });
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[Math.min(items.length - 1, Math.max(idx + 1, 0))].focus();
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[Math.max(0, idx - 1)].focus();
+    }
+  };
+
+  let drawerRoot: HTMLElement | undefined;
+
+  createEffect(() => {
+    if (!props.isDrawer) return;
+    const open = props.drawerOpen?.() ?? false;
+    if (open && drawerRoot) {
+      queueMicrotask(() => {
+        const first = drawerRoot?.querySelector<HTMLElement>('button, [tabindex="0"]');
+        first?.focus();
+      });
+    }
+  });
+
+  const onEscapeKey = (e: KeyboardEvent) => {
+    if (!props.isDrawer || !(props.drawerOpen?.() ?? false)) return;
+    if (e.key === 'Escape') props.onDrawerClose?.();
+  };
+  onMount(() => document.addEventListener('keydown', onEscapeKey));
+  onCleanup(() => document.removeEventListener('keydown', onEscapeKey));
 
   // Render helper, NOT a component. Do not add lifecycle primitives
   // (createEffect, onMount, onCleanup) or new signals here — those must live
@@ -133,7 +172,7 @@ export const SessionPanel = (props: Props) => {
           when={sessions().length > 0}
           fallback={<div style={{ padding: '24px', 'text-align': 'center', 'font-size': '12px', opacity: 0.7 }}>{emptyText()}</div>}
         >
-          <div role="list" style={{ flex: 1, overflow: 'auto', padding: '0 4px' }}>
+          <div role="list" onKeyDown={onListKey} style={{ flex: 1, overflow: 'auto', padding: '0 4px' }}>
             <For each={sessions()}>
               {(s) => (
                 <SessionListItem
@@ -191,6 +230,7 @@ export const SessionPanel = (props: Props) => {
           aria-hidden="true"
         />
         <nav
+          ref={drawerRoot}
           role="navigation"
           aria-label="Conversations"
           style={{
