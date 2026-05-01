@@ -1122,8 +1122,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           case 'start':
             isStreaming = true;
             // Pin the originating session so every subsequent stream event routes there,
-            // even if the user switches the active session mid-stream.
-            streamingChatId = sessionStore?.activeChatId() ?? chatId();
+            // even if the user switches the active session mid-stream. handleSubmit
+            // already pinned this synchronously before the request fired — DO NOT
+            // re-read activeChatId here, otherwise a session-switch in the gap
+            // between fetch firing and the 'start' SSE arriving would re-pin to the
+            // new active and bleed tokens into the wrong chat.
+            if (streamingChatId === undefined) {
+              streamingChatId = sessionStore?.activeChatId() ?? chatId();
+            }
             // Assign a temporary messageId so subsequent token / mutate-last events upsert the
             // same record. The id will be swapped to the server's chatMessageId on metadata.
             streamingApiMessageId = uuidv4();

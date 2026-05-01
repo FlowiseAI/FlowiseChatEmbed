@@ -342,21 +342,21 @@ export const SessionPanel = (props: Props) => {
                 Starred
               </div>
               <For each={starred()}>{(s) => renderItem(s)}</For>
-              <Show when={recents().length > 0}>
-                <div
-                  aria-hidden="true"
-                  style={{
-                    padding: '12px 6px 4px 6px',
-                    'font-size': '11px',
-                    'font-weight': 600,
-                    'letter-spacing': '0.04em',
-                    'text-transform': 'uppercase',
-                    color: mutedFg(),
-                  }}
-                >
-                  Recents
-                </div>
-              </Show>
+            </Show>
+            <Show when={recents().length > 0}>
+              <div
+                aria-hidden="true"
+                style={{
+                  padding: starred().length > 0 ? '12px 6px 4px 6px' : '8px 6px 4px 6px',
+                  'font-size': '11px',
+                  'font-weight': 600,
+                  'letter-spacing': '0.04em',
+                  'text-transform': 'uppercase',
+                  color: mutedFg(),
+                }}
+              >
+                Recents
+              </div>
             </Show>
             <For each={recents()}>{(s) => renderItem(s)}</For>
           </div>
