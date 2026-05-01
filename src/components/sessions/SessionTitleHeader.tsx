@@ -78,12 +78,16 @@ export const SessionTitleHeader = (props: Props) => {
 
   return (
     <div
-      class="flex flex-row items-center w-full absolute top-0 left-0 z-10"
+      class="flex flex-row items-center w-full"
       style={{
         background: 'transparent',
         color: props.textColor ?? 'inherit',
         height: '50px',
+        'min-height': '50px',
+        'flex-shrink': 0,
         padding: '0 8px',
+        position: 'relative',
+        'z-index': 10,
       }}
     >
       <Show when={!props.isFullPage}>

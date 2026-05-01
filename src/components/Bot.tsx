@@ -2825,7 +2825,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             <div
               ref={chatContainer}
               class={`overflow-y-scroll flex flex-col flex-grow min-w-full w-full px-3 ${
-                sessionStore ? 'pt-2' : 'pt-[70px]'
+                sessionStore ? 'pt-6' : 'pt-[70px]'
               } relative scrollable-container chatbot-chat-view`}
             >
               <div
