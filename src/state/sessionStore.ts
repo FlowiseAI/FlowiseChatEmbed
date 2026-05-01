@@ -1,6 +1,14 @@
 import { createSignal, createMemo, batch } from 'solid-js';
 import type { MessageType } from '@/components/Bot';
-import { type ChatflowIndexV2, type SessionV2, type LeadCaptureData, readMessages, reconcileOrphans, writeIndex, writeMessages } from './sessionStorage';
+import {
+  type ChatflowIndexV2,
+  type SessionV2,
+  type LeadCaptureData,
+  readMessages,
+  reconcileOrphans,
+  writeIndex,
+  writeMessages,
+} from './sessionStorage';
 import { loadOrMigrate } from './sessionMigration';
 import { titleFromMessage } from '@/utils/titleFromMessage';
 
@@ -42,6 +50,46 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     setIndex(next);
   };
 
+  /**
+   * Run a write op; on QuotaExceededError, evict the oldest non-active session and retry.
+   * Up to `attempts` retries; if it still fails, surfaces a callback to show a toast.
+   */
+  let onQuotaPanic: (() => void) | null = null;
+  const setQuotaPanicHandler = (cb: () => void) => {
+    onQuotaPanic = cb;
+  };
+
+  const withQuotaRecovery = (op: () => void) => {
+    let attempt = 0;
+    while (attempt < 5) {
+      try {
+        op();
+        return;
+      } catch (e) {
+        if (!(e as Error)?.name?.includes('Quota') && !(e instanceof Error && e.message.includes('quota'))) throw e;
+        // Evict oldest non-active session.
+        const cur = index();
+        const candidates = cur.sessions
+          .filter((s) => s.chatId !== cur.activeChatId)
+          .sort((a, b) => a.updatedAt - b.updatedAt);
+        if (candidates.length === 0) break;
+        const victim = candidates[0];
+        localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${victim.chatId}`);
+        messageCache.delete(victim.chatId);
+        const sessions = cur.sessions.filter((s) => s.chatId !== victim.chatId);
+        // Best-effort persist of pruned index (this might also throw — counts as an attempt).
+        try {
+          writeIndex(chatflowid, { ...cur, sessions });
+          setIndex({ ...cur, sessions });
+        } catch {
+          // ignore; loop will retry op anyway
+        }
+        attempt++;
+      }
+    }
+    if (onQuotaPanic) onQuotaPanic();
+  };
+
   // ---- actions ----
   const newChat = (): string => {
     const id = newChatId();
@@ -52,7 +100,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       createdAt: now,
       updatedAt: now,
     };
-    writeMessages(chatflowid, id, []);
+    withQuotaRecovery(() => writeMessages(chatflowid, id, []));
     messageCache.set(id, []);
 
     const evicted: string[] = [];
@@ -81,7 +129,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
         evicted.push(removed.chatId);
       }
 
-      _persistIndex(next);
+      withQuotaRecovery(() => _persistIndex(next));
       setActiveMessages([]);
     });
 
@@ -103,7 +151,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       messageCache.set(chatId, messages);
     }
     batch(() => {
-      _persistIndex({ ...index(), activeChatId: chatId });
+      withQuotaRecovery(() => _persistIndex({ ...index(), activeChatId: chatId }));
       setActiveMessages(messages!);
     });
   };
@@ -121,15 +169,14 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     pendingPersist = null;
     const id = activeChatId();
     const msgs = messageCache.get(id);
-    if (msgs) writeMessages(chatflowid, id, msgs);
+    if (msgs) withQuotaRecovery(() => writeMessages(chatflowid, id, msgs));
   };
 
   const upsertMessage = (msg: MessageType): void => {
     const id = activeChatId();
     const cached = messageCache.get(id) ?? [];
     let next: MessageType[];
-    const existingIdx =
-      msg.messageId !== undefined ? cached.findIndex((m) => m.messageId === msg.messageId) : -1;
+    const existingIdx = msg.messageId !== undefined ? cached.findIndex((m) => m.messageId === msg.messageId) : -1;
     if (existingIdx >= 0) {
       next = [...cached];
       next[existingIdx] = msg;
@@ -143,12 +190,11 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (pendingPersist !== null) clearTimeout(pendingPersist);
     pendingPersist = setTimeout(() => {
       pendingPersist = null;
-      writeMessages(chatflowid, id, next);
+      withQuotaRecovery(() => writeMessages(chatflowid, id, next));
     }, 150);
 
     // Bump session.updatedAt and (if first user msg) auto-title. Index writes are cheap.
-    const isFirstUserMsg =
-      msg.type === 'userMessage' && next.filter((m) => m.type === 'userMessage').length === 1;
+    const isFirstUserMsg = msg.type === 'userMessage' && next.filter((m) => m.type === 'userMessage').length === 1;
     const current = index();
     const sIdx = current.sessions.findIndex((s) => s.chatId === id);
     if (sIdx < 0) return;
@@ -160,7 +206,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     }
     const sessions = [...current.sessions];
     sessions[sIdx] = nextSession;
-    _persistIndex({ ...current, sessions });
+    withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
   };
 
   const renameSession = (chatId: string, rawTitle: string): void => {
@@ -175,7 +221,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     }
     const sessions = [...current.sessions];
     sessions[sIdx] = { ...sessions[sIdx], title: nextTitle };
-    _persistIndex({ ...current, sessions });
+    withQuotaRecovery(() => _persistIndex({ ...current, sessions }));
   };
 
   const deleteSession = (chatId: string): void => {
@@ -186,7 +232,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
 
     if (sessions.length === 0) {
       // Last session deleted → seed a fresh one.
-      _persistIndex({ ...current, sessions: [] });
+      withQuotaRecovery(() => _persistIndex({ ...current, sessions: [] }));
       newChat();
       return;
     }
@@ -200,11 +246,11 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       messageCache.set(nextActive, cached);
       setActiveMessages(cached);
     }
-    _persistIndex({ ...current, activeChatId: nextActive, sessions });
+    withQuotaRecovery(() => _persistIndex({ ...current, activeChatId: nextActive, sessions }));
   };
 
   const setLead = (lead: LeadCaptureData | undefined): void => {
-    _persistIndex({ ...index(), lead });
+    withQuotaRecovery(() => _persistIndex({ ...index(), lead }));
   };
 
   return {
@@ -223,6 +269,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       deleteSession,
       setLead,
       flushPending,
+      setQuotaPanicHandler,
     },
     _internal: {
       index,
