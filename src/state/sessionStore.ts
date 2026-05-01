@@ -35,6 +35,36 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
 
   const [index, setIndex] = createSignal<ChatflowIndexV2>(initial);
 
+  // ---- cross-tab sync ----
+  const indexLsKey = `${chatflowid}_EXTERNAL`;
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== indexLsKey || e.newValue === null) return;
+    try {
+      const parsed = JSON.parse(e.newValue);
+      if (parsed && typeof parsed === 'object' && parsed.version === 2) {
+        const next = parsed as ChatflowIndexV2;
+        setIndex(next);
+        // Also re-read active session's messages if active changed underneath.
+        if (next.activeChatId !== activeChatId()) {
+          const msgs = readMessages(chatflowid, next.activeChatId);
+          messageCache.set(next.activeChatId, msgs);
+          setActiveMessages(msgs);
+        }
+      }
+    } catch {
+      // ignore corrupt cross-tab write
+    }
+  };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', onStorage);
+  }
+
+  const dispose = () => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', onStorage);
+    }
+  };
+
   // Lazy in-memory cache: chatId → messages. Populated on read.
   const messageCache = new Map<string, MessageType[]>();
   messageCache.set(initial.activeChatId, readMessages(chatflowid, initial.activeChatId));
@@ -329,6 +359,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     activeMessages,
     lead,
     capWarning,
+    dispose,
     actions: {
       newChat,
       switchSession,

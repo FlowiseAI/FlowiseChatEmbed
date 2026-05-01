@@ -71,6 +71,7 @@ const ChatRootEnabled = (props: ChatRootProps) => {
     window.removeEventListener('flowise-new-session', onNew);
     window.removeEventListener('flowise-switch-session', onSwitch);
     window.removeEventListener('flowise-clear-chat', onClear);
+    store.dispose();
   });
 
   return (
