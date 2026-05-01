@@ -84,7 +84,18 @@ const ChatRootEnabled = (props: ChatRootProps) => {
 
   return (
     <SessionContext.Provider value={store}>
-      <div class="flex h-full w-full" data-multisession style={{ position: 'relative' }}>
+      <div
+        class="flex h-full w-full"
+        data-multisession
+        style={{
+          position: 'relative',
+          // Match the Bot's `.chatbot-container` font stack so the SessionPanel
+          // (which renders as a sibling of <Bot>) inherits the same typography.
+          // Keeping this in sync with src/assets/index.css `.chatbot-container`.
+          'font-family':
+            "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
+        }}
+      >
         <SessionPanel
           store={store}
           isFullPage={!!props.isFullPage}
