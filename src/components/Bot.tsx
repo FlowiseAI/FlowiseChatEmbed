@@ -481,10 +481,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const props = mergeProps({ showTitle: true }, botProps);
   const sessionStore = useSessionStore();
   let chatContainer: HTMLDivElement | undefined;
-  let bottomSpacer: HTMLDivElement | undefined;
+  let messageList: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
   const [showScrollButton, setShowScrollButton] = createSignal(false);
+  const [bottomSpacerHeight, setBottomSpacerHeight] = createSignal(0);
   let stickyToBottom = true;
+  let latestUserAnchorActive = false;
+  let latestUserAnchorFrame: number | undefined;
+  let latestUserScrollAnimationFrame: number | undefined;
+  let isLatestUserSmoothScrollRunning = false;
+  let cachedLatestUserElement: HTMLElement | undefined;
+
+  // Animation and UX constants
+  const LATEST_USER_SCROLL_OVERSCROLL_PX = 24;
+  const LATEST_USER_SCROLL_MIN_DURATION_MS = 1050;
+  const LATEST_USER_SCROLL_MAX_DURATION_MS = 1500;
+  const LATEST_USER_SCROLL_DISTANCE_MULTIPLIER = 0.7;
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -625,6 +637,13 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     chatContainer?.addEventListener('scroll', handleScroll, { passive: true });
     onCleanup(() => chatContainer?.removeEventListener('scroll', handleScroll));
 
+    const handleResize = () => {
+      if (!latestUserAnchorActive) return;
+      keepLatestUserMessageAtTop();
+    };
+    window.addEventListener('resize', handleResize);
+    onCleanup(() => window.removeEventListener('resize', handleResize));
+
     if (!sessionStore) {
       const handleExternalClearChat = async (e: Event) => {
         const targetId = (e as CustomEvent).detail?.id;
@@ -696,6 +715,102 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   let programmaticScrollGuard: (fn: () => void) => void = (fn) => fn();
+
+  const getLatestUserMessageElement = () => {
+    const userMessages = chatContainer?.querySelectorAll<HTMLElement>('.guest-container');
+    return userMessages?.[userMessages.length - 1];
+  };
+
+  const cacheLatestUserElement = () => {
+    cachedLatestUserElement = getLatestUserMessageElement();
+  };
+
+  const getChatTopInset = () => {
+    if (!chatContainer || !messageList) return 0;
+    const containerRect = chatContainer.getBoundingClientRect();
+    const listRect = messageList.getBoundingClientRect();
+    return Math.max(0, listRect.top - containerRect.top + chatContainer.scrollTop);
+  };
+
+  const updateBottomSpacerForLatestUser = () => {
+    if (!latestUserAnchorActive || !chatContainer || !messageList) {
+      setBottomSpacerHeight(0);
+      return;
+    }
+
+    const latestUserMessage = getLatestUserMessageElement();
+    if (!latestUserMessage) {
+      setBottomSpacerHeight(0);
+      return;
+    }
+
+    const containerRect = chatContainer.getBoundingClientRect();
+    const userRect = latestUserMessage.getBoundingClientRect();
+    const chatTopInset = getChatTopInset();
+    const latestUserTop = chatContainer.scrollTop + userRect.top - containerRect.top - chatTopInset + LATEST_USER_SCROLL_OVERSCROLL_PX;
+
+    setBottomSpacerHeight(Math.max(0, latestUserTop + chatContainer.clientHeight - chatTopInset - messageList.scrollHeight));
+    return latestUserTop;
+  };
+
+  const scrollChatToLatestUser = (top: number, behavior: ScrollBehavior) => {
+    if (!chatContainer) return;
+
+    if (behavior !== 'smooth') {
+      if (isLatestUserSmoothScrollRunning) return;
+      if (latestUserScrollAnimationFrame !== undefined) cancelAnimationFrame(latestUserScrollAnimationFrame);
+      latestUserScrollAnimationFrame = undefined;
+      chatContainer.scrollTo({ top });
+      return;
+    }
+
+    if (latestUserScrollAnimationFrame !== undefined) cancelAnimationFrame(latestUserScrollAnimationFrame);
+    isLatestUserSmoothScrollRunning = true;
+    const startTop = chatContainer.scrollTop;
+    const distance = top - startTop;
+    const duration = Math.min(LATEST_USER_SCROLL_MAX_DURATION_MS, Math.max(LATEST_USER_SCROLL_MIN_DURATION_MS, Math.abs(distance) * LATEST_USER_SCROLL_DISTANCE_MULTIPLIER));
+    const startTime = performance.now();
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const step = (now: number) => {
+      if (!chatContainer) return;
+      const progress = Math.min((now - startTime) / duration, 1);
+      chatContainer.scrollTo({ top: startTop + distance * easeOutCubic(progress) });
+
+      if (progress < 1) {
+        latestUserScrollAnimationFrame = requestAnimationFrame(step);
+      } else {
+        latestUserScrollAnimationFrame = undefined;
+        isLatestUserSmoothScrollRunning = false;
+      }
+    };
+
+    latestUserScrollAnimationFrame = requestAnimationFrame(step);
+  };
+
+  const keepLatestUserMessageAtTop = (behavior: ScrollBehavior = 'auto') => {
+    if (!latestUserAnchorActive) return;
+    if (latestUserAnchorFrame !== undefined) cancelAnimationFrame(latestUserAnchorFrame);
+
+    latestUserAnchorFrame = requestAnimationFrame(() => {
+      const latestUserTop = updateBottomSpacerForLatestUser();
+      if (latestUserTop === undefined) {
+        latestUserAnchorFrame = undefined;
+        return;
+      }
+
+      // Let the spacer commit before scrolling, otherwise the browser clamps to
+      // the old max scroll and the new turn can still appear stacked.
+      latestUserAnchorFrame = requestAnimationFrame(() => {
+        latestUserAnchorFrame = undefined;
+        stickyToBottom = true;
+        setShowScrollButton(false);
+        programmaticScrollGuard(() => {
+          scrollChatToLatestUser(latestUserTop, behavior);
+        });
+      });
+    });
+  };
 
   const scrollToBottom = () => {
     if (!stickyToBottom) return;
@@ -1421,9 +1536,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         .join('\n');
     }
     setLoading(true);
+    latestUserAnchorActive = true;
+    setBottomSpacerHeight(0);
     stickyToBottom = true;
     setShowScrollButton(false);
-    scrollToBottom();
 
     // Pin the originating session for the entire request lifecycle so that
     // appendMessage / replaceLastApiMessage / metadata updates / post-submit
@@ -1457,6 +1573,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (!options?.skipAddUserMessage) {
       appendMessage({ messageId: uuidv4(), message: value as string, type: 'userMessage', fileUploads: uploads });
     }
+    cacheLatestUserElement();
+    keepLatestUserMessageAtTop('smooth');
 
     const body: IncomingInput = {
       question: value,
@@ -1647,6 +1765,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         messages.push({ message: '', type: 'leadCaptureMessage' });
       }
       setMessages(messages);
+      latestUserAnchorActive = false;
+      setBottomSpacerHeight(0);
       setShowScrollButton(false);
     } catch (error: any) {
       console.error('clearChat failed:', error);
@@ -2842,6 +2962,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               } relative scrollable-container chatbot-chat-view`}
             >
               <div
+                ref={messageList}
                 class="w-full"
                 style={{
                   ...(sessionStore
@@ -2882,7 +3003,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                             avatarSrc={props.botMessage?.avatarSrc}
                             chatFeedbackStatus={chatFeedbackStatus()}
                             onRegenerateResponse={() => handleRegenerateResponse(index())}
-                            onMessageRendered={scrollToBottom}
+                            onMessageRendered={keepLatestUserMessageAtTop}
                             fontSize={props.fontSize}
                             isLoading={loading() && index() === messages().length - 1}
                             showAgentMessages={props.showAgentMessages}
@@ -2930,8 +3051,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   }}
                 </For>
               </div>
-              <Show when={loading()}>
-                <div ref={bottomSpacer} style={{ 'flex-grow': '1' }} />
+              <Show when={bottomSpacerHeight() > 0}>
+                <div style={{ height: `${bottomSpacerHeight()}px`, 'flex-shrink': 0 }} />
               </Show>
             </div>
             <Show when={showScrollButton()}>

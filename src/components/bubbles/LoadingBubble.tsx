@@ -5,7 +5,7 @@ export const LoadingBubble = (props: { backgroundColor?: string }) => (
     <span
       class="px-4 py-4 ml-2 whitespace-pre-wrap max-w-full chatbot-host-bubble"
       data-testid="host-bubble"
-      style={props.backgroundColor ? { 'background-color': props.backgroundColor } : undefined}
+      style={{ 'background-color': props.backgroundColor ?? 'transparent' }}
     >
       <TypingBubble />
     </span>

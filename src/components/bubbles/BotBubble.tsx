@@ -1,4 +1,4 @@
-import { createEffect, Show, createSignal, onMount, For } from 'solid-js';
+import { createEffect, Show, createSignal, onMount, For, onCleanup, createMemo } from 'solid-js';
 import { Avatar } from '../avatars/Avatar';
 import { Marked } from '@ts-stack/markdown';
 import DOMPurify from 'dompurify';
@@ -70,6 +70,12 @@ export const BotBubble = (props: Props) => {
   const [showFeedbackContentDialog, setShowFeedbackContentModal] = createSignal(false);
   const [copiedMessage, setCopiedMessage] = createSignal(false);
   const [isTracesDialogOpen, setIsTracesDialogOpen] = createSignal(false);
+  const [showMessageControls, setShowMessageControls] = createSignal(false);
+  let messageControlsRevealTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  // Control reveal timing constant
+  const CONTROLS_REVEAL_DELAY_MS = 120;
+  const CONTROLS_REVEAL_DURATION_MS = 700;
 
   // Store a reference to the bot message element for the copyMessageToClipboard function
   const [botMessageElement, setBotMessageElement] = createSignal<HTMLElement | null>(null);
@@ -115,6 +121,34 @@ export const BotBubble = (props: Props) => {
 
   createEffect(() => {
     if (props.fileAnnotations?.length) props.onMessageRendered?.();
+  });
+
+  const messageControls = createMemo(() => ({
+    tts: props.isTTSEnabled && !!(props.message.id || props.message.messageId),
+    feedback: !!(props.chatFeedbackStatus && props.message.messageId),
+    traces:
+      !!props.showAgentMessages &&
+      !!props.message.message &&
+      Array.isArray(props.message.agentFlowExecutedData) &&
+      props.message.agentFlowExecutedData.length > 0,
+  }));
+
+  createEffect(() => {
+    if (messageControlsRevealTimeout) clearTimeout(messageControlsRevealTimeout);
+
+    const hasAnyControls = messageControls().tts || messageControls().feedback || messageControls().traces;
+
+    if (props.isLoading || !hasAnyControls) {
+      setShowMessageControls(false);
+      return;
+    }
+
+    setShowMessageControls(false);
+    messageControlsRevealTimeout = setTimeout(() => setShowMessageControls(true), CONTROLS_REVEAL_DELAY_MS);
+  });
+
+  onCleanup(() => {
+    if (messageControlsRevealTimeout) clearTimeout(messageControlsRevealTimeout);
   });
 
   const downloadFile = async (fileAnnotation: any) => {
@@ -543,7 +577,12 @@ export const BotBubble = (props: Props) => {
         )}
       </div>
       <div>
-        <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
+        <div
+          class={`flex items-center px-2 pb-2 transition-all ease-out ${
+            showMessageControls() ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
+          } ${props.showAvatar ? 'ml-10' : ''}`}
+          style={{ 'transition-duration': `${CONTROLS_REVEAL_DURATION_MS}ms` }}
+        >
           <Show when={props.isTTSEnabled && !props.isLoading && (props.message.id || props.message.messageId)}>
             <TTSButton
               feedbackColor={props.feedbackColor}
