@@ -15,6 +15,7 @@ import { SourceBubble } from '../bubbles/SourceBubble';
 import { DateTimeToggleTheme } from '@/features/bubble/types';
 import { TracesDialog } from '../treeview/TracesDialog';
 import { ThinkingCard } from './ThinkingBubble';
+import { TypingBubble } from '../TypingBubble';
 
 type Props = {
   message: MessageType;
@@ -55,7 +56,7 @@ type Props = {
   bare?: boolean;
 };
 
-const defaultBackgroundColor = '#f7f8ff';
+const defaultBackgroundColor = 'transparent';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
 const defaultFeedbackColor = '#3B81F6';
@@ -436,7 +437,7 @@ export const BotBubble = (props: Props) => {
                 data-testid="host-bubble"
                 style={{
                   ...(props.bare
-                    ? { 'background-color': 'transparent', color: props.textColor ?? defaultTextColor }
+                    ? { 'background-color': props.backgroundColor ?? 'transparent', color: props.textColor ?? defaultTextColor }
                     : {
                         'background-color': props.backgroundColor ?? defaultBackgroundColor,
                         color: props.textColor ?? defaultTextColor,
@@ -543,7 +544,7 @@ export const BotBubble = (props: Props) => {
       </div>
       <div>
         <div class={`flex items-center px-2 pb-2 ${props.showAvatar ? 'ml-10' : ''}`}>
-          <Show when={props.isTTSEnabled && (props.message.id || props.message.messageId)}>
+          <Show when={props.isTTSEnabled && !props.isLoading && (props.message.id || props.message.messageId)}>
             <TTSButton
               feedbackColor={props.feedbackColor}
               isLoading={(() => {
@@ -570,7 +571,7 @@ export const BotBubble = (props: Props) => {
               }}
             />
           </Show>
-          {props.chatFeedbackStatus && props.message.messageId && (
+          {props.chatFeedbackStatus && props.message.messageId && !props.isLoading && (
             <>
               <RegenerateResponseButton
                 class="regenerate-response-button"

@@ -5,6 +5,7 @@ type TextInputProps = {
     backgroundColor?: string;
     textColor?: string;
     sendButtonColor?: string;
+    sendButtonBackgroundColor?: string;
     inputValue: string;
     fontSize?: number;
     disabled?: boolean;

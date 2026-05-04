@@ -14,6 +14,7 @@ type TextInputProps = {
   backgroundColor?: string;
   textColor?: string;
   sendButtonColor?: string;
+  sendButtonBackgroundColor?: string;
   inputValue: string;
   fontSize?: number;
   disabled?: boolean;
@@ -178,12 +179,13 @@ export const TextInput = (props: TextInputProps) => {
 
   return (
     <div
-      class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee]"
+      class="w-full h-auto max-h-[192px] min-h-[76px] flex flex-col items-end justify-between border border-[#dfe1e5] overflow-hidden"
       data-testid="input"
       style={{
         margin: 'auto',
         'background-color': props.backgroundColor ?? defaultBackgroundColor,
         color: props.textColor ?? defaultTextColor,
+        'border-radius': '14px',
       }}
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
@@ -193,53 +195,7 @@ export const TextInput = (props: TextInputProps) => {
           {warningMessage()}
         </div>
       </Show>
-      <div class="w-full flex items-end justify-between">
-        {props.uploadsConfig?.isImageUploadAllowed ? (
-          <>
-            <ImageUploadButton
-              buttonColor={props.sendButtonColor}
-              type="button"
-              class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled || isSendButtonDisabled()}
-              on:click={handleImageUploadClick}
-            >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
-            </ImageUploadButton>
-            <input
-              style={{ display: 'none' }}
-              multiple
-              ref={imgUploadRef as HTMLInputElement}
-              type="file"
-              onChange={handleFileChange}
-              accept={
-                props.uploadsConfig?.imgUploadSizeAndTypes?.length
-                  ? props.uploadsConfig?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
-                  : '*'
-              }
-            />
-          </>
-        ) : null}
-        {props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload ? (
-          <>
-            <AttachmentUploadButton
-              buttonColor={props.sendButtonColor}
-              type="button"
-              class="m-0 h-14 flex items-center justify-center"
-              isDisabled={props.disabled || isSendButtonDisabled()}
-              on:click={handleFileUploadClick}
-            >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>File Upload</span>
-            </AttachmentUploadButton>
-            <input
-              style={{ display: 'none' }}
-              multiple
-              ref={fileUploadRef as HTMLInputElement}
-              type="file"
-              onChange={handleFileChange}
-              accept={getFileType()}
-            />
-          </>
-        ) : null}
+      <div class="w-full flex flex-col">
         <ShortTextInput
           ref={inputRef as HTMLTextAreaElement}
           onInput={handleInput}
@@ -248,42 +204,97 @@ export const TextInput = (props: TextInputProps) => {
           disabled={props.disabled}
           placeholder={props.placeholder ?? 'Type your question'}
         />
-        {props.uploadsConfig?.isSpeechToTextEnabled ? (
-          <RecordAudioButton
-            buttonColor={props.sendButtonColor}
-            type="button"
-            class="m-0 start-recording-button h-14 flex items-center justify-center"
-            isDisabled={props.disabled || isSendButtonDisabled()}
-            on:click={props.onMicrophoneClicked}
+        <div class="w-full flex items-center justify-between px-3 pb-1.5">
+          <div class="flex items-center gap-3">
+            {props.uploadsConfig?.isImageUploadAllowed ? (
+              <>
+                <ImageUploadButton
+                  buttonColor={props.sendButtonColor}
+                  type="button"
+                  class="m-0 p-0 w-4 h-4 flex items-center justify-center rounded-full"
+                  isDisabled={props.disabled || isSendButtonDisabled()}
+                  on:click={handleImageUploadClick}
+                >
+                  <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
+                </ImageUploadButton>
+                <input
+                  style={{ display: 'none' }}
+                  multiple
+                  ref={imgUploadRef as HTMLInputElement}
+                  type="file"
+                  onChange={handleFileChange}
+                  accept={
+                    props.uploadsConfig?.imgUploadSizeAndTypes?.length
+                      ? props.uploadsConfig?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
+                      : '*'
+                  }
+                />
+              </>
+            ) : null}
+            {props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload ? (
+              <>
+                <AttachmentUploadButton
+                  buttonColor={props.sendButtonColor}
+                  type="button"
+                  class="m-0 p-0 w-4 h-4 flex items-center justify-center rounded-full"
+                  isDisabled={props.disabled || isSendButtonDisabled()}
+                  on:click={handleFileUploadClick}
+                >
+                  <span style={{ 'font-family': 'Poppins, sans-serif' }}>File Upload</span>
+                </AttachmentUploadButton>
+                <input
+                  style={{ display: 'none' }}
+                  multiple
+                  ref={fileUploadRef as HTMLInputElement}
+                  type="file"
+                  onChange={handleFileChange}
+                  accept={getFileType()}
+                />
+              </>
+            ) : null}
+            {props.uploadsConfig?.isSpeechToTextEnabled ? (
+              <RecordAudioButton
+                buttonColor={props.sendButtonColor}
+                type="button"
+                class="m-0 p-0 start-recording-button w-4 h-4 shrink-0 flex items-center justify-center rounded-full"
+                isDisabled={props.disabled || isSendButtonDisabled()}
+                on:click={props.onMicrophoneClicked}
+              >
+                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
+              </RecordAudioButton>
+            ) : null}
+          </div>
+          <Show
+            when={props.showAbortButton}
+            fallback={
+              <div
+                class="w-9 h-9 rounded-[10px] flex items-center justify-center"
+                style={{ background: props.sendButtonBackgroundColor ?? props.sendButtonColor ?? '#3B81F6' }}
+              >
+                <SendButton
+                  sendButtonColor="#ffffff"
+                  type="button"
+                  isDisabled={props.disabled || isSendButtonDisabled()}
+                  class="m-0 p-0 w-11 h-11 flex items-center justify-center"
+                  on:click={submit}
+                >
+                  <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
+                </SendButton>
+              </div>
+            }
           >
-            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
-          </RecordAudioButton>
-        ) : null}
-        <Show
-          when={props.showAbortButton}
-          fallback={
-            <SendButton
+            <StopButton
               sendButtonColor={props.sendButtonColor}
               type="button"
-              isDisabled={props.disabled || isSendButtonDisabled()}
-              class="m-0 h-14 flex items-center justify-center"
-              on:click={submit}
+              isDisabled={props.isMessageStopping}
+              class="m-0 p-0 w-9 h-9 flex items-center justify-center rounded-[10px]"
+              on:click={() => props.onAbort?.()}
+              isStopping={props.isMessageStopping}
             >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-            </SendButton>
-          }
-        >
-          <StopButton
-            sendButtonColor={props.sendButtonColor}
-            type="button"
-            isDisabled={props.isMessageStopping}
-            class="m-0 h-14 flex items-center justify-center"
-            on:click={() => props.onAbort?.()}
-            isStopping={props.isMessageStopping}
-          >
-            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Stop</span>
-          </StopButton>
-        </Show>
+              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Stop</span>
+            </StopButton>
+          </Show>
+        </div>
       </div>
     </div>
   );

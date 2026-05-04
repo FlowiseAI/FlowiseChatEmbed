@@ -3046,6 +3046,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   textColor={props.textInput?.textColor}
                   placeholder={props.textInput?.placeholder}
                   sendButtonColor={props.textInput?.sendButtonColor}
+                  sendButtonBackgroundColor={props.userMessage?.backgroundColor ?? defaultTitleBackgroundColor}
                   maxChars={props.textInput?.maxChars}
                   maxCharsWarningMessage={props.textInput?.maxCharsWarningMessage}
                   autoFocus={props.textInput?.autoFocus}
