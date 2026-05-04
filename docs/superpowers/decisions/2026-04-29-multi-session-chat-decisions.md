@@ -85,13 +85,13 @@ We worked through six structured questions to converge on scope, then three arch
 
 **Question:** The embed is on lots of customer sites. Adding a session sidebar changes the chrome of every embedded chatbot.
 
-| Option                                                         | Description                                                                                          | Pros                                                                              | Cons                                                             |
-| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| A. Opt-in via config                                           | New `multiSession.enabled` flag. Existing embeds stay single-thread until they upgrade their config. | Safest rollout · No surprises                                                     | Slow adoption inside Flowise too                                 |
-| B. Default-on                                                  | Ship it on for everyone. Existing single-thread becomes "you have 1 session."                        | Most consistent                                                                   | Every customer site suddenly grows session UI; high blast radius |
-| **C. Opt-in for embed; default-on for Flowise core** ✅ chosen | Embed widget is opt-in. Flowise's own chat preview / admin surfaces enable it by default.            | Customer sites stable · Flowise dogfoods it without each chatflow wiring the flag | One extra config decision to document                            |
+| Option                                           | Description                                                                                          | Pros                                                                 | Cons                                                                        |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **A. Opt-in via config** ✅ chosen               | New `multiSession.enabled` flag. Existing embeds stay single-thread until they upgrade their config. | Safest rollout · No surprises · No hidden assumptions                | Requires explicit opt-in                                                    |
+| B. Default-on                                    | Ship it on for everyone. Existing single-thread becomes "you have 1 session."                        | Most consistent                                                      | Every customer site suddenly grows session UI; high blast radius            |
+| C. Opt-in for embed; default-on for Flowise core | Embed widget is opt-in. Flowise's own chat preview / admin surfaces enable it by default.            | Customer sites stable · Flowise dogfoods without per-chatflow wiring | Assumes a Flowise admin preview exists and is actively used — not confirmed |
 
-**Why C:** Best balance — production embeds don't get a surprise UI shift; the team using Flowise still sees the feature live without per-chatflow setup.
+**Why A:** Fully opt-in via `multiSession: { enabled: true }`. The "Flowise core default-on" rationale assumed an admin chat preview panel that may not exist or may not be actively used by the team. Opt-in everywhere is the safest rollout with no hidden assumptions.
 
 ---
 
@@ -259,20 +259,20 @@ Agentflows vs chatflows: no special handling. The embed doesn't know which backe
 
 ## Summary Snapshot
 
-| Decision            | Chose                                 | One-liner why                                       |
-| ------------------- | ------------------------------------- | --------------------------------------------------- |
-| 1. Storage scope    | Device-local                          | Smallest blast radius; no identity needed           |
-| 2. UI strategy      | One responsive panel                  | One mental model, one code path                     |
-| 3. V1 feature set   | Polished v1 (incl. rename)            | Closes the obvious gap; still client-side           |
-| 4. Rollout          | Opt-in embed, default-on Flowise core | Stable for customers; dogfooded internally          |
-| 5. Migration        | In-place upgrade                      | Invisible to end-users; idempotent                  |
-| 6. Spec scope       | Embed + thin Flowise checklist        | Complexity is in embed; Flowise is config           |
-| 7. Architecture     | Solid store + reactive Bot            | Avoids remount-and-refetch cost                     |
-| 7a. Storage shape   | Split (index + per-session)           | Streaming writes don't compound across all sessions |
-| 7b. Cap policy      | 50 + soft-warn FIFO                   | Bounded; transparent on first eviction              |
-| 7c. Collapse        | Yes (full-page)                       | Standard UX; saves space when wanted                |
-| 7d. Delete UX       | Inline confirm                        | Less disruptive than modal                          |
-| 7e. Clear-chat      | Repurposed → delete active            | Matches end-user mental model                       |
-| 7f. Stream + switch | Cancel + switch                       | Predictable; small change                           |
-| 7g. Multi-tab       | Last-write-wins + storage event       | Realistic for v1                                    |
-| 7h. Tests           | Deferred                              | Avoid scope creep; risk acknowledged                |
+| Decision            | Chose                           | One-liner why                                       |
+| ------------------- | ------------------------------- | --------------------------------------------------- |
+| 1. Storage scope    | Device-local                    | Smallest blast radius; no identity needed           |
+| 2. UI strategy      | One responsive panel            | One mental model, one code path                     |
+| 3. V1 feature set   | Polished v1 (incl. rename)      | Closes the obvious gap; still client-side           |
+| 4. Rollout          | Opt-in everywhere               | No hidden assumptions about Flowise admin preview   |
+| 5. Migration        | In-place upgrade                | Invisible to end-users; idempotent                  |
+| 6. Spec scope       | Embed + thin Flowise checklist  | Complexity is in embed; Flowise is config           |
+| 7. Architecture     | Solid store + reactive Bot      | Avoids remount-and-refetch cost                     |
+| 7a. Storage shape   | Split (index + per-session)     | Streaming writes don't compound across all sessions |
+| 7b. Cap policy      | 50 + soft-warn FIFO             | Bounded; transparent on first eviction              |
+| 7c. Collapse        | Yes (full-page)                 | Standard UX; saves space when wanted                |
+| 7d. Delete UX       | Inline confirm                  | Less disruptive than modal                          |
+| 7e. Clear-chat      | Repurposed → delete active      | Matches end-user mental model                       |
+| 7f. Stream + switch | Cancel + switch                 | Predictable; small change                           |
+| 7g. Multi-tab       | Last-write-wins + storage event | Realistic for v1                                    |
+| 7h. Tests           | Deferred                        | Avoid scope creep; risk acknowledged                |

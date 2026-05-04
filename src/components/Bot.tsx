@@ -675,7 +675,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             lastSeenChatId = current;
             // Only abort if there was an in-flight request for the previous session.
             if (!loading()) return;
-            // Fire-and-forget: don't await, don't surface errors. Best-effort.
+            // Kill the client-side stream immediately. fetchEventSource resolves
+            // silently on signal abort (no onclose/onerror), so we must call
+            // closeResponse() ourselves to reset loading state and unlock the input.
+            streamAbortController?.abort();
+            closeResponse();
+            // Best-effort server-side cleanup so the backend stops generating.
             abortMessageQuery({
               chatflowid: props.chatflowid,
               apiHost: props.apiHost,
@@ -753,6 +758,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // subsequent token / metadata / cleanup events route to that session — even if the
   // user switches the active session mid-stream. Cleared in closeResponse.
   let streamingChatId: string | undefined;
+
+  // AbortController for the active fetchEventSource call. Aborting it causes the
+  // library to resolve silently (no onclose/onerror), so callers must also call
+  // closeResponse() themselves to reset loading state.
+  let streamAbortController: AbortController | null = null;
 
   /**
    * Mutate the last apiMessage (the one being streamed). In store mode this routes
@@ -1084,7 +1094,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       return fetch(input, init);
     };
 
+    streamAbortController = new AbortController();
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
+      signal: streamAbortController.signal,
       openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
@@ -1263,6 +1275,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     isStreaming = false;
     streamingApiMessageId = undefined;
     streamingChatId = undefined;
+    streamAbortController = null;
     setTimeout(() => {
       scrollToBottom();
     }, 100);

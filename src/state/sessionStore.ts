@@ -198,13 +198,26 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (chatId === activeChatId()) return;
     const exists = index().sessions.some((s) => s.chatId === chatId);
     if (!exists) return;
+
+    // If the departing session has no user messages, silently drop it so
+    // accidental empty sessions don't accumulate in the list.
+    const departingId = activeChatId();
+    const departingMessages = messageCache.get(departingId) ?? readMessages(chatflowid, departingId);
+    const departingIsEmpty = !departingMessages.some((m) => m.type === 'userMessage');
+    if (departingIsEmpty) {
+      localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${departingId}`);
+      messageCache.delete(departingId);
+    }
+
     let messages = messageCache.get(chatId);
     if (!messages) {
       messages = readMessages(chatflowid, chatId);
       messageCache.set(chatId, messages);
     }
     batch(() => {
-      withQuotaRecovery(() => _persistIndex({ ...index(), activeChatId: chatId }));
+      const current = index();
+      const nextSessions = departingIsEmpty ? current.sessions.filter((s) => s.chatId !== departingId) : current.sessions;
+      withQuotaRecovery(() => _persistIndex({ ...current, activeChatId: chatId, sessions: nextSessions }));
       setActiveMessages(messages!);
       emitSessionChanged();
     });

@@ -71,6 +71,7 @@ export const SessionPanel = (props: Props) => {
   const newBtnFg = () => props.panelTheme?.newChatButtonTextColor ?? (isNewBtnSolid() ? '#ffffff' : 'inherit');
 
   const [collapsed, setCollapsed] = createSignal(props.isFullPage ? readPanelCollapsed(props.store.chatflowid) : false);
+  const isActiveEmpty = () => !props.store.activeMessages().some((m) => m.type === 'userMessage');
   const [newBtnHovered, setNewBtnHovered] = createSignal(false);
   const [collapseBtnHovered, setCollapseBtnHovered] = createSignal(false);
 
@@ -100,6 +101,7 @@ export const SessionPanel = (props: Props) => {
   };
 
   const handleNewChat = () => {
+    if (isActiveEmpty()) return;
     props.store.actions.newChat();
   };
   const handleSwitch = (id: string) => {
@@ -182,30 +184,23 @@ export const SessionPanel = (props: Props) => {
 
   const panelBody = (): JSX.Element => (
     <>
-      <div
-        style={{
-          padding: collapsed() ? '14px 8px' : '14px 16px',
-          display: 'flex',
-          'align-items': 'center',
-          'justify-content': collapsed() ? 'center' : 'space-between',
-          'min-height': '52px',
-          'box-sizing': 'border-box',
-        }}
-      >
-        <Show when={!collapsed()}>
-          <span
-            style={{
-              'font-size': '12px',
-              'font-weight': 600,
-              'letter-spacing': '0.04em',
-              'text-transform': 'uppercase',
-              color: mutedFg(),
-            }}
-          >
-            Chats
-          </span>
-        </Show>
-        <Show when={props.isFullPage}>
+      {/*
+        Header: left-aligned icon column so icons stay at a fixed left position
+        whether the panel is open or closed. The panel's right edge moves during
+        the CSS width transition; the left-pinned icons never move.
+        Drawer mode gates out the collapse toggle; fullPage gets both icons.
+      */}
+      <Show when={props.isFullPage}>
+        <div
+          style={{
+            display: 'flex',
+            'flex-direction': 'column',
+            'align-items': 'flex-start',
+            padding: '10px 8px',
+            gap: '4px',
+            'box-sizing': 'border-box',
+          }}
+        >
           <button
             type="button"
             onClick={toggleCollapsed}
@@ -225,24 +220,113 @@ export const SessionPanel = (props: Props) => {
               transition: 'background 120ms ease',
             }}
           >
-            <Show
-              when={collapsed()}
-              fallback={
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <line x1="9" y1="3" x2="9" y2="21" />
-                </svg>
-              }
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={handleNewChat}
+            aria-label="New chat"
+            onMouseEnter={() => setNewBtnHovered(true)}
+            onMouseLeave={() => setNewBtnHovered(false)}
+            style={{
+              background: newBtnHovered() ? hoverBg() : 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'inherit',
+              padding: '6px',
+              'border-radius': '6px',
+              display: 'inline-flex',
+              'align-items': 'center',
+              gap: '8px',
+              transition: 'background 120ms ease',
+              'white-space': 'nowrap',
+              overflow: 'hidden',
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              style={{ 'flex-shrink': 0 }}
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <Show when={!collapsed()}>
+              <span style={{ 'font-size': '13px', 'font-weight': 500 }}>{newChatLabel()}</span>
+            </Show>
+          </button>
+        </div>
+      </Show>
+
+      <Show when={!collapsed()}>
+        {/* Drawer header: "Chats" label + full-width new chat button. */}
+        <Show when={!props.isFullPage}>
+          <div style={{ padding: '14px 16px 4px 16px' }}>
+            <span
+              style={{
+                display: 'block',
+                'font-size': '12px',
+                'font-weight': 600,
+                'letter-spacing': '0.04em',
+                'text-transform': 'uppercase',
+                color: mutedFg(),
+                'margin-bottom': '8px',
+              }}
+            >
+              Chats
+            </span>
+          </div>
+          <div style={{ padding: '0 8px 4px 8px' }}>
+            <button
+              type="button"
+              onClick={handleNewChat}
+              onMouseEnter={() => setNewBtnHovered(true)}
+              onMouseLeave={() => setNewBtnHovered(false)}
+              style={{
+                width: '100%',
+                background: isNewBtnSolid()
+                  ? newBtnHovered()
+                    ? `color-mix(in srgb, ${newBtnBg()} 88%, black)`
+                    : newBtnBg()
+                  : newBtnHovered()
+                    ? hoverBg()
+                    : 'transparent',
+                color: newBtnFg(),
+                border: 'none',
+                padding: '8px 10px 8px 14px',
+                'border-radius': '8px',
+                'font-size': '13px',
+                'font-weight': 500,
+                cursor: 'pointer',
+                display: 'flex',
+                'align-items': 'center',
+                'justify-content': 'flex-start',
+                gap: '10px',
+                transition: 'background 120ms ease',
+                'text-align': 'left',
+                ...(isNewBtnSolid() ? { 'box-shadow': '0 1px 2px rgba(0,0,0,0.04)' } : {}),
+              }}
             >
               <svg
                 width="16"
@@ -255,66 +339,13 @@ export const SessionPanel = (props: Props) => {
                 stroke-linejoin="round"
                 aria-hidden="true"
               >
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-            </Show>
-          </button>
+              <span>{newChatLabel()}</span>
+            </button>
+          </div>
         </Show>
-      </div>
-
-      <Show when={!collapsed()}>
-        <div style={{ padding: '0 8px 4px 8px' }}>
-          <button
-            type="button"
-            onClick={handleNewChat}
-            onMouseEnter={() => setNewBtnHovered(true)}
-            onMouseLeave={() => setNewBtnHovered(false)}
-            style={{
-              width: '100%',
-              background: isNewBtnSolid()
-                ? newBtnHovered()
-                  ? `color-mix(in srgb, ${newBtnBg()} 88%, black)`
-                  : newBtnBg()
-                : newBtnHovered()
-                  ? hoverBg()
-                  : 'transparent',
-              color: newBtnFg(),
-              border: 'none',
-              padding: '8px 10px 8px 14px',
-              'border-radius': '8px',
-              'font-size': '13px',
-              'font-weight': 500,
-              cursor: 'pointer',
-              display: 'flex',
-              'align-items': 'center',
-              'justify-content': 'flex-start',
-              gap: '10px',
-              transition: 'background 120ms ease',
-              'text-align': 'left',
-              ...(isNewBtnSolid() ? { 'box-shadow': '0 1px 2px rgba(0,0,0,0.04)' } : {}),
-            }}
-          >
-            <svg
-              fill="#000000"
-              width="16px"
-              height="16px"
-              viewBox="0 0 24 24"
-              id="plus"
-              data-name="Line Color"
-              xmlns="http://www.w3.org/2000/svg"
-              class="icon line-color"
-            >
-              <path
-                id="primary"
-                d="M5,12H19M12,5V19"
-                style={{ fill: 'none', stroke: 'rgb(0, 0, 0)', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2' }}
-              />
-            </svg>
-            <span>{newChatLabel()}</span>
-          </button>
-        </div>
 
         <CapWarningToast
           visible={props.store.capWarning()}
@@ -411,7 +442,7 @@ export const SessionPanel = (props: Props) => {
             bottom: 0,
             width: '78%',
             'max-width': '320px',
-            'z-index': 6,
+            'z-index': 20,
             background: bg(),
             color: fg(),
             display: 'flex',
@@ -420,7 +451,6 @@ export const SessionPanel = (props: Props) => {
             'font-family': 'inherit',
           }}
         >
-          chloe
           {panelBody()}
         </nav>
       </Show>

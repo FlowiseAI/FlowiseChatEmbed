@@ -190,111 +190,26 @@ export const SessionListItem = (props: Props) => {
         >
           {props.session.title}
         </div>
-        <Show when={hovered() || props.active}>
-          <Show when={props.onToggleStar}>
-            <button
-              type="button"
-              aria-label={props.session.starred ? 'Unstar' : 'Star'}
-              title={props.session.starred ? 'Unstar' : 'Star'}
-              onClick={(e) => {
-                e.stopPropagation();
-                props.onToggleStar?.();
-              }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: props.session.starred ? '#f59e0b' : 'inherit',
-                cursor: 'pointer',
-                padding: '4px',
-                'border-radius': '4px',
-                opacity: props.session.starred ? 1 : 0.6,
-                display: 'inline-flex',
-                'align-items': 'center',
-                'justify-content': 'center',
-                transition: 'opacity 120ms ease, background 120ms ease, color 120ms ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.background = 'color-mix(in srgb, currentColor 10%, transparent)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = props.session.starred ? '1' : '0.6';
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill={props.session.starred ? 'currentColor' : 'none'}
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-            </button>
-          </Show>
+        {/* Buttons are always in the DOM so row height never changes on hover.
+            Visibility is controlled via opacity + pointer-events only. */}
+        <Show when={props.onToggleStar}>
           <button
             type="button"
-            aria-label="Rename"
-            title="Rename"
-            onClick={startEdit}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'inherit',
-              cursor: 'pointer',
-              padding: '4px',
-              'border-radius': '4px',
-              opacity: 0.6,
-              display: 'inline-flex',
-              'align-items': 'center',
-              'justify-content': 'center',
-              transition: 'opacity 120ms ease, background 120ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.background = 'color-mix(in srgb, currentColor 10%, transparent)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '0.6';
-              e.currentTarget.style.background = 'transparent';
-            }}
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Delete"
-            title="Delete"
+            aria-label={props.session.starred ? 'Unstar' : 'Star'}
+            title={props.session.starred ? 'Unstar' : 'Star'}
             onClick={(e) => {
               e.stopPropagation();
-              props.onStartDelete();
+              props.onToggleStar?.();
             }}
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'inherit',
+              color: props.session.starred ? '#f59e0b' : 'inherit',
               cursor: 'pointer',
               padding: '4px',
               'border-radius': '4px',
-              opacity: 0.6,
+              opacity: hovered() || props.active ? (props.session.starred ? 1 : 0.6) : 0,
+              'pointer-events': hovered() || props.active ? 'auto' : 'none',
               display: 'inline-flex',
               'align-items': 'center',
               'justify-content': 'center',
@@ -302,12 +217,10 @@ export const SessionListItem = (props: Props) => {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.color = '#dc2626';
-              e.currentTarget.style.background = 'color-mix(in srgb, #dc2626 10%, transparent)';
+              e.currentTarget.style.background = 'color-mix(in srgb, currentColor 10%, transparent)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '0.6';
-              e.currentTarget.style.color = 'inherit';
+              e.currentTarget.style.opacity = props.session.starred ? '1' : '0.6';
               e.currentTarget.style.background = 'transparent';
             }}
           >
@@ -315,21 +228,111 @@ export const SessionListItem = (props: Props) => {
               width="12"
               height="12"
               viewBox="0 0 24 24"
-              fill="none"
+              fill={props.session.starred ? 'currentColor' : 'none'}
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
               aria-hidden="true"
             >
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-              <path d="M10 11v6" />
-              <path d="M14 11v6" />
-              <path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
           </button>
         </Show>
+        <button
+          type="button"
+          aria-label="Rename"
+          title="Rename"
+          onClick={startEdit}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            padding: '4px',
+            'border-radius': '4px',
+            opacity: hovered() || props.active ? 0.6 : 0,
+            'pointer-events': hovered() || props.active ? 'auto' : 'none',
+            display: 'inline-flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            transition: 'opacity 120ms ease, background 120ms ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+            e.currentTarget.style.background = 'color-mix(in srgb, currentColor 10%, transparent)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.6';
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          aria-label="Delete"
+          title="Delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            props.onStartDelete();
+          }}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            padding: '4px',
+            'border-radius': '4px',
+            opacity: hovered() || props.active ? 0.6 : 0,
+            'pointer-events': hovered() || props.active ? 'auto' : 'none',
+            display: 'inline-flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            transition: 'opacity 120ms ease, background 120ms ease, color 120ms ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+            e.currentTarget.style.color = '#dc2626';
+            e.currentTarget.style.background = 'color-mix(in srgb, #dc2626 10%, transparent)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.6';
+            e.currentTarget.style.color = 'inherit';
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
+          </svg>
+        </button>
       </Show>
     </div>
   );
