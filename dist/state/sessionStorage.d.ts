@@ -26,6 +26,7 @@ export declare const _internalKeys: {
 export declare class StorageQuotaError extends Error {
     constructor();
 }
+export declare const isQuotaError: (e: unknown) => boolean;
 export declare const writeIndex: (chatflowid: string, index: ChatflowIndexV2) => void;
 export declare const writeMessages: (chatflowid: string, chatId: string, messages: MessageType[]) => void;
 export declare const removeMessages: (chatflowid: string, chatId: string) => void;

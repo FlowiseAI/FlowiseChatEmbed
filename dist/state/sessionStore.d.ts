@@ -17,6 +17,7 @@ export declare const createSessionStore: (opts: SessionStoreOptions) => {
     activeMessages: import("solid-js").Accessor<MessageType[]>;
     lead: import("solid-js").Accessor<LeadCaptureData | undefined>;
     capWarning: import("solid-js").Accessor<boolean>;
+    quotaPanic: import("solid-js").Accessor<boolean>;
     dispose: () => void;
     actions: {
         newChat: () => string;
@@ -36,12 +37,13 @@ export declare const createSessionStore: (opts: SessionStoreOptions) => {
         deleteSession: (chatId: string) => void;
         setLead: (lead: LeadCaptureData | undefined) => void;
         flushPending: () => void;
-        setQuotaPanicHandler: (cb: () => void) => void;
         setOnSessionChanged: (cb: ((detail: {
             chatId: string;
             title: string;
         }) => void) | null) => void;
+        setStreamingChatIdGetter: (fn: (() => string | undefined) | null) => void;
         dismissCapWarning: () => false;
+        dismissQuotaPanic: () => false;
     };
     _internal: {
         index: import("solid-js").Accessor<ChatflowIndexV2>;

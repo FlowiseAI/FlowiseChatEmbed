@@ -1,5 +1,5 @@
 import { Show, createSignal, onCleanup, onMount } from 'solid-js';
-import { useSessionStore } from './ChatRoot';
+import { useSessionStore } from './sessionContext';
 
 type Props = {
   isFullPage: boolean;
@@ -216,7 +216,7 @@ export const SessionTitleHeader = (props: Props) => {
               if (e.key === 'Enter') commitRename();
               if (e.key === 'Escape') cancelRename();
             }}
-            onBlur={cancelRename}
+            onBlur={commitRename}
             ref={(el) => {
               if (el) {
                 setTimeout(() => {

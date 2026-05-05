@@ -1,6 +1,5 @@
 import { JSX, Show } from 'solid-js';
-import { Spinner } from '@/components';
-import { SendButton } from '@/components/buttons/SendButton';
+import { SendButton, Spinner } from '@/components/buttons/SendButton';
 
 type LeadCaptureButtonProps = {
   buttonColor?: string;

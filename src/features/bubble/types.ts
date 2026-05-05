@@ -98,6 +98,7 @@ export type ChatWindowTheme = {
     newChatLabel?: string;
     emptyStateText?: string;
     capWarningText?: string;
+    quotaPanicText?: string;
   };
 };
 

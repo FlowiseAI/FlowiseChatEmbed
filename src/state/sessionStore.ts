@@ -4,6 +4,7 @@ import {
   type ChatflowIndexV2,
   type SessionV2,
   type LeadCaptureData,
+  isQuotaError,
   readCapWarned,
   readMessages,
   reconcileOrphans,
@@ -35,25 +36,40 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
 
   const [index, setIndex] = createSignal<ChatflowIndexV2>(initial);
 
+  // Bot.tsx registers a getter so onStorage can tell whether the active session
+  // is currently streaming; rescue logic only protects in-flight streams.
+  let getStreamingChatId: (() => string | undefined) | null = null;
+  const setStreamingChatIdGetter = (fn: (() => string | undefined) | null) => {
+    getStreamingChatId = fn;
+  };
+
   // ---- cross-tab sync ----
   const indexLsKey = `${chatflowid}_EXTERNAL`;
   const onStorage = (e: StorageEvent) => {
     if (e.key !== indexLsKey || e.newValue === null) return;
+    let parsed: unknown;
     try {
-      const parsed = JSON.parse(e.newValue);
-      if (parsed && typeof parsed === 'object' && parsed.version === 2) {
-        const next = parsed as ChatflowIndexV2;
-        const prevActiveChatId = activeChatId();
-        setIndex(next);
-        // Also re-read active session's messages if active changed underneath.
-        if (next.activeChatId !== prevActiveChatId) {
-          const msgs = readMessages(chatflowid, next.activeChatId);
-          messageCache.set(next.activeChatId, msgs);
-          setActiveMessages(msgs);
-        }
-      }
+      parsed = JSON.parse(e.newValue);
     } catch {
-      // ignore corrupt cross-tab write
+      console.error(`[Flowise] sessionStore: ignored corrupt cross-tab index write at ${indexLsKey}.`);
+      return;
+    }
+    if (!parsed || typeof parsed !== 'object' || (parsed as ChatflowIndexV2).version !== 2) return;
+    const incoming = parsed as ChatflowIndexV2;
+    const prevActiveChatId = activeChatId();
+    // Only rescue when our active session is *streaming* — otherwise a legitimate
+    // remote delete of the active session must propagate, not be resurrected here.
+    const localActive = index().sessions.find((s) => s.chatId === prevActiveChatId);
+    const remoteDroppedActive = !!localActive && !incoming.sessions.some((s) => s.chatId === prevActiveChatId);
+    const protectStream = remoteDroppedActive && getStreamingChatId?.() === prevActiveChatId;
+    const next: ChatflowIndexV2 = protectStream
+      ? { ...incoming, activeChatId: prevActiveChatId, sessions: [localActive!, ...incoming.sessions] }
+      : incoming;
+    setIndex(next);
+    if (next.activeChatId !== prevActiveChatId) {
+      const msgs = readMessages(chatflowid, next.activeChatId);
+      messageCache.set(next.activeChatId, msgs);
+      setActiveMessages(msgs);
     }
   };
   if (typeof window !== 'undefined') {
@@ -82,7 +98,6 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
   const activeSession = createMemo<SessionV2 | undefined>(() => index().sessions.find((s) => s.chatId === activeChatId()));
   const lead = createMemo(() => index().lead);
 
-  // ---- internal helpers (used by Task 6) ----
   const _persistIndex = (next: ChatflowIndexV2) => {
     writeIndex(chatflowid, next);
     setIndex(next);
@@ -99,14 +114,10 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (s) onSessionChanged({ chatId: s.chatId, title: s.title });
   };
 
-  /**
-   * Run a write op; on QuotaExceededError, evict the oldest non-active session and retry.
-   * Up to `attempts` retries; if it still fails, surfaces a callback to show a toast.
-   */
-  let onQuotaPanic: (() => void) | null = null;
-  const setQuotaPanicHandler = (cb: () => void) => {
-    onQuotaPanic = cb;
-  };
+  // Surfaced to the panel when withQuotaRecovery fails to free space (only the
+  // active session left, or 5 retries exhausted). Distinct from `capWarning`,
+  // which signals a *successful* eviction. Panic = the user's write was lost.
+  const [quotaPanic, setQuotaPanic] = createSignal(false);
 
   const withQuotaRecovery = (op: () => void) => {
     let attempt = 0;
@@ -115,26 +126,26 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
         op();
         return;
       } catch (e) {
-        if (!(e as Error)?.name?.includes('Quota') && !(e instanceof Error && e.message.includes('quota'))) throw e;
-        // Evict oldest non-active session.
+        if (!isQuotaError(e)) throw e;
         const cur = index();
         const candidates = cur.sessions.filter((s) => s.chatId !== cur.activeChatId).sort((a, b) => a.updatedAt - b.updatedAt);
         if (candidates.length === 0) break;
         const victim = candidates[0];
         localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${victim.chatId}`);
         messageCache.delete(victim.chatId);
+        cancelPendingPersist(victim.chatId);
         const sessions = cur.sessions.filter((s) => s.chatId !== victim.chatId);
-        // Best-effort persist of pruned index (this might also throw — counts as an attempt).
         try {
           writeIndex(chatflowid, { ...cur, sessions });
           setIndex({ ...cur, sessions });
-        } catch {
-          // ignore; loop will retry op anyway
+        } catch (innerErr) {
+          // Only swallow quota-class errors so corruption/illegal state isn't masked.
+          if (!isQuotaError(innerErr)) throw innerErr;
         }
         attempt++;
       }
     }
-    if (onQuotaPanic) onQuotaPanic();
+    setQuotaPanic(true);
   };
 
   // ---- actions ----
@@ -158,7 +169,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
         sessions: [session, ...index().sessions],
       };
 
-      // Cap eviction (silent FIFO; toast is wired in Task 11).
+      // Cap eviction: silent FIFO; the panel surfaces this via `capWarning` after eviction.
       while (next.sessions.length > maxSessions) {
         // Find lowest updatedAt that ISN'T the new active.
         let oldestIdx = -1;
@@ -184,6 +195,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     for (const eid of evicted) {
       localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${eid}`);
       messageCache.delete(eid);
+      cancelPendingPersist(eid);
     }
 
     if (evicted.length > 0 && !readCapWarned(chatflowid)) {
@@ -236,6 +248,14 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
    * sessions while a stream is in flight.
    */
   const pendingPersists = new Map<string, ReturnType<typeof setTimeout>>();
+  // Cancel a pending debounced write before the session is removed, otherwise
+  // the timer fires and resurrects the just-deleted MsgKey as an orphan.
+  const cancelPendingPersist = (chatId: string) => {
+    const t = pendingPersists.get(chatId);
+    if (t === undefined) return;
+    clearTimeout(t);
+    pendingPersists.delete(chatId);
+  };
   const schedulePersist = (chatId: string, messages: MessageType[]) => {
     const existing = pendingPersists.get(chatId);
     if (existing !== undefined) clearTimeout(existing);
@@ -388,6 +408,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
   const deleteSession = (chatId: string): void => {
     const current = index();
     const sessions = current.sessions.filter((s) => s.chatId !== chatId);
+    cancelPendingPersist(chatId);
     localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${chatId}`);
     messageCache.delete(chatId);
 
@@ -428,6 +449,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     activeMessages,
     lead,
     capWarning,
+    quotaPanic,
     dispose,
     actions: {
       newChat,
@@ -443,9 +465,10 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
       deleteSession,
       setLead,
       flushPending,
-      setQuotaPanicHandler,
       setOnSessionChanged,
+      setStreamingChatIdGetter,
       dismissCapWarning: () => setCapWarning(false),
+      dismissQuotaPanic: () => setQuotaPanic(false),
     },
     _internal: {
       index,

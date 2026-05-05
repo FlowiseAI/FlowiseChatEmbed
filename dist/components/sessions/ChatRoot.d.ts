@@ -1,6 +1,4 @@
 import { type BotProps } from '@/components/Bot';
-import { type SessionStore } from '@/state/sessionStore';
-export declare const useSessionStore: () => SessionStore | undefined;
 type ChatRootProps = BotProps & {
     class?: string;
     theme?: unknown;

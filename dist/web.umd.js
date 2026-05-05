@@ -1400,23 +1400,31 @@
   const msgKey = (chatflowid, chatId) => `${chatflowid}_EXTERNAL_msgs_${chatId}`;
   const capWarnedKey = chatflowid => `${chatflowid}_EXTERNAL_capWarned`;
   const panelCollapsedKey = chatflowid => `${chatflowid}_EXTERNAL_panelCollapsed`;
-  const safeParse = raw => {
+  const safeParse = (raw, warnContext) => {
     if (raw === null) return null;
     try {
       return JSON.parse(raw);
     } catch {
+      if (warnContext) {
+        console.warn(`[Flowise] sessionStorage: failed to parse ${warnContext} (length=${raw.length}); treating as missing.`);
+      }
       return null;
     }
   };
   const readIndex = chatflowid => {
-    const parsed = safeParse(localStorage.getItem(indexKey$1(chatflowid)));
+    const key = indexKey$1(chatflowid);
+    const parsed = safeParse(localStorage.getItem(key), key);
     if (!parsed || typeof parsed !== 'object') return null;
     if (parsed.version === 2) return parsed;
     return null;
   };
   const readMessages = (chatflowid, chatId) => {
-    const parsed = safeParse(localStorage.getItem(msgKey(chatflowid, chatId)));
-    return Array.isArray(parsed) ? parsed : [];
+    const key = msgKey(chatflowid, chatId);
+    const parsed = safeParse(localStorage.getItem(key), key);
+    if (parsed === null) return [];
+    if (Array.isArray(parsed)) return parsed;
+    console.warn(`[Flowise] sessionStorage: ${key} is not an array; treating as empty.`);
+    return [];
   };
   const readPanelCollapsed = chatflowid => {
     return localStorage.getItem(panelCollapsedKey(chatflowid)) === '1';
@@ -1432,6 +1440,7 @@
   }
   const isQuotaError = e => {
     if (!(e instanceof Error)) return false;
+    if (e.name === 'StorageQuotaError') return true;
     return e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22;
   };
   const safeWrite = (key, value) => {
@@ -1462,18 +1471,21 @@
   const reconcileOrphans = (chatflowid, index) => {
     const indexIds = new Set(index.sessions.map(s => s.chatId));
     const prefix = `${chatflowid}_EXTERNAL_msgs_`;
+    // Snapshot matching keys first; mutating localStorage while iterating
+    // localStorage.key(i) is fragile across browsers (Safari has historically
+    // reindexed unpredictably).
+    const orphanKeys = [];
     const deletedOrphans = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k || !k.startsWith(prefix)) continue;
       const chatId = k.slice(prefix.length);
       if (!indexIds.has(chatId)) {
-        localStorage.removeItem(k);
+        orphanKeys.push(k);
         deletedOrphans.push(chatId);
-        i--; // length shrunk
       }
     }
-
+    for (const k of orphanKeys) localStorage.removeItem(k);
     const missingMsgKeys = [];
     for (const s of index.sessions) {
       if (localStorage.getItem(msgKey(chatflowid, s.chatId)) === null) {
@@ -1600,14 +1612,17 @@
     const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
     if (!chatDetails) return;
     try {
-      const parsedChatDetails = JSON.parse(chatDetails);
-      if (parsedChatDetails.lead) {
-        // Dont remove lead when chat is cleared
-        const obj = {
-          lead: parsedChatDetails.lead
-        };
-        localStorage.removeItem(`${chatflowid}_EXTERNAL`);
-        localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
+      const parsed = JSON.parse(chatDetails);
+      // v2 path: the index lives at the same key. Stringifying `{ lead }` over it
+      // would destroy `version` / `activeChatId` / `sessions` and the next mount
+      // would fall into the "unknown shape" branch, dropping every conversation.
+      // Per-session deletion in store mode is opt-in via store.actions.deleteSession,
+      // so this legacy clear-history path becomes a no-op on a v2 index.
+      if (parsed && typeof parsed === 'object' && parsed.version === 2) return;
+      if (parsed?.lead) {
+        localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({
+          lead: parsed.lead
+        }));
       } else {
         localStorage.removeItem(`${chatflowid}_EXTERNAL`);
       }
@@ -81502,6 +81517,9 @@ ${body}</tbody>
       }
   }
 
+  const SessionContext = createContext();
+  const useSessionStore = () => useContext(SessionContext);
+
   const _tmpl$$8 = /*#__PURE__*/template(`<button type="button" aria-label="Open conversations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18">`),
     _tmpl$2$5 = /*#__PURE__*/template(`<input type="text" aria-label="Rename conversation">`),
     _tmpl$3$4 = /*#__PURE__*/template(`<div role="menu">`),
@@ -81678,7 +81696,7 @@ ${body}</tbody>
               }, 0);
             }
           }, _el$4);
-          _el$4.addEventListener("blur", cancelRename);
+          _el$4.addEventListener("blur", commitRename);
           _el$4.$$keydown = e => {
             if (e.key === 'Enter') commitRename();
             if (e.key === 'Escape') cancelRename();
@@ -82268,13 +82286,25 @@ ${body}</tbody>
           if (current === lastSeenChatId) return;
           const previousChatId = lastSeenChatId;
           lastSeenChatId = current;
-          // Only abort if there was an in-flight request for the previous session.
           if (!loading()) return;
+          // Capture stream identity before closeResponse nulls it. Without this,
+          // an empty placeholder appended by a 'start' event that fired between
+          // abort() and the library noticing the abort would be orphaned: the
+          // onclose/onerror handlers early-return when streamingChatId is undefined.
+          const cleanupChatId = streamingChatId;
+          const cleanupMsgId = streamingApiMessageId;
           // Kill the client-side stream immediately. fetchEventSource resolves
           // silently on signal abort (no onclose/onerror), so we must call
           // closeResponse() ourselves to reset loading state and unlock the input.
           streamAbortController?.abort();
           closeResponse();
+          if (sessionStore && cleanupChatId && cleanupMsgId) {
+            const cur = sessionStore.actions.getSessionMessages(cleanupChatId);
+            const last = cur[cur.length - 1];
+            if (last && last.messageId === cleanupMsgId && last.type === 'apiMessage' && last.message === '') {
+              sessionStore.actions.removeMessageByIdInSession(cleanupChatId, cleanupMsgId);
+            }
+          }
           // Best-effort server-side cleanup so the backend stops generating.
           abortMessageQuery({
             chatflowid: props.chatflowid,
@@ -82438,6 +82468,8 @@ ${body}</tbody>
     // library to resolve silently (no onclose/onerror), so callers must also call
     // closeResponse() themselves to reset loading state.
     let streamAbortController = null;
+    // Tell the store our streaming chat id so cross-tab rescue only protects in-flight streams.
+    sessionStore?.actions.setStreamingChatIdGetter(() => streamingChatId);
     /**
      * Mutate the last apiMessage (the one being streamed). In store mode this routes
      * through upsertMessageInSession keyed by streamingChatId so tokens never bleed
@@ -82802,8 +82834,12 @@ ${body}</tbody>
         return fetch(input, init);
       };
       streamAbortController = new AbortController();
+      // Capture the signal so handlers can short-circuit on a delayed event arriving
+      // after abort — fetch-event-source resolves silently on abort and any 'start'
+      // already in the network buffer would otherwise re-pin streamingChatId.
+      const signal = streamAbortController.signal;
       fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
-        signal: streamAbortController.signal,
+        signal,
         openWhenHidden: true,
         method: 'POST',
         body: JSON.stringify(params),
@@ -82831,6 +82867,7 @@ ${body}</tbody>
           }
         },
         async onmessage(ev) {
+          if (signal.aborted) return;
           let payload;
           try {
             payload = JSON.parse(ev.data);
@@ -83150,7 +83187,9 @@ ${body}</tbody>
       keepLatestUserMessageAtTop('smooth');
       const body = {
         question: value,
-        chatId: chatId()
+        // Use the pinned streaming chatId so a session switch between here and
+        // the actual fetch firing doesn't send the request against the new session.
+        chatId: streamingChatId ?? chatId()
       };
       if (startInputType() === 'formInput' && Object.keys(formData).length > 0) {
         body.form = formData;
@@ -83330,7 +83369,10 @@ ${body}</tbody>
       }
     };
     onMount(() => {
-      if (props.clearChatOnReload) {
+      // In store mode the v2 index lives at `${chatflowid}_EXTERNAL`; clearChat()
+      // (which calls removeLocalStorageChatHistory) would wipe the entire session
+      // list. Per-session clearing is opt-in via store.actions.deleteSession.
+      if (props.clearChatOnReload && !sessionStore) {
         clearChat();
         window.addEventListener('beforeunload', clearChat);
         onCleanup(() => window.removeEventListener('beforeunload', clearChat));
@@ -85176,7 +85218,7 @@ ${body}</tbody>
                   }, 0);
                 }
               }, _el$8);
-              _el$8.addEventListener("blur", () => props.onCancelEdit());
+              _el$8.addEventListener("blur", () => props.onCommitEdit());
               _el$8.$$keydown = e => {
                 e.stopPropagation();
                 if (e.key === 'Enter') props.onCommitEdit();
@@ -85677,6 +85719,14 @@ ${body}</tbody>
             return props.panelTheme?.capWarningText ?? 'Conversation limit reached. Starting new ones will remove the oldest.';
           },
           onDismiss: () => props.store.actions.dismissCapWarning()
+        }), createComponent(CapWarningToast, {
+          get visible() {
+            return props.store.quotaPanic();
+          },
+          get text() {
+            return props.panelTheme?.quotaPanicText ?? "Couldn't save your last message — local storage is full. Delete older conversations to keep going.";
+          },
+          onDismiss: () => props.store.actions.dismissQuotaPanic()
         }), createComponent(Show, {
           get when() {
             return sessions().length > 0;
@@ -85954,25 +86004,41 @@ ${body}</tbody>
     const reconcile = reconcileOrphans(chatflowid, initial);
     for (const id of reconcile.missingMsgKeys) writeMessages(chatflowid, id, []);
     const [index, setIndex] = createSignal(initial);
+    // Bot.tsx registers a getter so onStorage can tell whether the active session
+    // is currently streaming; rescue logic only protects in-flight streams.
+    let getStreamingChatId = null;
+    const setStreamingChatIdGetter = fn => {
+      getStreamingChatId = fn;
+    };
     // ---- cross-tab sync ----
     const indexLsKey = `${chatflowid}_EXTERNAL`;
     const onStorage = e => {
       if (e.key !== indexLsKey || e.newValue === null) return;
+      let parsed;
       try {
-        const parsed = JSON.parse(e.newValue);
-        if (parsed && typeof parsed === 'object' && parsed.version === 2) {
-          const next = parsed;
-          const prevActiveChatId = activeChatId();
-          setIndex(next);
-          // Also re-read active session's messages if active changed underneath.
-          if (next.activeChatId !== prevActiveChatId) {
-            const msgs = readMessages(chatflowid, next.activeChatId);
-            messageCache.set(next.activeChatId, msgs);
-            setActiveMessages(msgs);
-          }
-        }
+        parsed = JSON.parse(e.newValue);
       } catch {
-        // ignore corrupt cross-tab write
+        console.error(`[Flowise] sessionStore: ignored corrupt cross-tab index write at ${indexLsKey}.`);
+        return;
+      }
+      if (!parsed || typeof parsed !== 'object' || parsed.version !== 2) return;
+      const incoming = parsed;
+      const prevActiveChatId = activeChatId();
+      // Only rescue when our active session is *streaming* — otherwise a legitimate
+      // remote delete of the active session must propagate, not be resurrected here.
+      const localActive = index().sessions.find(s => s.chatId === prevActiveChatId);
+      const remoteDroppedActive = !!localActive && !incoming.sessions.some(s => s.chatId === prevActiveChatId);
+      const protectStream = remoteDroppedActive && getStreamingChatId?.() === prevActiveChatId;
+      const next = protectStream ? {
+        ...incoming,
+        activeChatId: prevActiveChatId,
+        sessions: [localActive, ...incoming.sessions]
+      } : incoming;
+      setIndex(next);
+      if (next.activeChatId !== prevActiveChatId) {
+        const msgs = readMessages(chatflowid, next.activeChatId);
+        messageCache.set(next.activeChatId, msgs);
+        setActiveMessages(msgs);
       }
     };
     if (typeof window !== 'undefined') {
@@ -85997,7 +86063,6 @@ ${body}</tbody>
     const activeChatId = createMemo(() => index().activeChatId);
     const activeSession = createMemo(() => index().sessions.find(s => s.chatId === activeChatId()));
     const lead = createMemo(() => index().lead);
-    // ---- internal helpers (used by Task 6) ----
     const _persistIndex = next => {
       writeIndex(chatflowid, next);
       setIndex(next);
@@ -86015,14 +86080,10 @@ ${body}</tbody>
         title: s.title
       });
     };
-    /**
-     * Run a write op; on QuotaExceededError, evict the oldest non-active session and retry.
-     * Up to `attempts` retries; if it still fails, surfaces a callback to show a toast.
-     */
-    let onQuotaPanic = null;
-    const setQuotaPanicHandler = cb => {
-      onQuotaPanic = cb;
-    };
+    // Surfaced to the panel when withQuotaRecovery fails to free space (only the
+    // active session left, or 5 retries exhausted). Distinct from `capWarning`,
+    // which signals a *successful* eviction. Panic = the user's write was lost.
+    const [quotaPanic, setQuotaPanic] = createSignal(false);
     const withQuotaRecovery = op => {
       let attempt = 0;
       while (attempt < 5) {
@@ -86030,16 +86091,15 @@ ${body}</tbody>
           op();
           return;
         } catch (e) {
-          if (!e?.name?.includes('Quota') && !(e instanceof Error && e.message.includes('quota'))) throw e;
-          // Evict oldest non-active session.
+          if (!isQuotaError(e)) throw e;
           const cur = index();
           const candidates = cur.sessions.filter(s => s.chatId !== cur.activeChatId).sort((a, b) => a.updatedAt - b.updatedAt);
           if (candidates.length === 0) break;
           const victim = candidates[0];
           localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${victim.chatId}`);
           messageCache.delete(victim.chatId);
+          cancelPendingPersist(victim.chatId);
           const sessions = cur.sessions.filter(s => s.chatId !== victim.chatId);
-          // Best-effort persist of pruned index (this might also throw — counts as an attempt).
           try {
             writeIndex(chatflowid, {
               ...cur,
@@ -86049,13 +86109,14 @@ ${body}</tbody>
               ...cur,
               sessions
             });
-          } catch {
-            // ignore; loop will retry op anyway
+          } catch (innerErr) {
+            // Only swallow quota-class errors so corruption/illegal state isn't masked.
+            if (!isQuotaError(innerErr)) throw innerErr;
           }
           attempt++;
         }
       }
-      if (onQuotaPanic) onQuotaPanic();
+      setQuotaPanic(true);
     };
     // ---- actions ----
     const newChat = () => {
@@ -86076,7 +86137,7 @@ ${body}</tbody>
           activeChatId: id,
           sessions: [session, ...index().sessions]
         };
-        // Cap eviction (silent FIFO; toast is wired in Task 11).
+        // Cap eviction: silent FIFO; the panel surfaces this via `capWarning` after eviction.
         while (next.sessions.length > maxSessions) {
           // Find lowest updatedAt that ISN'T the new active.
           let oldestIdx = -1;
@@ -86100,6 +86161,7 @@ ${body}</tbody>
       for (const eid of evicted) {
         localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${eid}`);
         messageCache.delete(eid);
+        cancelPendingPersist(eid);
       }
       if (evicted.length > 0 && !readCapWarned(chatflowid)) {
         writeCapWarned(chatflowid);
@@ -86150,6 +86212,14 @@ ${body}</tbody>
      * sessions while a stream is in flight.
      */
     const pendingPersists = new Map();
+    // Cancel a pending debounced write before the session is removed, otherwise
+    // the timer fires and resurrects the just-deleted MsgKey as an orphan.
+    const cancelPendingPersist = chatId => {
+      const t = pendingPersists.get(chatId);
+      if (t === undefined) return;
+      clearTimeout(t);
+      pendingPersists.delete(chatId);
+    };
     const schedulePersist = (chatId, messages) => {
       const existing = pendingPersists.get(chatId);
       if (existing !== undefined) clearTimeout(existing);
@@ -86314,6 +86384,7 @@ ${body}</tbody>
     const deleteSession = chatId => {
       const current = index();
       const sessions = current.sessions.filter(s => s.chatId !== chatId);
+      cancelPendingPersist(chatId);
       localStorage.removeItem(`${chatflowid}_EXTERNAL_msgs_${chatId}`);
       messageCache.delete(chatId);
       if (sessions.length === 0) {
@@ -86360,6 +86431,7 @@ ${body}</tbody>
       activeMessages,
       lead,
       capWarning,
+      quotaPanic,
       dispose,
       actions: {
         newChat,
@@ -86375,9 +86447,10 @@ ${body}</tbody>
         deleteSession,
         setLead,
         flushPending,
-        setQuotaPanicHandler,
         setOnSessionChanged,
-        dismissCapWarning: () => setCapWarning(false)
+        setStreamingChatIdGetter,
+        dismissCapWarning: () => setCapWarning(false),
+        dismissQuotaPanic: () => setQuotaPanic(false)
       },
       _internal: {
         index,
@@ -86390,8 +86463,6 @@ ${body}</tbody>
   };
 
   const _tmpl$$3 = /*#__PURE__*/template(`<div class="flex h-full w-full" data-multisession><div>`);
-  const SessionContext = createContext();
-  const useSessionStore = () => useContext(SessionContext);
   const ChatRoot = props => {
     const enabled = () => props.multiSession?.enabled === true;
     return createComponent(Show, {

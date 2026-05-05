@@ -152,7 +152,7 @@ export const SessionListItem = (props: Props) => {
                 if (e.key === 'Enter') props.onCommitEdit();
                 if (e.key === 'Escape') props.onCancelEdit();
               }}
-              onBlur={() => props.onCancelEdit()}
+              onBlur={() => props.onCommitEdit()}
               ref={(el) => {
                 if (el) {
                   setTimeout(() => {

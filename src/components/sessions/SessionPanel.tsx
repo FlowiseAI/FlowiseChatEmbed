@@ -18,6 +18,7 @@ type SessionPanelTheme = {
   newChatLabel?: string;
   emptyStateText?: string;
   capWarningText?: string;
+  quotaPanicText?: string;
 };
 
 type Props = {
@@ -353,6 +354,14 @@ export const SessionPanel = (props: Props) => {
           visible={props.store.capWarning()}
           text={props.panelTheme?.capWarningText ?? 'Conversation limit reached. Starting new ones will remove the oldest.'}
           onDismiss={() => props.store.actions.dismissCapWarning()}
+        />
+        <CapWarningToast
+          visible={props.store.quotaPanic()}
+          text={
+            props.panelTheme?.quotaPanicText ??
+            "Couldn't save your last message — local storage is full. Delete older conversations to keep going."
+          }
+          onDismiss={() => props.store.actions.dismissQuotaPanic()}
         />
 
         <Show

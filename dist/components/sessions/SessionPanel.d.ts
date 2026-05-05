@@ -14,6 +14,7 @@ type SessionPanelTheme = {
     newChatLabel?: string;
     emptyStateText?: string;
     capWarningText?: string;
+    quotaPanicText?: string;
 };
 type Props = {
     store: SessionStore;

@@ -46,7 +46,7 @@ import {
 import { FollowUpPromptBubble } from '@/components/bubbles/FollowUpPromptBubble';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 import { CHAT_HEADER_HEIGHT } from '@/constants';
-import { useSessionStore } from './sessions/ChatRoot';
+import { useSessionStore } from './sessions/sessionContext';
 import { SessionTitleHeader } from './sessions/SessionTitleHeader';
 
 export type FileEvent<T = EventTarget> = {
@@ -692,13 +692,25 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             if (current === lastSeenChatId) return;
             const previousChatId = lastSeenChatId;
             lastSeenChatId = current;
-            // Only abort if there was an in-flight request for the previous session.
             if (!loading()) return;
+            // Capture stream identity before closeResponse nulls it. Without this,
+            // an empty placeholder appended by a 'start' event that fired between
+            // abort() and the library noticing the abort would be orphaned: the
+            // onclose/onerror handlers early-return when streamingChatId is undefined.
+            const cleanupChatId = streamingChatId;
+            const cleanupMsgId = streamingApiMessageId;
             // Kill the client-side stream immediately. fetchEventSource resolves
             // silently on signal abort (no onclose/onerror), so we must call
             // closeResponse() ourselves to reset loading state and unlock the input.
             streamAbortController?.abort();
             closeResponse();
+            if (sessionStore && cleanupChatId && cleanupMsgId) {
+              const cur = sessionStore.actions.getSessionMessages(cleanupChatId);
+              const last = cur[cur.length - 1];
+              if (last && last.messageId === cleanupMsgId && last.type === 'apiMessage' && last.message === '') {
+                sessionStore.actions.removeMessageByIdInSession(cleanupChatId, cleanupMsgId);
+              }
+            }
             // Best-effort server-side cleanup so the backend stops generating.
             abortMessageQuery({
               chatflowid: props.chatflowid,
@@ -878,6 +890,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   // library to resolve silently (no onclose/onerror), so callers must also call
   // closeResponse() themselves to reset loading state.
   let streamAbortController: AbortController | null = null;
+
+  // Tell the store our streaming chat id so cross-tab rescue only protects in-flight streams.
+  sessionStore?.actions.setStreamingChatIdGetter(() => streamingChatId);
 
   /**
    * Mutate the last apiMessage (the one being streamed). In store mode this routes
@@ -1210,8 +1225,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     };
 
     streamAbortController = new AbortController();
+    // Capture the signal so handlers can short-circuit on a delayed event arriving
+    // after abort — fetch-event-source resolves silently on abort and any 'start'
+    // already in the network buffer would otherwise re-pin streamingChatId.
+    const signal = streamAbortController.signal;
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
-      signal: streamAbortController.signal,
+      signal,
       openWhenHidden: true,
       method: 'POST',
       body: JSON.stringify(params),
@@ -1239,6 +1258,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         }
       },
       async onmessage(ev) {
+        if (signal.aborted) return;
         let payload: any;
         try {
           payload = JSON.parse(ev.data);
@@ -1578,7 +1598,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const body: IncomingInput = {
       question: value,
-      chatId: chatId(),
+      // Use the pinned streaming chatId so a session switch between here and
+      // the actual fetch firing doesn't send the request against the new session.
+      chatId: streamingChatId ?? chatId(),
     };
 
     if (startInputType() === 'formInput' && Object.keys(formData).length > 0) {
@@ -1774,7 +1796,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   onMount(() => {
-    if (props.clearChatOnReload) {
+    // In store mode the v2 index lives at `${chatflowid}_EXTERNAL`; clearChat()
+    // (which calls removeLocalStorageChatHistory) would wipe the entire session
+    // list. Per-session clearing is opt-in via store.actions.deleteSession.
+    if (props.clearChatOnReload && !sessionStore) {
       clearChat();
       window.addEventListener('beforeunload', clearChat);
       onCleanup(() => window.removeEventListener('beforeunload', clearChat));

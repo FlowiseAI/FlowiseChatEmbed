@@ -137,12 +137,15 @@ export const removeLocalStorageChatHistory = (chatflowid: string) => {
   const chatDetails = localStorage.getItem(`${chatflowid}_EXTERNAL`);
   if (!chatDetails) return;
   try {
-    const parsedChatDetails = JSON.parse(chatDetails);
-    if (parsedChatDetails.lead) {
-      // Dont remove lead when chat is cleared
-      const obj = { lead: parsedChatDetails.lead };
-      localStorage.removeItem(`${chatflowid}_EXTERNAL`);
-      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
+    const parsed = JSON.parse(chatDetails);
+    // v2 path: the index lives at the same key. Stringifying `{ lead }` over it
+    // would destroy `version` / `activeChatId` / `sessions` and the next mount
+    // would fall into the "unknown shape" branch, dropping every conversation.
+    // Per-session deletion in store mode is opt-in via store.actions.deleteSession,
+    // so this legacy clear-history path becomes a no-op on a v2 index.
+    if (parsed && typeof parsed === 'object' && parsed.version === 2) return;
+    if (parsed?.lead) {
+      localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({ lead: parsed.lead }));
     } else {
       localStorage.removeItem(`${chatflowid}_EXTERNAL`);
     }

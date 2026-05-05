@@ -25,25 +25,33 @@ const msgKey = (chatflowid: string, chatId: string) => `${chatflowid}_EXTERNAL_m
 const capWarnedKey = (chatflowid: string) => `${chatflowid}_EXTERNAL_capWarned`;
 const panelCollapsedKey = (chatflowid: string) => `${chatflowid}_EXTERNAL_panelCollapsed`;
 
-const safeParse = <T>(raw: string | null): T | null => {
+const safeParse = <T>(raw: string | null, warnContext?: string): T | null => {
   if (raw === null) return null;
   try {
     return JSON.parse(raw) as T;
   } catch {
+    if (warnContext) {
+      console.warn(`[Flowise] sessionStorage: failed to parse ${warnContext} (length=${raw.length}); treating as missing.`);
+    }
     return null;
   }
 };
 
 export const readIndex = (chatflowid: string): ChatflowIndexV2 | null => {
-  const parsed = safeParse<unknown>(localStorage.getItem(indexKey(chatflowid)));
+  const key = indexKey(chatflowid);
+  const parsed = safeParse<unknown>(localStorage.getItem(key), key);
   if (!parsed || typeof parsed !== 'object') return null;
   if ((parsed as ChatflowIndexV2).version === 2) return parsed as ChatflowIndexV2;
   return null;
 };
 
 export const readMessages = (chatflowid: string, chatId: string): MessageType[] => {
-  const parsed = safeParse<unknown>(localStorage.getItem(msgKey(chatflowid, chatId)));
-  return Array.isArray(parsed) ? (parsed as MessageType[]) : [];
+  const key = msgKey(chatflowid, chatId);
+  const parsed = safeParse<unknown>(localStorage.getItem(key), key);
+  if (parsed === null) return [];
+  if (Array.isArray(parsed)) return parsed as MessageType[];
+  console.warn(`[Flowise] sessionStorage: ${key} is not an array; treating as empty.`);
+  return [];
 };
 
 export const readPanelCollapsed = (chatflowid: string): boolean => {
@@ -63,8 +71,9 @@ export class StorageQuotaError extends Error {
   }
 }
 
-const isQuotaError = (e: unknown): boolean => {
+export const isQuotaError = (e: unknown): boolean => {
   if (!(e instanceof Error)) return false;
+  if (e.name === 'StorageQuotaError') return true;
   return e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || (e as { code?: number }).code === 22;
 };
 
@@ -106,17 +115,21 @@ export const reconcileOrphans = (chatflowid: string, index: ChatflowIndexV2): { 
   const indexIds = new Set(index.sessions.map((s) => s.chatId));
   const prefix = `${chatflowid}_EXTERNAL_msgs_`;
 
+  // Snapshot matching keys first; mutating localStorage while iterating
+  // localStorage.key(i) is fragile across browsers (Safari has historically
+  // reindexed unpredictably).
+  const orphanKeys: string[] = [];
   const deletedOrphans: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (!k || !k.startsWith(prefix)) continue;
     const chatId = k.slice(prefix.length);
     if (!indexIds.has(chatId)) {
-      localStorage.removeItem(k);
+      orphanKeys.push(k);
       deletedOrphans.push(chatId);
-      i--; // length shrunk
     }
   }
+  for (const k of orphanKeys) localStorage.removeItem(k);
 
   const missingMsgKeys: string[] = [];
   for (const s of index.sessions) {

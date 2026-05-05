@@ -1,15 +1,11 @@
-import { Show, createContext, createMemo, createSignal, onCleanup, onMount, useContext } from 'solid-js';
+import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { Bot, type BotProps } from '@/components/Bot';
 import { SessionPanel } from './SessionPanel';
-import { createSessionStore, type SessionStore } from '@/state/sessionStore';
+import { createSessionStore } from '@/state/sessionStore';
 import { v4 as uuidv4 } from 'uuid';
+import { SessionContext } from './sessionContext';
 
-const SessionContext = createContext<SessionStore | undefined>();
-
-export const useSessionStore = (): SessionStore | undefined => useContext(SessionContext);
-
-// `theme` is widened to `unknown` here because each mount mode (bubble/full/popup)
-// has its own theme shape; Task 21 will tighten this with the actual theme types.
+// Each mount mode (bubble/full/popup) carries its own theme shape; widen here.
 type ChatRootProps = BotProps & { class?: string; theme?: unknown };
 
 export const ChatRoot = (props: ChatRootProps) => {
