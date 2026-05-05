@@ -639,7 +639,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (userAnchor) {
       const handleResize = () => userAnchor.keepAtTop();
       window.addEventListener('resize', handleResize);
-      onCleanup(() => window.removeEventListener('resize', handleResize));
+      onCleanup(() => {
+        window.removeEventListener('resize', handleResize);
+        userAnchor.dispose();
+      });
     }
 
     if (!sessionStore) {
@@ -726,6 +729,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
+  };
+
+  // Multi-session pins the latest user message near the top; non-multi sticks to the bottom.
+  const scrollNewTurnIntoView = (behavior: ScrollBehavior = 'auto') => {
+    if (userAnchor) userAnchor.keepAtTop(behavior);
+    else scrollToBottom();
   };
 
   const forceScrollToBottom = () => {
@@ -1450,8 +1459,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (!options?.skipAddUserMessage) {
       appendMessage({ messageId: uuidv4(), message: value as string, type: 'userMessage', fileUploads: uploads });
     }
-    if (userAnchor) userAnchor.keepAtTop('smooth');
-    else scrollToBottom();
+    scrollNewTurnIntoView('smooth');
 
     const body: IncomingInput = {
       question: value,
@@ -2878,7 +2886,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                             avatarSrc={props.botMessage?.avatarSrc}
                             chatFeedbackStatus={chatFeedbackStatus()}
                             onRegenerateResponse={() => handleRegenerateResponse(index())}
-                            onMessageRendered={userAnchor ? () => userAnchor.keepAtTop() : scrollToBottom}
+                            onMessageRendered={() => scrollNewTurnIntoView()}
                             fontSize={props.fontSize}
                             isLoading={loading() && index() === messages().length - 1}
                             showAgentMessages={props.showAgentMessages}

@@ -60,6 +60,17 @@ export const createLatestUserAnchor = (deps: LatestUserAnchorDeps) => {
     return top;
   };
 
+  // Cancel any pending RAFs and clear the smooth-scroll flag — without this,
+  // an interrupted smooth scroll leaves smoothScrollRunning stuck true and
+  // every subsequent 'auto' scroll silently no-ops.
+  const cancelFrames = () => {
+    if (anchorFrame !== undefined) cancelAnimationFrame(anchorFrame);
+    if (scrollAnimationFrame !== undefined) cancelAnimationFrame(scrollAnimationFrame);
+    anchorFrame = undefined;
+    scrollAnimationFrame = undefined;
+    smoothScrollRunning = false;
+  };
+
   const scrollTo = (top: number, behavior: ScrollBehavior) => {
     const c = deps.getChatContainer();
     if (!c) return;
@@ -79,7 +90,11 @@ export const createLatestUserAnchor = (deps: LatestUserAnchorDeps) => {
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
     const step = (now: number) => {
       const cc = deps.getChatContainer();
-      if (!cc) return;
+      if (!cc) {
+        scrollAnimationFrame = undefined;
+        smoothScrollRunning = false;
+        return;
+      }
       const progress = Math.min((now - startTime) / duration, 1);
       cc.scrollTo({ top: startTop + distance * easeOutCubic(progress) });
       if (progress < 1) {
@@ -105,6 +120,7 @@ export const createLatestUserAnchor = (deps: LatestUserAnchorDeps) => {
       // the old max scroll and the new turn can still appear stacked.
       anchorFrame = requestAnimationFrame(() => {
         anchorFrame = undefined;
+        if (!active) return;
         deps.onAnchored?.();
         deps.programmaticScrollGuard(() => scrollTo(top, behavior));
       });
@@ -117,8 +133,13 @@ export const createLatestUserAnchor = (deps: LatestUserAnchorDeps) => {
   };
   const deactivate = () => {
     active = false;
+    cancelFrames();
     setBottomSpacerHeight(0);
   };
+  const dispose = () => {
+    active = false;
+    cancelFrames();
+  };
 
-  return { activate, deactivate, isActive: () => active, keepAtTop, bottomSpacerHeight };
+  return { activate, deactivate, dispose, isActive: () => active, keepAtTop, bottomSpacerHeight };
 };

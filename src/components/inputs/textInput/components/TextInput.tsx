@@ -181,17 +181,33 @@ export const TextInput = (props: TextInputProps) => {
   };
 
   const getImageType = () =>
-    props.uploadsConfig?.imgUploadSizeAndTypes?.length ? props.uploadsConfig.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',') : '*';
+    props.uploadsConfig?.imgUploadSizeAndTypes?.length
+      ? props.uploadsConfig.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(',')
+      : '*';
 
   // Hidden file picker inputs are layout-independent (display: none); render once
   // outside the legacy/modern layout branches.
   const hiddenFileInputs = (
     <>
       <Show when={props.uploadsConfig?.isImageUploadAllowed}>
-        <input style={{ display: 'none' }} multiple ref={imgUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} accept={getImageType()} />
+        <input
+          style={{ display: 'none' }}
+          multiple
+          ref={imgUploadRef as HTMLInputElement}
+          type="file"
+          onChange={handleFileChange}
+          accept={getImageType()}
+        />
       </Show>
       <Show when={props.uploadsConfig?.isRAGFileUploadAllowed || props.isFullFileUpload}>
-        <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} accept={getFileType()} />
+        <input
+          style={{ display: 'none' }}
+          multiple
+          ref={fileUploadRef as HTMLInputElement}
+          type="file"
+          onChange={handleFileChange}
+          accept={getFileType()}
+        />
       </Show>
     </>
   );

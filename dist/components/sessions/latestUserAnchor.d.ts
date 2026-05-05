@@ -8,6 +8,7 @@ export type LatestUserAnchor = ReturnType<typeof createLatestUserAnchor>;
 export declare const createLatestUserAnchor: (deps: LatestUserAnchorDeps) => {
     activate: () => void;
     deactivate: () => void;
+    dispose: () => void;
     isActive: () => boolean;
     keepAtTop: (behavior?: ScrollBehavior) => void;
     bottomSpacerHeight: import("solid-js").Accessor<number>;
