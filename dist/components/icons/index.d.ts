@@ -6,6 +6,7 @@ export * from './CircleDotIcon';
 export * from './DeleteIcon';
 export * from './RecordIcon';
 export * from './SendIcon';
+export * from './UpArrowIcon';
 export * from './TrashIcon';
 export * from './XIcon';
 export * from './TickIcon';

@@ -6,20 +6,22 @@ type ShortTextInputProps = {
   onInput: (value: string) => void;
   fontSize?: number;
   disabled?: boolean;
+  compact?: boolean;
 } & Omit<JSX.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onInput'>;
 
-const DEFAULT_HEIGHT = 42;
+const LEGACY_HEIGHT = 56;
+const COMPACT_HEIGHT = 42;
 
 export const ShortTextInput = (props: ShortTextInputProps) => {
-  const [local, others] = splitProps(props, ['ref', 'onInput']);
-  const [height, setHeight] = createSignal(56);
+  const [local, others] = splitProps(props, ['ref', 'onInput', 'compact']);
+  const defaultHeight = () => (local.compact ? COMPACT_HEIGHT : LEGACY_HEIGHT);
+  const [height, setHeight] = createSignal(defaultHeight());
 
   // @ts-expect-error: unknown type
   const handleInput = (e) => {
     if (props.ref) {
       if (e.currentTarget.value === '') {
-        // reset height when value is empty
-        setHeight(DEFAULT_HEIGHT);
+        setHeight(defaultHeight());
       } else {
         setHeight(e.currentTarget.scrollHeight - 24);
       }
@@ -30,7 +32,6 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
 
   // @ts-expect-error: unknown type
   const handleKeyDown = (e) => {
-    // Handle Shift + Enter new line
     if (e.keyCode == 13 && e.shiftKey) {
       e.preventDefault();
       e.stopPropagation();
@@ -42,12 +43,16 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
   return (
     <textarea
       ref={props.ref}
-      class="focus:outline-none bg-transparent px-3 pt-3 pb-1 flex-1 w-full h-full min-h-[42px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 "
+      class={
+        local.compact
+          ? 'focus:outline-none bg-transparent px-3 pt-3 pb-1 flex-1 w-full h-full min-h-[42px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 '
+          : 'focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 '
+      }
       disabled={props.disabled}
       style={{
         'font-size': props.fontSize ? `${props.fontSize}px` : '16px',
         resize: 'none',
-        height: `${props.value !== '' ? height() : DEFAULT_HEIGHT}px`,
+        height: `${props.value !== '' ? height() : defaultHeight()}px`,
       }}
       onInput={handleInput}
       onKeyDown={handleKeyDown}

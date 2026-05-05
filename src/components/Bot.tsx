@@ -48,6 +48,7 @@ import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event
 import { CHAT_HEADER_HEIGHT } from '@/constants';
 import { useSessionStore } from './sessions/sessionContext';
 import { SessionTitleHeader } from './sessions/SessionTitleHeader';
+import { createLatestUserAnchor } from './sessions/latestUserAnchor';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -484,18 +485,22 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let messageList: HTMLDivElement | undefined;
   let botContainer: HTMLDivElement | undefined;
   const [showScrollButton, setShowScrollButton] = createSignal(false);
-  const [bottomSpacerHeight, setBottomSpacerHeight] = createSignal(0);
   let stickyToBottom = true;
-  let latestUserAnchorActive = false;
-  let latestUserAnchorFrame: number | undefined;
-  let latestUserScrollAnimationFrame: number | undefined;
-  let isLatestUserSmoothScrollRunning = false;
-  let cachedLatestUserElement: HTMLElement | undefined;
 
-  const LATEST_USER_SCROLL_OVERSCROLL_PX = 24;
-  const LATEST_USER_SCROLL_MIN_DURATION_MS = 1050;
-  const LATEST_USER_SCROLL_MAX_DURATION_MS = 1500;
-  const LATEST_USER_SCROLL_DISTANCE_MULTIPLIER = 0.7;
+  // Multi-session pins the latest user message near the top on every new turn (ChatGPT/Claude/Gemini style).
+  // Non-multi falls back to plain sticky-to-bottom; userAnchor stays undefined and all anchor calls are no-ops.
+  const userAnchor = sessionStore
+    ? createLatestUserAnchor({
+        getChatContainer: () => chatContainer,
+        getMessageList: () => messageList,
+        programmaticScrollGuard: (fn) => programmaticScrollGuard(fn),
+        onAnchored: () => {
+          stickyToBottom = true;
+          setShowScrollButton(false);
+        },
+      })
+    : undefined;
+  const bottomSpacerHeight = () => userAnchor?.bottomSpacerHeight() ?? 0;
 
   const [userInput, setUserInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
@@ -631,12 +636,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     chatContainer?.addEventListener('scroll', handleScroll, { passive: true });
     onCleanup(() => chatContainer?.removeEventListener('scroll', handleScroll));
 
-    const handleResize = () => {
-      if (!latestUserAnchorActive) return;
-      keepLatestUserMessageAtTop();
-    };
-    window.addEventListener('resize', handleResize);
-    onCleanup(() => window.removeEventListener('resize', handleResize));
+    if (userAnchor) {
+      const handleResize = () => userAnchor.keepAtTop();
+      window.addEventListener('resize', handleResize);
+      onCleanup(() => window.removeEventListener('resize', handleResize));
+    }
 
     if (!sessionStore) {
       const handleExternalClearChat = async (e: Event) => {
@@ -716,105 +720,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   });
 
   let programmaticScrollGuard: (fn: () => void) => void = (fn) => fn();
-
-  const getLatestUserMessageElement = () => {
-    const userMessages = chatContainer?.querySelectorAll<HTMLElement>('.guest-container');
-    return userMessages?.[userMessages.length - 1];
-  };
-
-  const cacheLatestUserElement = () => {
-    cachedLatestUserElement = getLatestUserMessageElement();
-  };
-
-  const getChatTopInset = () => {
-    if (!chatContainer || !messageList) return 0;
-    const containerRect = chatContainer.getBoundingClientRect();
-    const listRect = messageList.getBoundingClientRect();
-    return Math.max(0, listRect.top - containerRect.top + chatContainer.scrollTop);
-  };
-
-  const updateBottomSpacerForLatestUser = () => {
-    if (!latestUserAnchorActive || !chatContainer || !messageList) {
-      setBottomSpacerHeight(0);
-      return;
-    }
-
-    const latestUserMessage = getLatestUserMessageElement();
-    if (!latestUserMessage) {
-      setBottomSpacerHeight(0);
-      return;
-    }
-
-    const containerRect = chatContainer.getBoundingClientRect();
-    const userRect = latestUserMessage.getBoundingClientRect();
-    const chatTopInset = getChatTopInset();
-    const latestUserTop = chatContainer.scrollTop + userRect.top - containerRect.top - chatTopInset + LATEST_USER_SCROLL_OVERSCROLL_PX;
-
-    setBottomSpacerHeight(Math.max(0, latestUserTop + chatContainer.clientHeight - chatTopInset - messageList.scrollHeight));
-    return latestUserTop;
-  };
-
-  const scrollChatToLatestUser = (top: number, behavior: ScrollBehavior) => {
-    if (!chatContainer) return;
-
-    if (behavior !== 'smooth') {
-      if (isLatestUserSmoothScrollRunning) return;
-      if (latestUserScrollAnimationFrame !== undefined) cancelAnimationFrame(latestUserScrollAnimationFrame);
-      latestUserScrollAnimationFrame = undefined;
-      chatContainer.scrollTo({ top });
-      return;
-    }
-
-    if (latestUserScrollAnimationFrame !== undefined) cancelAnimationFrame(latestUserScrollAnimationFrame);
-    isLatestUserSmoothScrollRunning = true;
-    const startTop = chatContainer.scrollTop;
-    const distance = top - startTop;
-    const duration = Math.min(
-      LATEST_USER_SCROLL_MAX_DURATION_MS,
-      Math.max(LATEST_USER_SCROLL_MIN_DURATION_MS, Math.abs(distance) * LATEST_USER_SCROLL_DISTANCE_MULTIPLIER),
-    );
-    const startTime = performance.now();
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-    const step = (now: number) => {
-      if (!chatContainer) return;
-      const progress = Math.min((now - startTime) / duration, 1);
-      chatContainer.scrollTo({ top: startTop + distance * easeOutCubic(progress) });
-
-      if (progress < 1) {
-        latestUserScrollAnimationFrame = requestAnimationFrame(step);
-      } else {
-        latestUserScrollAnimationFrame = undefined;
-        isLatestUserSmoothScrollRunning = false;
-      }
-    };
-
-    latestUserScrollAnimationFrame = requestAnimationFrame(step);
-  };
-
-  const keepLatestUserMessageAtTop = (behavior: ScrollBehavior = 'auto') => {
-    if (!latestUserAnchorActive) return;
-    if (latestUserAnchorFrame !== undefined) cancelAnimationFrame(latestUserAnchorFrame);
-
-    latestUserAnchorFrame = requestAnimationFrame(() => {
-      const latestUserTop = updateBottomSpacerForLatestUser();
-      if (latestUserTop === undefined) {
-        latestUserAnchorFrame = undefined;
-        return;
-      }
-
-      // Let the spacer commit before scrolling, otherwise the browser clamps to
-      // the old max scroll and the new turn can still appear stacked.
-      latestUserAnchorFrame = requestAnimationFrame(() => {
-        latestUserAnchorFrame = undefined;
-        stickyToBottom = true;
-        setShowScrollButton(false);
-        programmaticScrollGuard(() => {
-          scrollChatToLatestUser(latestUserTop, behavior);
-        });
-      });
-    });
-  };
 
   const scrollToBottom = () => {
     if (!stickyToBottom) return;
@@ -1514,8 +1419,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         .join('\n');
     }
     setLoading(true);
-    latestUserAnchorActive = true;
-    setBottomSpacerHeight(0);
+    userAnchor?.activate();
     stickyToBottom = true;
     setShowScrollButton(false);
 
@@ -1546,8 +1450,8 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     if (!options?.skipAddUserMessage) {
       appendMessage({ messageId: uuidv4(), message: value as string, type: 'userMessage', fileUploads: uploads });
     }
-    cacheLatestUserElement();
-    keepLatestUserMessageAtTop('smooth');
+    if (userAnchor) userAnchor.keepAtTop('smooth');
+    else scrollToBottom();
 
     const body: IncomingInput = {
       question: value,
@@ -1736,8 +1640,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         messages.push({ message: '', type: 'leadCaptureMessage' });
       }
       setMessages(messages);
-      latestUserAnchorActive = false;
-      setBottomSpacerHeight(0);
+      userAnchor?.deactivate();
       setShowScrollButton(false);
     } catch (error: any) {
       console.error('clearChat failed:', error);
@@ -2975,7 +2878,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                             avatarSrc={props.botMessage?.avatarSrc}
                             chatFeedbackStatus={chatFeedbackStatus()}
                             onRegenerateResponse={() => handleRegenerateResponse(index())}
-                            onMessageRendered={keepLatestUserMessageAtTop}
+                            onMessageRendered={userAnchor ? () => userAnchor.keepAtTop() : scrollToBottom}
                             fontSize={props.fontSize}
                             isLoading={loading() && index() === messages().length - 1}
                             showAgentMessages={props.showAgentMessages}
@@ -3135,6 +3038,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 </>
               ) : (
                 <TextInput
+                  modernLayout={!!sessionStore}
                   backgroundColor={props.textInput?.backgroundColor}
                   textColor={props.textInput?.textColor}
                   placeholder={props.textInput?.placeholder}

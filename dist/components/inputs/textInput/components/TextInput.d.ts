@@ -28,6 +28,7 @@ type TextInputProps = {
     showAbortButton?: boolean;
     isMessageStopping?: boolean;
     onAbort?: () => void;
+    modernLayout?: boolean;
 };
 export declare const TextInput: (props: TextInputProps) => import("solid-js").JSX.Element;
 export {};

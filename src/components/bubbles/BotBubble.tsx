@@ -50,13 +50,11 @@ type Props = {
   handleTTSStop?: (messageId: string) => void;
   hasCustomHeader?: boolean;
   dialogContainer?: HTMLElement;
-  // When true, render the bot message inline (no background bubble, no
-  // padding/border-radius) — matching ChatGPT/Claude/Gemini's "user is in a
-  // bubble, assistant is unboxed text" pattern. Used in multi-session mode.
+  // Render bot message inline (no bubble) — used in multi-session mode.
   bare?: boolean;
 };
 
-const defaultBackgroundColor = 'transparent';
+const defaultBackgroundColor = '#f7f8ff';
 const defaultTextColor = '#303235';
 const defaultFontSize = 16;
 const defaultFeedbackColor = '#3B81F6';
