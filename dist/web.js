@@ -1465,9 +1465,7 @@ const writeCapWarned = chatflowid => {
 const reconcileOrphans = (chatflowid, index) => {
   const indexIds = new Set(index.sessions.map(s => s.chatId));
   const prefix = `${chatflowid}_EXTERNAL_msgs_`;
-  // Snapshot matching keys first; mutating localStorage while iterating
-  // localStorage.key(i) is fragile across browsers (Safari has historically
-  // reindexed unpredictably).
+  // Snapshot first — mutating during localStorage.key(i) iteration reindexes unpredictably in Safari.
   const orphanKeys = [];
   const deletedOrphans = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -1607,11 +1605,7 @@ const removeLocalStorageChatHistory = chatflowid => {
   if (!chatDetails) return;
   try {
     const parsed = JSON.parse(chatDetails);
-    // v2 path: the index lives at the same key. Stringifying `{ lead }` over it
-    // would destroy `version` / `activeChatId` / `sessions` and the next mount
-    // would fall into the "unknown shape" branch, dropping every conversation.
-    // Per-session deletion in store mode is opt-in via store.actions.deleteSession,
-    // so this legacy clear-history path becomes a no-op on a v2 index.
+    // v2 index shares this key; overwriting with { lead } drops version/sessions and orphans every conversation.
     if (parsed && typeof parsed === 'object' && parsed.version === 2) return;
     if (parsed?.lead) {
       localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({
@@ -81524,14 +81518,6 @@ const _tmpl$$8 = /*#__PURE__*/template(`<button type="button" aria-label="Open c
   _tmpl$8$3 = /*#__PURE__*/template(`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z">`),
   _tmpl$9$2 = /*#__PURE__*/template(`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6">`),
   _tmpl$10$2 = /*#__PURE__*/template(`<button type="button" role="menuitem"><span>`);
-/**
- * Transparent header shown at the top of <Bot> when multiSession is enabled.
- * Replaces the blue title bar + Clear button with a minimal "left-aligned chat
- * name" + click-menu (Star / Rename / Delete) — matching ChatGPT/Claude/Gemini.
- *
- * On non-full-page mounts (bubble/popup drawer mode), a hamburger button on the
- * left toggles the session drawer.
- */
 const SessionTitleHeader = props => {
   const store = useSessionStore();
   if (!store) return null;
@@ -82096,7 +82082,6 @@ const Bot = botProps => {
   let latestUserAnchorFrame;
   let latestUserScrollAnimationFrame;
   let isLatestUserSmoothScrollRunning = false;
-  // Animation and UX constants
   const LATEST_USER_SCROLL_OVERSCROLL_PX = 24;
   const LATEST_USER_SCROLL_MIN_DURATION_MS = 1050;
   const LATEST_USER_SCROLL_MAX_DURATION_MS = 1500;
@@ -82111,12 +82096,7 @@ const Bot = botProps => {
   }], {
     equals: false
   });
-  // In store mode, prepend the welcome message to the rendered list so the user
-  // sees a welcome bubble + starter prompts on a fresh session, matching the
-  // fallback-mode behavior where fallbackMessages is seeded with welcome.
-  // The welcome is purely a render-time affordance — it is NOT persisted to
-  // the store. Handlers that write the whole array back (e.g.,
-  // handleRegenerateResponse) must strip the synthetic welcome before writing.
+  // Synthetic welcome at index 0 is render-only — never persisted. Whole-array writers (regenerate) must strip it first.
   const messages = () => {
     if (sessionStore) {
       return [{
@@ -82281,15 +82261,10 @@ const Bot = botProps => {
         const previousChatId = lastSeenChatId;
         lastSeenChatId = current;
         if (!loading()) return;
-        // Capture stream identity before closeResponse nulls it. Without this,
-        // an empty placeholder appended by a 'start' event that fired between
-        // abort() and the library noticing the abort would be orphaned: the
-        // onclose/onerror handlers early-return when streamingChatId is undefined.
+        // Capture before closeResponse nulls these — a 'start' racing the abort can leave an orphan placeholder.
         const cleanupChatId = streamingChatId;
         const cleanupMsgId = streamingApiMessageId;
-        // Kill the client-side stream immediately. fetchEventSource resolves
-        // silently on signal abort (no onclose/onerror), so we must call
-        // closeResponse() ourselves to reset loading state and unlock the input.
+        // fetchEventSource resolves silently on abort, so we must close manually to unlock input.
         streamAbortController?.abort();
         closeResponse();
         if (sessionStore && cleanupChatId && cleanupMsgId) {
@@ -82450,27 +82425,14 @@ const Bot = botProps => {
       chatHistory: messages
     });
   };
-  // Tracks the messageId currently being mutated by a streaming response. Set on stream
-  // start (assigned a temp uuid), swapped on the metadata event when the server returns
-  // its real chatMessageId, and cleared on stream close.
   let streamingApiMessageId;
-  // Tracks the chatId that owns the in-flight stream. Captured at stream start so all
-  // subsequent token / metadata / cleanup events route to that session — even if the
-  // user switches the active session mid-stream. Cleared in closeResponse.
+  // Pinned at stream start so all token/metadata/cleanup events route to the originating session,
+  // even if the user switches mid-stream. Cleared in closeResponse.
   let streamingChatId;
-  // AbortController for the active fetchEventSource call. Aborting it causes the
-  // library to resolve silently (no onclose/onerror), so callers must also call
-  // closeResponse() themselves to reset loading state.
   let streamAbortController = null;
-  // Tell the store our streaming chat id so cross-tab rescue only protects in-flight streams.
+  // Cross-tab rescue only protects in-flight streams.
   sessionStore?.actions.setStreamingChatIdGetter(() => streamingChatId);
-  /**
-   * Mutate the last apiMessage (the one being streamed). In store mode this routes
-   * through upsertMessageInSession keyed by streamingChatId so tokens never bleed
-   * into a different session if the user switches mid-stream. In fallback mode it
-   * preserves the original addChatMessage call so localStorage-based reload still
-   * works for non-store users.
-   */
+  // Routes via streamingChatId in store mode so tokens never bleed across mid-stream session switches.
   const replaceLastApiMessage = (updater, options) => {
     if (sessionStore) {
       const targetChatId = streamingChatId ?? sessionStore.activeChatId();
@@ -82492,12 +82454,7 @@ const Bot = botProps => {
       return next;
     });
   };
-  /**
-   * Append a brand-new message. In store mode routes via upsertMessageInSession
-   * targeting the streaming session (when a stream is in flight) so the message
-   * lands in the originating chat. In fallback mode appends to the signal and
-   * persists via addChatMessage.
-   */
+  // Targets streamingChatId when a stream is in flight so the message lands in the originating chat.
   const appendMessage = (msg, options) => {
     if (sessionStore) {
       const targetChatId = streamingChatId ?? sessionStore.activeChatId();
@@ -82588,9 +82545,7 @@ const Bot = botProps => {
   };
   const updateAgentFlowEvent = event => {
     if (event === 'INPROGRESS') {
-      // INPROGRESS appends a new placeholder apiMessage. Use a fresh streaming id so
-      // subsequent mutate-last calls find it. Also pin the streaming session if not
-      // already pinned (some agentflow runs don't emit a 'start' event first).
+      // Some agentflow runs skip the 'start' event, so pin here if not already pinned.
       if (sessionStore && streamingChatId === undefined) {
         streamingChatId = sessionStore.activeChatId();
       }
@@ -82683,8 +82638,6 @@ const Bot = botProps => {
     setUserInput('');
     setUploadedFiles([]);
     scrollToBottom();
-    // The request is dead either way — release the streaming-session pin so the
-    // next submission re-pins to the (then-)active session.
     streamingChatId = undefined;
   };
   const handleDisclaimerAccept = () => {
@@ -82711,8 +82664,7 @@ const Bot = botProps => {
     setFollowUpPrompts([]);
     const updatedMessages = currentMessages.slice(0, messageIndex);
     if (sessionStore) {
-      // messages() prepends a synthetic welcome at index 0 in store mode that
-      // is not part of the actual store; strip it before writing back.
+      // Strip the synthetic welcome at index 0 before writing back.
       sessionStore.actions.replaceActiveMessages(updatedMessages.slice(1));
     } else {
       addChatMessage(updatedMessages);
@@ -82828,9 +82780,7 @@ const Bot = botProps => {
       return fetch(input, init);
     };
     streamAbortController = new AbortController();
-    // Capture the signal so handlers can short-circuit on a delayed event arriving
-    // after abort — fetch-event-source resolves silently on abort and any 'start'
-    // already in the network buffer would otherwise re-pin streamingChatId.
+    // Capture for handlers to short-circuit on delayed events arriving after abort.
     const signal = streamAbortController.signal;
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
       signal,
@@ -82871,17 +82821,10 @@ const Bot = botProps => {
         switch (payload.event) {
           case 'start':
             isStreaming = true;
-            // Pin the originating session so every subsequent stream event routes there,
-            // even if the user switches the active session mid-stream. handleSubmit
-            // already pinned this synchronously before the request fired — DO NOT
-            // re-read activeChatId here, otherwise a session-switch in the gap
-            // between fetch firing and the 'start' SSE arriving would re-pin to the
-            // new active and bleed tokens into the wrong chat.
+            // Do NOT re-read activeChatId — handleSubmit already pinned. Re-reading here would bleed tokens after a mid-flight switch.
             if (streamingChatId === undefined) {
               streamingChatId = sessionStore?.activeChatId() ?? chatId();
             }
-            // Assign a temporary messageId so subsequent token / mutate-last events upsert the
-            // same record. The id will be swapped to the server's chatMessageId on metadata.
             streamingApiMessageId = v4();
             appendMessage({
               messageId: streamingApiMessageId,
@@ -83144,12 +83087,7 @@ const Bot = botProps => {
     setBottomSpacerHeight(0);
     stickyToBottom = true;
     setShowScrollButton(false);
-    // Pin the originating session for the entire request lifecycle so that
-    // appendMessage / replaceLastApiMessage / metadata updates / post-submit
-    // file-upload trim all route to the session the user submitted from —
-    // even if the user switches the active session mid-stream. closeResponse
-    // clears this for the streaming path; we clear it manually below for
-    // non-streaming.
+    // Pin originating session before any await; closeResponse clears it for streaming, manual clear below for non-streaming.
     const wasStreaming = isChatFlowAvailableToStream();
     if (sessionStore && streamingChatId === undefined) {
       streamingChatId = sessionStore.activeChatId();
@@ -83181,8 +83119,7 @@ const Bot = botProps => {
     keepLatestUserMessageAtTop('smooth');
     const body = {
       question: value,
-      // Use the pinned streaming chatId so a session switch between here and
-      // the actual fetch firing doesn't send the request against the new session.
+      // Use pinned id so a switch between here and fetch-fire doesn't send against the new session.
       chatId: streamingChatId ?? chatId()
     };
     if (startInputType() === 'formInput' && Object.keys(formData).length > 0) {
@@ -83292,9 +83229,6 @@ const Bot = botProps => {
         });
       }
     }
-    // Streaming path clears streamingChatId via closeResponse when the stream
-    // ends. Non-streaming has no equivalent hook, so clear it here so the next
-    // submission re-pins to the (then-)active session.
     if (!wasStreaming) {
       streamingChatId = undefined;
     }
@@ -83363,9 +83297,7 @@ const Bot = botProps => {
     }
   };
   onMount(() => {
-    // In store mode the v2 index lives at `${chatflowid}_EXTERNAL`; clearChat()
-    // (which calls removeLocalStorageChatHistory) would wipe the entire session
-    // list. Per-session clearing is opt-in via store.actions.deleteSession.
+    // Store mode shares the same `${chatflowid}_EXTERNAL` key; clearChat would wipe the v2 index — opt out.
     if (props.clearChatOnReload && !sessionStore) {
       clearChat();
       window.addEventListener('beforeunload', clearChat);
@@ -85458,7 +85390,6 @@ const SessionPanel = props => {
   const newChatLabel = () => props.panelTheme?.newChatLabel ?? 'New chat';
   const emptyText = () => props.panelTheme?.emptyStateText ?? 'No conversations yet';
   const brand = () => props.chatBrandColor;
-  // Brand-driven palette with explicit overrides falling through.
   const bg = () => props.panelTheme?.backgroundColor ?? tint(brand(), 4);
   const fg = () => props.panelTheme?.textColor ?? props.chatWindowText ?? '#1f2937';
   const mutedFg = () => 'color-mix(in srgb, currentColor 60%, transparent)';
@@ -85466,10 +85397,7 @@ const SessionPanel = props => {
   const activeFg = () => props.panelTheme?.activeTextColor ?? brand();
   const hoverBg = () => props.panelTheme?.hoverBackgroundColor ?? overlay(brand(), 7);
   const border = () => props.panelTheme?.borderColor ?? overlay(brand(), 12);
-  // Default: subdued left-aligned "compose" affordance matching ChatGPT/Claude/
-  // Gemini patterns — transparent bg, hover gives a subtle brand-tinted feedback.
-  // Embedders can opt into a prominent solid button by setting
-  // panelTheme.newChatButtonColor (we honor that and switch to solid styling).
+  // Subdued by default; embedders opt into solid by setting panelTheme.newChatButtonColor.
   const isNewBtnSolid = () => props.panelTheme?.newChatButtonColor !== undefined;
   const newBtnBg = () => props.panelTheme?.newChatButtonColor ?? 'transparent';
   const newBtnFg = () => props.panelTheme?.newChatButtonTextColor ?? (isNewBtnSolid() ? '#ffffff' : 'inherit');
@@ -85477,10 +85405,7 @@ const SessionPanel = props => {
   const isActiveEmpty = () => !props.store.activeMessages().some(m => m.type === 'userMessage');
   const [newBtnHovered, setNewBtnHovered] = createSignal(false);
   const [collapseBtnHovered, setCollapseBtnHovered] = createSignal(false);
-  // Edit/delete state lives at the panel level keyed by chatId. Solid's <For>
-  // re-mounts a SessionListItem whenever the SessionV2 reference changes, and
-  // the streaming session's reference changes on every token (auto-title bump).
-  // Holding state inside the row would reset edits mid-stream — keep it here.
+  // Held at panel level keyed by chatId — Solid <For> re-mounts the row on every streaming token bump and would reset row-local state.
   const [editingChatId, setEditingChatId] = createSignal(null);
   const [editingDraft, setEditingDraft] = createSignal('');
   const [confirmingDeleteChatId, setConfirmingDeleteChatId] = createSignal(null);
@@ -86018,8 +85943,7 @@ const createSessionStore = opts => {
     if (!parsed || typeof parsed !== 'object' || parsed.version !== 2) return;
     const incoming = parsed;
     const prevActiveChatId = activeChatId();
-    // Only rescue when our active session is *streaming* — otherwise a legitimate
-    // remote delete of the active session must propagate, not be resurrected here.
+    // Only rescue if active is streaming — a legitimate remote delete must propagate, not be resurrected.
     const localActive = index().sessions.find(s => s.chatId === prevActiveChatId);
     const remoteDroppedActive = !!localActive && !incoming.sessions.some(s => s.chatId === prevActiveChatId);
     const protectStream = remoteDroppedActive && getStreamingChatId?.() === prevActiveChatId;
@@ -86074,9 +85998,7 @@ const createSessionStore = opts => {
       title: s.title
     });
   };
-  // Surfaced to the panel when withQuotaRecovery fails to free space (only the
-  // active session left, or 5 retries exhausted). Distinct from `capWarning`,
-  // which signals a *successful* eviction. Panic = the user's write was lost.
+  // Distinct from capWarning: panic = recovery failed (write lost); capWarning = successful eviction.
   const [quotaPanic, setQuotaPanic] = createSignal(false);
   const withQuotaRecovery = op => {
     let attempt = 0;
@@ -86193,21 +86115,9 @@ const createSessionStore = opts => {
       emitSessionChanged();
     });
   };
-  /**
-   * Append or replace a message in the active session.
-   * If `messageId` is provided and matches an existing message, that message is
-   * replaced (used for streaming token updates). Otherwise the message is appended.
-   * Persists with a 150ms debounce on MsgKey writes.
-   *
-   * NOTE: per-chatId pending persists. The previous single-timer scheme assumed
-   * all writes targeted the active session, but streaming-vs-session-switch
-   * means we may upsert into a non-active session. Each session gets its own
-   * debounce slot so writes are not lost when the user switches between
-   * sessions while a stream is in flight.
-   */
+  // Per-chatId timer slot: streaming may target a non-active session, so a single shared timer would lose writes on session switch.
   const pendingPersists = new Map();
-  // Cancel a pending debounced write before the session is removed, otherwise
-  // the timer fires and resurrects the just-deleted MsgKey as an orphan.
+  // Otherwise a fired timer would resurrect the just-deleted msgKey as an orphan.
   const cancelPendingPersist = chatId => {
     const t = pendingPersists.get(chatId);
     if (t === undefined) return;
@@ -86243,13 +86153,8 @@ const createSessionStore = opts => {
     }
     return cached;
   };
-  /**
-   * Append or replace a message in a SPECIFIC session (by chatId).
-   * Mirrors `upsertMessage` but never assumes the session is active. The visible
-   * `activeMessages` signal is only updated when the target chatId is the
-   * currently active one — that guarantees streaming events targeted at session
-   * B do not appear in session A after the user switches.
-   */
+  // Visible signal only updates when chatId is active — prevents tokens from another session leaking after a switch.
+  // `replaceId` set but not found is a no-op (callers rely on this for stale stream events arriving after session deletion).
   const upsertMessageInSession = (chatId, msg, options) => {
     const cached = getSessionMessages(chatId);
     let next;
@@ -86483,15 +86388,11 @@ const ChatRootEnabled = props => {
     newChatId,
     maxSessions: props.multiSession?.maxSessions
   });
-  // Theme cascade: every mount surface passes `theme` as a structured object;
-  // Task 21 will tighten the typing per mode.
   const panelTheme = createMemo(() => {
     const themeAny = props.theme;
     return themeAny?.chatWindow?.sessionPanel ?? undefined;
   });
-  // Brand accent: drive the panel's active highlight, "+ New chat" button, and
-  // subtle background hue from the user-message bubble color (the chat's most
-  // prominent brand color). Falls back to GuestBubble's default if unset.
+  // Drive panel accent (highlight, "+ New chat", subtle bg) from userMessage.backgroundColor.
   const chatBrandColor = createMemo(() => {
     const themeAny = props.theme;
     return themeAny?.chatWindow?.userMessage?.backgroundColor ?? '#3B81F6';

@@ -32,16 +32,12 @@ const ChatRootEnabled = (props: ChatRootProps) => {
     maxSessions: props.multiSession?.maxSessions,
   });
 
-  // Theme cascade: every mount surface passes `theme` as a structured object;
-  // Task 21 will tighten the typing per mode.
   const panelTheme = createMemo(() => {
     const themeAny = (props as unknown as Record<string, any>).theme;
     return themeAny?.chatWindow?.sessionPanel ?? undefined;
   });
 
-  // Brand accent: drive the panel's active highlight, "+ New chat" button, and
-  // subtle background hue from the user-message bubble color (the chat's most
-  // prominent brand color). Falls back to GuestBubble's default if unset.
+  // Drive panel accent (highlight, "+ New chat", subtle bg) from userMessage.backgroundColor.
   const chatBrandColor = createMemo<string>(() => {
     const themeAny = (props as unknown as Record<string, any>).theme;
     return themeAny?.chatWindow?.userMessage?.backgroundColor ?? '#3B81F6';

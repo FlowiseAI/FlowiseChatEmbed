@@ -55,7 +55,6 @@ export const SessionPanel = (props: Props) => {
 
   const brand = () => props.chatBrandColor;
 
-  // Brand-driven palette with explicit overrides falling through.
   const bg = () => props.panelTheme?.backgroundColor ?? tint(brand(), 4);
   const fg = () => props.panelTheme?.textColor ?? props.chatWindowText ?? '#1f2937';
   const mutedFg = () => 'color-mix(in srgb, currentColor 60%, transparent)';
@@ -63,10 +62,7 @@ export const SessionPanel = (props: Props) => {
   const activeFg = () => props.panelTheme?.activeTextColor ?? brand();
   const hoverBg = () => props.panelTheme?.hoverBackgroundColor ?? overlay(brand(), 7);
   const border = () => props.panelTheme?.borderColor ?? overlay(brand(), 12);
-  // Default: subdued left-aligned "compose" affordance matching ChatGPT/Claude/
-  // Gemini patterns — transparent bg, hover gives a subtle brand-tinted feedback.
-  // Embedders can opt into a prominent solid button by setting
-  // panelTheme.newChatButtonColor (we honor that and switch to solid styling).
+  // Subdued by default; embedders opt into solid by setting panelTheme.newChatButtonColor.
   const isNewBtnSolid = () => props.panelTheme?.newChatButtonColor !== undefined;
   const newBtnBg = () => props.panelTheme?.newChatButtonColor ?? 'transparent';
   const newBtnFg = () => props.panelTheme?.newChatButtonTextColor ?? (isNewBtnSolid() ? '#ffffff' : 'inherit');
@@ -76,10 +72,7 @@ export const SessionPanel = (props: Props) => {
   const [newBtnHovered, setNewBtnHovered] = createSignal(false);
   const [collapseBtnHovered, setCollapseBtnHovered] = createSignal(false);
 
-  // Edit/delete state lives at the panel level keyed by chatId. Solid's <For>
-  // re-mounts a SessionListItem whenever the SessionV2 reference changes, and
-  // the streaming session's reference changes on every token (auto-title bump).
-  // Holding state inside the row would reset edits mid-stream — keep it here.
+  // Held at panel level keyed by chatId — Solid <For> re-mounts the row on every streaming token bump and would reset row-local state.
   const [editingChatId, setEditingChatId] = createSignal<string | null>(null);
   const [editingDraft, setEditingDraft] = createSignal('');
   const [confirmingDeleteChatId, setConfirmingDeleteChatId] = createSignal<string | null>(null);
@@ -185,12 +178,6 @@ export const SessionPanel = (props: Props) => {
 
   const panelBody = (): JSX.Element => (
     <>
-      {/*
-        Header: left-aligned icon column so icons stay at a fixed left position
-        whether the panel is open or closed. The panel's right edge moves during
-        the CSS width transition; the left-pinned icons never move.
-        Drawer mode gates out the collapse toggle; fullPage gets both icons.
-      */}
       <Show when={props.isFullPage}>
         <div
           style={{
@@ -248,12 +235,12 @@ export const SessionPanel = (props: Props) => {
               border: 'none',
               cursor: 'pointer',
               color: 'inherit',
-              width:'100%',
+              width: '100%',
               padding: '6px',
               'border-radius': '6px',
               display: 'inline-flex',
               'align-items': 'center',
-              "margin-top": '12px',
+              'margin-top': '12px',
               gap: '8px',
               transition: 'background 120ms ease',
               'white-space': 'nowrap',
@@ -358,8 +345,7 @@ export const SessionPanel = (props: Props) => {
         <CapWarningToast
           visible={props.store.quotaPanic()}
           text={
-            props.panelTheme?.quotaPanicText ??
-            "Couldn't save your last message — local storage is full. Delete older conversations to keep going."
+            props.panelTheme?.quotaPanicText ?? "Couldn't save your last message — local storage is full. Delete older conversations to keep going."
           }
           onDismiss={() => props.store.actions.dismissQuotaPanic()}
         />

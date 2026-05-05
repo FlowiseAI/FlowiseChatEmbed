@@ -492,7 +492,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   let isLatestUserSmoothScrollRunning = false;
   let cachedLatestUserElement: HTMLElement | undefined;
 
-  // Animation and UX constants
   const LATEST_USER_SCROLL_OVERSCROLL_PX = 24;
   const LATEST_USER_SCROLL_MIN_DURATION_MS = 1050;
   const LATEST_USER_SCROLL_MAX_DURATION_MS = 1500;
@@ -511,12 +510,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     ],
     { equals: false },
   );
-  // In store mode, prepend the welcome message to the rendered list so the user
-  // sees a welcome bubble + starter prompts on a fresh session, matching the
-  // fallback-mode behavior where fallbackMessages is seeded with welcome.
-  // The welcome is purely a render-time affordance — it is NOT persisted to
-  // the store. Handlers that write the whole array back (e.g.,
-  // handleRegenerateResponse) must strip the synthetic welcome before writing.
+  // Synthetic welcome at index 0 is render-only — never persisted. Whole-array writers (regenerate) must strip it first.
   const messages = () => {
     if (sessionStore) {
       return [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' as messageType }, ...sessionStore.activeMessages()];
@@ -693,15 +687,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
             const previousChatId = lastSeenChatId;
             lastSeenChatId = current;
             if (!loading()) return;
-            // Capture stream identity before closeResponse nulls it. Without this,
-            // an empty placeholder appended by a 'start' event that fired between
-            // abort() and the library noticing the abort would be orphaned: the
-            // onclose/onerror handlers early-return when streamingChatId is undefined.
+            // Capture before closeResponse nulls these — a 'start' racing the abort can leave an orphan placeholder.
             const cleanupChatId = streamingChatId;
             const cleanupMsgId = streamingApiMessageId;
-            // Kill the client-side stream immediately. fetchEventSource resolves
-            // silently on signal abort (no onclose/onerror), so we must call
-            // closeResponse() ourselves to reset loading state and unlock the input.
+            // fetchEventSource resolves silently on abort, so we must close manually to unlock input.
             streamAbortController?.abort();
             closeResponse();
             if (sessionStore && cleanupChatId && cleanupMsgId) {
@@ -780,7 +769,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     isLatestUserSmoothScrollRunning = true;
     const startTop = chatContainer.scrollTop;
     const distance = top - startTop;
-    const duration = Math.min(LATEST_USER_SCROLL_MAX_DURATION_MS, Math.max(LATEST_USER_SCROLL_MIN_DURATION_MS, Math.abs(distance) * LATEST_USER_SCROLL_DISTANCE_MULTIPLIER));
+    const duration = Math.min(
+      LATEST_USER_SCROLL_MAX_DURATION_MS,
+      Math.max(LATEST_USER_SCROLL_MIN_DURATION_MS, Math.abs(distance) * LATEST_USER_SCROLL_DISTANCE_MULTIPLIER),
+    );
     const startTime = performance.now();
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
@@ -876,31 +868,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setLocalStorageChatflow(props.chatflowid, chatId(), { chatHistory: messages });
   };
 
-  // Tracks the messageId currently being mutated by a streaming response. Set on stream
-  // start (assigned a temp uuid), swapped on the metadata event when the server returns
-  // its real chatMessageId, and cleared on stream close.
   let streamingApiMessageId: string | undefined;
-
-  // Tracks the chatId that owns the in-flight stream. Captured at stream start so all
-  // subsequent token / metadata / cleanup events route to that session — even if the
-  // user switches the active session mid-stream. Cleared in closeResponse.
+  // Pinned at stream start so all token/metadata/cleanup events route to the originating session,
+  // even if the user switches mid-stream. Cleared in closeResponse.
   let streamingChatId: string | undefined;
-
-  // AbortController for the active fetchEventSource call. Aborting it causes the
-  // library to resolve silently (no onclose/onerror), so callers must also call
-  // closeResponse() themselves to reset loading state.
   let streamAbortController: AbortController | null = null;
 
-  // Tell the store our streaming chat id so cross-tab rescue only protects in-flight streams.
+  // Cross-tab rescue only protects in-flight streams.
   sessionStore?.actions.setStreamingChatIdGetter(() => streamingChatId);
 
-  /**
-   * Mutate the last apiMessage (the one being streamed). In store mode this routes
-   * through upsertMessageInSession keyed by streamingChatId so tokens never bleed
-   * into a different session if the user switches mid-stream. In fallback mode it
-   * preserves the original addChatMessage call so localStorage-based reload still
-   * works for non-store users.
-   */
+  // Routes via streamingChatId in store mode so tokens never bleed across mid-stream session switches.
   const replaceLastApiMessage = (updater: (last: MessageType) => MessageType, options?: { persistFallback?: boolean }): void => {
     if (sessionStore) {
       const targetChatId = streamingChatId ?? sessionStore.activeChatId();
@@ -923,12 +900,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     });
   };
 
-  /**
-   * Append a brand-new message. In store mode routes via upsertMessageInSession
-   * targeting the streaming session (when a stream is in flight) so the message
-   * lands in the originating chat. In fallback mode appends to the signal and
-   * persists via addChatMessage.
-   */
+  // Targets streamingChatId when a stream is in flight so the message lands in the originating chat.
   const appendMessage = (msg: MessageType, options?: { persistFallback?: boolean }): void => {
     if (sessionStore) {
       const targetChatId = streamingChatId ?? sessionStore.activeChatId();
@@ -1012,9 +984,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
   const updateAgentFlowEvent = (event: string) => {
     if (event === 'INPROGRESS') {
-      // INPROGRESS appends a new placeholder apiMessage. Use a fresh streaming id so
-      // subsequent mutate-last calls find it. Also pin the streaming session if not
-      // already pinned (some agentflow runs don't emit a 'start' event first).
+      // Some agentflow runs skip the 'start' event, so pin here if not already pinned.
       if (sessionStore && streamingChatId === undefined) {
         streamingChatId = sessionStore.activeChatId();
       }
@@ -1079,8 +1049,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setUserInput('');
     setUploadedFiles([]);
     scrollToBottom();
-    // The request is dead either way — release the streaming-session pin so the
-    // next submission re-pins to the (then-)active session.
     streamingChatId = undefined;
   };
 
@@ -1113,8 +1081,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     setFollowUpPrompts([]);
     const updatedMessages = currentMessages.slice(0, messageIndex);
     if (sessionStore) {
-      // messages() prepends a synthetic welcome at index 0 in store mode that
-      // is not part of the actual store; strip it before writing back.
+      // Strip the synthetic welcome at index 0 before writing back.
       sessionStore.actions.replaceActiveMessages(updatedMessages.slice(1));
     } else {
       addChatMessage(updatedMessages);
@@ -1225,9 +1192,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     };
 
     streamAbortController = new AbortController();
-    // Capture the signal so handlers can short-circuit on a delayed event arriving
-    // after abort — fetch-event-source resolves silently on abort and any 'start'
-    // already in the network buffer would otherwise re-pin streamingChatId.
+    // Capture for handlers to short-circuit on delayed events arriving after abort.
     const signal = streamAbortController.signal;
     fetchEventSource(`${props.apiHost}/api/v1/prediction/${chatflowid}`, {
       signal,
@@ -1268,17 +1233,10 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         switch (payload.event) {
           case 'start':
             isStreaming = true;
-            // Pin the originating session so every subsequent stream event routes there,
-            // even if the user switches the active session mid-stream. handleSubmit
-            // already pinned this synchronously before the request fired — DO NOT
-            // re-read activeChatId here, otherwise a session-switch in the gap
-            // between fetch firing and the 'start' SSE arriving would re-pin to the
-            // new active and bleed tokens into the wrong chat.
+            // Do NOT re-read activeChatId — handleSubmit already pinned. Re-reading here would bleed tokens after a mid-flight switch.
             if (streamingChatId === undefined) {
               streamingChatId = sessionStore?.activeChatId() ?? chatId();
             }
-            // Assign a temporary messageId so subsequent token / mutate-last events upsert the
-            // same record. The id will be swapped to the server's chatMessageId on metadata.
             streamingApiMessageId = uuidv4();
             appendMessage({ messageId: streamingApiMessageId, message: '', type: 'apiMessage' });
             break;
@@ -1561,12 +1519,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
     stickyToBottom = true;
     setShowScrollButton(false);
 
-    // Pin the originating session for the entire request lifecycle so that
-    // appendMessage / replaceLastApiMessage / metadata updates / post-submit
-    // file-upload trim all route to the session the user submitted from —
-    // even if the user switches the active session mid-stream. closeResponse
-    // clears this for the streaming path; we clear it manually below for
-    // non-streaming.
+    // Pin originating session before any await; closeResponse clears it for streaming, manual clear below for non-streaming.
     const wasStreaming = isChatFlowAvailableToStream();
     if (sessionStore && streamingChatId === undefined) {
       streamingChatId = sessionStore.activeChatId();
@@ -1598,8 +1551,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     const body: IncomingInput = {
       question: value,
-      // Use the pinned streaming chatId so a session switch between here and
-      // the actual fetch firing doesn't send the request against the new session.
+      // Use pinned id so a switch between here and fetch-fire doesn't send against the new session.
       chatId: streamingChatId ?? chatId(),
     };
 
@@ -1721,9 +1673,6 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       }
     }
 
-    // Streaming path clears streamingChatId via closeResponse when the stream
-    // ends. Non-streaming has no equivalent hook, so clear it here so the next
-    // submission re-pins to the (then-)active session.
     if (!wasStreaming) {
       streamingChatId = undefined;
     }
@@ -1796,9 +1745,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   onMount(() => {
-    // In store mode the v2 index lives at `${chatflowid}_EXTERNAL`; clearChat()
-    // (which calls removeLocalStorageChatHistory) would wipe the entire session
-    // list. Per-session clearing is opt-in via store.actions.deleteSession.
+    // Store mode shares the same `${chatflowid}_EXTERNAL` key; clearChat would wipe the v2 index — opt out.
     if (props.clearChatOnReload && !sessionStore) {
       clearChat();
       window.addEventListener('beforeunload', clearChat);

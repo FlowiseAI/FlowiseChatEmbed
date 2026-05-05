@@ -12,8 +12,6 @@ type Theme = {
 type Props = {
   session: SessionV2;
   active: boolean;
-  // Edit + delete state is owned by the parent SessionPanel and keyed by chatId
-  // so it survives <For> re-mounts triggered by streaming-driven updatedAt bumps.
   editing: boolean;
   editingDraft: string;
   confirmingDelete: boolean;

@@ -3,23 +3,10 @@ import { useSessionStore } from './sessionContext';
 
 type Props = {
   isFullPage: boolean;
-  // Inherit text color from the bot's title config when set so themes that
-  // override colors keep working. Default is currentColor (inherits the chat
-  // window's color).
   textColor?: string;
-  // Bubble theme color (used when isFullPage so the hamburger is visible
-  // against the chat surface). Optional.
   bubbleBackground?: string;
 };
 
-/**
- * Transparent header shown at the top of <Bot> when multiSession is enabled.
- * Replaces the blue title bar + Clear button with a minimal "left-aligned chat
- * name" + click-menu (Star / Rename / Delete) — matching ChatGPT/Claude/Gemini.
- *
- * On non-full-page mounts (bubble/popup drawer mode), a hamburger button on the
- * left toggles the session drawer.
- */
 export const SessionTitleHeader = (props: Props) => {
   const store = useSessionStore();
   if (!store) return null;

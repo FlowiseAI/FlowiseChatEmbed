@@ -57,8 +57,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (!parsed || typeof parsed !== 'object' || (parsed as ChatflowIndexV2).version !== 2) return;
     const incoming = parsed as ChatflowIndexV2;
     const prevActiveChatId = activeChatId();
-    // Only rescue when our active session is *streaming* — otherwise a legitimate
-    // remote delete of the active session must propagate, not be resurrected here.
+    // Only rescue if active is streaming — a legitimate remote delete must propagate, not be resurrected.
     const localActive = index().sessions.find((s) => s.chatId === prevActiveChatId);
     const remoteDroppedActive = !!localActive && !incoming.sessions.some((s) => s.chatId === prevActiveChatId);
     const protectStream = remoteDroppedActive && getStreamingChatId?.() === prevActiveChatId;
@@ -114,9 +113,7 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     if (s) onSessionChanged({ chatId: s.chatId, title: s.title });
   };
 
-  // Surfaced to the panel when withQuotaRecovery fails to free space (only the
-  // active session left, or 5 retries exhausted). Distinct from `capWarning`,
-  // which signals a *successful* eviction. Panic = the user's write was lost.
+  // Distinct from capWarning: panic = recovery failed (write lost); capWarning = successful eviction.
   const [quotaPanic, setQuotaPanic] = createSignal(false);
 
   const withQuotaRecovery = (op: () => void) => {
@@ -235,21 +232,9 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     });
   };
 
-  /**
-   * Append or replace a message in the active session.
-   * If `messageId` is provided and matches an existing message, that message is
-   * replaced (used for streaming token updates). Otherwise the message is appended.
-   * Persists with a 150ms debounce on MsgKey writes.
-   *
-   * NOTE: per-chatId pending persists. The previous single-timer scheme assumed
-   * all writes targeted the active session, but streaming-vs-session-switch
-   * means we may upsert into a non-active session. Each session gets its own
-   * debounce slot so writes are not lost when the user switches between
-   * sessions while a stream is in flight.
-   */
+  // Per-chatId timer slot: streaming may target a non-active session, so a single shared timer would lose writes on session switch.
   const pendingPersists = new Map<string, ReturnType<typeof setTimeout>>();
-  // Cancel a pending debounced write before the session is removed, otherwise
-  // the timer fires and resurrects the just-deleted MsgKey as an orphan.
+  // Otherwise a fired timer would resurrect the just-deleted msgKey as an orphan.
   const cancelPendingPersist = (chatId: string) => {
     const t = pendingPersists.get(chatId);
     if (t === undefined) return;
@@ -290,13 +275,8 @@ export const createSessionStore = (opts: SessionStoreOptions) => {
     return cached;
   };
 
-  /**
-   * Append or replace a message in a SPECIFIC session (by chatId).
-   * Mirrors `upsertMessage` but never assumes the session is active. The visible
-   * `activeMessages` signal is only updated when the target chatId is the
-   * currently active one — that guarantees streaming events targeted at session
-   * B do not appear in session A after the user switches.
-   */
+  // Visible signal only updates when chatId is active — prevents tokens from another session leaking after a switch.
+  // `replaceId` set but not found is a no-op (callers rely on this for stale stream events arriving after session deletion).
   const upsertMessageInSession = (chatId: string, msg: MessageType, options?: { replaceId?: string }): void => {
     const cached = getSessionMessages(chatId);
     let next: MessageType[];

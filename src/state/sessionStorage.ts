@@ -115,9 +115,7 @@ export const reconcileOrphans = (chatflowid: string, index: ChatflowIndexV2): { 
   const indexIds = new Set(index.sessions.map((s) => s.chatId));
   const prefix = `${chatflowid}_EXTERNAL_msgs_`;
 
-  // Snapshot matching keys first; mutating localStorage while iterating
-  // localStorage.key(i) is fragile across browsers (Safari has historically
-  // reindexed unpredictably).
+  // Snapshot first — mutating during localStorage.key(i) iteration reindexes unpredictably in Safari.
   const orphanKeys: string[] = [];
   const deletedOrphans: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {

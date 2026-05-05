@@ -22,7 +22,7 @@ export const RecordAudioButton = (props: RecordAudioButtonProps) => {
       style={{ background: 'transparent', border: 'none', padding: '0' }}
     >
       <Show when={!props.isLoading} fallback={<Spinner class="text-white" />}>
-        <RecordIcon color={props.buttonColor} /> 
+        <RecordIcon color={props.buttonColor} />
       </Show>
     </button>
   );

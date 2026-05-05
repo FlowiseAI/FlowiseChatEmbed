@@ -138,11 +138,7 @@ export const removeLocalStorageChatHistory = (chatflowid: string) => {
   if (!chatDetails) return;
   try {
     const parsed = JSON.parse(chatDetails);
-    // v2 path: the index lives at the same key. Stringifying `{ lead }` over it
-    // would destroy `version` / `activeChatId` / `sessions` and the next mount
-    // would fall into the "unknown shape" branch, dropping every conversation.
-    // Per-session deletion in store mode is opt-in via store.actions.deleteSession,
-    // so this legacy clear-history path becomes a no-op on a v2 index.
+    // v2 index shares this key; overwriting with { lead } drops version/sessions and orphans every conversation.
     if (parsed && typeof parsed === 'object' && parsed.version === 2) return;
     if (parsed?.lead) {
       localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify({ lead: parsed.lead }));
