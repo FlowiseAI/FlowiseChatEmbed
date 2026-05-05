@@ -31,10 +31,10 @@
         // salesbot=ghi123-jkl456,https://example.com
         //
         // Then use the environment variable name as chatflowid:
-        Chatbot.initFull({
-            chatflowid: '3c95bf39-1208-4f0a-baf1-1c605a3e30b4',    // or 'support', 'salesbot', etc.
-            apiHost: 'http://localhost:3000',
-            multiSession: { enabled: true }
+        Chatbot.init({
+            chatflowid: 'agent1',    // or 'support', 'salesbot', etc.
+            apiHost: window.location.origin,
+            // multiSession: { enabled: true }
         })
     </script>
 </body>
